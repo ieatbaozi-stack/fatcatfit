@@ -44,6 +44,8 @@
 
 ## ข้อตกลงเรื่องไฟล์ที่ใช้ร่วม
 
+- เจ้าของไฟล์ที่เพิ่มตาม ARCHITECTURE.md: `src/lib/email/**` และ `vercel.json` → OPS & Release · `scripts/invite.ts`, `scripts/db-*.ts`, `drizzle.config.ts` → Platform · `src/app/serwist/**` → PWA & ออฟไลน์ (มีเฉพาะถ้า spike เลือกทางนั้น)
+- `src/lib/data/shared/**` และ `src/lib/stats/**` — เจ้าของคือ Platform · Front-end และ PWA import ได้ แก้ไม่ได้
 - `next.config.ts` — เจ้าของคือ OPS & Release · PWA และ Front-end ขอแก้ผ่าน Lead (ระบุใน contract ของรอบ)
 - `src/components/doodle/**` — เจ้าของคือ UX & Brand · Front-end นำไปใช้ได้ แก้ไม่ได้
 - `package.json` / lockfile — ใครเพิ่ม dependency ต้องระบุใน contract และให้ Lead เป็นคนรวม

@@ -1,6 +1,6 @@
 # ADR 0003 — โมเดลข้อมูล: track_type, ตาราง, id, หน่วย, เวลา, สถิติ, การลบ
 
-- สถานะ: **เสนอ — รอ boss อนุมัติ** · วันที่ 2026-11-15 · ผู้เขียน: architect
+- สถานะ: **อนุมัติโดย boss 2026-11-16** — แก้ตาม boss: `distance_duration` บังคับเฉพาะเวลา ระยะทางเป็น optional · วันที่ 2026-11-15 · ผู้เขียน: architect
 - ขึ้นกับ: ADR 0001 (ชนิดข้อมูลแต่ละ dialect), ADR 0002 (ตาราง auth), ADR 0004 (sync) · อ้าง [UX.md](../design/UX.md) ข้อ 3 (ฟอร์มตาม track_type)
 - เอกสารที่ architect เปิด 2026-11-15: [MDN crypto.randomUUID](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID) (สร้าง UUID v4, ต้อง HTTPS, ใช้ใน Worker ได้, Baseline ตั้งแต่ มี.ค. 2022)
 
@@ -45,11 +45,11 @@ PRD ข้อ 5/7: เก็บหน่วยมาตรฐาน (kg/เม�
 | `weight_reps` | ● (`bodyweight_plus`: ○ = น้ำหนักเพิ่ม · `assisted`: ● = น้ำหนักช่วย) | ● | – | – | – | – |
 | `reps_only` | – | ● | – | – | – | – |
 | `duration` | – | – | ● | – | – | – |
-| `distance_duration` | – | – | ● | ● | – | – |
+| `distance_duration` | – | – | ● | ○ | – | – |
 | `weight_duration` | ● | – | ● | – | – | – |
 | `incline_speed_duration` | – | – | ● | ○ | ● | ● |
 
-ทุกชนิด: `set_kind` ● (`normal` | `warmup`) · ระยะในหน้าลู่วิ่งและเพซเป็นค่าคำนวณ ไม่เก็บ · ช่วงค่าที่ยอมรับกำหนดใน contract R3 · UX ข้อ 5.6 (บังคับทั้งระยะและเวลา) เปลี่ยนได้โดยแก้ไฟล์นี้ ไม่ต้อง migrate
+ทุกชนิด: `set_kind` ● (`normal` | `warmup`) · ระยะในหน้าลู่วิ่งและเพซเป็นค่าคำนวณ ไม่เก็บ · ช่วงค่าที่ยอมรับกำหนดใน contract R3 · boss ตัดสิน 2026-11-16: `distance_duration` บังคับเฉพาะเวลา ระยะเป็น optional (หลายคนวิ่งลู่แล้วไม่จดระยะ) — เซ็ตที่ไม่มีระยะไม่นับในสถิติระยะ/เพซ
 
 **แฟลกของท่า** (ที่ตาราง `exercise`): `load_mode` = `external` | `bodyweight_plus` | `assisted` (ไม่ใช่ `external` ได้เฉพาะ `weight_reps`) · `is_unilateral` boolean (แสดงป้าย "ข้างละ" ค่าเก็บเป็นต่อข้าง ไม่คูณ 2) · **`track_type` และ `load_mode` ล็อกเมื่อท่ามีเซ็ตแล้ว** (เซิร์ฟเวอร์ปฏิเสธ `exercise_has_history` และสคริปต์ seed ปฏิเสธการเปลี่ยนท่าในคลังที่มีประวัติ) · `is_unilateral` แก้ได้
 

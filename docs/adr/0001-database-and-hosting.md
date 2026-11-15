@@ -1,6 +1,6 @@
 # ADR 0001 — ฐานข้อมูล โฮสต์ และภูมิภาค
 
-- สถานะ: **เสนอ — รอ boss อนุมัติ** (ต้องตัดสินคำถาม Q1 ท้ายเอกสารก่อนเริ่ม R0)
+- สถานะ: **อนุมัติโดย boss 2026-11-16** — เลือกทาง B (Neon) · ยืนยันแล้วว่าแพ็กเกจฟรีสร้างโปรเจกต์ที่ Singapore ได้ (boss สร้างแล้ว, Postgres 18) · แผนสำรองถ้า spike R0 ไม่ผ่าน: Turso โตเกียว + keepalive ใน CI + Vercel โตเกียว
 - วันที่: 2026-11-15 · ผู้เขียน: architect
 - ฐานข้อเท็จจริง: [research/2026-11-15-hosting-db.md](../research/2026-11-15-hosting-db.md), [research/2026-11-15-auth.md](../research/2026-11-15-auth.md) · เอกสารที่ architect เปิดเพิ่ม 2026-11-15: [Drizzle connect-neon](https://orm.drizzle.team/docs/connect-neon), [Drizzle connect-pglite](https://orm.drizzle.team/docs/connect-pglite)
 

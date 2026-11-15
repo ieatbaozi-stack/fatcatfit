@@ -9,7 +9,7 @@
 |---|---|---|---|---|
 | 0 Discovery | วิจัยแอป/API/stack | Researcher | — | ✅ |
 | 1 Requirements | PRD: user story, ขอบเขต, เกณฑ์รับงาน | Lead | **อนุมัติ PRD** | ✅ อนุมัติ 2026-11-15 |
-| 2 Design | ADR + โมเดลข้อมูล · flow/wireframe · แบรนด์ | Architect, UX & Brand | **อนุมัติ wireframe และ ADR หลัก** | กำลังทำ (แบรนด์เสร็จแล้ว) |
+| 2 Design | ADR + โมเดลข้อมูล · flow/wireframe · แบรนด์ | Architect, UX & Brand | **อนุมัติ wireframe และ ADR หลัก** | ✅ อนุมัติ 2026-11-16 |
 | 3 Foundation (R0) | โครงโปรเจกต์, CI, migration, release, ธีม, TH/EN, PWA skeleton | ดูตารางรอบ | — | |
 | 4 Build (R1–R5) | ตาม contract ของแต่ละรอบ | ดูตารางรอบ | อนุมัติ contract ก่อนเริ่มแต่ละรอบ | |
 | 5 Review | ตรวจอิสระทุกรอบ | QA & Test, Security & Privacy | — | |
@@ -53,7 +53,7 @@ Lead เขียน <รอบ>_CONTRACT.md  →  boss อนุมัติ
 | เกต | วิธีตรวจ | บังคับตั้งแต่ |
 |---|---|---|
 | Lint + Typecheck | `npm run lint` · `npm run typecheck` | R0 |
-| Unit/Integration | `npm test` (ฐานข้อมูลชั่วคราว รัน migration จริง) | R0 |
+| Unit/Integration | `npm test` (Postgres ชั่วคราวในโปรเซสด้วย PGlite หรือ container ตามผล spike R0 · รัน migration จริงทุกครั้ง) | R0 |
 | Build | `npm run build` | R0 |
 | Migration | `drizzle-kit check` + apply ทุก migration บนฐานข้อมูลว่าง | R0 |
 | i18n | เทสต์ key ครบทั้ง TH/EN | R0 |
@@ -71,11 +71,11 @@ Lead เขียน <รอบ>_CONTRACT.md  →  boss อนุมัติ
 | รอบ | ลำดับ | เนื้อหา | ต้องเสร็จก่อน | agent (ตัวหนา = ทำก่อน ที่เหลือขนานได้) |
 |---|---|---|---|---|
 | เฟส 2 | — | ADR: auth, track_type + โมเดลข้อมูล, ออฟไลน์ · wireframe หน้าหลัก | PRD อนุมัติ | **researcher** (ยืนยันลิมิต/ไลบรารี) → architect ∥ ux-brand |
-| R0 Foundation | P0 | โครงโปรเจกต์ · CI · migration · release · design token + ฟอนต์ + โหมดสว่าง/มืด · TH/EN · PWA skeleton · component ภาพแมว | เฟส 2 | **platform** (โครง + db) → frontend ∥ ops-release ∥ pwa-offline ∥ ux-brand → qa-test |
-| R1 บัญชี | P0 | โค้ดเชิญ · Google + อีเมล OTP · session · consent · แบบสอบถาม (รวมตาราง `place`) · ลบบัญชี | R0 | **platform** → frontend ∥ ops-release (ส่งอีเมล) → qa-test ∥ security-privacy |
+| R0 Foundation | P0 | โครงโปรเจกต์ · CI · migration แรก (ตารางของ Better Auth) · release · design token + ฟอนต์ + โหมดสว่าง/มืด · TH/EN · PWA skeleton · component ภาพแมว · **spike ทางเทคนิคตาม ADR 0001/0004 (ผลของ service worker เขียนเป็น ADR 0005 ก่อนปิดรอบ)** | เฟส 2 | **platform** (โครง + db) → frontend ∥ ops-release ∥ pwa-offline ∥ ux-brand → qa-test |
+| R1 บัญชี | P0 | โค้ดเชิญ · Google + อีเมล OTP · session · consent · แบบสอบถาม (รวมตาราง `place` และ `body_entry` เฉพาะน้ำหนัก · ต้องออนไลน์ เพราะคิวออฟไลน์มาใน R3) · ลบบัญชี · ทดสอบ Google/OTP บน iPhone จริง | R0 | **platform** → frontend ∥ ops-release (ส่งอีเมล) → qa-test ∥ security-privacy |
 | R2 คลังท่า | P0 | คลังท่า TH/EN · ค้นหา · ท่า custom · สถานที่ของผู้ใช้ | R1 | **catalog** ∥ **platform** → frontend → qa-test |
 | R3 จดการออกกำลังกาย | P0 | เซสชัน · ฟอร์มตาม track_type · ออฟไลน์ + sync · ตัวจับเวลาพัก · สถิติ (PR) | R2 | **platform** (API แบบส่งซ้ำได้) → frontend ∥ pwa-offline → qa-test ∥ security-privacy |
-| R4 เทมเพลต + ร่างกาย | P1 | เทมเพลต/ทำซ้ำครั้งก่อน · น้ำหนักตัว/สัดส่วน | R3 | **platform** → frontend → qa-test ∥ security-privacy |
+| R4 เทมเพลต + ร่างกาย | P1 | เทมเพลต/ทำซ้ำครั้งก่อน · หน้าจดน้ำหนักตัว + สัดส่วน (`body_measurement`) | R3 | **platform** → frontend → qa-test ∥ security-privacy |
 | R5 ความคืบหน้า | P1 | สรุปสัปดาห์/เดือน · กราฟรายท่า · กราฟน้ำหนัก · ส่งออก CSV | R4 | **platform** → frontend → qa-test ∥ security-privacy |
 | R6 พร้อมเปิดใช้ | P1 | ทดสอบเครื่องจริง · backup/restore · แบนเนอร์ติดตั้ง iOS · หน้าเครดิต · ประสิทธิภาพ | R5 | qa-test ∥ ops-release ∥ security-privacy → แก้ตามที่พบ |
 

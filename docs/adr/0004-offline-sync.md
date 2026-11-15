@@ -1,6 +1,6 @@
 # ADR 0004 — ออฟไลน์และ sync: service worker, คิวเขียน, API ส่งซ้ำได้, การชนกัน, ร่างเซสชัน, ตัวจับเวลา
 
-- สถานะ: **เสนอ — รอ boss อนุมัติ** (รุ่น OS ต่ำสุด = คำถาม Q2) · วันที่ 2026-11-15 · ผู้เขียน: architect
+- สถานะ: **อนุมัติโดย boss 2026-11-16** — รับข้อเสนอ Q2: iOS/iPadOS 16.4+ และ Chrome Android 111+ · วันที่ 2026-11-15 · ผู้เขียน: architect
 - ฐานข้อเท็จจริง: [research/2026-11-15-pwa-offline.md](../research/2026-11-15-pwa-offline.md) · เอกสารที่ architect เปิด 2026-11-15: [Tailwind compatibility](https://tailwindcss.com/docs/compatibility) (v4 ต้อง Safari 16.4+, Chrome 111+), [MDN randomUUID](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID)
 - ขึ้นกับ: ADR 0003 (คอลัมน์ร่วม `client_updated_at`, `deleted_at`)
 
