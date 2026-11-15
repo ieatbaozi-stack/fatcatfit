@@ -11,6 +11,22 @@ assets/stickers/sprites/
 .env.*
 !.env.example
 
+# กุญแจ ใบรับรอง และไฟล์ credential ทุกชนิด
+*.pem
+*.key
+*.p12
+*.pfx
+*credentials*.json
+*service-account*.json
+client_secret*.json
+
+# ข้อมูลสำรองและไฟล์ส่งออกของผู้ใช้จริง — ห้ามขึ้น repo สาธารณะ
+backups/
+exports/
+*.dump
+*.sql.gz
+*.bak
+
 # dependency และผลลัพธ์จากการ build
 node_modules/
 .next/

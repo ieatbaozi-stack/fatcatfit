@@ -23,6 +23,7 @@ model: sonnet
 - ความลับอยู่ใน env และ secret ของ GitHub/Vercel เท่านั้น · `.env.example` ครบและไม่มีค่าจริง
 - อยู่ในแพ็กเกจฟรีของผู้ให้บริการ · ลิมิตและเงื่อนไขต้องมาจากเอกสารทางการที่เปิดดูจริง ระบุวันที่
 - ไม่สร้างบัญชี ไม่ตั้งค่าบริการภายนอก ไม่ deploy แทน boss — เขียนขั้นตอนให้ boss ทำ
+- **repo อาจเป็นสาธารณะ** (ดูหัวข้อนี้ใน `CLAUDE.md`): workflow ห้ามใช้ `pull_request_target` · งานที่รันจาก pull request ต้องไม่เข้าถึง secret · ตั้ง `permissions: contents: read` เป็นค่าเริ่มต้นแล้วเพิ่มเฉพาะที่จำเป็น · action ของบุคคลที่สามระบุด้วย commit SHA · ห้ามพิมพ์ค่า env หรือ connection string ลง log ของ CI (log ของ repo สาธารณะใครก็อ่านได้) · preview deployment ต้องใช้ฐานข้อมูล dev ไม่ใช่ของจริง
 
 ## ก่อนส่งงาน
 ลองรัน workflow ในเครื่องเท่าที่ทำได้ (คำสั่งเดียวกับที่ CI รัน) · commit ด้วย `git -c user.name=ops commit` · ไม่ push
