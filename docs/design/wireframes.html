@@ -1,0 +1,1059 @@
+<!doctype html>
+<html lang="th" data-theme="light" data-lang="th" data-ann="on">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fat Cat Fit Wireframes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@300&family=Noto+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ---------- token (ตรงกับ DESIGN.md ข้อ 3) ---------- */
+  :root {
+    --paper: #FFFFFF; --paper-2: #F6F4F0;
+    --ink: #171717; --ink-2: #444444; --ink-3: #767676;
+    --accent: #F9A03A; --on-accent: #171717;
+    --cat: #F9A03A; --cat-ear: #F4A19B; --cat-white: #FFFFFF;
+    --warn: #C0392B;
+    --scrim: rgba(23, 23, 23, .38);
+    --ann: #2563C9;            /* สีของหมายเหตุ wireframe เท่านั้น ไม่ใช่สีของแอป */
+    --font: "Noto Sans Thai", system-ui, sans-serif;
+    --hand: "Gaegu", cursive;
+  }
+  :root[data-theme="dark"] {
+    --paper: #161514; --paper-2: #211F1D;
+    --ink: #F2EFEA; --ink-2: #C9C5BE; --ink-3: #8F8B84;
+    --cat: var(--paper); --cat-ear: var(--paper); --cat-white: var(--paper);
+    --warn: #E8766A;
+    --scrim: rgba(0, 0, 0, .6);
+    --ann: #7FB0FF;
+  }
+  :root:not([data-lang="en"]) .en, :root[data-lang="en"] .th { display: none !important; }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink-2); font-family: var(--font); font-weight: 300; font-size: 16px; line-height: 1.6; }
+  main { max-width: 1240px; margin: 0 auto; padding: 0 24px 120px; }
+  .doc h1 { font-size: 30px; font-weight: 500; color: var(--ink); margin: 18px 0 0; line-height: 1.4; }
+  .doc h2 { font-size: 22px; font-weight: 500; color: var(--ink); margin: 64px 0 4px; line-height: 1.4; }
+  .doc .note { color: var(--ink-3); font-size: 14px; margin: 4px 0; max-width: 760px; }
+  .doc table { border-collapse: collapse; font-size: 14px; margin-top: 10px; }
+  .doc td, .doc th { text-align: left; padding: 6px 16px 6px 0; vertical-align: top; border-bottom: 1px solid var(--paper-2); }
+  .doc th { font-weight: 500; color: var(--ink); }
+
+  .controls { position: sticky; top: 0; z-index: 20; background: var(--paper); padding: 12px 0; display: flex; flex-wrap: wrap; gap: 10px 22px; border-bottom: 1px solid var(--paper-2); }
+  .ctl { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; font-size: 14px; color: var(--ink-3); }
+  .ctl button { font-family: var(--font); font-size: 14px; font-weight: 400; color: var(--ink); background: transparent; cursor: pointer; padding: 6px 14px; min-height: 40px;
+    border: 2px solid var(--ink); border-radius: 255px 18px 225px 18px / 18px 225px 18px 255px; }
+  .ctl button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 12px; font-size: 14px; }
+  .legend i { display: inline-block; width: 22px; height: 22px; border-radius: 50%; border: 2px dashed var(--ann); color: var(--ann); font: 600 12px/18px var(--font); text-align: center; font-style: normal; margin-right: 6px; vertical-align: -5px; }
+  .navmap { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 14px; }
+  .navmap div { border: 2px solid var(--ink); border-radius: 22px 8px 20px 8px / 8px 20px 8px 22px; padding: 10px 14px; min-width: 200px; font-size: 14px; }
+  .navmap b { display: block; color: var(--ink); font-weight: 500; font-size: 16px; }
+
+  .frames { display: flex; flex-wrap: wrap; gap: 44px 36px; margin-top: 22px; }
+  .fr { width: 364px; margin: 0; }
+  .fr figcaption { margin-top: 12px; font-size: 14px; color: var(--ink-2); }
+  .fr .ct { font-size: 16px; font-weight: 500; color: var(--ink); display: flex; gap: 8px; align-items: baseline; }
+  .fr .no { font-size: 14px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .fr .us { color: var(--ink-3); font-size: 14px; }
+  .fr p { margin: 4px 0 0; line-height: 1.6; }
+
+  /* ---------- กรอบมือถือ ---------- */
+  .ph { width: 360px; height: 760px; position: relative; overflow: hidden; background: var(--paper); color: var(--ink-2);
+    border: 2.5px solid var(--ink); border-radius: 30px 36px 32px 38px / 38px 30px 36px 32px; }
+  .ph.long { height: auto; }
+  .scr { position: absolute; inset: 0; padding: 16px 20px 0; display: flex; flex-direction: column; }
+  .ph.long .scr { position: relative; min-height: 760px; }
+  .sp { flex: 1 1 auto; min-height: 8px; }
+  .mt4 { margin-top: 4px; } .mt8 { margin-top: 8px; } .mt12 { margin-top: 12px; } .mt16 { margin-top: 16px; } .mt24 { margin-top: 24px; } .mt32 { margin-top: 32px; }
+  .pb16 { padding-bottom: 16px; } .pb20 { padding-bottom: 20px; }
+  .c { text-align: center; }
+
+  .t1 { font-size: 26px; font-weight: 500; color: var(--ink); line-height: 1.4; margin: 0; }
+  .t2 { font-size: 19px; font-weight: 500; color: var(--ink); line-height: 1.4; margin: 0; }
+  .t3 { font-size: 17px; font-weight: 500; color: var(--ink); line-height: 1.4; }
+  .mut { color: var(--ink-3); font-size: 14px; line-height: 1.5; }
+  .bd { color: var(--ink-2); font-size: 16px; line-height: 1.6; margin: 0; }
+  .hw { font-family: var(--hand); font-weight: 300; color: var(--ink); letter-spacing: .1em; text-transform: lowercase; font-size: 28px; line-height: 1.15; }
+  .hw.xl { font-size: 40px; }
+  .num { font-weight: 500; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .warn { color: var(--warn); }
+  .row { display: flex; align-items: center; gap: 10px; }
+  .between { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .ic { flex: none; display: block; }
+  .catw { margin: 0 auto; }
+  .catw svg { width: 100%; height: auto; display: block; color: var(--ink); overflow: visible; }
+  .wob { display: block; width: 100%; height: 10px; margin: 10px 0; color: var(--ink); flex: none; }
+  .wob.thin { color: var(--ink-3); margin: 6px 0; }
+
+  /* ปุ่ม */
+  .btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 52px; padding: 0 16px; font-size: 17px; font-weight: 500; color: var(--ink); background: var(--paper); flex: none;
+    border: 2.5px solid var(--ink); border-radius: 255px 18px 225px 18px / 18px 225px 18px 255px; text-align: center; line-height: 1.3; }
+  .btn.big { min-height: 60px; font-size: 18px; }
+  .btn.on { background: var(--accent); color: var(--on-accent); transform: translateY(2px); }
+  .btn.dis { opacity: .4; }
+  .btn.warnb { border-color: var(--warn); color: var(--warn); }
+  .btn.sm { width: auto; min-height: 48px; font-size: 16px; }
+  .lnk { display: block; text-align: center; color: var(--ink); font-size: 16px; font-weight: 400; text-decoration: underline; text-decoration-style: wavy; text-underline-offset: 5px; text-decoration-thickness: 1.5px; min-height: 44px; line-height: 44px; flex: none; }
+  .lnk.l { text-align: left; } .lnk.warn { color: var(--warn); }
+  .lnk.dim { color: var(--ink-3); text-decoration: none; }
+  .gmark { width: 26px; height: 26px; border: 2px solid currentColor; border-radius: 50%; font-weight: 600; font-size: 15px; line-height: 22px; text-align: center; }
+  .ibtn { width: 44px; height: 44px; display: grid; place-items: center; color: var(--ink); flex: none; }
+  .rb { width: 48px; height: 48px; flex: none; display: grid; place-items: center; font-size: 24px; font-weight: 400; color: var(--ink);
+    border: 2.5px solid var(--ink); border-radius: 52% 46% 50% 48% / 47% 52% 46% 51%; }
+  .rb.s { width: auto; min-width: 44px; padding: 0 6px; height: 44px; font-size: 15px; font-weight: 500; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chips.nowrap { flex-wrap: nowrap; overflow: hidden; margin-right: -20px; }
+  .chip { display: inline-flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 400; color: var(--ink); padding: 0 14px; min-height: 44px; white-space: nowrap; flex: none;
+    border: 2px solid var(--ink); border-radius: 255px 18px 225px 18px / 18px 225px 18px 255px; }
+  .chip.on { background: var(--ink); color: var(--paper); }
+  .cb { width: 30px; height: 30px; flex: none; border: 2.5px solid var(--ink); border-radius: 6px 9px 7px 10px / 9px 6px 10px 7px; display: grid; place-items: center; color: var(--on-accent); }
+  .cb.on { background: var(--accent); }
+
+  /* ช่องกรอก */
+  .fld { margin-top: 14px; }
+  .fl { font-size: 14px; color: var(--ink-3); }
+  .fv { font-size: 20px; font-weight: 400; color: var(--ink); min-height: 44px; display: flex; align-items: flex-end; gap: 6px; padding-bottom: 4px;
+    border-bottom: 2px solid var(--ink); border-radius: 0 0 40% 60% / 0 0 3px 5px; }
+  .fv.pl { color: var(--ink-3); font-weight: 300; font-size: 17px; }
+  .fv small { font-size: 14px; color: var(--ink-3); margin-left: auto; }
+  .fh { font-size: 14px; color: var(--ink-3); margin-top: 4px; }
+  .fld.err .fv { border-color: var(--warn); }
+  .fe { font-size: 14px; color: var(--warn); margin-top: 4px; }
+  .stp { display: flex; align-items: center; gap: 12px; margin-top: 6px; }
+  .stp .sv { flex: 1; text-align: center; font-size: 30px; line-height: 1.3; border-bottom: 2px solid var(--ink); border-radius: 0 0 40% 60% / 0 0 3px 5px; }
+  .stp.big .sv { font-size: 44px; }
+  .stp .sv small { font-size: 15px; font-weight: 400; color: var(--ink-3); margin-left: 4px; }
+
+  /* แถบล่าง */
+  .tabs { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); margin: 8px -20px 0; padding: 10px 4px 12px; flex: none; }
+  .tabs .wob { position: absolute; top: -6px; left: 8px; width: calc(100% - 16px); margin: 0; }
+  .tab { display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 52px; color: var(--ink-3); font-size: 14px; font-weight: 400; line-height: 1.3; }
+  .tab.on { color: var(--ink); font-weight: 500; }
+  .tab.on span { text-decoration: underline; text-decoration-style: wavy; text-underline-offset: 4px; text-decoration-thickness: 1.5px; }
+  .live { white-space: nowrap; display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 16px; background: var(--ink); color: var(--paper); flex: none; position: relative;
+    border-radius: 255px 18px 225px 18px / 18px 225px 18px 255px; font-size: 15px; }
+  .live b { font-weight: 500; } .live .num { color: var(--paper); }
+  .live .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--paper); flex: none; }
+  .live .lrest { margin-left: auto; font-size: 14px; }
+  .net { display: flex; align-items: center; gap: 8px; margin: -16px -20px 10px; padding: 8px 20px; background: var(--paper-2); color: var(--ink); font-size: 14px; font-weight: 400; flex: none; line-height: 1.4; }
+  .net .lnk { margin-left: auto; min-height: 0; line-height: 1.4; font-size: 14px; }
+
+  /* หน้าจด */
+  .lhead { display: flex; align-items: center; gap: 4px; margin: -6px -10px 0; }
+  .lhead .tt { flex: 1; min-width: 0; }
+  .lhead .tt b { display: block; font-size: 18px; font-weight: 500; color: var(--ink); line-height: 1.3; }
+  .lhead .tt > span { font-size: 14px; color: var(--ink-3); }
+  .exn { font-size: 18px; font-weight: 500; color: var(--ink); line-height: 1.35; }
+  .prev { font-size: 14px; color: var(--ink-3); line-height: 1.45; }
+  .lr { display: grid; align-items: center; gap: 10px; min-height: 62px; position: relative; }
+  .lr.c1 { grid-template-columns: 26px 1fr 56px; }
+  .lr.c2 { grid-template-columns: 26px 1fr 1fr 56px; }
+  .lr.c3 { grid-template-columns: 24px 1fr 1fr 1fr 56px; gap: 8px; }
+  .lr.c1p { grid-template-columns: 26px 1fr 56px 56px; }
+  .lr.hd { min-height: 22px; font-size: 14px; color: var(--ink-3); }
+  .lr.hd span { text-align: center; } .lr.hd span:first-child { text-align: left; }
+  .lr .n { color: var(--ink-3); font-size: 15px; font-weight: 400; }
+  .lr .v { font-size: 28px; line-height: 1.2; text-align: center; border-bottom: 2px solid var(--ink); border-radius: 0 0 40% 60% / 0 0 3px 5px; white-space: nowrap; }
+  .lr.c3 .v { font-size: 23px; }
+  .lr .v small { font-size: 13px; font-weight: 400; color: var(--ink-3); margin-left: 3px; }
+  .lr .v.sug { color: var(--ink-3); border-bottom-style: dashed; }
+  .lr .v.run { font-size: 34px; }
+  .lr .star { position: absolute; right: 60px; top: 4px; color: var(--ink); }
+  .tick { width: 56px; height: 56px; border: 2.5px solid var(--ink); color: var(--on-accent); display: grid; place-items: center; position: relative;
+    border-radius: 52% 46% 50% 48% / 47% 52% 46% 51%; }
+  .tick svg { opacity: 0; } .tick.on { background: var(--accent); } .tick.on svg { opacity: 1; }
+  .tick.dis { opacity: .35; }
+  .play { width: 56px; height: 56px; border: 2.5px solid var(--ink); color: var(--ink); display: grid; place-items: center; position: relative; border-radius: 48% 52% 46% 50% / 52% 47% 51% 46%; }
+  .exc { display: flex; justify-content: space-between; align-items: center; min-height: 48px; gap: 8px; }
+  .exc b { font-weight: 500; color: var(--ink); font-size: 16px; }
+  .rest { display: flex; align-items: center; gap: 8px; min-height: 52px; flex: none; }
+  .rest .num { font-size: 28px; }
+  .rest .rb { width: 48px; height: 48px; font-size: 15px; font-weight: 500; }
+  .bar2 { display: grid; grid-template-columns: 1fr 104px; gap: 10px; flex: none; }
+
+  /* แผ่นล่าง / toast */
+  .scrim { position: absolute; inset: 0; background: var(--scrim); z-index: 5; }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--paper); padding: 12px 20px 22px;
+    border-top: 2.5px solid var(--ink); border-radius: 30px 36px 0 0 / 24px 28px 0 0; }
+  .grab { width: 44px; height: 5px; border-radius: 3px; background: var(--ink-3); margin: 0 auto 12px; }
+  .opt { display: flex; align-items: center; gap: 12px; min-height: 52px; font-size: 17px; color: var(--ink); font-weight: 400; }
+  .opt .mut { margin-left: auto; }
+  .toast { position: absolute; left: 12px; right: 12px; top: 12px; z-index: 7; background: var(--paper); padding: 10px 14px; display: flex; gap: 12px; align-items: center;
+    border: 2.5px solid var(--ink); border-radius: 20px 26px 22px 28px / 26px 20px 28px 22px; }
+  .toast.bot { top: auto; bottom: 150px; }
+
+  /* รายการ */
+  .li { display: flex; align-items: center; gap: 12px; min-height: 56px; }
+  .li .tx { flex: 1; min-width: 0; }
+  .li .tx b { display: block; font-size: 16px; font-weight: 500; color: var(--ink); line-height: 1.35; }
+  .li .tx > span { display: block; font-size: 14px; color: var(--ink-3); line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .li .r { font-size: 14px; color: var(--ink-3); text-align: right; flex: none; }
+  .sec { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; min-height: 36px; }
+  .sec b { font-size: 15px; font-weight: 500; color: var(--ink); }
+  .sec .lnk { min-height: 36px; line-height: 36px; font-size: 15px; }
+  .srch { display: flex; align-items: center; gap: 10px; min-height: 48px; font-size: 17px; color: var(--ink-3);
+    border-bottom: 2px solid var(--ink); border-radius: 0 0 40% 60% / 0 0 3px 5px; }
+  .srch.typed { color: var(--ink); font-weight: 400; }
+  .caret { display: inline-block; width: 2px; height: 22px; background: var(--ink); vertical-align: -4px; margin-left: 1px; }
+
+  /* สถิติ */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stats.s4 { grid-template-columns: repeat(4, 1fr); }
+  .stats div { text-align: center; }
+  .stats .num { display: block; font-size: 30px; line-height: 1.2; }
+  .stats span.mut { display: block; }
+  .prmark { display: inline-block; width: 14px; height: 14px; background: var(--accent); border: 2px solid var(--ink); border-radius: 50%; vertical-align: 1px; }
+  .week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+  .week span { font-size: 14px; color: var(--ink-3); }
+  .week i { display: block; width: 30px; height: 30px; margin: 4px auto 0; border: 2px solid var(--ink-3); border-radius: 52% 46% 50% 48% / 47% 52% 46% 51%; }
+  .week i.on { background: var(--accent); border-color: var(--ink); }
+  .week i.td { border: 2.5px solid var(--ink); }
+  .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; font-size: 14px; }
+  .cal span { min-height: 40px; display: grid; place-items: center; color: var(--ink-2); font-variant-numeric: tabular-nums; position: relative; }
+  .cal span.h { min-height: 24px; color: var(--ink-3); }
+  .cal span.on::after { content: ""; position: absolute; width: 34px; height: 34px; border-radius: 52% 46% 50% 48% / 47% 52% 46% 51%; background: var(--accent); z-index: -1; }
+  .cal span.on { color: var(--on-accent); font-weight: 500; z-index: 0; }
+  .cal span.td { font-weight: 600; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+  .chart { display: block; width: 100%; height: auto; color: var(--ink); }
+  .chart text { font-family: var(--font); font-size: 14px; fill: var(--ink-3); }
+
+  /* แป้นพิมพ์จำลอง */
+  .kb { margin: 0 -20px; background: var(--paper-2); padding: 8px 8px 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; flex: none; }
+  .kb span { min-height: 42px; display: grid; place-items: center; font-size: 20px; color: var(--ink-3); }
+  .kb .lab { grid-column: 1 / -1; min-height: 20px; font-size: 13px; }
+  .kb.text { display: grid; place-items: center; min-height: 190px; font-size: 14px; color: var(--ink-3); grid-template-columns: 1fr; }
+  .skel { height: 14px; margin: 14px 0; border-radius: 8px 12px 9px 11px; background: var(--paper-2); }
+  .otp { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 20px; }
+  .otp span { text-align: center; font-size: 34px; min-height: 56px; border-bottom: 2.5px solid var(--ink); border-radius: 0 0 40% 60% / 0 0 3px 5px; }
+  .otp span.cur { border-bottom-color: var(--ink-3); border-bottom-style: dashed; }
+  .bul { margin: 10px 0 0; padding: 0; list-style: none; }
+  .bul li { position: relative; padding-left: 22px; margin-top: 8px; font-size: 15px; line-height: 1.55; color: var(--ink-2); }
+  .bul li::before { content: ""; position: absolute; left: 2px; top: 10px; width: 9px; height: 9px; border: 2px solid var(--ink); border-radius: 50% 40% 55% 45%; }
+  .steps li::before { display: none; }
+  .steps .sn { position: absolute; left: 0; top: 0; font-weight: 500; color: var(--ink); }
+  .pline { position: relative; height: 64px; margin-top: 2px; }
+  .pline svg.l { position: absolute; left: 0; right: 0; bottom: 6px; width: 100%; height: 12px; }
+  .pline .catw { position: absolute; bottom: 8px; }
+
+  /* หมายเหตุ wireframe: จุดแตะ + เขตนิ้วโป้ง */
+  [data-tap] { position: relative; }
+  :root[data-ann="on"] [data-tap]::after { content: attr(data-tap); position: absolute; top: -10px; right: -8px; width: 24px; height: 24px; border-radius: 50%; z-index: 9;
+    border: 2px dashed var(--ann); color: var(--ann); background: var(--paper); font: 600 13px/20px var(--font); text-align: center; transform: none; }
+  .thumb { display: none; position: absolute; right: -150px; bottom: -190px; width: 520px; height: 520px; border: 2px dashed var(--ann); border-radius: 50%; pointer-events: none; z-index: 8; }
+  .thumb span { position: absolute; left: 290px; top: -11px; color: var(--ann); font-size: 13px; font-weight: 500; background: var(--paper); padding: 0 4px; }
+  :root[data-ann="on"] .thumb { display: block; }
+
+  /* แมวดุ๊กดิ๊ก (ไม่ใช้ในหน้าจด) */
+  :root[data-wiggle="on"] .ph:not(.dense) .catw svg { animation: wig .6s steps(1) infinite; transform-origin: 50% 98%; }
+  @keyframes wig { 0% { transform: none; } 33% { transform: translateY(-1.5%) rotate(-2deg); } 66% { transform: scale(1.03, .97) rotate(2deg); } }
+  @media (prefers-reduced-motion: reduce) { .catw svg { animation: none !important; } }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="wob-line" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="4" result="n"><animate attributeName="seed" values="4;7;9" dur="0.6s" calcMode="discrete" repeatCount="indefinite"/></feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="5"/>
+    </filter>
+    <filter id="wob-fill" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="2" seed="11" result="n"><animate attributeName="seed" values="11;15;19" dur="0.6s" calcMode="discrete" repeatCount="indefinite"/></feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="8"/>
+    </filter>
+  </defs>
+</svg>
+
+<main class="doc">
+  <div class="controls">
+    <div class="ctl">โหมด
+      <button data-set="theme" data-val="light" aria-pressed="true">สว่าง · แมวลงสี</button>
+      <button data-set="theme" data-val="dark" aria-pressed="false">มืด · แมวเส้นล้วน</button>
+    </div>
+    <div class="ctl">ภาษาในจอ
+      <button data-set="lang" data-val="th" aria-pressed="true">TH</button>
+      <button data-set="lang" data-val="en" aria-pressed="false">EN</button>
+    </div>
+    <div class="ctl">หมายเหตุ
+      <button data-set="ann" data-val="on" aria-pressed="true">แสดงจุดแตะ</button>
+      <button data-set="ann" data-val="off" aria-pressed="false">ซ่อน</button>
+    </div>
+    <div class="ctl">ดุ๊กดิ๊ก
+      <button data-set="wiggle" data-val="on" aria-pressed="false">ขยับ</button>
+      <button data-set="wiggle" data-val="off" aria-pressed="true">นิ่ง</button>
+    </div>
+  </div>
+
+  <h1>Wireframe v1 · แมวอ้วนจะผอม</h1>
+  <p class="note">ร่าง 1 · 2026-11-15 · รอ boss อนุมัติ · คู่กับ <b>UX.md</b> (flow ฟอร์มจด ตารางสถานะ เรื่องที่ต้องตัดสิน) · ทุกจอกว้าง 360px · ข้อความใต้กรอบเป็นหมายเหตุถึงทีม (ภาษาไทยเท่านั้น) ปุ่ม TH/EN เปลี่ยนเฉพาะข้อความในจอ · ตั้งค่าเริ่มผ่าน URL ได้ เช่น <code>#dark,en</code></p>
+  <div class="legend">
+    <span><i>1</i>ลำดับแตะของเส้นทางหลัก (สีฟ้าเป็นหมายเหตุ ไม่ใช่สีของแอป)</span>
+    <span><i style="border-radius:50%">&nbsp;</i>เส้นโค้งประ = เขตนิ้วโป้งมือขวา ปุ่มหลักต้องอยู่ในเขตนี้</span>
+  </div>
+
+  <h2>โครงนำทาง</h2>
+  <p class="note">แถบล่าง 4 แท็บ ไม่มีปุ่มกลาง เพราะปุ่ม "เริ่ม" อยู่บนหน้าหลักในเขตนิ้วโป้งแล้ว · หน้าจดเป็นจอเต็มไม่มีแถบล่าง · ระหว่างมีเซสชัน ทุกแท็บมีแถบ "กำลังเล่น" ลอยเหนือแถบล่าง</p>
+  <div class="navmap">
+    <div><b>หน้าหลัก</b>เลือกสถานที่ · เริ่ม · เทมเพลต · ทำซ้ำ · สัปดาห์นี้</div>
+    <div><b>ประวัติ</b>เซสชันเรียงตามวัน → รายละเอียด → แก้/ลบเซ็ต</div>
+    <div><b>ความคืบหน้า</b>สรุป (สัปดาห์/เดือน) · รายท่า (กราฟ) · ร่างกาย</div>
+    <div><b>ฉัน</b>หน่วย ภาษา โหมด เวลาพัก · สถานที่ ท่า เทมเพลต · ส่งออก · ลบบัญชี</div>
+  </div>
+  <table>
+    <tr><th>เส้นทางหลัก</th><th>แตะ</th><th>เป้า PRD</th></tr>
+    <tr><td>หน้าหลัก → เริ่ม → แตะท่าล่าสุด → ✓ เซ็ตแรก</td><td class="num">3</td><td>≤ 15 วินาที (ประมาณ 8 วินาที)</td></tr>
+    <tr><td>หน้าหลัก → แตะเทมเพลต → ✓ เซ็ตแรก</td><td class="num">2</td><td>เทมเพลต 1–2 แตะ</td></tr>
+    <tr><td>เซ็ตถัดไปของท่าเดิม (แถวถัดไปเติมค่าให้แล้ว)</td><td class="num">1</td><td>1 แตะ</td></tr>
+    <tr><td>จบ → สรุป → เสร็จ</td><td class="num">2</td><td>—</td></tr>
+  </table>
+
+  <div id="groups"></div>
+</main>
+
+<script>
+  // =====================================================================
+  // แมว: คัดลอกจาก docs/design/samples.html (ต้นฉบับ) ห้ามแก้ที่นี่
+  // =====================================================================
+  const S = 'fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"';
+  const P = 'fill="var(--paper)" stroke="currentColor" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"';
+  const limb = d => `<path d="${d}" fill="none" stroke="currentColor" stroke-width="17" stroke-linecap="round"/><path d="${d}" fill="none" stroke="var(--cat)" stroke-width="8" stroke-linecap="round"/>`;
+  const drop = (x, y) => `<path d="M${x} ${y} q6 9 0 13 q-6 -4 0 -13z" ${P} stroke-width="3"/>`;
+  const spark = (x, y, s) => `<path transform="translate(${x} ${y}) scale(${s})" d="M0 -10 Q1.5 -1.5 10 0 Q1.5 1.5 0 10 Q-1.5 1.5 -10 0 Q-1.5 -1.5 0 -10Z" fill="currentColor"/>`;
+  const EYES = {
+    flat:  '<path d="M75 86 q6 2 12 0 M113 86 q6 2 12 0" ' + S + ' stroke-width="4.5"/>',
+    happy: '<path d="M75 88 q6 -8 12 0 M113 88 q6 -8 12 0" ' + S + ' stroke-width="4.5"/>',
+    dot:   '<circle cx="81" cy="86" r="3.6" fill="currentColor"/><circle cx="119" cy="86" r="3.6" fill="currentColor"/>',
+    hard:  '<path d="M75 83 l11 5 l-11 4 M125 83 l-11 5 l11 4" ' + S + ' stroke-width="4"/>'
+  };
+  const face = eyes => `
+    <path d="M78 104 Q78 94 90 95 Q100 93 110 95 Q122 94 122 104 Q122 115 110 114 Q100 117 90 114 Q78 115 78 104Z" fill="var(--cat-white)" transform="translate(1 -1)"/>
+    ${EYES[eyes]}
+    <path d="M95 93 L105 93 L100 99Z" fill="var(--cat-ear)" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M100 99 L100 104 M100 104 q-6 7 -12 1 M100 104 q6 7 12 1" ${S} stroke-width="3.5"/>
+    <path d="M72 101 L54 97 M72 107 L54 111 M128 101 L146 97 M128 107 L146 111" ${S} stroke-width="3"/>`;
+  const svg = inner => `<svg viewBox="0 0 200 200" role="img">${inner}</svg>`;
+  const BODY = 'M52 64 L49 31 L78 52 Q101 45 124 52 L152 30 L150 66 C159 100 157 140 150 168 L151 184 Q140 191 130 184 L130 172 Q100 177 72 172 L72 184 Q62 191 52 184 L51 168 C43 140 44 100 53 67';
+  const TAIL = limb('M152 156 q24 -2 22 -28');
+  const front = ({ eyes = 'flat', back = TAIL, top = '', tf = '', under = '', over = '', rear = false }) => svg(`
+    <g filter="url(#wob-line)">${under}</g>
+    <g transform="${tf}">
+      <g filter="url(#wob-fill)">
+        ${back}
+        <path d="${BODY} Z" fill="var(--cat)" transform="translate(3 -2)"/>
+        ${rear ? '' : `<path d="M56 56 L54 39 L68 52Z M146 56 L148 39 L134 52Z" fill="var(--cat-ear)" transform="translate(2 -1)"/>
+        <path d="M76 140 Q76 118 100 118 Q124 118 124 142 Q124 166 100 166 Q76 166 76 140Z" fill="var(--cat-white)" transform="translate(2 1)"/>`}
+      </g>
+      <g filter="url(#wob-line)">
+        <path d="${BODY}" ${S}/>
+        ${rear ? '' : face(eyes)}
+        ${top}
+      </g>
+    </g>
+    <g filter="url(#wob-line)">${over}</g>`);
+  const SIDE = 'M34 150 C28 118 44 92 80 90 L112 88 L118 62 L132 82 Q140 78 146 80 L156 60 L164 84 C178 92 180 112 172 124 Q168 134 156 136 C160 150 158 162 150 168 Q100 178 50 170 C40 166 36 160 34 150';
+  const side = ({ eyes = 'flat', legs, tail = 'M36 140 q-22 -6 -18 -30', tf = '', under = '', over = '' }) => svg(`
+    <g filter="url(#wob-line)">${under}</g>
+    <g transform="${tf}">
+      <g filter="url(#wob-fill)">
+        ${limb(tail)}${legs.map(limb).join('')}
+        <path d="${SIDE} Z" fill="var(--cat)" transform="translate(3 -2)"/>
+        <path d="M121 80 L121 69 L129 80Z M152 80 L157 67 L161 82Z" fill="var(--cat-ear)" transform="translate(1 -1)"/>
+        <path d="M68 168 Q100 148 140 166 Q100 176 68 168Z" fill="var(--cat-white)"/>
+      </g>
+      <g filter="url(#wob-line)">
+        <path d="${SIDE}" ${S}/>
+        <g transform="translate(84 40) scale(.7)">${face(eyes)}</g>
+      </g>
+    </g>
+    <g filter="url(#wob-line)">${over}</g>`);
+  const LYING = 'M26 154 C22 134 32 122 42 118 L44 99 L61 112 Q72 108 82 110 L93 97 L99 112 C140 106 177 122 177 154';
+
+  // ใช้เฉพาะท่าที่ wireframe ต้องใช้ (เลขตาม DESIGN.md ข้อ 5) — โค้ดตรงกับ samples.html ทุกตัว
+  const CAT = {
+    1: front({}),
+    2: side({ legs: ['M62 162 L58 184', 'M146 160 L150 184'], under: `<path d="M10 192 Q100 188 190 192" ${S} stroke-width="4"/>` }),
+    8: front({ eyes: 'happy', back: limb('M54 110 L30 80') + limb('M148 110 L172 80'),
+        over: spark(22, 52, 1.1) + spark(182, 50, 1.3) + spark(100, 18, .9) + spark(168, 24, .6) + spark(36, 26, .6) }),
+    9: front({ eyes: 'dot', tf: 'translate(0 -8)',
+        under: `<path d="M36 182 L164 182 L170 197 L30 197Z" ${P}/><path d="M88 186 h24 v7 h-24z" ${P} stroke-width="3"/>`,
+        over: `<path d="M166 52 q6 9 0 13 q-6 -4 0 -13z" ${P} stroke-width="3"/>` }),
+    12: svg(`
+        <g filter="url(#wob-fill)">
+          ${limb('M172 146 q20 0 20 -18')}
+          <path d="${LYING} Q100 160 26 154Z" fill="var(--cat)" transform="translate(3 -2)"/>
+          <path d="M47 114 L47 105 L56 112Z M88 110 L92 103 L95 111Z" fill="var(--cat-ear)" transform="translate(2 -1)"/>
+          <path d="M104 150 Q112 132 140 134 Q164 136 166 152Z" fill="var(--cat-white)"/>
+        </g>
+        <g filter="url(#wob-line)">
+          <path d="${LYING}" ${S}/>
+          <path d="M12 158 Q100 152 192 158" ${S} stroke-width="4"/>
+          <path d="M48 131 q6 4 12 0 M76 131 q6 4 12 0" ${S} stroke-width="4"/>
+          <path d="M64 136 L72 136 L68 141Z" fill="var(--cat-ear)" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M68 141 q-4 5 -8 1 M68 141 q4 5 8 1" ${S} stroke-width="3"/>
+          <path d="M112 84 l12 0 l-12 12 l12 0 M134 62 l16 0 l-16 16 l16 0" ${S} stroke-width="3.5"/>
+        </g>`),
+    13: front({ rear: true, back: '', tf: 'translate(-20 0) scale(1.2 1)',
+        top: `<path d="M84 72 q16 7 32 0 M88 88 q12 6 24 0 M90 104 q10 5 20 0" ${S} stroke-width="3.5"/>
+          <path d="M96 164 l8 8 M104 164 l-8 8" ${S} stroke-width="3"/>` + limb('M106 152 q34 -6 28 -46') }),
+    14: side({ eyes: 'hard', legs: ['M62 162 L58 180', 'M146 160 L150 180'], tail: 'M36 140 q-14 -18 0 -38', tf: 'translate(4 0) rotate(-8 100 150)',
+        over: `<ellipse cx="18" cy="166" rx="11" ry="6" ${P}/><ellipse cx="18" cy="157" rx="8" ry="5" ${P}/>
+          <path d="M12 151 q6 -11 10 -1 q0 4 -5 4 q-5 0 -5 -3z" ${P}/>
+          <path d="M9 138 q-4 -6 0 -12 M25 136 q4 -6 0 -12" ${S} stroke-width="3"/>
+          <path d="M3 171 L177 171 L169 197 L11 197Z" ${P}/>
+          <path d="M186 96 l10 -4 M188 110 l12 0" ${S} stroke-width="3"/>` }),
+    17: side({ eyes: 'happy', legs: ['M58 160 L64 186', 'M150 158 L180 168'], tail: 'M36 140 q-16 -16 -6 -38', tf: 'translate(-4 -6) rotate(13 100 140)',
+        under: `<path d="M8 193 Q100 189 192 193" ${S} stroke-width="4"/>` }),
+    19: front({ eyes: 'dot',
+        top: limb('M146 124 L130 140') + `<circle cx="118" cy="146" r="15" ${P}/>
+          <path d="M118 146 l0 -9 M118 146 l6 4 M118 131 l0 -6 M113 124 l10 0" ${S} stroke-width="3"/>` }),
+    22: front({ eyes: 'flat', top: limb('M60 130 L93 141') + limb('M140 130 L107 141'), over: spark(168, 36, .8) + spark(182, 58, .5) }),
+    23: front({ eyes: 'dot', top: limb('M148 114 L140 64'),
+        over: `<path d="M166 32 q0 -13 12 -13 q12 0 12 11 q0 8 -9 12 q-3 2 -3 8 M178 62 l0 1" ${S} stroke-width="4.5"/>` }),
+    24: front({ eyes: 'dot', back: limb('M54 112 L34 100') + limb('M148 112 L168 100'),
+        top: `<path d="M30 98 q-18 16 -8 42 q6 16 -8 32" ${S} stroke-width="3.5"/>
+          <path d="M174 100 q16 20 4 44 q-6 14 10 28" ${S} stroke-width="3.5"/>
+          <path d="M166 82 h14 v14 h-14z" ${P}/><path d="M170 82 v-8 M176 82 v-8" ${S} stroke-width="3"/>
+          <path d="M26 86 h12 v12 h-12z" ${P}/>` }),
+    36: front({ eyes: 'dot', back: '', tf: 'translate(0 70)',
+        over: `<path d="M-10 172 h220 v60 h-220z" fill="var(--paper)"/><path d="M2 172 Q100 168 198 172" ${S} stroke-width="4.5"/>` +
+          limb('M74 172 L74 167') + limb('M126 172 L126 167') }).replace('<svg ', '<svg style="overflow:hidden" ')
+  };
+
+  // =====================================================================
+  // ชิ้นส่วน UI
+  // =====================================================================
+  const T = (th, en) => `<span class="th">${th}</span><span class="en">${en}</span>`;
+  const tap = n => ` data-tap="${n}"`;
+  const cat = (n, w, extra = '') => `<div class="catw" style="width:${w}px;${extra}" aria-hidden="true">${CAT[n]}</div>`;
+  const ICONS = {
+    home: 'M4 11.5 L12 4.5 L20 11 M6.5 10 L6 20 L18 20.3 L17.6 10',
+    cal: 'M4 6.5 L20 6 L20.3 20 L3.8 20.2 Z M4 10.5 L20 10.2 M8 3.5 L8.2 7.5 M16 3.3 L15.8 7.5',
+    chart: 'M3 18.5 L8.5 12 L12.5 15 L20.5 6.5 M3 21 L21 20.6',
+    me: 'M5.5 9.5 L5 3.5 L9.8 7.2 Q12 6.5 14.2 7.2 L19 3.5 L18.5 9.5 Q21 14.5 17 18.2 Q12 21.2 7 18.2 Q3 14.5 5.5 9.5Z',
+    back: 'M15 5 L8 12.2 L15.3 19',
+    close: 'M6 6 L18 18.3 M18 6 L6 18',
+    more: 'M5 12 L5.2 12 M12 12 L12.2 12 M19 12 L19.2 12',
+    plus: 'M12 5 L12.2 19 M5 12 L19 11.8',
+    search: 'M10.5 4 Q17 4 17 10.5 Q17 17 10.5 17 Q4 17 4 10.5 Q4 4.2 10.5 4 M15.5 15.5 L20.5 20.3',
+    star: 'M12 3.5 L14.5 9 L20.5 9.5 L16 13.5 L17.5 19.5 L12 16.3 L6.5 19.5 L8 13.5 L3.5 9.5 L9.5 9 Z',
+    share: 'M12 3.5 L12 14.5 M8 7.3 L12 3.5 L16 7.3 M8.5 10.5 L5 10.5 L5.2 20.5 L19 20.3 L18.8 10.5 L15.5 10.5',
+    cloudoff: 'M7 18.5 L17 18.5 Q21 18 20.5 14 Q20 10.5 16.5 10.5 Q15 6 10.5 6.5 Q6.5 7.5 6.5 11.5 Q3 12.5 3.8 16 Q4.5 18.5 7 18.5 M3.5 3.5 L20.5 21',
+    sync: 'M19.5 12 Q19 5.5 12 5 Q7.5 5.2 5.5 9 M5.5 4.5 L5.5 9.2 L10 9 M4.5 12 Q5 18.5 12 19 Q16.5 18.8 18.5 15 M18.5 19.5 L18.5 14.8 L14 15',
+    check: 'M5 13 L10 18 L19 6',
+    chev: 'M9 5 L16 12.2 L9.3 19',
+    down: 'M5 9 L12.2 16 L19 9.3',
+    repeat: 'M17 4 L20 7 L17 10 M4 12 Q4 7 9 7 L20 7 M7 20 L4 17 L7 14 M20 12 Q20 17 15 17 L4 17',
+    play: 'M8 5 L19 12 L8 19 Z',
+    stop: 'M7 7 L17 7.3 L17.2 17 L6.8 16.8 Z',
+    grip: 'M6 9 L18 9.2 M6 15 L18 14.8',
+    pin: 'M12 21 Q5 13.5 5.5 9.5 Q6 3.5 12 3.5 Q18 3.8 18.5 9.5 Q18.5 13.5 12 21 M12 7.5 Q14.5 7.6 14.4 10 Q14.2 12.3 12 12.2 Q9.6 12 9.7 9.8 Q9.9 7.6 12 7.5'
+  };
+  const ic = (n, s = 24, sw = 2.2) => `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[n]}" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const WOB = ['M2 5 C50 8 110 2 170 6 S290 3 338 6', 'M2 6 C70 3 130 8 190 5 S300 7 338 4', 'M2 4 C60 7 120 3 180 6 S280 4 338 6', 'M2 6 C40 4 120 7 160 5 S270 3 338 5'];
+  let wi = 0;
+  const wob = (cls = '') => `<svg class="wob ${cls}" viewBox="0 0 340 10" preserveAspectRatio="none" aria-hidden="true"><path d="${WOB[wi++ % 4]}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`;
+  const tick = (on, t = '', cls = '') => `<div class="tick ${on ? 'on' : ''} ${cls}"${t}>${ic('check', 26, 3)}</div>`;
+
+  const TABS = [['home', 'หน้าหลัก', 'Home'], ['cal', 'ประวัติ', 'History'], ['chart', 'ความคืบหน้า', 'Progress'], ['me', 'ฉัน', 'Me']];
+  const tabs = a => `<div class="tabs">${wob()}${TABS.map(([i, th, en], k) => `<div class="tab ${k === a ? 'on' : ''}">${ic(i, 26)}<span>${T(th, en)}</span></div>`).join('')}</div>`;
+  const live = (t = '') => `<div class="live"${t}><span class="dot"></span><b>${T('อกและแขน', 'Chest &amp; arms')}</b><span class="num">24:10</span><span class="lrest">${T('พัก', 'rest')} <b class="num">01:12</b></span></div>`;
+  const fld = (label, val, o = {}) => `<div class="fld ${o.err ? 'err' : ''}"><div class="fl">${label}</div><div class="fv ${o.ph ? 'pl' : ''}">${val}${o.unit ? `<small>${o.unit}</small>` : ''}</div>${o.err ? `<div class="fe">${o.err}</div>` : o.hint ? `<div class="fh">${o.hint}</div>` : ''}</div>`;
+  const step = (v, u = '', big = false, t = '') => `<div class="stp ${big ? 'big' : ''}"><span class="rb">−</span><span class="num sv"${t}>${v}${u ? `<small>${u}</small>` : ''}</span><span class="rb">+</span></div>`;
+  const chip = (l, on = false, t = '') => `<span class="chip ${on ? 'on' : ''}"${t}>${l}</span>`;
+  const KG = 'kg', REP = T('ครั้ง', 'reps');
+  const val = (v, u, cls = '') => `<span class="num v ${cls}">${v}<small>${u}</small></span>`;
+  const lr = (n, vals, state, cols, t = '') => `<div class="lr ${cols}"><span class="n">${n}</span>${vals.map(([v, u]) => val(v, u, state === 'sug' ? 'sug' : '')).join('')}${tick(state === 'on', t, state === 'empty' ? 'dis' : '')}</div>`;
+  const hd = (cols, labels) => `<div class="lr hd ${cols}">${labels.map(l => `<span>${l}</span>`).join('')}<span></span></div>`;
+  const kbNum = () => `<div class="kb"><span class="lab">${T('แป้นตัวเลขของเครื่อง', 'phone number pad')}</span>${['1','2','3','4','5','6','7','8','9','.','0','⌫'].map(k => `<span>${k}</span>`).join('')}</div>`;
+  const kbText = () => `<div class="kb text">${T('แป้นพิมพ์ของเครื่อง', 'phone keyboard')}</div>`;
+  const thumb = `<div class="thumb"></div>`;
+  const lhead = (title, sub, right = '') => `<div class="lhead"><span class="ibtn">${ic('back')}</span><div class="tt"><b>${title}</b><span>${sub}</span></div>${right}<span class="ibtn">${ic('more')}</span></div>`;
+  const LOC = T('ยิมใกล้บ้าน', 'Gym near home');
+  const restBar = (t = '') => `<div class="rest"${t}><span class="mut">${T('พัก', 'Rest')}</span><span class="num">01:12</span><span class="sp"></span><span class="rb">−15</span><span class="rb">+15</span><span class="rb" style="font-size:14px">${T('ข้าม', 'skip')}</span></div>`;
+  const logBottom = (t1 = '', t2 = '') => `${restBar()}<div class="bar2 mt8 pb16"><span class="btn"${t1}>${ic('plus', 20)}${T('เพิ่มท่า', 'Add exercise')}</span><span class="btn"${t2}>${T('จบ', 'Finish')}</span></div>`;
+  const week = (on, td) => `<div class="week">${[['จ','M'],['อ','T'],['พ','W'],['พฤ','T'],['ศ','F'],['ส','S'],['อา','S']].map(([a, b], i) => `<div><span>${T(a, b)}</span><i class="${on.includes(i) ? 'on' : ''} ${i === td ? 'td' : ''}"></i></div>`).join('')}</div>`;
+  const li = (b, s, r = '', t = '', lead = '') => `<div class="li"${t}>${lead}<div class="tx"><b>${b}</b>${s ? `<span>${s}</span>` : ''}</div>${r ? `<div class="r">${r}</div>` : ''}</div>`;
+
+  // กราฟเส้นวาดมือ: จุดสถิติเป็นส้ม (บทบาทส้มเดียวของจอ)
+  const chart = (ys, pr, labels, yl) => {
+    const W = 320, H = 170, x0 = 34, x1 = 312, y0 = 14, y1 = 138;
+    const mn = Math.min(...ys), mx = Math.max(...ys), sx = (x1 - x0) / (ys.length - 1);
+    const pts = ys.map((y, i) => [x0 + i * sx, y1 - (y - mn) / ((mx - mn) || 1) * (y1 - y0)]);
+    let d = `M${pts[0][0]} ${pts[0][1]}`;
+    for (let i = 1; i < pts.length; i++) { const [px, py] = pts[i - 1], [x, y] = pts[i]; d += ` Q${(px + x) / 2 + (i % 2 ? 2 : -2)} ${(py + y) / 2 + (i % 2 ? -3 : 3)} ${x} ${y}`; }
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" aria-hidden="true">
+      <path d="M${x0} ${y0} L${x0 - 1} ${y1 + 2} L${x1} ${y1 + 1}" fill="none" stroke="var(--ink-3)" stroke-width="1.2"/>
+      <text x="0" y="${y0 + 5}">${yl[1]}</text><text x="0" y="${y1 + 2}">${yl[0]}</text>
+      ${labels.map(([i, l]) => [...l.matchAll(/<span class="(th|en)">(.*?)<\/span>/g)].map(([, c, t]) =>
+        `<text class="${c}" x="${x0 + i * sx}" y="${H - 6}" text-anchor="${i === 0 ? 'start' : i === ys.length - 1 ? 'end' : 'middle'}">${t}</text>`).join('')).join('')}
+      <path d="${d}" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" filter="url(#wob-line)"/>
+      ${pts.map(([x, y], i) => pr.includes(i)
+        ? `<circle cx="${x}" cy="${y}" r="6.5" fill="var(--accent)" stroke="currentColor" stroke-width="2.2"/>`
+        : `<circle cx="${x}" cy="${y}" r="3.8" fill="var(--paper)" stroke="currentColor" stroke-width="2"/>`).join('')}
+    </svg>`;
+  };
+
+  // =====================================================================
+  // หน้าจอ
+  // =====================================================================
+  const G = [];
+  const grp = (id, title, desc) => { const g = { id, title, desc, s: [] }; G.push(g); return g; };
+  const add = (g, o) => g.s.push(o);
+
+  // ---------- กลุ่ม 1: เข้าใช้ครั้งแรก ----------
+  const g1 = grp('g1', '1 · เข้าใช้ครั้งแรก (E1 บัญชี + E6 ติดตั้ง)', 'ยินดีต้อนรับ → (สอนติดตั้งบน iOS) → Google หรืออีเมล OTP → ยินยอม → แบบสอบถาม 2 ขั้น → หน้าหลักว่าง');
+
+  const welcome = (err) => `
+    <div class="sp" style="flex:.5"></div>
+    <div class="hw xl">fat cat fit</div>
+    <p class="t1">${T('แมวอ้วนจะผอม', 'Fat Cat Fit')}</p>
+    <p class="bd">${T('จดการออกกำลังกายให้เร็ว แล้วไปเล่นต่อ', 'Log it fast, then get back to it.')}</p>
+    ${cat(1, 150, 'margin-top:12px')}
+    <div class="sp"></div>
+    ${err
+      ? fld(T('โค้ดเชิญ', 'Invite code'), '<span class="num">MEOW-4812</span>', { err: T('โค้ดนี้ใช้ไม่ได้ · ลองเช็กกับเพื่อนที่ส่งให้อีกที', "This code doesn't work. Check with the friend who sent it.") })
+      : fld(T('โค้ดเชิญ', 'Invite code'), '<span class="num">MEOW-4821</span>', { hint: T('เติมให้จากลิงก์เชิญ · มีบัญชีแล้วไม่ต้องใส่', 'Filled in from your invite link · not needed if you have an account') })}
+    <span class="btn big mt16"${tap(1)}><span class="gmark">G</span>${T('เข้าด้วย Google', 'Continue with Google')}</span>
+    <span class="lnk mt4">${T('ใช้อีเมลแทน', 'Use email instead')}</span>
+    <div class="pb16"></div>`;
+  add(g1, { t: 'ยินดีต้อนรับ + โค้ดเชิญ', us: 'US-1.1 · US-1.3', html: welcome(false), thumb: true,
+    note: 'ปุ่ม Google เป็นปุ่มหลัก อีเมลเป็นลิงก์รอง · โค้ดตรวจก่อนเด้งไป Google · เข้าครั้งต่อไปไม่มีช่องโค้ด · <b>ปุ่ม Google ต้องตามแนวทางแบรนด์ของ Google</b> (ใช้โลโก้ทางการ) ตัว G ในกรอบเป็นแค่ที่วาง' });
+  add(g1, { t: 'สอนติดตั้งบน iOS (Safari)', us: 'E6', html: welcome(false),
+    over: `<div class="scrim"></div><div class="sheet"><div class="grab"></div>
+      <p class="t2">${T('ติดตั้งก่อน แล้วค่อยเข้า', 'Install first, then sign in')}</p>
+      <p class="bd mt4">${T('เปิดจากหน้าจอได้เหมือนแอป และไม่ต้องเข้าสู่ระบบสองรอบ', 'Open it like an app, and only sign in once.')}</p>
+      <ul class="bul steps">
+        <li><span class="sn num">1</span>${T('แตะ', 'Tap')} <span style="display:inline-block;vertical-align:-6px">${ic('share', 24)}</span> ${T('ที่แถบล่างของ Safari', 'in the Safari toolbar')}</li>
+        <li><span class="sn num">2</span>${T('เลือก "เพิ่มไปยังหน้าจอโฮม"', 'Choose "Add to Home Screen"')}</li>
+        <li><span class="sn num">3</span>${T('เปิด Fat Cat Fit จากไอคอนบนหน้าจอ', 'Open Fat Cat Fit from your home screen')}</li>
+      </ul>
+      <svg viewBox="0 0 320 40" style="width:100%;height:40px;color:var(--ink);margin-top:6px" aria-hidden="true"><path d="M150 4 Q140 22 160 36 M152 36 L160 37 L159 28" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="lnk">${T('ไว้ทีหลัง', 'Maybe later')}</span></div>`,
+    note: 'แสดงเฉพาะ Safari บน iPhone ที่ยังไม่ได้ติดตั้ง · ขึ้นก่อนเข้าสู่ระบบ (ดู UX.md ข้อ 5.1) · ลูกศรชี้ลงไปที่ปุ่มแชร์ของ Safari · "ไว้ทีหลัง" แล้วไม่ถามซ้ำ 14 วัน · ชื่อเมนูภาษาไทยของ iOS ต้องตรวจกับเครื่องจริง' });
+  add(g1, { t: 'โค้ดเชิญใช้ไม่ได้', us: 'US-1.1 (ผิดพลาด)', html: welcome(true),
+    note: 'ข้อความอื่นในช่องเดียวกัน: "โค้ดนี้หมดอายุแล้ว" · "โค้ดนี้ใช้ครบแล้ว" · บัญชี Google ใหม่ที่ไม่ได้ใส่โค้ด: "ต้องมีโค้ดเชิญก่อนนะ · ขอจากเพื่อนที่ชวนมา" · ไม่มีแมว (ผิดพลาดในช่อง)' });
+  add(g1, { t: 'เข้าด้วยอีเมล', us: 'US-1.2', html: `
+    <div class="lhead"><span class="ibtn">${ic('back')}</span></div>
+    <p class="t1 mt8">${T('เข้าด้วยอีเมล', 'Sign in with email')}</p>
+    <p class="bd">${T('เราจะส่งรหัส 6 หลักไปให้ ไม่ต้องจำรหัสผ่าน', "We'll email you a 6-digit code. No password.")}</p>
+    ${fld(T('อีเมล', 'Email'), 'nok@example.com<span class="caret"></span>')}
+    <p class="mut mt8">${T('โค้ดเชิญ', 'Invite code')} <span class="num">MEOW-4821</span> · <u>${T('แก้', 'edit')}</u></p>
+    <div class="sp"></div>
+    <span class="btn big"${tap(1)}>${T('ส่งรหัส', 'Send code')}</span>
+    <p class="mut c mt8">${T('ไม่ได้รับ? ดูในจดหมายขยะด้วย', "Didn't get it? Check your spam folder.")}</p>
+    <div class="mt8"></div>${kbText()}`,
+    note: 'ปุ่มอยู่เหนือแป้นพิมพ์เสมอ · ช่องอีเมล 20px (กัน iOS ซูม) · กำลังส่ง: ปุ่มเป็น "กำลังส่ง…" · ขอถี่เกิน: "ขอรหัสถี่ไปหน่อย · ลองใหม่ใน 4:59" ใต้ช่อง' });
+  add(g1, { t: 'กรอกรหัส OTP', us: 'US-1.2', html: `
+    <div class="lhead"><span class="ibtn">${ic('back')}</span></div>
+    <p class="t1 mt8">${T('ใส่รหัส 6 หลัก', 'Enter the 6-digit code')}</p>
+    <p class="bd">${T('ส่งไปที่ nok@example.com แล้ว · ใช้ได้ 10 นาที', 'Sent to nok@example.com · valid for 10 minutes')}</p>
+    <div class="otp num"${tap(1)}><span>4</span><span>8</span><span>2</span><span class="cur"></span><span class="cur"></span><span class="cur"></span></div>
+    <p class="fe">${T('รหัสไม่ตรง · ลองได้อีก 4 ครั้ง', "That code didn't match · 4 tries left")}</p>
+    <div class="sp"></div>
+    <span class="lnk dim">${T('ส่งรหัสอีกครั้ง (0:42)', 'Resend code (0:42)')}</span>
+    <span class="lnk">${T('เปลี่ยนอีเมล', 'Change email')}</span>
+    ${kbNum()}`,
+    note: 'แป้นตัวเลข + เติมรหัสจากอีเมลอัตโนมัติ · ครบ 6 หลักส่งเองไม่ต้องกดปุ่ม · ผิดครบ 5 ครั้ง: "ลองหลายครั้งไปแล้ว · ขอรหัสใหม่นะ" + ปุ่มขอใหม่ · หมดอายุ: "รหัสหมดอายุแล้ว · ขอใหม่ได้เลย"' });
+  add(g1, { t: 'ยินยอมความเป็นส่วนตัว', us: 'US-1.4', thumb: true, html: `
+    <p class="t1 mt16">${T('ก่อนเริ่ม ขอบอกตรงๆ', 'Before we start')}</p>
+    <ul class="bul">
+      <li>${T('แอปเก็บน้ำหนัก ส่วนสูง อายุ และการออกกำลังกายของเธอ ซึ่งนับเป็น<b>ข้อมูลสุขภาพ</b>', 'We store your weight, height, age and workouts. That counts as <b>health data</b>.')}</li>
+      <li>${T('เห็นได้เฉพาะเธอคนเดียว เพื่อนในกลุ่มก็ไม่เห็น', 'Only you can see it. Not even friends in the group.')}</li>
+      <li>${T('ไม่ขาย ไม่ใช้ทำโฆษณา ไม่ส่งต่อ', 'Never sold, never used for ads, never shared.')}</li>
+      <li>${T('ส่งออก หรือลบบัญชีพร้อมข้อมูลทั้งหมดได้เองทุกเมื่อ', 'Export it, or delete your account and all data, any time.')}</li>
+    </ul>
+    <span class="lnk l mt8">${T('อ่านประกาศฉบับเต็ม (ฉบับ 1 · 15 พ.ย. 2026)', 'Read the full notice (v1 · 15 Nov 2026)')}</span>
+    <div class="sp"></div>
+    <div class="row" style="align-items:flex-start;min-height:52px"${tap(1)}><span class="cb on">${ic('check', 20, 3)}</span><span class="bd" style="color:var(--ink)">${T('ยินยอมให้เก็บและใช้ข้อมูลสุขภาพตามประกาศนี้', 'I agree to the storage and use of my health data as described.')}</span></div>
+    <span class="btn big mt12"${tap(2)}>${T('ยินยอมและไปต่อ', 'Agree and continue')}</span>
+    <span class="lnk">${T('ไม่ยินยอม', "I don't agree")}</span><div class="pb16"></div>`,
+    note: 'ช่องติ๊กไม่ติ๊กไว้ให้ก่อน ปุ่มปิดจนกว่าจะติ๊ก · บันทึกเวลา + เวอร์ชันประกาศ · "ไม่ยินยอม" → อธิบายว่าใช้แอปไม่ได้ แล้วออกจากระบบและลบบัญชีที่เพิ่งสร้าง · ส้มที่เดียว = ช่องติ๊ก' });
+
+  const pline = (pct) => `<div class="pline"><svg class="l" viewBox="0 0 320 12" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M2 6 C60 3 120 9 180 6 S280 4 318 6" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 7" vector-effect="non-scaling-stroke"/>
+      <path d="M2 6 C60 3 120 9 ${pct * 3.18} 6" fill="none" stroke="var(--accent)" stroke-width="5" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
+      ${cat(2, 58, `left:calc(${pct}% - 34px)`)}</div>`;
+  add(g1, { t: 'แบบสอบถาม 1/2 · ร่างกาย', us: 'US-1.5', html: `
+    ${pline(50)}
+    <div class="between"><p class="t1">${T('ขอรู้จักหน่อย', 'A few basics')}</p><span class="mut num">1/2</span></div>
+    <p class="mut">${T('ใช้คำนวณเท่านั้น ไม่มีใครเห็นนอกจากเธอ', 'Only used for calculations. Only you can see it.')}</p>
+    <div class="chips mt12">${chip('kg · cm', true)}${chip('lb · in')}</div>
+    <div class="fld"><div class="fl">${T('น้ำหนัก (บังคับ)', 'Weight (required)')}</div>${step('72.4', 'kg', false, tap(1))}</div>
+    <div class="fld"><div class="fl">${T('ส่วนสูง (บังคับ)', 'Height (required)')}</div>${step('168', 'cm')}</div>
+    <div class="fld"><div class="fl">${T('ปีเกิด (บังคับ) · อายุ 32', 'Birth year (required) · age 32')}</div>${step('1994')}</div>
+    <div class="sp"></div>
+    <span class="btn big"${tap(2)}>${T('ต่อไป', 'Next')}</span><div class="pb20"></div>`,
+    note: 'แตะตัวเลขเพื่อพิมพ์เอง (แป้นตัวเลข) หรือใช้ −/+ (0.1 kg · 1 cm · 1 ปี) · ค่าเริ่มว่าง ช่องบังคับว่าง = ปุ่มปิด · นอกช่วงที่เป็นไปได้: "ตัวเลขดูแปลกๆ ลองดูอีกที" · แมวเดินบนเส้นความคืบหน้า' });
+  add(g1, { t: 'แบบสอบถาม 2/2 · สถานที่ + ไม่บังคับ', us: 'US-1.5 · US-2.3', html: `
+    ${pline(92)}
+    <div class="between"><p class="t1">${T('ส่วนใหญ่เล่นที่ไหน', 'Where do you usually work out?')}</p><span class="mut num">2/2</span></div>
+    <div class="chips mt12">${chip(T('ยิม', 'Gym'), true, tap(1))}${chip(T('บ้าน', 'Home'))}${chip(T('สวนสาธารณะ', 'Park'))}${chip(T('ออฟฟิศ', 'Office'))}</div>
+    ${fld(T('ตั้งชื่อ (บังคับ)', 'Name it (required)'), T('ยิมใกล้บ้าน', 'Gym near home'))}
+    ${wob('thin mt16')}
+    <p class="mut">${T('ไม่บังคับ · ข้ามได้', 'Optional · skip if you like')}</p>
+    <p class="t3 mt8">${T('อยากได้อะไร (เลือกได้หลายอัน)', 'What are you after? (pick any)')}</p>
+    <div class="chips mt8">${chip(T('แข็งแรงขึ้น', 'Stronger'), true)}${chip(T('ฟิตขึ้น', 'Fitter'))}${chip(T('ลดน้ำหนัก', 'Lose weight'))}${chip(T('มาให้สม่ำเสมอ', 'Show up'), true)}</div>
+    <p class="t3 mt12">${T('เล่นมานานแค่ไหน', 'Experience')}</p>
+    <div class="chips mt8">${chip(T('เพิ่งเริ่ม', 'New'))}${chip(T('มาบ้าง', 'Some'), true)}${chip(T('ประจำ', 'Regular'))}</div>
+    <div class="sp"></div>
+    <span class="btn big"${tap(2)}>${T('เริ่มใช้', 'Start')}</span><div class="pb20"></div>`,
+    note: 'สถานที่แรกเป็นสถานที่เริ่มต้นของหน้าหลัก · ส่วนไม่บังคับไม่มีปุ่มข้าม กด "เริ่มใช้" ได้เลย · ไม่ถามเพศ (เรื่องให้ boss ตัดสิน ข้อ 4)' });
+
+  // ---------- กลุ่ม 2: หน้าหลัก ----------
+  const g2 = grp('g2', '2 · หน้าหลักและการเริ่มเซสชัน (US-3.1 · US-2.3 · US-4.1 · US-3.5)', 'เริ่มได้ 1 แตะด้วยสถานที่ล่าสุด · เทมเพลตแตะแล้วเริ่มเลย · ระหว่างเล่นมีแถบลอยกลับหน้าจด');
+  const homeTop = `
+    <div class="between"><div class="hw">today</div><span class="mut">${T('อา 15 พ.ย.', 'Sun 15 Nov')}</span></div>
+    <p class="t1">${T('วันนี้เล่นอะไรดี', "What's it today?")}</p>
+    <div class="mt12">${week([1, 3], 6)}</div>
+    <p class="mut mt8">${T('สัปดาห์นี้มาแล้ว 2 วัน', '2 days this week')}</p>
+    ${wob()}
+    <div class="sec"><b>${T('เทมเพลต', 'Templates')}</b><span class="lnk">${T('ทั้งหมด', 'All')}</span></div>
+    ${li(T('อกและแขน', 'Chest &amp; arms'), 'Incline DB press · Bench press · Triceps pushdown', ic('chev', 20), tap(1))}
+    ${li(T('ขา', 'Legs'), 'Squat · Romanian deadlift · Leg press · Calf raise', ic('chev', 20))}
+    ${li(T('เดินชัน 30 นาที', 'Incline walk 30 min'), 'Treadmill incline walk', ic('chev', 20))}
+    ${li(T('ทำซ้ำครั้งก่อน', 'Repeat last'), T('ขา · พฤ 12 พ.ย.', 'Legs · Thu 12 Nov'), ic('chev', 20), '', `<span style="color:var(--ink)">${ic('repeat', 22)}</span>`)}`;
+  const startArea = (t1 = '', t2 = '') => `
+    <div class="row mt8"><span class="mut">${T('ที่', 'At')}</span><span class="chip"${t2}>${ic('pin', 18)}${LOC}${ic('down', 16)}</span></div>
+    <span class="btn big mt8"${t1}>${T('เริ่ม', 'Start')}</span>`;
+  add(g2, { t: 'หน้าหลัก · มีข้อมูล', us: 'US-3.1 · US-4.1 · US-5.1', thumb: true, html: `${homeTop}<div class="sp"></div>${startArea(tap(1))}${tabs(0)}`,
+    note: '<b>เริ่ม</b> = เริ่มเซสชันที่สถานที่บนชิป แล้วเปิดเลือกท่าทันที · แตะเทมเพลต/ทำซ้ำ = เริ่มเซสชันพร้อมท่าทั้งชุดเลย (ใช้สถานที่บนชิป) · ส้ม = วันที่มา · เทมเพลตแสดง 3 อันที่ใช้ล่าสุด' });
+  add(g2, { t: 'หน้าหลัก · ว่าง (ครั้งแรก)', us: 'US-3.1', thumb: true, html: `
+    <div class="between"><div class="hw">today</div><span class="mut">${T('อา 15 พ.ย.', 'Sun 15 Nov')}</span></div>
+    <p class="t1">${T('ยินดีต้อนรับ', 'Welcome')}</p>
+    <div class="sp"></div>
+    ${cat(12, 200)}
+    <p class="bd c mt8">${T('ยังไม่มีอะไรเลย · แมวก็ยังไม่ได้ขยับ', "Nothing here yet. The cat hasn't moved either.")}</p>
+    <div class="sp"></div>
+    ${startArea(tap(1))}${tabs(0)}`,
+    note: 'Empty state = แมว + ประโยคเดียว + ปุ่มเดียว · ไม่มีส่วนเทมเพลตจนกว่าจะมี · สัปดาห์นี้ซ่อนจนกว่าจะมีเซสชันแรก' });
+  add(g2, { t: 'หน้าหลัก · กำลังเล่น + ค้างส่ง', us: 'US-3.5 · US-3.6', html: `
+    <div class="net">${ic('sync', 18)}${T('ค้างส่ง 3 รายการ · จะส่งเมื่อมีเน็ต', '3 waiting to sync · will send when online')}</div>
+    ${homeTop}<div class="sp"></div>${live(tap(1))}${tabs(0)}`,
+    note: 'แถบดำ "กำลังเล่น" แทนที่ปุ่มเริ่ม (มีได้ทีละเซสชัน) · แตะ = กลับหน้าจด · แถบนี้ลอยเหนือแถบล่างในทุกแท็บ · แถบบนบอกค้างส่ง แตะเพื่อดูรายการ/ส่งตอนนี้ · ค้างเกิน 24 ชม. เปลี่ยนข้อความเป็นเตือน' });
+  add(g2, { t: 'เลือก/เพิ่มสถานที่', us: 'US-2.3 · US-3.1', html: `${homeTop}<div class="sp"></div>${startArea()}${tabs(0)}`,
+    over: `<div class="scrim"></div><div class="sheet"><div class="grab"></div>
+      <p class="t2">${T('เล่นที่ไหน', 'Where are you?')}</p>
+      <div class="opt mt8"${tap(1)}><span class="cb on">${ic('check', 20, 3)}</span>${LOC}<span class="mut">${T('ล่าสุด', 'last used')}</span></div>
+      <div class="opt"><span class="cb"></span>${T('บ้าน', 'Home')}</div>
+      <div class="opt"><span class="cb"></span>${T('สวนลุม', 'Lumpini Park')}</div>
+      ${wob('thin')}
+      ${fld(T('เพิ่มสถานที่', 'Add a place'), T('ยิมที่ทำงาน', 'Office gym') + '<span class="caret"></span>')}
+      <span class="btn mt12">${T('เพิ่ม', 'Add')}</span></div>`,
+    note: 'เปิดจากชิปสถานที่บนหน้าหลัก · แตะแถว = เลือกแล้วปิดแผ่นเลย (1 แตะ) · จำล่าสุดไว้ใช้ครั้งหน้า · แก้ชื่อ/ลบสถานที่อยู่ใน ฉัน › สถานที่ของฉัน' });
+  add(g2, { t: 'กลับมาหลังปิดแอปนาน', us: 'US-3.5', html: `${homeTop}<div class="sp"></div>${live()}${tabs(0)}`,
+    over: `<div class="scrim"></div><div class="sheet"><div class="grab"></div>
+      ${cat(36, 140)}
+      <p class="t2 c">${T('ยังเล่นอยู่ไหม', 'Still going?')}</p>
+      <p class="bd c">${T('อกและแขน · เริ่ม 17:05 · เซ็ตล่าสุด 18:40', 'Chest &amp; arms · started 17:05 · last set 18:40')}</p>
+      <span class="btn big mt16"${tap(1)}>${T('เล่นต่อ', 'Keep going')}</span>
+      <span class="lnk mt4">${T('จบเซสชัน (นับถึง 18:40)', 'Finish (ends at 18:40)')}</span></div>`,
+    note: 'ถามเฉพาะเมื่อไม่มีการจดเกิน 3 ชม. ถ้าน้อยกว่านั้นเปิดแอปแล้วเข้าหน้าจดเลย · จบแบบนี้ เวลาจบ = เวลาเซ็ตสุดท้าย ไม่ใช่ตอนกด' });
+
+  // ---------- กลุ่ม 3: เลือกท่า ----------
+  const g3 = grp('g3', '3 · เลือกท่าและสร้างท่า (E2: US-2.1 · US-2.2)', 'เปิดเองหลังกดเริ่ม และจากปุ่ม "+ เพิ่มท่า" ในหน้าจด · ชื่ออังกฤษเป็นหลักเสมอ คำทับศัพท์ไทยอยู่ใต้ชื่อ');
+  const exRow = (en, th, r, t = '') => li(en, `<span class="th">${th}</span>`, r, t);
+  add(g3, { t: 'เลือกท่า', us: 'US-2.1', thumb: true, html: `
+    <div class="lhead"><span class="ibtn">${ic('close')}</span><div class="tt"><b>${T('เลือกท่า', 'Pick an exercise')}</b></div></div>
+    <div class="srch mt8">${ic('search', 22)}${T('ค้นหา เช่น bench, สควอท', 'Search, e.g. bench, squat')}</div>
+    <div class="chips nowrap mt12">${chip(T('ทั้งหมด', 'All'), true)}${chip(T('อก', 'Chest'))}${chip(T('หลัง', 'Back'))}${chip(T('ขา', 'Legs'))}${chip(T('ไหล่', 'Shoulders'))}${chip(T('แขน', 'Arms'))}${chip(T('คาร์ดิโอ', 'Cardio'))}${chip(T('ของฉัน', 'Mine'))}</div>
+    <div class="sec mt8"><b>${T('ล่าสุด', 'Recent')}</b></div>
+    ${exRow('Bench press', 'เบนช์เพรส', '<span class="num">62.5×6</span>', tap(1))}
+    ${exRow('Incline dumbbell press', 'อินคลายน์ดัมเบลเพรส', '<span class="num">22.5×10</span>')}
+    ${exRow('Squat', 'สควอท', '<span class="num">80×5</span>')}
+    ${exRow('Treadmill incline walk', 'เดินชันบนลู่', '<span class="num">30:00</span>')}
+    ${exRow('Plank', 'แพลงก์', '<span class="num">1:00</span>')}
+    <div class="sec mt8"><b>${T('อก', 'Chest')}</b></div>
+    ${exRow('Cable fly', 'เคเบิลฟลาย', '')}
+    <div class="sp"></div>
+    <span class="lnk pb16">+ ${T('สร้างท่าใหม่', 'Create exercise')}</span>`,
+    note: 'แตะแถว = เพิ่มท่าเข้าเซสชันแล้วเปิดหน้าจดทันที (ไม่ต้องกดยืนยัน) · ล่าสุดเรียงตามใช้ล่าสุด+บ่อย 5 ท่า มีค่าเซ็ตสุดท้ายให้ดู · ชิปหมวดเลื่อนข้างได้ · ไม่เคยเล่น: ไม่มีส่วนล่าสุด เริ่มที่หมวด' });
+  add(g3, { t: 'ค้นหา', us: 'US-2.1 · US-2.2', html: `
+    <div class="lhead"><span class="ibtn">${ic('close')}</span><div class="tt"><b>${T('เลือกท่า', 'Pick an exercise')}</b></div></div>
+    <div class="srch typed mt8">${ic('search', 22)}${T('เบนช', 'bench')}<span class="caret"></span></div>
+    ${exRow('Bench press', 'เบนช์เพรส', '<span class="num">62.5×6</span>')}
+    ${exRow('Incline bench press', 'อินคลายน์เบนช์เพรส', '')}
+    ${exRow('Close-grip bench press', 'โคลสกริปเบนช์เพรส', '')}
+    ${exRow('Dumbbell bench press', 'ดัมเบลเบนช์เพรส', '')}
+    ${wob('thin')}
+    <p class="mut">${T('ไม่ใช่ท่าที่หา?', 'Not what you want?')}</p>
+    <span class="lnk l"${tap(1)}>+ ${T('สร้าง "เบนช" เป็นท่าของฉัน', 'Create "bench" as my exercise')}</span>
+    <div class="sp"></div>${kbText()}`,
+    note: 'ค้นทั้งชื่ออังกฤษ ชื่อทับศัพท์ไทย และชื่อเรียกอื่น · ผลขึ้นทันทีที่พิมพ์ (ข้อมูลอยู่ในเครื่อง ใช้ได้ออฟไลน์) · ไม่เจอเลย: เหลือแค่ "ไม่เจอ "xxx"" + ปุ่มสร้าง เติมชื่อให้' });
+  const tt = (on, th, en, exTh, exEn) => `<div class="opt" style="min-height:46px;font-size:16px"><span class="cb ${on ? 'on' : ''}" style="border-radius:50%">${on ? ic('check', 18, 3) : ''}</span><span>${T(th, en)}</span><span class="mut">${T(exTh, exEn)}</span></div>`;
+  add(g3, { t: 'สร้างท่าของตัวเอง', us: 'US-2.2', html: `
+    <div class="lhead"><span class="ibtn">${ic('close')}</span><div class="tt"><b>${T('ท่าของฉัน', 'My exercise')}</b></div></div>
+    ${fld(T('ชื่อ (บังคับ)', 'Name (required)'), 'Boss plank')}
+    ${fld(T('ชื่อไทย (ไม่บังคับ)', 'Thai name (optional)'), T('บอสแพลงก์', 'บอสแพลงก์'), { ph: true })}
+    <p class="fl mt12">${T('หมวด', 'Category')}</p>
+    <div class="chips nowrap mt4">${chip(T('ท้อง', 'Core'), true)}${chip(T('อก', 'Chest'))}${chip(T('ขา', 'Legs'))}${chip(T('คาร์ดิโอ', 'Cardio'))}${chip(T('กีฬา', 'Sport'))}</div>
+    <p class="fl mt12">${T('จดอะไร (บังคับ)', 'What do you log? (required)')}</p>
+    ${tt(false, 'น้ำหนัก × ครั้ง', 'Weight × reps', 'เบนช์', 'bench')}
+    ${tt(false, 'ครั้งอย่างเดียว', 'Reps only', 'ซิทอัพ', 'sit-up')}
+    ${tt(true, 'เวลา', 'Time', 'แพลงก์', 'plank')}
+    ${tt(false, 'ระยะ + เวลา', 'Distance + time', 'วิ่ง', 'run')}
+    ${tt(false, 'น้ำหนัก + เวลา', 'Weight + time', 'ฟาร์เมอร์', 'carry')}
+    ${tt(false, 'ชัน + เร็ว + เวลา', 'Incline + speed + time', 'ลู่', 'treadmill')}
+    <p class="mut mt4">${T('เปลี่ยนสิ่งที่จดไม่ได้หลังเริ่มจดแล้ว', "You can't change this once you've logged it.")}</p>
+    <div class="sp"></div>
+    <span class="btn big pb"${tap(1)}>${T('บันทึกและเพิ่มเข้าเซสชัน', 'Save and add to session')}</span><div class="pb16"></div>`,
+    note: 'เลือก "น้ำหนัก × ครั้ง" แล้วมีสวิตช์เพิ่ม 3 อัน: ใช้น้ำหนักตัว · ทีละข้าง · เครื่องช่วย · ชื่อซ้ำกับท่าของฉัน: "มีท่าชื่อนี้แล้ว" ใต้ช่อง · แก้ชื่อ/เก็บเข้ากรุได้ที่ ฉัน › ท่าของฉัน (ท่าที่มีประวัติลบไม่ได้)' });
+
+  // ---------- กลุ่ม 4: จด ----------
+  const g4 = grp('g4', '4 · หน้าจด (E3: US-3.2–3.7)', 'ข้อยกเว้นของความโล่ง: ข้อมูลแน่น ไม่มีของตกแต่ง ตัวเลขใหญ่ ✓ 56px ชิดขวา · ปุ่มหลักอยู่ครึ่งล่าง · ส้ม = เซ็ตที่ติ๊กแล้วเท่านั้น');
+  const C2 = 'c2';
+  const benchBlock = (row3, extra = '') => `
+    <div class="exc"><b>Incline dumbbell press</b><span class="mut">${T('3 เซ็ต', '3 sets')} ✓</span></div>
+    ${wob('thin')}
+    <div class="between"><span class="exn">Bench press</span><span class="ibtn">${ic('more')}</span></div>
+    <p class="prev">${T('ครั้งก่อน พฤ 12 พ.ย.', 'Last time, Thu 12 Nov')} · <span class="num" style="color:var(--ink-3);font-weight:400">60×8 · 62.5×8 · 62.5×6</span></p>
+    ${hd(C2, [T('เซ็ต', 'Set'), 'kg', T('ครั้ง', 'Reps')])}
+    ${lr(1, [['60', KG], ['8', REP]], 'on', C2)}
+    ${lr(2, [['62.5', KG], ['8', REP]], 'on', C2)}
+    ${row3}${extra}
+    ${wob('thin')}
+    <div class="exc"><b>Triceps pushdown</b><span class="mut">${T('3 เซ็ต · ยังไม่เริ่ม', '3 sets · not started')}</span></div>`;
+  const benchHead = lhead(T('อกและแขน', 'Chest &amp; arms'), LOC, `<span class="num" style="font-size:18px">24:10</span>`);
+  add(g4, { t: 'จด · น้ำหนัก × ครั้ง (weight_reps)', us: 'US-3.2 · US-3.3 · US-3.4', cls: 'dense', thumb: true, html: `
+    ${benchHead}${wob()}${benchBlock(lr(3, [['62.5', KG], ['8', REP]], 'sug', C2, tap(1)))}
+    <div class="sp"></div>${logBottom()}`,
+    note: 'แถว 3 เป็นค่าแนะนำ (สีจาง เส้นประ) เติมจากเซ็ตก่อน · <b>✓ 1 แตะ = จดเซ็ต</b> → ตัวจับเวลาพักเริ่ม แถว 4 โผล่ · ท่าที่จบแล้ว/ยังไม่เริ่มพับเป็นแถวเดียว แตะเพื่อเปิด · ‹ = ย่อ (เซสชันยังเดิน) · ⋯ บน = แก้สถานที่ / ทิ้งเซสชัน · ⋯ ท่า = ดูกราฟ / ย้าย / เอาท่าออก' });
+  add(g4, { t: 'แก้ค่าในเซ็ต', us: 'US-3.5', cls: 'dense', html: `
+    ${benchHead}${wob()}
+    <div class="between"><span class="exn">Bench press</span><span class="ibtn">${ic('more')}</span></div>
+    ${hd(C2, [T('เซ็ต', 'Set'), 'kg', T('ครั้ง', 'Reps')])}
+    ${lr(1, [['60', KG], ['8', REP]], 'on', C2)}
+    ${lr(2, [['62.5', KG], ['8', REP]], 'on', C2)}
+    <div class="lr c2"><span class="n">3</span><span class="num v" style="border-bottom-width:3px">65<span class="caret"></span><small>kg</small></span><span class="num v sug">8<small>${REP}</small></span>${tick(false)}</div>
+    <div class="row mt8" style="justify-content:space-between"><span class="mut">${T('น้ำหนัก', 'Weight')}</span><span class="rb">−</span><span class="num" style="font-size:20px;min-width:72px;text-align:center">2.5 kg</span><span class="rb">+</span><span class="rb s">${T('เสร็จ', 'Done')}</span></div>
+    <div class="sp"></div>${kbNum()}`,
+    note: 'แตะตัวเลข = ช่องนั้นเปิดแก้ + แป้นตัวเลข + ปุ่ม −/+ (2.5 kg · 5 lb · ครั้งละ 1) · แก้เซ็ตที่ติ๊กแล้วได้เหมือนกัน → สถิติคำนวณใหม่ · ไม่ใช้ dropdown · แตะที่อื่น = ปิดแก้' });
+  add(g4, { t: 'เมนูของเซ็ต', us: 'US-3.5', cls: 'dense', html: `${benchHead}${wob()}${benchBlock(lr(3, [['62.5', KG], ['8', REP]], 'sug', C2))}<div class="sp"></div>${logBottom()}`,
+    over: `<div class="scrim"></div><div class="sheet"><div class="grab"></div>
+      <p class="t2">${T('เซ็ต 2 · 62.5 kg × 8', 'Set 2 · 62.5 kg × 8')}</p>
+      <div class="opt mt8"${tap(1)}><span class="cb"></span>${T('เซ็ตวอร์มอัพ', 'Warm-up set')}<span class="mut">${T('ไม่นับสถิติ', "doesn't count for records")}</span></div>
+      <div class="opt warn">${ic('close', 22)}${T('ลบเซ็ต', 'Delete set')}</div>
+      <span class="btn mt12">${T('ปิด', 'Close')}</span></div>`,
+    note: 'เปิดโดยแตะเลขเซ็ต · วอร์มอัพแสดง "W" แทนเลข · ลบเซ็ตไม่ถามยืนยัน แต่มี toast "ลบแล้ว · ย้อนกลับ" 5 วินาที · แตะ ✓ ส้มอีกครั้ง = เอาติ๊กออก (มีย้อนกลับเหมือนกัน)' });
+  add(g4, { t: 'ตัวจับเวลาพัก', us: 'US-3.4', html: `${benchHead}${wob()}${benchBlock(lr(3, [['62.5', KG], ['8', REP]], 'sug', C2))}<div class="sp"></div>${logBottom()}`,
+    over: `<div class="scrim"></div><div class="sheet"><div class="grab"></div>
+      <div class="between"><div class="hw">rest</div>${cat(19, 96)}</div>
+      <p class="num c" style="font-size:48px;line-height:1.1;margin:0">01:12</p>
+      <svg viewBox="0 0 320 14" preserveAspectRatio="none" style="width:100%;height:14px;margin-top:8px" aria-hidden="true">
+        <path d="M2 7 C60 4 120 10 180 7 S280 5 318 7" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-dasharray="2 7" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+        <path d="M2 7 C60 4 120 10 180 7 S250 6 255 7" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
+      <div class="row mt12" style="justify-content:center;gap:20px"><span class="rb" style="width:56px;height:56px;font-size:16px">−15</span><span class="rb" style="width:56px;height:56px;font-size:16px">+15</span></div>
+      <p class="mut c mt12">${T('ต่อไป: Bench press 62.5 × 8', 'Next: Bench press 62.5 × 8')}</p>
+      <span class="btn big mt8"${tap(1)}>${T('ข้าม · ไปเซ็ตต่อ', 'Skip · next set')}</span></div>`,
+    note: 'เปิดโดยแตะแถบพักในหน้าจด (ไม่จำเป็นต้องเปิด) · เริ่มเองหลัง ✓ ค่าเริ่ม 90 วิ · นับจากเวลาที่เริ่ม จอดับแล้วกลับมาเวลายังถูก · ครบ: ตัวเลขเป็น "ไปต่อ" + สั่น (Android) + เสียงสั้นถ้าเปิดแอปอยู่ · จอดับไม่มีเสียงเตือน (push = P2)' });
+  add(g4, { t: 'สถิติใหม่ (PR)', us: 'US-3.7', cls: 'dense', html: `
+    ${benchHead}${wob()}${benchBlock(`<div class="lr c2"><span class="n">3</span>${val('65', KG)}${val('5', REP)}${tick(true)}<span class="star">${ic('star', 18, 2)}</span></div>`, lr(4, [['65', KG], ['5', REP]], 'sug', C2))}
+    <div class="sp"></div>${logBottom()}`,
+    over: `<div class="toast">${cat(8, 60, 'margin:0')}<div><div class="hw" style="font-size:24px">new record</div><p class="bd" style="color:var(--ink);font-weight:400">${T('สถิติใหม่', 'New record')} · Bench press</p><p class="num" style="margin:0;font-size:18px">65 kg × 5</p><p class="mut">${T('แมวภูมิใจ (นิดหน่อย)', 'The cat is proud (a little).')}</p></div></div>`,
+    note: 'ขึ้นทันทีหลัง ✓ ค้าง 3 วินาทีแล้วหายเอง ไม่ต้องกด ไม่บังหน้าจดส่วนล่าง · แถวได้ดาวเส้นดำ (ส้มของจอนี้เป็นของ ✓ แล้ว) · ฉลองเป็นข้อยกเว้นเดียวที่มีแมวในหน้าจด · แมวเด้ง 1 ครั้งแล้วหยุด · เซ็ตวอร์มอัพไม่นับ' });
+  add(g4, { t: 'จด · เวลา (duration)', us: 'US-3.2', cls: 'dense', thumb: true, html: `
+    ${lhead(T('แกนกลาง', 'Core'), LOC, `<span class="num" style="font-size:18px">12:40</span>`)}${wob()}
+    <div class="between"><span class="exn">Plank</span><span class="ibtn">${ic('more')}</span></div>
+    <p class="prev">${T('ครั้งก่อน', 'Last time')} · <span class="num" style="color:var(--ink-3);font-weight:400">1:00 · 1:00 · 0:45</span></p>
+    <div class="lr hd c1p"><span>${T('เซ็ต', 'Set')}</span><span>${T('เวลา', 'Time')}</span><span></span><span></span></div>
+    <div class="lr c1p"><span class="n">1</span>${val('1:00', T('นาที', 'min'))}<span></span>${tick(true)}</div>
+    <div class="lr c1p"><span class="n">2</span><span class="num v run">0:38</span><span class="play"${tap(1)}>${ic('stop', 22)}</span>${tick(false)}</div>
+    <p class="mut">${T('กำลังจับเวลา · แตะ ■ เพื่อหยุดและจดเซ็ต', 'Timing · tap ■ to stop and log')}</p>
+    <div class="sp"></div>${logBottom()}`,
+    note: 'สองทาง: ✓ จดค่าที่เติมให้ (1 แตะ) หรือ ▶ จับเวลาจริง → ■ หยุด = ใส่ค่า + ติ๊กให้เลย · พิมพ์เวลาต่อจากขวา (130 = 1:30) · −/+ ครั้งละ 15 วิ' });
+  const C3 = 'c3';
+  add(g4, { t: 'จด · ชัน + เร็ว + เวลา (incline_speed_duration)', us: 'US-3.2', cls: 'dense', html: `
+    ${lhead(T('คาร์ดิโอ', 'Cardio'), LOC, `<span class="num" style="font-size:18px">21:05</span>`)}${wob()}
+    <div class="between"><span class="exn">Treadmill incline walk</span><span class="ibtn">${ic('more')}</span></div>
+    <p class="prev">${T('ครั้งก่อน', 'Last time')} · <span class="num" style="color:var(--ink-3);font-weight:400">12% · 5.0 · 30:00</span></p>
+    ${hd(C3, [T('ช่วง', '#'), T('ชัน %', 'Incl %'), 'km/h', T('เวลา', 'Time')])}
+    ${lr(1, [['12', '%'], ['5.0', ''], ['10:00', '']], 'on', C3)}
+    <p class="mut" style="padding-left:32px">≈ 0.83 km</p>
+    ${lr(2, [['12', '%'], ['5.5', ''], ['10:00', '']], 'sug', C3, tap(1))}
+    <p class="mut" style="padding-left:32px">≈ 0.92 km</p>
+    <div class="sp"></div>${logBottom()}`,
+    note: 'แถวละ "ช่วง" (เปลี่ยนความชัน/ความเร็วกลางทาง = ช่วงใหม่) · บังคับทั้ง 3 ช่อง · ระยะคำนวณให้ ไม่ต้องกรอก · หน่วย km/h หรือ mph ตามตั้งค่า · −/+ : ชัน 0.5 · เร็ว 0.1 · เวลา 1 นาที' });
+  const mini = (title, sub, cols, labels, vals) => `<div class="exn mt12">${title}</div><p class="prev">${sub}</p>${hd(cols, labels)}${lr(1, vals, 'sug', cols)}`;
+  add(g4, { t: 'แถวจดชนิดอื่น (อ้างอิง)', us: 'US-3.2', cls: 'dense long', html: `
+    <p class="t2">${T('แถวจดของแต่ละชนิด', 'Row per log type')}</p>
+    ${mini('Sit-up', 'reps_only · ' + T('ครั้ง', 'reps'), 'c1', [T('เซ็ต', 'Set'), T('ครั้ง', 'Reps')], [['20', REP]])}
+    ${mini(T('วิ่ง', 'Run'), 'distance_duration · ' + T('เพซ 6:12 /km คิดให้', 'pace 6:12 /km auto'), 'c2', [T('เซ็ต', 'Set'), T('ระยะ', 'Dist'), T('เวลา', 'Time')], [['5.0', 'km'], ['31:00', '']])}
+    ${mini('Farmer carry', 'weight_duration', 'c2', [T('เซ็ต', 'Set'), 'kg', T('เวลา', 'Time')], [['24', KG], ['0:45', '']])}
+    ${mini('Pull-up', T('น้ำหนักตัว · น้ำหนักเพิ่มไม่บังคับ', 'bodyweight · added weight optional'), 'c2', [T('เซ็ต', 'Set'), T('ตัว +', 'BW +'), T('ครั้ง', 'Reps')], [['0', KG], ['8', REP]])}
+    ${mini('Assisted dip', T('เครื่องช่วย · น้อยลง = เก่งขึ้น', 'assisted · less is better'), 'c2', [T('เซ็ต', 'Set'), T('ช่วย −', 'Assist −'), T('ครั้ง', 'Reps')], [['20', KG], ['10', REP]])}`,
+    note: 'ไม่ใช่จอจริง เป็นตัวอย่างแถวให้ Front-end · ทุกช่องในตาราง UX.md ข้อ 3 บังคับยกเว้น "ตัว +" ของท่าน้ำหนักตัว · ท่าทีละข้างเพิ่มป้าย "ข้างละ" ใต้หัวคอลัมน์ครั้ง' });
+  add(g4, { t: 'ออฟไลน์ระหว่างจด', us: 'US-3.6', cls: 'dense', html: `
+    <div class="net">${ic('cloudoff', 18)}${T('เน็ตหลุด · จดไว้ในเครื่องก่อน (4)', 'Offline · saved on this phone (4)')}</div>
+    ${lhead(T('ขา', 'Legs'), LOC, `<span class="num" style="font-size:18px">31:22</span>`)}${wob()}
+    <div class="between"><span class="exn">Squat</span><span class="ibtn">${ic('more')}</span></div>
+    <p class="prev">${T('ครั้งก่อน', 'Last time')} · <span class="num" style="color:var(--ink-3);font-weight:400">80×5 · 80×5 · 80×5</span></p>
+    ${hd(C2, [T('เซ็ต', 'Set'), 'kg', T('ครั้ง', 'Reps')])}
+    ${lr('W', [['40', KG], ['10', REP]], 'on', C2)}
+    ${lr(1, [['80', KG], ['5', REP]], 'on', C2)}
+    ${lr(2, [['80', KG], ['5', REP]], 'on', C2)}
+    ${lr(3, [['80', KG], ['5', REP]], 'sug', C2, tap(1))}
+    <div class="sp"></div>${logBottom()}`,
+    over: `<div class="toast bot"><span style="color:var(--ink)">${ic('check', 22)}</span><p class="bd" style="color:var(--ink)">${T('กลับมาออนไลน์ · ส่งครบแล้ว', 'Back online · all synced')}</p></div>`,
+    note: 'จดได้ทุกอย่างเหมือนเดิม ไม่มีอะไรถูกปิด · แถบบนนับรายการค้าง · กลับมาออนไลน์: ส่งเอง → toast "ส่งครบแล้ว" (ภาพนี้แสดงทั้งสองสถานะ) · ส่งไม่ผ่าน: แถบบน "ส่งไม่ผ่าน 1 · ดู" (ไม่ใช้สีแดงทั้งแถบ) · แถว W = วอร์มอัพ' });
+  add(g4, { t: 'สรุปจบเซสชัน', us: 'US-3.7 · US-4.1', html: `
+    ${cat(22, 150, 'margin-top:8px')}
+    <div class="hw c mt8">done</div>
+    <p class="t1 c">${T('มาแล้ว เก่ง', 'You showed up. Nice.')}</p>
+    <p class="mut c">${T('อา 15 พ.ย. · ', 'Sun 15 Nov · ')}${LOC}</p>
+    <div class="stats s4 mt16">
+      <div><span class="num">52</span><span class="mut">${T('นาที', 'min')}</span></div>
+      <div><span class="num">3</span><span class="mut">${T('ท่า', 'exercises')}</span></div>
+      <div><span class="num">11</span><span class="mut">${T('เซ็ต', 'sets')}</span></div>
+      <div><span class="num">1 <span class="prmark"></span></span><span class="mut">${T('สถิติใหม่', 'records')}</span></div>
+    </div>
+    ${wob()}
+    ${li('Incline dumbbell press', T('3 เซ็ต', '3 sets'), '<span class="num">22.5×10</span>')}
+    ${li('Bench press', T('4 เซ็ต · สถิติใหม่', '4 sets · new record'), `<span class="num" style="color:var(--ink)">${ic('star', 16, 2).replace('class="ic"', 'class="ic" style="display:inline;vertical-align:-2px"')} 65×5</span>`)}
+    ${li('Triceps pushdown', T('4 เซ็ต', '4 sets'), '<span class="num">25×12</span>')}
+    <div class="sp"></div>
+    <span class="lnk">${T('บันทึกเป็นเทมเพลต', 'Save as template')}</span>
+    <span class="btn big"${tap(1)}>${T('เสร็จ', 'Done')}</span><div class="pb16"></div>`,
+    note: 'ชมการมา ไม่ชมตัวเลข · ไม่มีแคลอรี่ · ส้มของจอ = จุดสถิติใหม่ · "บันทึกเป็นเทมเพลต" เปิดจอแก้เทมเพลตที่เติมท่าให้แล้ว · เสร็จ → หน้าหลัก · ออฟไลน์: เพิ่มบรรทัด "จะส่งเมื่อมีเน็ต" ใต้วันที่' });
+
+  // ---------- กลุ่ม 5: เทมเพลต + ร่างกาย ----------
+  const g5 = grp('g5', '5 · เทมเพลตและร่างกาย (E4: US-4.1 · US-4.2)', 'เทมเพลตเปิดจาก "ทั้งหมด" บนหน้าหลัก หรือ ฉัน › เทมเพลต · จดน้ำหนักตัวเปิดจาก ความคืบหน้า › ร่างกาย');
+  add(g5, { t: 'เทมเพลตทั้งหมด', us: 'US-4.1', html: `
+    <div class="lhead"><span class="ibtn">${ic('back')}</span><div class="tt"><b>${T('เทมเพลต', 'Templates')}</b></div></div>
+    <p class="mut mt4">${T('แตะเพื่อเริ่มที่ ', 'Tap to start at ')}${LOC}</p>
+    ${wob()}
+    ${li(T('อกและแขน', 'Chest &amp; arms'), 'Incline DB press · Bench press · Triceps pushdown', `<span class="ibtn">${ic('more')}</span>`, tap(1))}
+    ${li(T('ขา', 'Legs'), 'Squat · Romanian deadlift · Leg press · Calf raise', `<span class="ibtn">${ic('more')}</span>`)}
+    ${li(T('เดินชัน 30 นาที', 'Incline walk 30 min'), 'Treadmill incline walk', `<span class="ibtn">${ic('more')}</span>`)}
+    ${li(T('หลังและไหล่', 'Back &amp; shoulders'), 'Pull-up · Barbell row · Overhead press · Face pull', `<span class="ibtn">${ic('more')}</span>`)}
+    ${li(T('ยืดเหยียดเช้า', 'Morning stretch'), 'Cat-cow · Hip flexor stretch · Child pose', `<span class="ibtn">${ic('more')}</span>`)}
+    <div class="sp"></div>
+    <span class="btn big">${ic('plus', 20)}${T('เทมเพลตใหม่', 'New template')}</span>${tabs(0)}`,
+    note: 'แตะแถว = เริ่มเซสชันเลย · ⋯ = แก้ / ทำสำเนา / ลบ · เรียงตามใช้ล่าสุด · ไม่จำกัดจำนวน · ว่าง: แมว #2 "ยังไม่มีเทมเพลต · จบเซสชันแล้วบันทึกได้"' });
+  const tRow = (n, s) => `<div class="li"><span style="color:var(--ink-3)">${ic('grip', 22)}</span><div class="tx"><b>${n}</b></div><span class="rb s">−</span><span class="num" style="min-width:58px;text-align:center">${s} ${T('เซ็ต', 'sets')}</span><span class="rb s">+</span></div>`;
+  add(g5, { t: 'แก้ / สร้างเทมเพลต', us: 'US-4.1', html: `
+    <div class="lhead"><span class="ibtn">${ic('back')}</span><div class="tt"><b>${T('แก้เทมเพลต', 'Edit template')}</b></div></div>
+    ${fld(T('ชื่อ (บังคับ)', 'Name (required)'), T('อกและแขน', 'Chest &amp; arms'))}
+    <p class="fl mt16">${T('ท่า (ลากเพื่อสลับลำดับ)', 'Exercises (drag to reorder)')}</p>
+    ${tRow('Incline DB press', 3)}${tRow('Bench press', 4)}${tRow('Triceps pushdown', 3)}
+    <span class="lnk l">+ ${T('เพิ่มท่า', 'Add exercise')}</span>
+    <p class="mut mt8">${T('น้ำหนักและครั้งเติมจากครั้งล่าสุดของแต่ละท่าเอง', 'Weights and reps fill in from your last time.')}</p>
+    <div class="sp"></div>
+    <span class="btn big"${tap(1)}>${T('บันทึก', 'Save')}</span>
+    <span class="lnk warn">${T('ลบเทมเพลต', 'Delete template')}</span><div class="pb16"></div>`,
+    note: 'ปัดแถวไปซ้ายเพื่อเอาท่าออก (มีปุ่ม ⋯ สำรองสำหรับคนไม่ปัด) · ที่จับ ≡ ลากสลับลำดับ · เทมเพลตไม่เก็บน้ำหนัก/ครั้ง · ลบเทมเพลตถามยืนยัน (ประวัติไม่หาย)' });
+  const progHead = (k) => `<p class="t1">${T('ความคืบหน้า', 'Progress')}</p><div class="chips mt8">${chip(T('สรุป', 'Summary'), k === 0)}${chip(T('รายท่า', 'Exercises'), k === 1)}${chip(T('ร่างกาย', 'Body'), k === 2)}</div>`;
+  const bodyBase = `${progHead(2)}
+    <div class="row mt16" style="align-items:baseline"><span class="num" style="font-size:40px">72.4</span><span class="mut">kg · ${T('15 พ.ย.', '15 Nov')}</span></div>
+    <div class="chips mt8">${chip(T('1 ด.', '1M'))}${chip(T('3 ด.', '3M'), true)}${chip(T('1 ปี', '1Y'))}${chip(T('ทั้งหมด', 'All'))}</div>
+    <div class="mt12">${chart([73.6, 73.2, 73.5, 73.0, 72.8, 73.1, 72.8, 72.4], [], [[0, T('ก.ย.', 'Sep')], [4, T('ต.ค.', 'Oct')], [7, T('พ.ย.', 'Nov')]], ['72', '74'])}</div>
+    ${li(T('อา 15 พ.ย.', 'Sun 15 Nov'), T('เอว 82 cm', 'waist 82 cm'), '<span class="num">72.4 kg</span>')}
+    ${li(T('ส 8 พ.ย.', 'Sat 8 Nov'), '', '<span class="num">72.8 kg</span>')}
+    ${li(T('ส 1 พ.ย.', 'Sat 1 Nov'), T('ไขมัน 24%', 'body fat 24%'), '<span class="num">73.1 kg</span>')}
+    <div class="sp"></div>
+    <span class="btn big"${tap(1)}>${ic('plus', 20)}${T('จดน้ำหนัก', 'Log weight')}</span>${tabs(2)}`;
+  add(g5, { t: 'จดน้ำหนักตัว / สัดส่วน', us: 'US-4.2', html: bodyBase,
+    over: `<div class="scrim"></div><div class="sheet"><div class="grab"></div>
+      <div class="between"><p class="t2">${T('จดน้ำหนัก', 'Log weight')}</p><span class="chip">${T('วันนี้ 15 พ.ย.', 'Today 15 Nov')}</span></div>
+      <div class="fld"><div class="fl">${T('น้ำหนัก (บังคับ)', 'Weight (required)')}</div>${step('72.4', 'kg', true)}</div>
+      <p class="mut mt4">${T('ครั้งก่อน 72.8 kg · 8 พ.ย.', 'Last 72.8 kg · 8 Nov')}</p>
+      <p class="t3 mt16">${T('รายละเอียดเพิ่ม (ไม่บังคับ)', 'More details (optional)')}</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;column-gap:16px">
+        ${fld(T('ไขมัน', 'Body fat'), '', { ph: true, unit: '%' })}${fld(T('กล้ามเนื้อ', 'Muscle'), '', { ph: true, unit: 'kg' })}
+        ${fld(T('รอบเอว', 'Waist'), '82', { unit: 'cm' })}${fld(T('สะโพก', 'Hips'), '', { ph: true, unit: 'cm' })}
+      </div>
+      <p class="mut mt8">${T('+ อก · แขน · ต้นขา', '+ chest · arm · thigh')}</p>
+      <span class="btn big mt12"${tap(2)}>${T('บันทึก', 'Save')}</span></div>`,
+    note: 'น้ำหนักเติมค่าล่าสุดให้ ปรับด้วย −/+ ครั้งละ 0.1 · ชิปวันที่เปิดปฏิทินของเครื่อง (วันเดียวกันจดซ้ำ = แทนค่าเดิม) · บอกค่าครั้งก่อนเฉยๆ ไม่มีลูกศร สี หรือคำตัดสิน · รายละเอียดพับไว้ตอนแรก' });
+
+  // ---------- กลุ่ม 6: ความคืบหน้า + ประวัติ ----------
+  const g6 = grp('g6', '6 · ความคืบหน้าและประวัติ (E5: US-5.1 · US-5.2 · US-3.5)', 'ความคืบหน้า = ดูภาพรวม · ประวัติ = ดูและแก้เซสชันย้อนหลัง');
+  add(g6, { t: 'สรุปรายสัปดาห์', us: 'US-5.1', html: `
+    ${progHead(0)}
+    <div class="between mt12"><div class="chips">${chip(T('สัปดาห์', 'Week'), true)}${chip(T('เดือน', 'Month'))}</div></div>
+    <div class="between mt12"><span class="ibtn">${ic('back')}</span><span class="t3">${T('9–15 พ.ย.', '9–15 Nov')}</span><span class="ibtn" style="opacity:.35">${ic('chev')}</span></div>
+    <div class="stats mt12">
+      <div><span class="num">3</span><span class="mut">${T('วันที่มา', 'days')}</span></div>
+      <div><span class="num">4</span><span class="mut">${T('เซสชัน', 'sessions')}</span></div>
+      <div><span class="num">3:20</span><span class="mut">${T('ชม. รวม', 'hours')}</span></div>
+    </div>
+    <div class="mt16">${week([1, 3, 6], 6)}</div>
+    <p class="mut mt8 c">${T('สัปดาห์ก่อน 2 วัน · 2:05 ชม.', 'Last week 2 days · 2:05 h')}</p>
+    ${wob()}
+    <div class="sec"><b>${T('ทำบ่อย', 'Most done')}</b></div>
+    ${li('Bench press', '', T('3 ครั้ง', '3×'))}
+    ${li('Treadmill incline walk', '', T('2 ครั้ง', '2×'))}
+    ${li('Squat', '', T('2 ครั้ง', '2×'))}
+    <div class="sp"></div>${tabs(2)}`,
+    note: '‹ › เลื่อนสัปดาห์ (ไปอนาคตไม่ได้) · สัปดาห์เริ่มวันจันทร์ · เทียบสัปดาห์ก่อนแบบตัวเลขเฉยๆ ไม่มีคำว่า "น้อยลง" · ว่าง: แมว #12 "สัปดาห์นี้ยังว่าง · วันพักก็ดี"' });
+  const calDays = () => { const on = [3, 5, 10, 12, 15]; let h = ['จ','อ','พ','พฤ','ศ','ส','อา'].map((d, i) => `<span class="h">${T(d, 'MTWTFSS'[i])}</span>`).join('') + '<span></span>'.repeat(5);
+    for (let d = 1; d <= 30; d++) h += `<span class="${on.includes(d) ? 'on' : ''} ${d === 15 ? 'td' : ''}">${d}</span>`; return h; };
+  add(g6, { t: 'สรุปรายเดือน', us: 'US-5.1', html: `
+    ${progHead(0)}
+    <div class="between mt12"><div class="chips">${chip(T('สัปดาห์', 'Week'))}${chip(T('เดือน', 'Month'), true)}</div></div>
+    <div class="between mt12"><span class="ibtn">${ic('back')}</span><span class="t3">${T('พฤศจิกายน 2026', 'November 2026')}</span><span class="ibtn" style="opacity:.35">${ic('chev')}</span></div>
+    <div class="stats mt8">
+      <div><span class="num">5</span><span class="mut">${T('วันที่มา', 'days')}</span></div>
+      <div><span class="num">6</span><span class="mut">${T('เซสชัน', 'sessions')}</span></div>
+      <div><span class="num">5:10</span><span class="mut">${T('ชม. รวม', 'hours')}</span></div>
+    </div>
+    <div class="cal mt16">${calDays()}</div>
+    <div class="sp"></div>${tabs(2)}`,
+    note: 'วันที่มาเป็นวงส้ม (ไม่ได้สื่อด้วยสีอย่างเดียว ตัวเลขหนาขึ้นด้วย) · วันนี้ขีดเส้นใต้ · แตะวัน = เปิดเซสชันวันนั้นในประวัติ' });
+  add(g6, { t: 'กราฟรายท่า', us: 'US-5.2', html: `
+    ${progHead(1)}
+    <div class="between mt12"><span class="exn">Bench press</span><span class="chip">${T('เปลี่ยนท่า', 'Change')}${ic('down', 16)}</span></div>
+    <div class="chips mt8">${chip(T('หนักสุด', 'Heaviest'), true)}${chip(T('ปริมาณ', 'Volume'))}${chip(T('ครั้งสูงสุด', 'Most reps'))}</div>
+    <div class="mt12">${chart([57.5, 57.5, 60, 60, 60, 62.5, 62.5, 65], [2, 5, 7], [[0, T('ก.ย.', 'Sep')], [4, T('ต.ค.', 'Oct')], [7, T('พ.ย.', 'Nov')]], ['55', '65'])}</div>
+    <div class="chips">${chip(T('1 ด.', '1M'))}${chip(T('3 ด.', '3M'), true)}${chip(T('1 ปี', '1Y'))}${chip(T('ทั้งหมด', 'All'))}</div>
+    <p class="bd mt12" style="color:var(--ink)"><span class="prmark"></span> ${T('สถิติ', 'Record')} <span class="num">65 kg × 5</span> · ${T('15 พ.ย.', '15 Nov')}</p>
+    ${wob()}
+    ${li(T('อา 15 พ.ย.', 'Sun 15 Nov'), '60×8 · 62.5×8 · 65×5 · 65×5', '<span class="num">65</span>')}
+    ${li(T('พฤ 12 พ.ย.', 'Thu 12 Nov'), '60×8 · 62.5×8 · 62.5×6', '<span class="num">62.5</span>')}
+    <div class="sp"></div>${tabs(2)}`,
+    note: 'ชิปตัววัดเปลี่ยนตาม track_type (เวลา: นานสุด · วิ่ง: ไกลสุด/เพซ) · จุดส้ม = วันที่ทำสถิติ · แตะจุด = แสดงค่าเหนือจุด · ทำไม่ถึง 2 ครั้ง: แมว #17 "ทำอีกสักครั้ง กราฟจะขึ้น" · เปิดจาก ⋯ ของท่าในหน้าจดได้ด้วย' });
+  add(g6, { t: 'ร่างกาย · กราฟน้ำหนักตัว', us: 'US-5.2 · US-4.2', html: bodyBase,
+    note: 'จุดทุกจุดเหมือนกัน ไม่มีส้ม ไม่มีเส้นเป้า · แกนไม่เริ่มที่ 0 (เห็นการเปลี่ยนแปลง) แต่ไม่ขยายจนดูขึ้นลงแรง: ช่วงแกนอย่างน้อย 2 kg · แตะแถว = แก้/ลบ · ว่าง: แมว #9 "ยังไม่เคยชั่ง · ชั่งเมื่อพร้อม"' });
+  const hRow = (d, w, n, m, pr) => `<div class="li"><div style="width:44px;text-align:center;flex:none"><span class="num" style="font-size:22px;display:block;line-height:1.1">${d}</span><span class="mut">${w}</span></div><div class="tx"><b>${n}</b><span>${m}</span></div>${pr ? `<div class="r" style="color:var(--ink)">${ic('star', 18, 2)}</div>` : ''}</div>`;
+  add(g6, { t: 'ประวัติ', us: 'US-3.5', html: `
+    <p class="t1">${T('ประวัติ', 'History')}</p>
+    <div class="between mt8"><span class="ibtn">${ic('back')}</span><span class="t3">${T('พฤศจิกายน 2026', 'November 2026')}</span><span class="ibtn" style="opacity:.35">${ic('chev')}</span></div>
+    ${wob('thin')}
+    ${hRow(15, T('อา', 'Sun'), T('อกและแขน', 'Chest &amp; arms'), T('ยิมใกล้บ้าน · 52 นาที · 11 เซ็ต', 'Gym near home · 52 min · 11 sets'), true).replace('class="li"', 'class="li"' + tap(1))}
+    ${hRow(15, T('อา', 'Sun'), T('เดินชัน 30 นาที', 'Incline walk 30 min'), T('ยิมใกล้บ้าน · 30 นาที', 'Gym near home · 30 min'), false)}
+    ${hRow(12, T('พฤ', 'Thu'), T('ขา', 'Legs'), T('ยิมใกล้บ้าน · 61 นาที · 15 เซ็ต', 'Gym near home · 61 min · 15 sets'), false)}
+    ${hRow(10, T('อ', 'Tue'), T('แกนกลาง', 'Core'), T('บ้าน · 18 นาที · 6 เซ็ต', 'Home · 18 min · 6 sets'), true)}
+    ${hRow(5, T('พ', 'Wed'), T('วิ่ง', 'Run'), T('สวนลุม · 31 นาที · 5.0 km', 'Lumpini Park · 31 min · 5.0 km'), false)}
+    ${hRow(3, T('จ', 'Mon'), T('อกและแขน', 'Chest &amp; arms'), T('ยิมใกล้บ้าน · 48 นาที · 10 เซ็ต', 'Gym near home · 48 min · 10 sets'), false)}
+    <div class="sp"></div>${tabs(1)}`,
+    note: 'วันเดียวมีหลายเซสชันได้ · ดาว = มีสถิติใหม่ในเซสชันนั้น · ชื่อเซสชัน = ชื่อเทมเพลต หรือหมวดของท่าที่ทำ · ว่าง: แมว #36 "ยังไม่มีประวัติ · ไปเริ่มกัน"' });
+  const dRow = (n, a, b) => `<div class="lr c2" style="min-height:50px"><span class="n">${n}</span>${val(a, KG)}${val(b, REP)}<span></span></div>`;
+  add(g6, { t: 'รายละเอียดเซสชัน (แก้ย้อนหลัง)', us: 'US-3.5', cls: 'dense', html: `
+    ${lhead(T('อกและแขน', 'Chest &amp; arms'), T('อา 15 พ.ย. · 17:05–17:57 · ยิมใกล้บ้าน', 'Sun 15 Nov · 17:05–17:57 · Gym near home'))}
+    ${wob()}
+    <div class="exn">Incline dumbbell press</div>
+    ${dRow(1, '20', '10')}${dRow(2, '22.5', '10')}${dRow(3, '22.5', '9')}
+    ${wob('thin')}
+    <div class="exn">Bench press</div>
+    ${dRow(1, '60', '8')}${dRow(2, '62.5', '8')}
+    <div class="lr c2" style="min-height:50px"${tap(1)}><span class="n">3</span>${val('65', KG)}${val('5', REP)}<span style="color:var(--ink)">${ic('star', 18, 2)}</span></div>
+    ${dRow(4, '65', '5')}
+    <div class="sp"></div>
+    <span class="lnk pb16">+ ${T('เพิ่มเซ็ต / เพิ่มท่า', 'Add set / exercise')}</span>`,
+    note: 'แตะตัวเลข = แก้ (แบบเดียวกับหน้าจด) · แตะเลขเซ็ต = วอร์มอัพ/ลบ · ⋯ บน = แก้สถานที่ · แก้เวลา · ลบเซสชัน (ถามยืนยัน) · ทุกการแก้คำนวณสถิติใหม่ · ออฟไลน์: อ่านอย่างเดียว' });
+
+  // ---------- กลุ่ม 7: ฉัน ----------
+  const g7 = grp('g7', '7 · ฉัน / ตั้งค่า (US-1.5 · US-5.3)', 'ตั้งค่าเปลี่ยนแล้วมีผลทันที ไม่มีปุ่มบันทึก');
+  const set = (l, r, t = '') => `<div class="li" style="min-height:52px"${t}><div class="tx"><b style="font-weight:400">${l}</b></div>${r}</div>`;
+  const seg = (a, k) => `<div class="chips" style="flex-wrap:nowrap;gap:6px">${a.map((x, i) => `<span class="chip ${i === k ? 'on' : ''}" style="padding:0 12px;font-size:14px">${x}</span>`).join('')}</div>`;
+  add(g7, { t: 'ฉัน / ตั้งค่า', us: 'US-1.5 · US-5.3', cls: 'long', html: `
+    <p class="t1">${T('ฉัน', 'Me')}</p>
+    <p class="mut">${T('นก · nok@example.com · เข้าด้วย Google', 'Nok · nok@example.com · Google sign-in')}</p>
+    ${wob()}
+    ${set(T('หน่วย', 'Units'), seg(['kg·cm·km', 'lb·in·mi'], 0))}
+    ${set(T('ภาษา', 'Language'), seg(['ไทย', 'English'], 0))}
+    ${set(T('โหมด', 'Theme'), seg([T('สว่าง', 'Light'), T('มืด', 'Dark'), T('ตามเครื่อง', 'Auto')], 2))}
+    ${set(T('เวลาพักเริ่มต้น', 'Default rest'), `<span class="rb s">−</span><span class="num" style="min-width:48px;text-align:center">1:30</span><span class="rb s">+</span>`)}
+    ${wob()}
+    ${set(T('ข้อมูลตั้งต้น', 'My basics'), ic('chev', 20))}
+    ${set(T('สถานที่ของฉัน', 'My places'), ic('chev', 20))}
+    ${set(T('ท่าของฉัน', 'My exercises'), ic('chev', 20))}
+    ${set(T('เทมเพลต', 'Templates'), ic('chev', 20))}
+    ${wob()}
+    ${set(T('ส่งออกข้อมูลทั้งหมด (CSV)', 'Export all my data (CSV)'), ic('chev', 20), tap(1))}
+    ${set(T('ประกาศความเป็นส่วนตัว', 'Privacy notice'), ic('chev', 20))}
+    ${set(T('เครดิตข้อมูลท่า', 'Exercise data credits'), ic('chev', 20))}
+    ${set(T('ออกจากระบบ', 'Sign out'), '')}
+    ${set(`<span class="warn">${T('ลบบัญชี', 'Delete account')}</span>`, ic('chev', 20), tap(2))}
+    <p class="mut mt8 pb16">Fat Cat Fit 1.0.0</p>
+    ${tabs(3)}`,
+    note: 'จอยาว เลื่อนได้ (กรอบนี้แสดงทั้งหมด) · ส่งออก: "กำลังเตรียมไฟล์…" → ดาวน์โหลด → toast "ได้ไฟล์แล้ว" · ออฟไลน์: ส่งออก/ออกจากระบบ/ลบบัญชี ปิด พร้อมบอกว่าต้องต่อเน็ต · ข้อมูลตั้งต้น = แบบสอบถามเดิม แก้ได้' });
+  add(g7, { t: 'ยืนยันลบบัญชี', us: 'US-1.5', html: `
+    <div class="lhead"><span class="ibtn">${ic('back')}</span><div class="tt"><b>${T('ลบบัญชี', 'Delete account')}</b></div></div>
+    <p class="t1 mt8">${T('ลบทุกอย่างของเธอ', 'This deletes everything')}</p>
+    <p class="bd">${T('ลบออกจากระบบทันที และกู้คืนไม่ได้', 'Removed right away. It cannot be undone.')}</p>
+    <ul class="bul">
+      <li>${T('ทุกเซสชันและทุกเซ็ต', 'All sessions and sets')}</li>
+      <li>${T('น้ำหนักตัวและสัดส่วน', 'Body weight and measurements')}</li>
+      <li>${T('ท่าของฉัน เทมเพลต สถานที่', 'My exercises, templates, places')}</li>
+      <li>${T('คำตอบแบบสอบถามและการยินยอม', 'Questionnaire answers and consent')}</li>
+    </ul>
+    <span class="lnk l mt8">${T('ส่งออกข้อมูลเก็บไว้ก่อน', 'Export my data first')}</span>
+    <p class="mut mt8">${T('มีรายการค้างส่ง 3 รายการ จะหายไปด้วย', '3 unsynced items will be lost too.')}</p>
+    <div class="sp"></div>
+    <div class="row" style="min-height:52px"${tap(1)}><span class="cb on">${ic('check', 20, 3)}</span><span class="bd" style="color:var(--ink)">${T('เข้าใจแล้ว ลบแล้วกู้คืนไม่ได้', 'I understand this cannot be undone')}</span></div>
+    <span class="btn big warnb mt12"${tap(2)}>${T('ลบบัญชีถาวร', 'Delete my account')}</span>
+    <span class="lnk">${T('ยกเลิก', 'Cancel')}</span><div class="pb16"></div>`,
+    note: 'ไม่มีแมวในจอนี้ (เรื่องจริงจัง) · ปุ่มปิดจนกว่าจะติ๊ก · ปุ่มเป็นเส้น --warn ไม่ใช่พื้นแดง · ระหว่างลบ: "กำลังลบ…" กดซ้ำไม่ได้ · ต้องออนไลน์' });
+  add(g7, { t: 'ลบบัญชีเรียบร้อย', us: 'US-1.5', html: `
+    <div class="sp"></div>
+    ${cat(13, 170)}
+    <div class="hw c mt16">bye for now</div>
+    <p class="t1 c">${T('ลบเรียบร้อย', 'All deleted')}</p>
+    <p class="bd c">${T('ขอบคุณที่มาด้วยกัน · ข้อมูลของเธอไม่อยู่ในระบบแล้ว', 'Thanks for coming along. Your data is gone from our system.')}</p>
+    <div class="sp"></div>
+    <span class="btn big"${tap(1)}>${T('กลับหน้าแรก', 'Back to start')}</span><div class="pb20"></div>`,
+    note: 'แมวหันหลังเดินจากไป ไม่มีน้ำตา ไม่ชวนกลับ · ล้างข้อมูลในเครื่อง (คิว แคช) ทั้งหมดก่อนแสดงจอนี้' });
+
+  // ---------- กลุ่ม 8: สถานะรวม ----------
+  const g8 = grp('g8', '8 · สถานะรวมทั้งแอป', 'ใช้เมื่อทั้งจอโหลดไม่ขึ้น · ในรายการใช้ skeleton เส้นจาง · ดูตารางสถานะต่อหน้าใน UX.md ข้อ 4');
+  add(g8, { t: 'กำลังโหลด', us: 'ทุกหน้า', html: `
+    <p class="t1">${T('ความคืบหน้า', 'Progress')}</p>
+    <div class="skel" style="width:60%"></div><div class="skel"></div><div class="skel" style="width:80%"></div>
+    <div class="sp"></div>
+    ${cat(14, 150)}
+    <p class="bd c mt8">${T('รอแป๊บ', 'One sec')}</p>
+    <div class="sp"></div>${tabs(2)}`,
+    note: 'แสดงแมวเมื่อโหลดเกิน 2 วินาทีเท่านั้น (ต่ำกว่า 400 ms ไม่แสดงอะไร ระหว่างนั้นเป็น skeleton) · หน้าจดไม่มีสถานะนี้ เพราะข้อมูลอยู่ในเครื่อง' });
+  add(g8, { t: 'ผิดพลาด / ไม่พบหน้า', us: 'ทุกหน้า', html: `
+    <div class="sp"></div>
+    ${cat(23, 170)}
+    <p class="t1 c mt16">${T('เอ๊ะ มีอะไรผิดพลาด', 'Hmm, something went wrong')}</p>
+    <p class="bd c">${T('ไม่ใช่ความผิดของเธอ · ลองใหม่อีกครั้งนะ', "Not your fault. Let's try again.")}</p>
+    <div class="sp"></div>
+    <span class="btn big"${tap(1)}>${T('ลองใหม่', 'Try again')}</span>
+    <span class="lnk">${T('กลับหน้าหลัก', 'Go home')}</span>${tabs(0)}`,
+    note: 'ไม่พบหน้า: แมวตัวเดียวกัน "หาหน้านี้ไม่เจอ" + ปุ่มกลับหน้าหลัก · ไม่แสดงรหัสข้อผิดพลาดดิบให้ผู้ใช้' });
+  add(g8, { t: 'ออฟไลน์ (หน้าที่ต้องใช้เน็ต)', us: 'US-3.6', html: `
+    <div class="net">${ic('cloudoff', 18)}${T('เน็ตหลุด', 'Offline')}</div>
+    <div class="sp"></div>
+    ${cat(24, 170)}
+    <p class="t1 c mt16">${T('เน็ตหลุด', "You're offline")}</p>
+    <p class="bd c">${T('หน้านี้ต้องใช้เน็ต · แต่จดยังได้ปกตินะ', 'This page needs a connection. Logging still works.')}</p>
+    <div class="sp"></div>
+    <span class="btn big"${tap(1)}>${T('กลับไปหน้าหลัก', 'Back to home')}</span>${tabs(3)}`,
+    note: 'ใช้เฉพาะหน้าที่ไม่มีสำเนาในเครื่อง (ส่งออก · ลบบัญชี · ครั้งแรกที่เปิดความคืบหน้า) · หน้าอื่นแสดงสำเนาล่าสุด + แถบบนเท่านั้น' });
+
+  // =====================================================================
+  // วาดทั้งหน้า
+  // =====================================================================
+  let no = 0;
+  document.getElementById('groups').innerHTML = G.map(g => `
+    <section id="${g.id}"><h2>${g.title}</h2><p class="note">${g.desc}</p>
+      <div class="frames">${g.s.map(s => { no++; return `
+        <figure class="fr"><div class="ph ${s.cls || ''}"><div class="scr">${s.html}</div>${s.over || ''}${s.thumb ? thumb : ''}</div>
+          <figcaption><div class="ct"><span class="no">${no}</span>${s.t}</div><div class="us">${s.us}</div><p>${s.note}</p></figcaption></figure>`; }).join('')}
+      </div></section>`).join('');
+
+  // ---------- ปุ่มสลับ + ค่าเริ่มจาก URL hash (#dark,en,noann) ----------
+  const root = document.documentElement;
+  const defs = document.querySelector('svg[width="0"]');
+  root.dataset.wiggle = 'off'; defs.pauseAnimations();
+  const apply = (k, v) => {
+    root.dataset[k] = v;
+    document.querySelectorAll(`[data-set="${k}"]`).forEach(x => x.setAttribute('aria-pressed', x.dataset.val === v));
+    if (k === 'wiggle') v === 'on' ? defs.unpauseAnimations() : defs.pauseAnimations();
+  };
+  document.querySelectorAll('[data-set]').forEach(b => b.addEventListener('click', () => apply(b.dataset.set, b.dataset.val)));
+  const h = location.hash.slice(1).split(/[,&]/);
+  if (h.includes('dark')) apply('theme', 'dark');
+  if (h.includes('en')) apply('lang', 'en');
+  if (h.includes('noann')) apply('ann', 'off');
+  // #only-g4 = แสดงเฉพาะกลุ่ม 4 (ใช้ตอนถ่ายภาพตรวจ)
+  const only = h.find(x => /^only-g\d$/.test(x));
+  if (only) document.querySelectorAll('section').forEach(s => { if ('only-' + s.id !== only) s.style.display = 'none'; });
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) apply('wiggle', 'off');
+</script>
+</body>
+</html>
