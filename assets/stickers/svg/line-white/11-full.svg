@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-16 -16 232 232">
+<defs>
+  <filter id="wob-line" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="4" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="5"/>
+  </filter>
+  <filter id="wob-fill" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="2" seed="11" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="8"/>
+  </filter>
+<clipPath id="frame"><rect x="-16" y="-16" width="232" height="216"/></clipPath></defs>
+<g>
+        <g filter="url(#wob-fill)">
+          <path d="M176 152 q16 2 18 -12" fill="none" stroke="#F2EFEA" stroke-width="17" stroke-linecap="round"/><path d="M176 152 q16 2 18 -12" fill="none" stroke="#161514" stroke-width="8" stroke-linecap="round"/><path d="M166 128 L184 110" fill="none" stroke="#F2EFEA" stroke-width="17" stroke-linecap="round"/><path d="M166 128 L184 110" fill="none" stroke="#161514" stroke-width="8" stroke-linecap="round"/>
+          <path d="M24 158 C18 140 26 126 38 122 L36 103 L54 114 Q64 110 72 113 L84 101 L90 117 C102 66 162 64 174 132 Q178 146 176 158 Q100 164 24 158Z" fill="#161514" transform="translate(3 -2)"/>
+          <path d="M39 119 L39 109 L48 116Z M80 114 L84 107 L87 115Z" fill="#161514" transform="translate(2 -1)"/>
+          <path d="M100 116 Q128 78 160 122 Q152 152 112 152 Q94 138 100 116Z" fill="#161514"/>
+        </g>
+        <g filter="url(#wob-line)">
+          <path d="M24 158 C18 140 26 126 38 122 L36 103 L54 114 Q64 110 72 113 L84 101 L90 117 C102 66 162 64 174 132 Q178 146 176 158" fill="none" stroke="#F2EFEA" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 162 Q100 156 194 162" fill="none" stroke="#F2EFEA" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <g transform="translate(-4 78) scale(.6)">
+    <path d="M78 104 Q78 94 90 95 Q100 93 110 95 Q122 94 122 104 Q122 115 110 114 Q100 117 90 114 Q78 115 78 104Z" fill="#161514" transform="translate(1 -1)"/>
+    <path d="M75 88 q6 -8 12 0 M113 88 q6 -8 12 0" fill="none" stroke="#F2EFEA" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M95 93 L105 93 L100 99Z" fill="#161514" stroke="#F2EFEA" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M100 99 L100 104 M100 104 q-6 7 -12 1 M100 104 q6 7 12 1" fill="none" stroke="#F2EFEA" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M72 101 L54 97 M72 107 L54 111 M128 101 L146 97 M128 107 L146 111" fill="none" stroke="#F2EFEA" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g>
+          <path d="M126 112 q5 5 10 0" fill="none" stroke="#F2EFEA" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M118 44 q-6 -8 0 -14 M134 38 q-6 -8 0 -14" fill="none" stroke="#F2EFEA" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        </g></g>
+</svg>

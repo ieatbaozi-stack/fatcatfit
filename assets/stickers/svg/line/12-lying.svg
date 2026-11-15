@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-16 -16 232 232">
+<defs>
+  <filter id="wob-line" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="4" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="5"/>
+  </filter>
+  <filter id="wob-fill" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="2" seed="11" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="8"/>
+  </filter>
+<clipPath id="frame"><rect x="-16" y="-16" width="232" height="216"/></clipPath></defs>
+<g>
+        <g filter="url(#wob-fill)">
+          <path d="M172 146 q20 0 20 -18" fill="none" stroke="#171717" stroke-width="17" stroke-linecap="round"/><path d="M172 146 q20 0 20 -18" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+          <path d="M26 154 C22 134 32 122 42 118 L44 99 L61 112 Q72 108 82 110 L93 97 L99 112 C140 106 177 122 177 154 Q100 160 26 154Z" fill="#FFFFFF" transform="translate(3 -2)"/>
+          <path d="M47 114 L47 105 L56 112Z M88 110 L92 103 L95 111Z" fill="#FFFFFF" transform="translate(2 -1)"/>
+          <path d="M104 150 Q112 132 140 134 Q164 136 166 152Z" fill="#FFFFFF"/>
+        </g>
+        <g filter="url(#wob-line)">
+          <path d="M26 154 C22 134 32 122 42 118 L44 99 L61 112 Q72 108 82 110 L93 97 L99 112 C140 106 177 122 177 154" fill="none" stroke="#171717" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 158 Q100 152 192 158" fill="none" stroke="#171717" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M48 131 q6 4 12 0 M76 131 q6 4 12 0" fill="none" stroke="#171717" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M64 136 L72 136 L68 141Z" fill="#FFFFFF" stroke="#171717" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M68 141 q-4 5 -8 1 M68 141 q4 5 8 1" fill="none" stroke="#171717" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M112 84 l12 0 l-12 12 l12 0 M134 62 l16 0 l-16 16 l16 0" fill="none" stroke="#171717" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        </g></g>
+</svg>

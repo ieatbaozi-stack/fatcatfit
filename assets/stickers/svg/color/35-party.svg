@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-16 -16 232 232">
+<defs>
+  <filter id="wob-line" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="4" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="5"/>
+  </filter>
+  <filter id="wob-fill" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="2" seed="11" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="8"/>
+  </filter>
+<clipPath id="frame"><rect x="-16" y="-16" width="232" height="216"/></clipPath></defs>
+<g>
+    <g filter="url(#wob-line)"></g>
+    <g transform="">
+      <g filter="url(#wob-fill)">
+        <path d="M152 156 q24 -2 22 -28" fill="none" stroke="#171717" stroke-width="17" stroke-linecap="round"/><path d="M152 156 q24 -2 22 -28" fill="none" stroke="#F9A03A" stroke-width="8" stroke-linecap="round"/><path d="M54 110 L30 84" fill="none" stroke="#171717" stroke-width="17" stroke-linecap="round"/><path d="M54 110 L30 84" fill="none" stroke="#F9A03A" stroke-width="8" stroke-linecap="round"/><path d="M148 110 L172 84" fill="none" stroke="#171717" stroke-width="17" stroke-linecap="round"/><path d="M148 110 L172 84" fill="none" stroke="#F9A03A" stroke-width="8" stroke-linecap="round"/>
+        <path d="M52 64 L49 31 L78 52 Q101 45 124 52 L152 30 L150 66 C159 100 157 140 150 168 L151 184 Q140 191 130 184 L130 172 Q100 177 72 172 L72 184 Q62 191 52 184 L51 168 C43 140 44 100 53 67 Z" fill="#F9A03A" transform="translate(3 -2)"/>
+        <path d="M56 56 L54 39 L68 52Z M146 56 L148 39 L134 52Z" fill="#F4A19B" transform="translate(2 -1)"/>
+        <path d="M76 140 Q76 118 100 118 Q124 118 124 142 Q124 166 100 166 Q76 166 76 140Z" fill="#FFFFFF" transform="translate(2 1)"/>
+      </g>
+      <g filter="url(#wob-line)">
+        <path d="M52 64 L49 31 L78 52 Q101 45 124 52 L152 30 L150 66 C159 100 157 140 150 168 L151 184 Q140 191 130 184 L130 172 Q100 177 72 172 L72 184 Q62 191 52 184 L51 168 C43 140 44 100 53 67" fill="none" stroke="#171717" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        
+    <path d="M78 104 Q78 94 90 95 Q100 93 110 95 Q122 94 122 104 Q122 115 110 114 Q100 117 90 114 Q78 115 78 104Z" fill="#FFFFFF" transform="translate(1 -1)"/>
+    <path d="M75 88 q6 -8 12 0 M113 88 q6 -8 12 0" fill="none" stroke="#171717" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M95 93 L105 93 L100 99Z" fill="#F4A19B" stroke="#171717" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M100 99 L100 104 M100 104 q-6 7 -12 1 M100 104 q6 7 12 1" fill="none" stroke="#171717" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M72 101 L54 97 M72 107 L54 111 M128 101 L146 97 M128 107 L146 111" fill="none" stroke="#171717" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M84 52 L100 12 L116 52Z" fill="#FFFFFF" stroke="#171717" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><path d="M90 40 l19 -7 M95 27 l10 -4" fill="none" stroke="#171717" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="100" cy="9" r="5" fill="#171717"/>
+      </g>
+    </g>
+    <g filter="url(#wob-line)"><path d="M20 40 l8 6 M40 22 l2 10 M176 30 l-6 8 M190 54 l-10 2 M14 66 l10 -2 M160 14 l2 9" fill="none" stroke="#171717" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="30" cy="20" r="3" fill="#171717"/><circle cx="186" cy="34" r="3" fill="#171717"/><circle cx="64" cy="14" r="2.5" fill="#171717"/><circle cx="140" cy="20" r="2.5" fill="#171717"/></g></g>
+</svg>

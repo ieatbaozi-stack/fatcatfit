@@ -1,0 +1,52 @@
+# เอกสารตั้งต้นก่อนเริ่มโปรเจกต์ — เก็บในเครื่องเท่านั้น ไม่ขึ้น git
+Pre-start/
+
+# ภาพแมวที่สร้างจากสคริปต์ (ไฟล์ภาพขนาดใหญ่ สร้างใหม่ได้ด้วย: node scripts/export-stickers.mjs)
+# เก็บขึ้น git เฉพาะ assets/stickers/svg/ กับ README
+assets/stickers/png/
+assets/stickers/sprites/
+
+# ความลับ — ห้ามขึ้น git เด็ดขาด (.env.example ขึ้นได้)
+.env
+.env.*
+!.env.example
+
+# dependency และผลลัพธ์จากการ build
+node_modules/
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+next-env.d.ts
+
+# ฐานข้อมูลในเครื่อง
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# ผลการทดสอบ
+coverage/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# การ deploy
+.vercel/
+
+# ตั้งค่าเฉพาะเครื่องของ Claude Code (นิยาม agent ใน .claude/agents/ ขึ้น git)
+.claude/settings.local.json
+.claude/worktrees/
+
+# ไฟล์ของระบบและ editor
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+.idea/
+.vscode/*
+!.vscode/extensions.json

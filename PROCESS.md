@@ -1,0 +1,112 @@
+# กระบวนการทำงาน (แบบ software engineering ไม่ใช่ vibe code)
+
+หลักการ: **เขียนข้อตกลงก่อนโค้ด · ทุกงานมีเกณฑ์ผ่านที่ตรวจได้ · คนทำกับคนตรวจเป็นคนละ agent · ไม่มีอะไรเข้าโดยไม่ผ่านเกต**
+ทีม: [TEAM.md](TEAM.md) · ความต้องการ: [docs/prd/PRD.md](docs/prd/PRD.md) · ออกแบบ: [docs/design/DESIGN.md](docs/design/DESIGN.md)
+
+## เฟสของโปรเจกต์
+
+| เฟส | เนื้อหา | ผู้ทำ | จุดที่ boss ต้องอนุมัติ | สถานะ |
+|---|---|---|---|---|
+| 0 Discovery | วิจัยแอป/API/stack | Researcher | — | ✅ |
+| 1 Requirements | PRD: user story, ขอบเขต, เกณฑ์รับงาน | Lead | **อนุมัติ PRD** | ร่างแล้ว รออนุมัติ |
+| 2 Design | ADR + โมเดลข้อมูล · flow/wireframe · แบรนด์ | Architect, UX & Brand | **อนุมัติ wireframe และ ADR หลัก** | แบรนด์เสร็จ · ที่เหลือยังไม่เริ่ม |
+| 3 Foundation (R0) | โครงโปรเจกต์, CI, migration, release, ธีม, TH/EN, PWA skeleton | ดูตารางรอบ | — | |
+| 4 Build (R1–R5) | ตาม contract ของแต่ละรอบ | ดูตารางรอบ | อนุมัติ contract ก่อนเริ่มแต่ละรอบ | |
+| 5 Review | ตรวจอิสระทุกรอบ | QA & Test, Security & Privacy | — | |
+| 6 Integrate | Lead รวม ทดสอบซ้ำ เสนอเลขเวอร์ชัน | Lead | **รัน release และ push เอง** | |
+| 7 Report | รายงานประจำวัน | Secretary | — | |
+
+หลังเปิดใช้: ความต้องการใหม่ = change request สั้นๆ → contract รอบใหม่ → วนเฟส 4–7
+
+## วงจรของหนึ่งรอบงาน
+
+```
+Lead เขียน <รอบ>_CONTRACT.md  →  boss อนุมัติ
+   →  สร้าง branch ของรอบ (1 contract = 1 branch)
+   →  งานที่ต้องมาก่อน (เช่น schema) ทำและ commit ก่อน
+   →  agent ที่ขนานกันได้ทำพร้อมกัน แต่ละตัวแตะเฉพาะไฟล์ของตน + เขียน unit test ของตัวเอง
+   →  Lead รันเกตทั้งหมด
+   →  QA & Test ตรวจ (และ Security & Privacy ถ้ารอบนั้นแตะบัญชี/ข้อมูลสุขภาพ) — คนละ agent กับคนทำ
+   →  แก้จนผ่าน  →  Lead รวม เสนอเลขเวอร์ชัน  →  boss รัน release + push
+   →  Secretary เขียนรายงาน
+```
+
+## กติกา
+
+1. **ไม่มี contract ไม่มีโค้ด** — contract ระบุ: เป้าหมาย, user story ที่ครอบคลุม, API/ชนิดข้อมูล, ใครดูแลไฟล์ไหน, เกณฑ์ผ่านที่ตรวจได้ด้วยคำสั่ง/เทสต์
+2. **เทสต์มาพร้อมโค้ด** — ทุกบทบาทที่เขียนโค้ดเขียน unit/integration test ของตัวเองใน commit ชุดเดียวกัน · เทสต์ end-to-end เป็นของ QA & Test
+3. **ขอบเขตไฟล์** — ห้ามแก้ไฟล์นอกขอบเขตของตัวเอง ถ้าต้องแก้ให้รายงาน Lead (ยกเว้นผู้ตรวจอิสระ)
+4. **การตัดสินใจสำคัญต้องมี ADR** (`docs/adr/NNNN-*.md`) เช่น auth, โครงสร้าง track_type, กลยุทธ์ออฟไลน์
+5. **Schema เปลี่ยนด้วย migration แบบมีเวอร์ชันเท่านั้น** — CI ต้องรันทุก migration บนฐานข้อมูลว่างได้ · migration ที่ย้อนข้อมูลไม่ได้ต้องผ่าน Lead
+6. **เซิร์ฟเวอร์คือต้นฉบับของข้อมูล** — ในเครื่องเป็นคิวพักเท่านั้น · ทุกการเขียนใช้ UUID จากไคลเอนต์ และเซิร์ฟเวอร์ upsert แบบส่งซ้ำได้ไม่เกิดแถวซ้ำ
+7. **SemVer ตั้งแต่ v0.1.0** + CHANGELOG (`[Unreleased]`) · agent เสนอเลข boss เป็นคนรัน release และ push · ชื่อรอบงานไม่ใช่เลขเวอร์ชัน
+8. **ความลับอยู่ใน env เท่านั้น** มี `.env.example` ห้าม commit ค่าจริง
+9. **ข้อมูลของผู้ใช้เห็นได้เฉพาะเจ้าของ** — v1 ไม่มีฟีเจอร์สังคม ทุก query ผูกกับผู้ใช้ที่เข้าสู่ระบบ และมีเทสต์ยืนยันว่าอ่าน/แก้ข้อมูลคนอื่นไม่ได้
+10. **ผู้ตรวจอิสระตรวจจากเกณฑ์ใน contract + ใช้งานจริงบนจอมือถือ** ไม่ใช่แค่อ่านโค้ด
+11. **รายงานตามจริง** — เทสต์ไม่ผ่านให้บอกว่าไม่ผ่านพร้อมผลลัพธ์ · ข้ามขั้นไหนให้บอก · ห้ามปิดเทสต์หรือลดเกณฑ์เพื่อให้ผ่าน
+12. **ข้อมูลภายนอกต้องยืนยันก่อนผูกมัด** — ราคา ลิมิต และพฤติกรรมของไลบรารี ให้ Researcher เช็กกับเอกสารทางการ ไม่ใช้ความจำของ agent
+
+## เกต (Definition of Done)
+
+เกตเริ่มบังคับตั้งแต่รอบที่ระบุ และบังคับทุกรอบหลังจากนั้น
+
+| เกต | วิธีตรวจ | บังคับตั้งแต่ |
+|---|---|---|
+| Lint + Typecheck | `npm run lint` · `npm run typecheck` | R0 |
+| Unit/Integration | `npm test` (ฐานข้อมูลชั่วคราว รัน migration จริง) | R0 |
+| Build | `npm run build` | R0 |
+| Migration | `drizzle-kit check` + apply ทุก migration บนฐานข้อมูลว่าง | R0 |
+| i18n | เทสต์ key ครบทั้ง TH/EN | R0 |
+| E2E มือถือ | `npm run test:e2e` (Playwright, จอมือถือ) | R1 |
+| A11y/UX | ปุ่มแตะ ≥ 44px · คอนทราสต์ทั้งสองโหมด | R1 |
+| สิทธิ์ข้อมูล | เทสต์ว่าผู้ใช้ A อ่าน/แก้ข้อมูลของผู้ใช้ B ไม่ได้ ทุก endpoint ใหม่ | R1 |
+| Consent + ลบบัญชี | consent บันทึก · ลบบัญชีแล้วไม่เหลือข้อมูล (ครอบคลุมตารางใหม่ของรอบนั้น) | R1 |
+| E2E ออฟไลน์ | flow จดในโหมดออฟไลน์ แล้ว sync ไม่ซ้ำ | R3 |
+| ใช้มือเดียวในหน้าจด | ตรวจโดย QA บนจอมือถือ | R3 |
+| ส่งออกข้อมูล | CSV ครบทุกตารางของผู้ใช้ | R5 |
+| ประสิทธิภาพ | งบขนาด bundle ของหน้าจด · Lighthouse PWA/Accessibility บน preview | R6 |
+
+## แผนรอบงานและลำดับความสำคัญ
+
+| รอบ | ลำดับ | เนื้อหา | ต้องเสร็จก่อน | agent (ตัวหนา = ทำก่อน ที่เหลือขนานได้) |
+|---|---|---|---|---|
+| เฟส 2 | — | ADR: auth, track_type + โมเดลข้อมูล, ออฟไลน์ · wireframe หน้าหลัก | PRD อนุมัติ | **researcher** (ยืนยันลิมิต/ไลบรารี) → architect ∥ ux-brand |
+| R0 Foundation | P0 | โครงโปรเจกต์ · CI · migration · release · design token + ฟอนต์ + โหมดสว่าง/มืด · TH/EN · PWA skeleton · component ภาพแมว | เฟส 2 | **platform** (โครง + db) → frontend ∥ ops-release ∥ pwa-offline ∥ ux-brand → qa-test |
+| R1 บัญชี | P0 | โค้ดเชิญ · Google + อีเมล OTP · session · consent · แบบสอบถาม (รวมตาราง `place`) · ลบบัญชี | R0 | **platform** → frontend ∥ ops-release (ส่งอีเมล) → qa-test ∥ security-privacy |
+| R2 คลังท่า | P0 | คลังท่า TH/EN · ค้นหา · ท่า custom · สถานที่ของผู้ใช้ | R1 | **catalog** ∥ **platform** → frontend → qa-test |
+| R3 จดการออกกำลังกาย | P0 | เซสชัน · ฟอร์มตาม track_type · ออฟไลน์ + sync · ตัวจับเวลาพัก · สถิติ (PR) | R2 | **platform** (API แบบส่งซ้ำได้) → frontend ∥ pwa-offline → qa-test ∥ security-privacy |
+| R4 เทมเพลต + ร่างกาย | P1 | เทมเพลต/ทำซ้ำครั้งก่อน · น้ำหนักตัว/สัดส่วน | R3 | **platform** → frontend → qa-test ∥ security-privacy |
+| R5 ความคืบหน้า | P1 | สรุปสัปดาห์/เดือน · กราฟรายท่า · กราฟน้ำหนัก · ส่งออก CSV | R4 | **platform** → frontend → qa-test ∥ security-privacy |
+| R6 พร้อมเปิดใช้ | P1 | ทดสอบเครื่องจริง · backup/restore · แบนเนอร์ติดตั้ง iOS · หน้าเครดิต · ประสิทธิภาพ | R5 | qa-test ∥ ops-release ∥ security-privacy → แก้ตามที่พบ |
+
+เปลี่ยนจากร่างก่อนเริ่มโปรเจกต์: ตัด feed/อันดับ (boss ตัดสิน: ไม่มี social) · ย้ายตาราง `place` และการลบบัญชีมา R1 · ย้ายเทมเพลตขึ้นมาก่อน dashboard เพราะเป็นส่วนของการจดให้เร็ว · เกตระบุรอบที่เริ่มบังคับ
+
+## ธรรมเนียม git
+
+- `git -c user.name=<ชื่อบทบาท> commit` · ข้อความแบบ conventional (`feat:` `fix:` `qa:` `docs:` `chore:`)
+- 1 contract = 1 branch · แต่ละบทบาท commit แยก · Lead รวม · **agent ไม่ push** boss เป็นคน push
+- เอกสารล้วนไม่ต้องออกรุ่น
+
+## โครงโฟลเดอร์
+
+```
+/                *_CONTRACT.md · TEAM.md · PROCESS.md · CLAUDE.md · CHANGELOG.md
+.claude/agents/  นิยาม agent ของแต่ละบทบาท
+docs/            prd/ adr/ design/ research/ content/ reports/ VERSIONING.md OPERATIONS.md
+assets/stickers/ ภาพแมว (สร้างจากสคริปต์)
+src/             app/ components/ db/ lib/ pwa/
+content/exercises/ · messages/ · drizzle/ · scripts/ · tests/ · .github/
+```
+
+## แม่แบบ CONTRACT
+
+```markdown
+# <ชื่อรอบ>_CONTRACT.md
+## เป้าหมาย / user story ที่ครอบคลุม (อ้างเลขจาก PRD)
+## ขอบเขต (ทำ / ไม่ทำ)
+## API & ชนิดข้อมูล
+## ความรับผิดชอบไฟล์ (บทบาท → ไฟล์)
+## ลำดับ/ความขึ้นต่อกัน (อะไรต้องมาก่อน อะไรขนานได้)
+## เกณฑ์ผ่าน (คำสั่ง + ผลที่คาดหวัง)
+## ความเสี่ยง / สิ่งที่ boss ต้องตัดสินใจ
+```

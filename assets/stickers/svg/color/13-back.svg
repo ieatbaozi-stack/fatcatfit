@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-16 -16 232 232">
+<defs>
+  <filter id="wob-line" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="4" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="5"/>
+  </filter>
+  <filter id="wob-fill" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="2" seed="11" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="8"/>
+  </filter>
+<clipPath id="frame"><rect x="-16" y="-16" width="232" height="216"/></clipPath></defs>
+<g>
+    <g filter="url(#wob-line)"></g>
+    <g transform="translate(-20 0) scale(1.2 1)">
+      <g filter="url(#wob-fill)">
+        
+        <path d="M52 64 L49 31 L78 52 Q101 45 124 52 L152 30 L150 66 C159 100 157 140 150 168 L151 184 Q140 191 130 184 L130 172 Q100 177 72 172 L72 184 Q62 191 52 184 L51 168 C43 140 44 100 53 67 Z" fill="#F9A03A" transform="translate(3 -2)"/>
+        
+      </g>
+      <g filter="url(#wob-line)">
+        <path d="M52 64 L49 31 L78 52 Q101 45 124 52 L152 30 L150 66 C159 100 157 140 150 168 L151 184 Q140 191 130 184 L130 172 Q100 177 72 172 L72 184 Q62 191 52 184 L51 168 C43 140 44 100 53 67" fill="none" stroke="#171717" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        
+        <path d="M84 72 q16 7 32 0 M88 88 q12 6 24 0 M90 104 q10 5 20 0" fill="none" stroke="#171717" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M96 164 l8 8 M104 164 l-8 8" fill="none" stroke="#171717" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M106 152 q34 -6 28 -46" fill="none" stroke="#171717" stroke-width="17" stroke-linecap="round"/><path d="M106 152 q34 -6 28 -46" fill="none" stroke="#F9A03A" stroke-width="8" stroke-linecap="round"/>
+      </g>
+    </g>
+    <g filter="url(#wob-line)"></g></g>
+</svg>
