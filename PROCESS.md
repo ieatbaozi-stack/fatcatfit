@@ -8,8 +8,8 @@
 | เฟส | เนื้อหา | ผู้ทำ | จุดที่ boss ต้องอนุมัติ | สถานะ |
 |---|---|---|---|---|
 | 0 Discovery | วิจัยแอป/API/stack | Researcher | — | ✅ |
-| 1 Requirements | PRD: user story, ขอบเขต, เกณฑ์รับงาน | Lead | **อนุมัติ PRD** | ร่างแล้ว รออนุมัติ |
-| 2 Design | ADR + โมเดลข้อมูล · flow/wireframe · แบรนด์ | Architect, UX & Brand | **อนุมัติ wireframe และ ADR หลัก** | แบรนด์เสร็จ · ที่เหลือยังไม่เริ่ม |
+| 1 Requirements | PRD: user story, ขอบเขต, เกณฑ์รับงาน | Lead | **อนุมัติ PRD** | ✅ อนุมัติ 2026-11-15 |
+| 2 Design | ADR + โมเดลข้อมูล · flow/wireframe · แบรนด์ | Architect, UX & Brand | **อนุมัติ wireframe และ ADR หลัก** | กำลังทำ (แบรนด์เสร็จแล้ว) |
 | 3 Foundation (R0) | โครงโปรเจกต์, CI, migration, release, ธีม, TH/EN, PWA skeleton | ดูตารางรอบ | — | |
 | 4 Build (R1–R5) | ตาม contract ของแต่ละรอบ | ดูตารางรอบ | อนุมัติ contract ก่อนเริ่มแต่ละรอบ | |
 | 5 Review | ตรวจอิสระทุกรอบ | QA & Test, Security & Privacy | — | |
