@@ -5,6 +5,8 @@ Pre-start/
 # เก็บขึ้น git เฉพาะ assets/stickers/svg/ กับ README
 assets/stickers/png/
 assets/stickers/sprites/
+# แมวขยับจริง 5 เฟรม สร้างด้วย node scripts/sprites/build.mjs (สคริปต์อยู่ใน git, ผลลัพธ์ไม่อยู่)
+assets/stickers/motion/
 
 # ความลับ — ห้ามขึ้น git เด็ดขาด (.env.example ขึ้นได้)
 .env

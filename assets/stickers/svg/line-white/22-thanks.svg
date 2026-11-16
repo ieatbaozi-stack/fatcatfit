@@ -29,5 +29,5 @@
         <path d="M60 130 L93 141" fill="none" stroke="#F2EFEA" stroke-width="17" stroke-linecap="round"/><path d="M60 130 L93 141" fill="none" stroke="#161514" stroke-width="8" stroke-linecap="round"/><path d="M140 130 L107 141" fill="none" stroke="#F2EFEA" stroke-width="17" stroke-linecap="round"/><path d="M140 130 L107 141" fill="none" stroke="#161514" stroke-width="8" stroke-linecap="round"/>
       </g>
     </g>
-    <g filter="url(#wob-line)"><path transform="translate(168 36) scale(0.8)" d="M0 -10 Q1.5 -1.5 10 0 Q1.5 1.5 0 10 Q-1.5 1.5 -10 0 Q-1.5 -1.5 0 -10Z" fill="#F2EFEA"/><path transform="translate(182 58) scale(0.5)" d="M0 -10 Q1.5 -1.5 10 0 Q1.5 1.5 0 10 Q-1.5 1.5 -10 0 Q-1.5 -1.5 0 -10Z" fill="#F2EFEA"/></g></g>
+    <g filter="url(#wob-line)"><path transform="translate(168 36) scale(0.8) rotate(-6)" d="M0.4 -11.6 C1.9 -5.3 5 -2 11.6 0.1 C5 1.7 1.7 4.8 -0.2 11.3 C-1.8 5 -4.9 1.5 -11.4 -0.2 C-4.7 -1.6 -1.4 -4.7 0.4 -11.6Z" fill="#F2EFEA"/><path transform="translate(182 58) scale(0.5) rotate(4)" d="M0.4 -11.6 C1.9 -5.3 5 -2 11.6 0.1 C5 1.7 1.7 4.8 -0.2 11.3 C-1.8 5 -4.9 1.5 -11.4 -0.2 C-4.7 -1.6 -1.4 -4.7 0.4 -11.6Z" fill="#F2EFEA"/></g></g>
 </svg>
