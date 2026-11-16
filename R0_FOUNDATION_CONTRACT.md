@@ -1,6 +1,6 @@
 # R0_FOUNDATION_CONTRACT.md
 
-> ร่าง 1 · 2026-11-16 · ผู้เขียน: Lead · สถานะ: **รอ boss อนุมัติ**
+> ร่าง 1 · 2026-11-16 · ผู้เขียน: Lead · สถานะ: **boss อนุมัติแล้ว 2026-11-16** · ฐานข้อมูล Neon ชุด `dev` สร้างแล้ว และ `.env.local` ชี้ไปที่ `dev`
 > อ้างอิง: [PRD](docs/prd/PRD.md) · [ARCHITECTURE](docs/design/ARCHITECTURE.md) · ADR [0001](docs/adr/0001-database-and-hosting.md) [0002](docs/adr/0002-auth.md) [0003](docs/adr/0003-data-model.md) [0004](docs/adr/0004-offline-sync.md) · [DESIGN](docs/design/DESIGN.md) · [UX](docs/design/UX.md) · [PROCESS](PROCESS.md) · [TEAM](TEAM.md)
 > branch: `r0-foundation`
 
@@ -91,7 +91,7 @@ R0 **ไม่มี user story ที่ผู้ใช้เห็น** — �
 
 | เรื่อง | รายละเอียด |
 |---|---|
-| ฐานข้อมูล Neon ตอนนี้มีชุดเดียวคือ `production` | ADR 0001 ให้แยก `dev` — Lead ขออนุญาตสร้างชุด `dev` ด้วย Neon CLI และชี้ `.env.local` ไปที่ `dev` ก่อน platform รัน migration ครั้งแรก |
+| ฐานข้อมูล | มี 2 ชุดแล้ว: `production` และ `dev` · งานพัฒนาและ preview ใช้ `dev` เท่านั้น · ห้ามรัน migration บน `production` ในรอบนี้ |
 | ต้องตั้ง Vercel | spike S3 กับเกณฑ์ 9–11 ทำไม่ได้จนกว่า boss จะสร้างโปรเจกต์บน Vercel (ops เขียนขั้นตอนให้ใน `docs/OPERATIONS.md`) · การ push และเปิด pull request Lead ทำเอง |
 | S5 อาจไม่มีทางเลือกไหนผ่านครบ | ถ้า A และ B ไม่ผ่าน ใช้ทาง C (เขียน service worker เอง) ซึ่งทำงานได้แน่นอนแต่ต้องดูแลเอง |
 | S3 ตัวเลขออกมาช้าเกินรับได้ | กลับไปแผนสำรองใน ADR 0001 (Turso โตเกียว) ตอนนี้ยังไม่มีข้อมูลจริง ต้นทุนการเปลี่ยนคือ schema ของ Better Auth ชุดเดียว |
