@@ -13,7 +13,7 @@
 | 3 Foundation (R0) | โครงโปรเจกต์, CI, migration, release, ธีม, TH/EN, PWA skeleton | ดูตารางรอบ | — | |
 | 4 Build (R1–R5) | ตาม contract ของแต่ละรอบ | ดูตารางรอบ | อนุมัติ contract ก่อนเริ่มแต่ละรอบ | |
 | 5 Review | ตรวจอิสระทุกรอบ | QA & Test, Security & Privacy | — | |
-| 6 Integrate | Lead รวม ทดสอบซ้ำ เสนอเลขเวอร์ชัน | Lead | **รัน release และ push เอง** | |
+| 6 Integrate | Lead รวม ทดสอบซ้ำ push และเปิด pull request เสนอเลขเวอร์ชัน | Lead | **กด merge เมื่อ CI เขียว** | |
 | 7 Report | รายงานประจำวัน | Secretary | — | |
 
 หลังเปิดใช้: ความต้องการใหม่ = change request สั้นๆ → contract รอบใหม่ → วนเฟส 4–7
@@ -27,7 +27,7 @@ Lead เขียน <รอบ>_CONTRACT.md  →  boss อนุมัติ
    →  agent ที่ขนานกันได้ทำพร้อมกัน แต่ละตัวแตะเฉพาะไฟล์ของตน + เขียน unit test ของตัวเอง
    →  Lead รันเกตทั้งหมด
    →  QA & Test ตรวจ (และ Security & Privacy ถ้ารอบนั้นแตะบัญชี/ข้อมูลสุขภาพ) — คนละ agent กับคนทำ
-   →  แก้จนผ่าน  →  Lead รวม เสนอเลขเวอร์ชัน  →  boss รัน release + push
+   →  แก้จนผ่าน  →  Lead รวม รันเกตซ้ำ push branch เปิด pull request (ระบุเลขเวอร์ชันที่เสนอ)  →  CI เขียว  →  boss กด merge
    →  Secretary เขียนรายงาน
 ```
 
@@ -39,7 +39,7 @@ Lead เขียน <รอบ>_CONTRACT.md  →  boss อนุมัติ
 4. **การตัดสินใจสำคัญต้องมี ADR** (`docs/adr/NNNN-*.md`) เช่น auth, โครงสร้าง track_type, กลยุทธ์ออฟไลน์
 5. **Schema เปลี่ยนด้วย migration แบบมีเวอร์ชันเท่านั้น** — CI ต้องรันทุก migration บนฐานข้อมูลว่างได้ · migration ที่ย้อนข้อมูลไม่ได้ต้องผ่าน Lead
 6. **เซิร์ฟเวอร์คือต้นฉบับของข้อมูล** — ในเครื่องเป็นคิวพักเท่านั้น · ทุกการเขียนใช้ UUID จากไคลเอนต์ และเซิร์ฟเวอร์ upsert แบบส่งซ้ำได้ไม่เกิดแถวซ้ำ
-7. **SemVer ตั้งแต่ v0.1.0** + CHANGELOG (`[Unreleased]`) · agent เสนอเลข boss เป็นคนรัน release และ push · ชื่อรอบงานไม่ใช่เลขเวอร์ชัน
+7. **SemVer ตั้งแต่ v0.1.0** + CHANGELOG (`[Unreleased]`) · Lead เสนอเลขใน pull request ของรอบ (รวมการแก้ CHANGELOG) boss อนุมัติด้วยการ merge แล้ว CI สร้าง tag ให้ · ชื่อรอบงานไม่ใช่เลขเวอร์ชัน
 8. **ความลับอยู่ใน env เท่านั้น** มี `.env.example` ห้าม commit ค่าจริง
 9. **ข้อมูลของผู้ใช้เห็นได้เฉพาะเจ้าของ** — v1 ไม่มีฟีเจอร์สังคม ทุก query ผูกกับผู้ใช้ที่เข้าสู่ระบบ และมีเทสต์ยืนยันว่าอ่าน/แก้ข้อมูลคนอื่นไม่ได้
 10. **ผู้ตรวจอิสระตรวจจากเกณฑ์ใน contract + ใช้งานจริงบนจอมือถือ** ไม่ใช่แค่อ่านโค้ด
@@ -84,7 +84,8 @@ Lead เขียน <รอบ>_CONTRACT.md  →  boss อนุมัติ
 ## ธรรมเนียม git
 
 - `git -c user.name=<ชื่อบทบาท> commit` · ข้อความแบบ conventional (`feat:` `fix:` `qa:` `docs:` `chore:`)
-- 1 contract = 1 branch · แต่ละบทบาท commit แยก · Lead รวม · **agent ไม่ push** boss เป็นคน push
+- 1 contract = 1 branch = 1 pull request · แต่ละบทบาท commit แยก · Lead รวม ตรวจ แล้ว **Lead เป็นคน push และเปิด pull request** (agent ตัวอื่นไม่ push) · boss กด merge · ไม่ push เข้า `main` ตรงๆ ไม่ force push
+- งานเอกสารระหว่างรอบ: รวมไปกับ pull request ของรอบถัดไป หรือเปิด pull request เอกสารแยกเมื่อ boss ต้องเห็นก่อน
 - เอกสารล้วนไม่ต้องออกรุ่น
 
 ## โครงโฟลเดอร์

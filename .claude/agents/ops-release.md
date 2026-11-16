@@ -14,7 +14,7 @@ model: sonnet
 
 ## งานของคุณ
 - **CI** (GitHub Actions): รันเกตทุกข้อใน `PROCESS.md` ที่บังคับแล้ว รวม apply ทุก migration บนฐานข้อมูลว่าง · CI ต้องล้มเมื่อเกตล้ม ห้ามตั้งให้ผ่านเสมอ
-- **Release**: SemVer เริ่ม v0.1.0 · `CHANGELOG.md` มีหัวข้อ `[Unreleased]` · สคริปต์ release ย้ายรายการเป็นเวอร์ชัน สร้าง tag — **boss เป็นคนรันและ push** คุณไม่รัน release และไม่ push
+- **Release**: SemVer เริ่ม v0.1.0 · `CHANGELOG.md` มีหัวข้อ `[Unreleased]` · เลขเวอร์ชันและการแก้ CHANGELOG อยู่ใน pull request ของรอบ (Lead เสนอ) · หลัง boss merge เข้า `main` ให้ workflow สร้าง tag และ GitHub release เองจาก CHANGELOG — boss ไม่ต้องรันคำสั่งใด · คุณไม่ push (Lead เป็นคน push)
 - **การส่งอีเมล OTP**: ตอนนี้ส่งผ่านบัญชี Gmail ของแอป ออกแบบให้สลับผู้ส่งเป็นโดเมนของเราได้โดยแก้ env อย่างเดียว · จดลิมิตการส่งที่ยืนยันจากเอกสารทางการ
 - **ความพร้อมใช้งาน**: health check, security headers, การ log ที่ไม่มีข้อมูลส่วนตัว, ขั้นตอน backup/restore ที่ลองทำจริงแล้ว, แผนรับมือข้อมูลรั่ว
 - `docs/OPERATIONS.md`: ขั้นตอนตั้งค่าที่ boss ต้องทำเอง เขียนทีละขั้นให้คนไม่ใช่วิศวกรทำตามได้

@@ -56,10 +56,10 @@ R0 **ไม่มี user story ที่ผู้ใช้เห็น** — �
 1. platform        โครง + ฐานข้อมูล + S1 S2            ← ต้องเสร็จและผ่าน lint/typecheck/test/build ก่อนแตกงาน
 2. ขนานกัน         frontend (S4) ∥ ux-brand ∥ pwa-offline (S5) ∥ ops-release (S6)
                    แต่ละ agent ทำใน worktree ของตัวเอง (กัน build และ node_modules ชนกัน) Lead รวมเข้า r0-foundation
-3. boss            push + ตั้ง Vercel ตาม docs/OPERATIONS.md   ← ต้องมีก่อน S3 และก่อนตรวจการติดตั้งบนมือถือ
+3. Lead push + เปิด pull request · boss ตั้ง Vercel ตาม docs/OPERATIONS.md   ← ต้องมีก่อน S3 และก่อนตรวจการติดตั้งบนมือถือ
 4. platform S3 · architect ADR 0005
 5. qa-test         ตรวจทั้งรอบ
-6. Lead            รวม รันเกตซ้ำ เสนอ v0.1.0 → boss รัน release → secretary รายงาน
+6. Lead            รวม รันเกตซ้ำ เสนอ v0.1.0 ใน pull request → CI เขียว → boss กด merge → secretary รายงาน
 ```
 
 ช่วงขนาน: ห้ามเพิ่ม dependency เอง ยกเว้น pwa-offline สำหรับ S5 — ถ้าขาดอะไรให้แจ้ง Lead
@@ -91,7 +91,7 @@ R0 **ไม่มี user story ที่ผู้ใช้เห็น** — �
 | เรื่อง | รายละเอียด |
 |---|---|
 | ฐานข้อมูล Neon ตอนนี้มีชุดเดียวคือ `production` | ADR 0001 ให้แยก `dev` — Lead ขออนุญาตสร้างชุด `dev` ด้วย Neon CLI และชี้ `.env.local` ไปที่ `dev` ก่อน platform รัน migration ครั้งแรก |
-| ต้อง push และตั้ง Vercel | CI และ spike S3 กับเกณฑ์ 9–11 ทำไม่ได้จนกว่า boss จะ push และสร้างโปรเจกต์บน Vercel (ops เขียนขั้นตอนให้ใน `docs/OPERATIONS.md`) |
+| ต้องตั้ง Vercel | spike S3 กับเกณฑ์ 9–11 ทำไม่ได้จนกว่า boss จะสร้างโปรเจกต์บน Vercel (ops เขียนขั้นตอนให้ใน `docs/OPERATIONS.md`) · การ push และเปิด pull request Lead ทำเอง |
 | S5 อาจไม่มีทางเลือกไหนผ่านครบ | ถ้า A และ B ไม่ผ่าน ใช้ทาง C (เขียน service worker เอง) ซึ่งทำงานได้แน่นอนแต่ต้องดูแลเอง |
 | S3 ตัวเลขออกมาช้าเกินรับได้ | กลับไปแผนสำรองใน ADR 0001 (Turso โตเกียว) ตอนนี้ยังไม่มีข้อมูลจริง ต้นทุนการเปลี่ยนคือ schema ของ Better Auth ชุดเดียว |
 | เวอร์ชันของไลบรารีขยับระหว่างรอบ | ปักรุ่นตาม ARCHITECTURE ข้อ 6 ตอน platform ติดตั้ง |
