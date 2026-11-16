@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+import { withSerwist } from "@serwist/turbopack";
 
 // เจ้าของ: ops-release · บทบาทอื่นที่ต้องแก้ไฟล์นี้ (next-intl, service worker) ให้เพิ่มนอกบล็อก "security headers" ด้านล่าง
 // เพื่อให้ Lead รวมได้ง่าย: ครอบ export ด้วย plugin ท้ายไฟล์ หรือเพิ่ม key ใน nextConfig
@@ -50,8 +51,14 @@ export function buildSecurityHeaders(isDev: boolean): Array<{ key: string; value
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   async headers() {
-    return [{ source: "/:path*", headers: buildSecurityHeaders(process.env.NODE_ENV === "development") }];
+    return [
+      { source: "/:path*", headers: buildSecurityHeaders(process.env.NODE_ENV === "development") },
+      // pwa-offline: ไฟล์ service worker ต้องไม่ถูก cache เพื่อให้รุ่นใหม่ไปถึงผู้ใช้ (Next PWA guide)
+      { source: "/serwist/:path*", headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }] },
+    ];
   },
 };
 
-export default withNextIntl(nextConfig);
+// pwa-offline (S5 ทางเลือก A): withSerwist เพิ่ม esbuild/esbuild-wasm ใน serverExternalPackages
+// ให้ route src/app/serwist/[path] ใช้ esbuild สร้าง service worker ตอน build ได้
+export default withSerwist(withNextIntl(nextConfig));
