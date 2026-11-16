@@ -1,0 +1,117 @@
+{
+  "meta": {
+    "title": "Fat Cat Fit",
+    "description": "Log workouts with friends, nice and easy"
+  },
+  "app": {
+    "name": "fat cat fit"
+  },
+  "a11y": {
+    "skipToContent": "Skip to content"
+  },
+  "nav": {
+    "label": "Main menu",
+    "home": "Home",
+    "history": "History",
+    "progress": "Progress",
+    "me": "Me"
+  },
+  "empty": {
+    "home": "Nothing yet · the cat hasn't moved either",
+    "history": "No history yet · let's get started",
+    "progress": "This week is empty · a rest day is fine too"
+  },
+  "me": {
+    "theme": {
+      "label": "Mode",
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "language": {
+      "label": "Language",
+      "th": "ไทย",
+      "en": "English"
+    }
+  },
+  "ui": {
+    "decrease": "Decrease",
+    "increase": "Increase",
+    "loading": "Loading"
+  },
+  "styleguide": {
+    "title": "Style guide",
+    "intro": "App tokens and components, for checking against DESIGN.md in both light and dark mode",
+    "colors": {
+      "title": "Colors",
+      "note": "Values are read from the live CSS of the current mode",
+      "paper": "Background",
+      "paper2": "Secondary surface",
+      "ink": "Lines and headings",
+      "ink2": "Body text",
+      "ink3": "Secondary text",
+      "accent": "The one highlight on a screen",
+      "onAccent": "Text on orange",
+      "cat": "Cat body",
+      "catEar": "Ears and nose",
+      "catWhite": "Belly and mouth",
+      "warn": "Delete and errors"
+    },
+    "type": {
+      "title": "Typography",
+      "page": "Page title 28px",
+      "section": "Section title 20px",
+      "body": "Body text 16px, weight 300, with generous line height for Thai tone marks",
+      "caption": "Secondary text 14px",
+      "numeral": "Numbers 62.5 kg use equal-width digits",
+      "handSample": "new record · rest day",
+      "handNote": "The handwritten accent is for short English words only"
+    },
+    "space": {
+      "title": "Spacing, 4px base"
+    },
+    "buttons": {
+      "title": "Buttons",
+      "primary": "Start",
+      "primaryPressed": "While pressed",
+      "primaryDisabled": "Unavailable",
+      "primaryLoading": "Sending…",
+      "secondary": "Repeat last time",
+      "secondaryDisabled": "Unavailable",
+      "focus": "While focused (press Tab)"
+    },
+    "chips": {
+      "title": "Chips",
+      "gym": "Gym",
+      "home": "Home",
+      "park": "Park",
+      "selected": "Selected",
+      "notSelected": "Not selected"
+    },
+    "divider": {
+      "title": "Hand-drawn dividers"
+    },
+    "tick": {
+      "title": "Set tick button",
+      "setLabel": "Set {n}",
+      "empty": "Not ticked",
+      "done": "Ticked",
+      "disabled": "Unavailable"
+    },
+    "number": {
+      "title": "Number field",
+      "weight": "Weight",
+      "reps": "Reps",
+      "kg": "kg",
+      "placeholder": "Not set",
+      "hint": "Type a value, or press + / −"
+    },
+    "cats": {
+      "title": "Cat",
+      "still": "Still",
+      "wiggle": "Wiggling",
+      "meaning": "Meaningful (read out by screen readers)",
+      "meaningTitle": "Cat standing still"
+    }
+  }
+}

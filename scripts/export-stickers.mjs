@@ -1,73 +1,26 @@
 // ส่งออกแมวทุกท่าจาก docs/design/samples.html เป็นไฟล์สติกเกอร์แยกตัว + sprite ดุ๊กดิ๊ก 3 เฟรม
-// ใช้: node scripts/export-stickers.mjs          (SVG + PNG)
-//      node scripts/export-stickers.mjs --no-png (SVG อย่างเดียว)
+// และข้อมูลท่าของ component <Cat> (src/components/doodle/poses.generated.ts)
+// ใช้: node scripts/export-stickers.mjs          (poses + SVG + PNG)
+//      node scripts/export-stickers.mjs --no-png (poses + SVG อย่างเดียว)
 //      node scripts/export-stickers.mjs --resume (ทำ PNG ต่อจากรอบที่ค้าง)
-// ต้นฉบับของภาพอยู่ใน samples.html ที่เดียว — แก้ที่นั่นแล้วรันสคริปต์นี้ใหม่
+// ต้นฉบับของภาพอยู่ใน samples.html ที่เดียว — แก้ที่นั่นแล้วรันสคริปต์นี้ใหม่ (ไอคอนแอป: scripts/export-icons.mjs)
 import { readFileSync, writeFileSync, mkdirSync, existsSync, rmSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
-import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { dirname, join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { ROOT, SAMPLES, POSES_FILE, SLUGS, FRAMES, VARIANTS, loadCats, paint, filters, buildPosesModule } from './cat-source.mjs';
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const src = join(root, 'docs', 'design', 'samples.html');
-const out = join(root, 'assets', 'stickers');
+const out = join(ROOT, 'assets', 'stickers');
+const html = readFileSync(SAMPLES, 'utf8');
+const cats = loadCats(html);
 
-// ชื่อไฟล์ตามลำดับใน samples.html
-const SLUGS = [
-  'standing', 'side', 'running', 'dumbbell', 'squat', 'overhead-press', 'jump-rope', 'new-record',
-  'scale', 'eating', 'full', 'lying', 'back', 'poop', 'push-up', 'treadmill',
-  'stretch', 'swim', 'stopwatch', 'drink', 'trophy', 'thanks', 'confused', 'offline',
-  'cycling', 'pull-up', 'kettlebell', 'boxing', 'badminton', 'football', 'sit-up', 'meditate',
-  'tired', 'fish', 'party', 'peek'
-];
+// ข้อมูลท่าของ component — commit ไฟล์นี้ (เทสต์ตรวจว่าตรงกับต้นฉบับ)
+mkdirSync(dirname(POSES_FILE), { recursive: true });
+writeFileSync(POSES_FILE, buildPosesModule(html));
+console.log(`poses: ${POSES_FILE}`);
 
-// ชุดสี: color = ลงสี (พื้นสว่าง) · line = เส้นดำตัวขาว · line-white = เส้นขาว (พื้นมืด)
-const VARIANTS = {
-  color:        { ink: '#171717', cat: '#F9A03A', ear: '#F4A19B', white: '#FFFFFF', paper: '#FFFFFF' },
-  line:         { ink: '#171717', cat: '#FFFFFF', ear: '#FFFFFF', white: '#FFFFFF', paper: '#FFFFFF' },
-  'line-white': { ink: '#F2EFEA', cat: '#161514', ear: '#161514', white: '#161514', paper: '#161514' }
-};
-
-// เฟรมดุ๊กดิ๊ก: เปลี่ยน seed ของเส้นสั่น (เส้น "เดือด" แบบการ์ตูนวาดมือ) + ขยับตัวเล็กน้อยรอบจุดกลางล่าง
-const FRAMES = [
-  { line: 4, fill: 11, tf: '' },
-  { line: 7, fill: 15, tf: 'translate(0 -3) rotate(-2 100 196)' },
-  { line: 9, fill: 19, tf: 'translate(100 196) scale(1.03 .97) translate(-100 -196) rotate(2 100 196)' }
-];
 const PAD = 16, BOX = 200 + PAD * 2; // เผื่อขอบ เพราะบางท่ามีของยื่นออกนอกกรอบ 200×200
-
-const filters = (k, f) => `
-  <filter id="wob-line${k}" x="-10%" y="-10%" width="120%" height="120%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="${f.line}" result="n"/>
-    <feDisplacementMap in="SourceGraphic" in2="n" scale="5"/>
-  </filter>
-  <filter id="wob-fill${k}" x="-10%" y="-10%" width="120%" height="120%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="2" seed="${f.fill}" result="n"/>
-    <feDisplacementMap in="SourceGraphic" in2="n" scale="8"/>
-  </filter>`;
 const CLIP = `<clipPath id="frame"><rect x="${-PAD}" y="${-PAD}" width="${BOX}" height="${BOX - PAD}"/></clipPath>`;
-
-// ดึงโค้ดวาดแมวออกจาก samples.html แล้วรันเพื่อเอารายการ cats
-const html = readFileSync(src, 'utf8');
-const a = html.indexOf('// ---------- ชิ้นส่วนพื้นฐาน ----------');
-const b = html.indexOf("document.getElementById('heroCat')");
-if (a < 0 || b < 0) throw new Error('หาโค้ดวาดแมวใน samples.html ไม่เจอ');
-const cats = new Function(html.slice(a, b) + '; return cats;')();
-if (cats.length !== SLUGS.length) throw new Error(`จำนวนแมว (${cats.length}) ไม่ตรงกับรายชื่อไฟล์ (${SLUGS.length}) — แก้ SLUGS ในสคริปต์`);
-
-// ไฟล์ SVG เดี่ยวเป็น XML เข้มงวด ห้ามมี attribute ซ้ำ — เก็บตัวแรกไว้ เหมือนที่ HTML ทำใน samples.html
-const dedupe = tag => {
-  const seen = new Set();
-  return tag.replace(/\s([\w:-]+)="[^"]*"/g, (m, k) => (seen.has(k) ? '' : (seen.add(k), m)));
-};
-const paint = (svg, c) => svg
-  .replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '')
-  .replace(/<[a-zA-Z][^>]*>/g, dedupe)
-  .replaceAll('currentColor', c.ink)
-  .replaceAll('var(--cat-white)', c.white)
-  .replaceAll('var(--cat-ear)', c.ear)
-  .replaceAll('var(--cat)', c.cat)
-  .replaceAll('var(--paper)', c.paper);
 const clipped = (body, clip) => `<g${clip ? ' clip-path="url(#frame)"' : ''}>${body}</g>`;
 
 const single = (svg, c, clip) =>
@@ -103,6 +56,8 @@ writeFileSync(join(out, 'README.md'),
 `# สติกเกอร์แมว (${cats.length} ท่า)
 
 สร้างจาก \`docs/design/samples.html\` ด้วย \`node scripts/export-stickers.mjs\` — อย่าแก้ไฟล์ในโฟลเดอร์นี้ตรงๆ ให้แก้ต้นฉบับแล้วรันใหม่
+
+**ในแอปใช้ component แทนไฟล์เหล่านี้:** \`import { Cat } from "@/components/doodle"\` → \`<Cat pose="standing" size={120} wiggle title="..." />\` (สคริปต์เดียวกันสร้าง \`src/components/doodle/poses.generated.ts\`) · ไอคอนแอปสร้างด้วย \`node scripts/export-icons.mjs\`
 
 ## ภาพนิ่ง
 - \`svg/color\` \`png/color\` — ลงสี ใช้บนพื้นสว่าง

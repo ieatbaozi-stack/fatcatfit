@@ -1,0 +1,27 @@
+/* แมวดุ๊กดิ๊ก: สลับ 3 เฟรม รอบละ 0.6 วิ (เหมือน samples.html)
+   แต่ละเฟรมมี seed เส้นสั่นของตัวเอง + ท่าโยกเล็กน้อย — โชว์ทีละเฟรมด้วย visibility */
+.fcf-cat-frame {
+  animation: fcf-cat-wiggle 0.6s steps(1) infinite;
+}
+.fcf-cat-f1 {
+  animation-delay: -0.4s;
+}
+.fcf-cat-f2 {
+  animation-delay: -0.2s;
+}
+@keyframes fcf-cat-wiggle {
+  0% {
+    visibility: visible;
+  }
+  33.333% {
+    visibility: hidden;
+  }
+  100% {
+    visibility: hidden;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fcf-cat-frame {
+    animation: none;
+  }
+}
