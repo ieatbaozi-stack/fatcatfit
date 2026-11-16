@@ -6,7 +6,9 @@ const toMap = (h: Array<{ key: string; value: string }>) => Object.fromEntries(h
 describe("security headers", () => {
   it("next.config ตั้ง header ให้ทุก path", async () => {
     const rules = await nextConfig.headers!();
-    expect(rules).toHaveLength(1);
+    expect(rules).toHaveLength(2);
+    expect(rules[1]!.source).toBe("/serwist/:path*");
+    expect(toMap(rules[1]!.headers)["Cache-Control"]).toContain("no-store");
     expect(rules[0]!.source).toBe("/:path*");
     const h = toMap(rules[0]!.headers);
     for (const key of ["Content-Security-Policy", "X-Content-Type-Options", "X-Frame-Options", "Referrer-Policy", "Permissions-Policy"]) {

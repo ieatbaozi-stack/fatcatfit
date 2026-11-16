@@ -9,6 +9,10 @@
 - โครงโปรเจกต์ Next.js 16 (App Router, Turbopack) + TypeScript + Tailwind CSS 4 + ESLint + Vitest (รอบ R0 Foundation)
 - ฐานข้อมูล: ตัวเชื่อมต่อ Postgres แบบ lazy (`node-postgres`), schema ของ Better Auth, migration แรก, ฐานข้อมูลเทสต์ด้วย PGlite ที่รัน migration จริงทุกครั้ง
 - `GET /api/health` ตรวจแอปและ query ฐานข้อมูล 1 ครั้ง (200 เมื่อใช้ได้ 503 เมื่อใช้ไม่ได้)
+- หน้าจอ: แถบล่าง 4 แท็บ (หน้าหลัก ประวัติ ความคืบหน้า ฉัน) พร้อมหน้าว่าง, design token ตาม DESIGN.md, ฟอนต์ Noto Sans Thai + Gaegu แบบ self-host, โหมดสว่าง/มืด/ตามระบบ, component พื้นฐาน และหน้า `/styleguide`
+- ภาษา TH/EN ด้วย next-intl แบบไม่มีภาษาใน URL (เก็บใน cookie) พร้อมเทสต์ว่า key ครบทั้งสองภาษาและไม่มีข้อความฝังในโค้ด
+- ภาพแมว 36 ท่าเป็น component `<Cat>` สร้างจากต้นฉบับ `docs/design/samples.html` (ดุ๊กดิ๊กได้ หยุดเมื่อตั้ง reduced motion โหมดมืดเป็นเส้นล้วน) และไอคอนแอป
+- PWA: manifest, service worker ด้วย `@serwist/turbopack` (asset cache-first, หน้าเว็บ network-first ถอยไปของที่เก็บไว้, ไม่แคช `/api/**`), เปิดแอปได้ตอนออฟไลน์หลังเคยเปิดออนไลน์ 1 ครั้ง
 - CI บน GitHub Actions: lint, typecheck, test, `drizzle-kit check`, build ทุก pull request และทุก push เข้า `main`
 - ระบบออกรุ่นอัตโนมัติ: เมื่อ merge เข้า `main` และเลขรุ่นใน `package.json` ยังไม่มี tag จะสร้าง tag และ GitHub release จาก CHANGELOG
 - Security headers ทุกหน้า (CSP, HSTS, `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy`)

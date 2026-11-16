@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
 import { BottomTabs } from "@/components/nav/bottom-tabs";
 import { themeInitScript } from "@/components/theme/theme";
+import { ServiceWorkerRegister } from "@/pwa/register";
 import "./globals.css";
 
 // ฟอนต์ self-host ตอน build (next/font) — ไม่เรียก CDN ตอนใช้งาน ใช้ออฟไลน์ได้
@@ -24,7 +25,13 @@ const gaegu = Gaegu({
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("meta");
-  return { title: t("title"), description: t("description") };
+  return {
+    title: t("title"),
+    description: t("description"),
+    manifest: "/manifest.webmanifest",
+    appleWebApp: { capable: true, title: t("title"), statusBarStyle: "default" },
+    icons: { icon: "/icons/favicon.svg", apple: "/icons/apple-touch-icon.png" },
+  };
 }
 
 export const viewport: Viewport = {
@@ -58,6 +65,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </div>
           <BottomTabs />
         </NextIntlClientProvider>
+        <ServiceWorkerRegister />
       </body>
     </html>
   );
