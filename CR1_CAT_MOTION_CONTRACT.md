@@ -1,6 +1,6 @@
 # CR1_CAT_MOTION_CONTRACT.md
 
-> ร่าง 2 · 2026-11-17 · ผู้เขียน: Lead · สถานะ: **รอ boss อนุมัติ**
+> ร่าง 2 · 2026-11-17 · ผู้เขียน: Lead · สถานะ: **boss อนุมัติแล้ว 2026-11-17** (merge pull request #4)
 > ที่มา: change request ของ boss (2026-11-17) — "animation เดิมแค่ดุ๊กดิ๊กไปมา ต้องการให้มี motion ขยับหรือเปลี่ยนอิริยาบถจริง"
 > อ้างอิง: [DESIGN](docs/design/DESIGN.md) ข้อ motion · [R0 contract](R0_FOUNDATION_CONTRACT.md) (component `Cat`) · `scripts/sprites/README.md` (rig 5 เฟรมของ boss — pull request #3) · [PROCESS](PROCESS.md) · [TEAM](TEAM.md)
 > branch: `cr1-cat-motion`
