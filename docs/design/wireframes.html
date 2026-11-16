@@ -87,6 +87,7 @@
   .catw svg { width: 100%; height: auto; display: block; color: var(--ink); overflow: visible; }
   .wob { display: block; width: 100%; height: 10px; margin: 10px 0; color: var(--ink); flex: none; }
   .wob.thin { color: var(--ink-3); margin: 6px 0; }
+  .wob.thin.mt16 { margin-top: 16px; }
 
   /* ปุ่ม */
   .btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 52px; padding: 0 16px; font-size: 17px; font-weight: 500; color: var(--ink); background: var(--paper); flex: none;
@@ -103,7 +104,7 @@
   .ibtn { width: 44px; height: 44px; display: grid; place-items: center; color: var(--ink); flex: none; }
   .rb { width: 48px; height: 48px; flex: none; display: grid; place-items: center; font-size: 24px; font-weight: 400; color: var(--ink);
     border: 2.5px solid var(--ink); border-radius: 52% 46% 50% 48% / 47% 52% 46% 51%; }
-  .rb.s { width: auto; min-width: 44px; padding: 0 6px; height: 44px; font-size: 15px; font-weight: 500; }
+  .rb.s { width: auto; min-width: 44px; padding: 0 8px; height: 44px; font-size: 15px; font-weight: 500; white-space: nowrap; }
   .chips { display: flex; gap: 8px; flex-wrap: wrap; }
   .chips.nowrap { flex-wrap: nowrap; overflow: hidden; margin-right: -20px; }
   .chip { display: inline-flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 400; color: var(--ink); padding: 0 14px; min-height: 44px; white-space: nowrap; flex: none;
@@ -145,7 +146,7 @@
   .lhead { display: flex; align-items: center; gap: 4px; margin: -6px -10px 0; }
   .lhead .tt { flex: 1; min-width: 0; }
   .lhead .tt b { display: block; font-size: 18px; font-weight: 500; color: var(--ink); line-height: 1.3; }
-  .lhead .tt > span { font-size: 14px; color: var(--ink-3); }
+  .lhead .tt > span { display: block; font-size: 14px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .exn { font-size: 18px; font-weight: 500; color: var(--ink); line-height: 1.35; }
   .prev { font-size: 14px; color: var(--ink-3); line-height: 1.45; }
   .lr { display: grid; align-items: center; gap: 10px; min-height: 62px; position: relative; }
@@ -180,7 +181,10 @@
     border-top: 2.5px solid var(--ink); border-radius: 30px 36px 0 0 / 24px 28px 0 0; }
   .grab { width: 44px; height: 5px; border-radius: 3px; background: var(--ink-3); margin: 0 auto 12px; }
   .opt { display: flex; align-items: center; gap: 12px; min-height: 52px; font-size: 17px; color: var(--ink); font-weight: 400; }
-  .opt .mut { margin-left: auto; }
+  .opt > span:not(.cb):not(.mut) { white-space: nowrap; }
+  .opt .mut { margin-left: auto; text-align: right; }
+  .dimmed { opacity: .4; }
+  .opt.warn { color: var(--warn); }
   .toast { position: absolute; left: 12px; right: 12px; top: 12px; z-index: 7; background: var(--paper); padding: 10px 14px; display: flex; gap: 12px; align-items: center;
     border: 2.5px solid var(--ink); border-radius: 20px 26px 22px 28px / 26px 20px 28px 22px; }
   .toast.bot { top: auto; bottom: 150px; }
@@ -239,9 +243,12 @@
   .pline .catw { position: absolute; bottom: 8px; }
 
   /* หมายเหตุ wireframe: จุดแตะ + เขตนิ้วโป้ง */
-  [data-tap] { position: relative; }
+  [data-tap], [data-tapb] { position: relative; }
   :root[data-ann="on"] [data-tap]::after { content: attr(data-tap); position: absolute; top: -10px; right: -8px; width: 24px; height: 24px; border-radius: 50%; z-index: 9;
     border: 2px dashed var(--ann); color: var(--ann); background: var(--paper); font: 600 13px/20px var(--font); text-align: center; transform: none; }
+  :root[data-ann="on"] [data-tapb]::after { content: attr(data-tapb); position: absolute; top: calc(50% - 12px); right: -10px; min-width: 30px; height: 24px; padding: 0 4px; border-radius: 8px; z-index: 9;
+    border: 2px dashed var(--ann); color: var(--ann); background: var(--paper); font: 600 13px/20px var(--font); text-align: center; }
+  .legend i.b { border-radius: 7px; width: 30px; }
   .thumb { display: none; position: absolute; right: -150px; bottom: -190px; width: 520px; height: 520px; border: 2px dashed var(--ann); border-radius: 50%; pointer-events: none; z-index: 8; }
   .thumb span { position: absolute; left: 290px; top: -11px; color: var(--ann); font-size: 13px; font-weight: 500; background: var(--paper); padding: 0 4px; }
   :root[data-ann="on"] .thumb { display: block; }
@@ -288,9 +295,10 @@
   </div>
 
   <h1>Wireframe v1 · แมวอ้วนจะผอม</h1>
-  <p class="note">ร่าง 1 · 2026-11-15 · รอ boss อนุมัติ · คู่กับ <b>UX.md</b> (flow ฟอร์มจด ตารางสถานะ เรื่องที่ต้องตัดสิน) · ทุกจอกว้าง 360px · ข้อความใต้กรอบเป็นหมายเหตุถึงทีม (ภาษาไทยเท่านั้น) ปุ่ม TH/EN เปลี่ยนเฉพาะข้อความในจอ · ตั้งค่าเริ่มผ่าน URL ได้ เช่น <code>#dark,en</code></p>
+  <p class="note">ร่าง 2 · 2026-11-16 · <b>boss อนุมัติแล้ว</b> และแก้ตามที่ตัดสิน (UX.md ข้อ 5) · คู่กับ <b>UX.md</b> (flow ฟอร์มจด ตารางสถานะ กติกาส้ม รุ่นที่รองรับ) · ทุกจอกว้าง 360px · ข้อความใต้กรอบเป็นหมายเหตุถึงทีม (ภาษาไทยเท่านั้น) ปุ่ม TH/EN เปลี่ยนเฉพาะข้อความในจอ · ตั้งค่าเริ่มผ่าน URL ได้ เช่น <code>#dark,en</code> หรือเฉพาะกลุ่ม <code>#dark,en,only-g3</code></p>
   <div class="legend">
-    <span><i>1</i>ลำดับแตะของเส้นทางหลัก (สีฟ้าเป็นหมายเหตุ ไม่ใช่สีของแอป)</span>
+    <span><i>1</i>ลำดับแตะของเส้นทางหลักของจอ (สีฟ้าเป็นหมายเหตุ ไม่ใช่สีของแอป)</span>
+    <span><i class="b">B1</i>ลำดับแตะของเส้นทางรองบนจอเดียวกัน</span>
     <span><i style="border-radius:50%">&nbsp;</i>เส้นโค้งประ = เขตนิ้วโป้งมือขวา ปุ่มหลักต้องอยู่ในเขตนี้</span>
   </div>
 
@@ -427,6 +435,7 @@
   // =====================================================================
   const T = (th, en) => `<span class="th">${th}</span><span class="en">${en}</span>`;
   const tap = n => ` data-tap="${n}"`;
+  const tapB = n => ` data-tapb="B${n}"`;   // เส้นทางรองบนจอเดียวกัน
   const cat = (n, w, extra = '') => `<div class="catw" style="width:${w}px;${extra}" aria-hidden="true">${CAT[n]}</div>`;
   const ICONS = {
     home: 'M4 11.5 L12 4.5 L20 11 M6.5 10 L6 20 L18 20.3 L17.6 10',
@@ -478,15 +487,16 @@
   const li = (b, s, r = '', t = '', lead = '') => `<div class="li"${t}>${lead}<div class="tx"><b>${b}</b>${s ? `<span>${s}</span>` : ''}</div>${r ? `<div class="r">${r}</div>` : ''}</div>`;
 
   // กราฟเส้นวาดมือ: จุดสถิติเป็นส้ม (บทบาทส้มเดียวของจอ)
-  const chart = (ys, pr, labels, yl) => {
+  // dom = [ล่าง, บน] ของแกน (ไม่ใช้ช่วงข้อมูลตรงๆ) · yl = ป้ายแกน ล่าง→บน (2 หรือ 3 ค่า เว้นเท่ากัน)
+  const chart = (ys, pr, labels, yl, dom) => {
     const W = 320, H = 170, x0 = 34, x1 = 312, y0 = 14, y1 = 138;
-    const mn = Math.min(...ys), mx = Math.max(...ys), sx = (x1 - x0) / (ys.length - 1);
+    const [mn, mx] = dom || [Math.min(...ys), Math.max(...ys)], sx = (x1 - x0) / (ys.length - 1);
     const pts = ys.map((y, i) => [x0 + i * sx, y1 - (y - mn) / ((mx - mn) || 1) * (y1 - y0)]);
     let d = `M${pts[0][0]} ${pts[0][1]}`;
     for (let i = 1; i < pts.length; i++) { const [px, py] = pts[i - 1], [x, y] = pts[i]; d += ` Q${(px + x) / 2 + (i % 2 ? 2 : -2)} ${(py + y) / 2 + (i % 2 ? -3 : 3)} ${x} ${y}`; }
     return `<svg class="chart" viewBox="0 0 ${W} ${H}" aria-hidden="true">
       <path d="M${x0} ${y0} L${x0 - 1} ${y1 + 2} L${x1} ${y1 + 1}" fill="none" stroke="var(--ink-3)" stroke-width="1.2"/>
-      <text x="0" y="${y0 + 5}">${yl[1]}</text><text x="0" y="${y1 + 2}">${yl[0]}</text>
+      ${yl.map((l, i) => { const y = y1 - i / (yl.length - 1) * (y1 - y0); return `<text x="0" y="${y + 5}">${l}</text>` + (i ? `<path d="M${x0 + 2} ${y} L${x1} ${y}" stroke="var(--ink-3)" stroke-width="1" stroke-dasharray="1 6" opacity=".6"/>` : ''); }).join('')}
       ${labels.map(([i, l]) => [...l.matchAll(/<span class="(th|en)">(.*?)<\/span>/g)].map(([, c, t]) =>
         `<text class="${c}" x="${x0 + i * sx}" y="${H - 6}" text-anchor="${i === 0 ? 'start' : i === ys.length - 1 ? 'end' : 'middle'}">${t}</text>`).join('')).join('')}
       <path d="${d}" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" filter="url(#wob-line)"/>
@@ -506,7 +516,7 @@
   // ---------- กลุ่ม 1: เข้าใช้ครั้งแรก ----------
   const g1 = grp('g1', '1 · เข้าใช้ครั้งแรก (E1 บัญชี + E6 ติดตั้ง)', 'ยินดีต้อนรับ → (สอนติดตั้งบน iOS) → Google หรืออีเมล OTP → ยินยอม → แบบสอบถาม 2 ขั้น → หน้าหลักว่าง');
 
-  const welcome = (err) => `
+  const welcome = (err, noTap = false) => `
     <div class="sp" style="flex:.5"></div>
     <div class="hw xl">fat cat fit</div>
     <p class="t1">${T('แมวอ้วนจะผอม', 'Fat Cat Fit')}</p>
@@ -516,12 +526,24 @@
     ${err
       ? fld(T('โค้ดเชิญ', 'Invite code'), '<span class="num">MEOW-4812</span>', { err: T('โค้ดนี้ใช้ไม่ได้ · ลองเช็กกับเพื่อนที่ส่งให้อีกที', "This code doesn't work. Check with the friend who sent it.") })
       : fld(T('โค้ดเชิญ', 'Invite code'), '<span class="num">MEOW-4821</span>', { hint: T('เติมให้จากลิงก์เชิญ · มีบัญชีแล้วไม่ต้องใส่', 'Filled in from your invite link · not needed if you have an account') })}
-    <span class="btn big mt16"${tap(1)}><span class="gmark">G</span>${T('เข้าด้วย Google', 'Continue with Google')}</span>
+    <span class="btn big mt16"${noTap ? '' : tap(1)}><span class="gmark">G</span>${T('เข้าด้วย Google', 'Continue with Google')}</span>
     <span class="lnk mt4">${T('ใช้อีเมลแทน', 'Use email instead')}</span>
     <div class="pb16"></div>`;
   add(g1, { t: 'ยินดีต้อนรับ + โค้ดเชิญ', us: 'US-1.1 · US-1.3', html: welcome(false), thumb: true,
     note: 'ปุ่ม Google เป็นปุ่มหลัก อีเมลเป็นลิงก์รอง · โค้ดตรวจก่อนเด้งไป Google · เข้าครั้งต่อไปไม่มีช่องโค้ด · <b>ปุ่ม Google ต้องตามแนวทางแบรนด์ของ Google</b> (ใช้โลโก้ทางการ) ตัว G ในกรอบเป็นแค่ที่วาง' });
-  add(g1, { t: 'สอนติดตั้งบน iOS (Safari)', us: 'E6', html: welcome(false),
+  add(g1, { t: 'ยินดีต้อนรับ · ไม่มีปุ่ม Google (แอปที่ติดตั้งบน iPhone)', us: 'US-1.1 · US-1.2 · ADR 0002 ทางถอย', thumb: true, html: `
+    <div class="sp" style="flex:.35"></div>
+    <div class="hw xl">fat cat fit</div>
+    <p class="t1">${T('แมวอ้วนจะผอม', 'Fat Cat Fit')}</p>
+    ${cat(1, 110, 'margin-top:8px')}
+    <div class="sp"></div>
+    ${fld(T('โค้ดเชิญ', 'Invite code'), '<span class="num">MEOW-4821</span>', { hint: T('มีบัญชีแล้วไม่ต้องใส่', 'Not needed if you have an account') })}
+    ${fld(T('อีเมล', 'Email'), 'nok@example.com<span class="caret"></span>', { hint: T('ใช้อีเมลเดียวกับที่เคยเข้า รวมถึง Gmail ที่เคยใช้กับ Google', 'Use the email you signed in with before, including the Gmail you used with Google') })}
+    <span class="btn big mt16"${tap(1)}>${T('ส่งรหัสเข้าอีเมล', 'Email me a code')}</span>
+    <p class="mut c mt4">${T('รหัส 6 หลัก ไม่ต้องจำรหัสผ่าน', '6-digit code. No password.')}</p>
+    <div class="pb16"></div>`,
+    note: '<b>ใช้เมื่อทดสอบเครื่องจริง R1 แล้ว Google ใช้ไม่ได้ในแอปที่ติดตั้งบน iPhone</b> (ดู UX.md ข้อ 2 · E1 ข้อ 5) · แสดงเฉพาะ iOS + <code>display-mode: standalone</code> · Safari แท็บ/Android ยังเป็นจอ 1 · โค้ดเชิญ + อีเมล + ส่งรหัสบนจอเดียว → จอ 6 กรอก OTP · ไม่บอกว่าทำไมไม่มี Google · บัญชีเดิมไม่มีช่องโค้ด · ส่งอีเมลไม่ได้ชั่วคราว: "ส่งอีเมลไม่ได้ตอนนี้ · ลองใหม่พรุ่งนี้นะ" ใต้ช่องอีเมล · ออฟไลน์: ปุ่มปิด + "ต้องต่อเน็ตเพื่อเข้าสู่ระบบ"' });
+  add(g1, { t: 'สอนติดตั้งบน iOS (Safari)', us: 'E6', html: welcome(false, true),
     over: `<div class="scrim"></div><div class="sheet"><div class="grab"></div>
       <p class="t2">${T('ติดตั้งก่อน แล้วค่อยเข้า', 'Install first, then sign in')}</p>
       <p class="bd mt4">${T('เปิดจากหน้าจอได้เหมือนแอป และไม่ต้องเข้าสู่ระบบสองรอบ', 'Open it like an app, and only sign in once.')}</p>
@@ -532,7 +554,7 @@
       </ul>
       <svg viewBox="0 0 320 40" style="width:100%;height:40px;color:var(--ink);margin-top:6px" aria-hidden="true"><path d="M150 4 Q140 22 160 36 M152 36 L160 37 L159 28" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <span class="lnk">${T('ไว้ทีหลัง', 'Maybe later')}</span></div>`,
-    note: 'แสดงเฉพาะ Safari บน iPhone ที่ยังไม่ได้ติดตั้ง · ขึ้นก่อนเข้าสู่ระบบ (ดู UX.md ข้อ 5.1) · ลูกศรชี้ลงไปที่ปุ่มแชร์ของ Safari · "ไว้ทีหลัง" แล้วไม่ถามซ้ำ 14 วัน · ชื่อเมนูภาษาไทยของ iOS ต้องตรวจกับเครื่องจริง' });
+    note: 'แสดงเฉพาะ Safari บน iPhone ที่ยังไม่ได้ติดตั้ง · ขึ้นก่อนเข้าสู่ระบบ (ตัดสินแล้ว UX.md ข้อ 5.1) · ลูกศรชี้ลงไปที่ปุ่มแชร์ของ Safari · "ไว้ทีหลัง" แล้วไม่ถามซ้ำ 14 วัน · ชื่อเมนูภาษาไทยของ iOS ต้องตรวจกับเครื่องจริง' });
   add(g1, { t: 'โค้ดเชิญใช้ไม่ได้', us: 'US-1.1 (ผิดพลาด)', html: welcome(true),
     note: 'ข้อความอื่นในช่องเดียวกัน: "โค้ดนี้หมดอายุแล้ว" · "โค้ดนี้ใช้ครบแล้ว" · บัญชี Google ใหม่ที่ไม่ได้ใส่โค้ด: "ต้องมีโค้ดเชิญก่อนนะ · ขอจากเพื่อนที่ชวนมา" · ไม่มีแมว (ผิดพลาดในช่อง)' });
   add(g1, { t: 'เข้าด้วยอีเมล', us: 'US-1.2', html: `
@@ -587,10 +609,11 @@
     <div class="sp"></div>
     <span class="btn big"${tap(2)}>${T('ต่อไป', 'Next')}</span><div class="pb20"></div>`,
     note: 'แตะตัวเลขเพื่อพิมพ์เอง (แป้นตัวเลข) หรือใช้ −/+ (0.1 kg · 1 cm · 1 ปี) · ค่าเริ่มว่าง ช่องบังคับว่าง = ปุ่มปิด · นอกช่วงที่เป็นไปได้: "ตัวเลขดูแปลกๆ ลองดูอีกที" · แมวเดินบนเส้นความคืบหน้า' });
-  add(g1, { t: 'แบบสอบถาม 2/2 · สถานที่ + ไม่บังคับ', us: 'US-1.5 · US-2.3', html: `
+  const q2 = (fail) => `
+    ${fail ? `<div class="net">${ic('cloudoff', 18)}${T('เน็ตหลุด', 'Offline')}</div>` : ''}
     ${pline(92)}
     <div class="between"><p class="t1">${T('ส่วนใหญ่เล่นที่ไหน', 'Where do you usually work out?')}</p><span class="mut num">2/2</span></div>
-    <div class="chips mt12">${chip(T('ยิม', 'Gym'), true, tap(1))}${chip(T('บ้าน', 'Home'))}${chip(T('สวนสาธารณะ', 'Park'))}${chip(T('ออฟฟิศ', 'Office'))}</div>
+    <div class="chips mt12">${chip(T('ยิม', 'Gym'), true, fail ? '' : tap(1))}${chip(T('บ้าน', 'Home'))}${chip(T('สวนสาธารณะ', 'Park'))}${chip(T('ออฟฟิศ', 'Office'))}</div>
     ${fld(T('ตั้งชื่อ (บังคับ)', 'Name it (required)'), T('ยิมใกล้บ้าน', 'Gym near home'))}
     ${wob('thin mt16')}
     <p class="mut">${T('ไม่บังคับ · ข้ามได้', 'Optional · skip if you like')}</p>
@@ -599,27 +622,34 @@
     <p class="t3 mt12">${T('เล่นมานานแค่ไหน', 'Experience')}</p>
     <div class="chips mt8">${chip(T('เพิ่งเริ่ม', 'New'))}${chip(T('มาบ้าง', 'Some'), true)}${chip(T('ประจำ', 'Regular'))}</div>
     <div class="sp"></div>
-    <span class="btn big"${tap(2)}>${T('เริ่มใช้', 'Start')}</span><div class="pb20"></div>`,
-    note: 'สถานที่แรกเป็นสถานที่เริ่มต้นของหน้าหลัก · ส่วนไม่บังคับไม่มีปุ่มข้าม กด "เริ่มใช้" ได้เลย · ไม่ถามเพศ (เรื่องให้ boss ตัดสิน ข้อ 4)' });
+    ${fail ? `<p class="fe c" style="margin:0 0 6px">${T('ยังบันทึกไม่ได้ · ที่กรอกไว้ยังอยู่ครบ', "Couldn't save yet. Everything you entered is still here.")}</p>` : ''}
+    <span class="btn big"${tap(fail ? 1 : 2)}>${fail ? T('ลองใหม่', 'Try again') : T('เริ่มใช้', 'Start')}</span><div class="pb20"></div>`;
+  add(g1, { t: 'แบบสอบถาม 2/2 · สถานที่ + ไม่บังคับ', us: 'US-1.5 · US-2.3', html: q2(false),
+    note: 'สถานที่แรกเป็นสถานที่เริ่มต้นของหน้าหลัก · ส่วนไม่บังคับไม่มีปุ่มข้าม กด "เริ่มใช้" ได้เลย · ไม่ถามเพศ (ตัดสินแล้ว UX.md ข้อ 5.4) · <b>ต้องออนไลน์</b>: ส่งครั้งเดียวตอนกด "เริ่มใช้" (ทั้งสองขั้น) ระหว่างส่งปุ่มเป็น "กำลังบันทึก…"' });
+  add(g1, { t: 'แบบสอบถาม · ส่งไม่สำเร็จ', us: 'US-1.5 (ผิดพลาด / ออฟไลน์)', html: q2(true),
+    note: 'R1 ยังไม่มีคิวออฟไลน์ (มาใน R3) จึง<b>ไม่มี "เก็บไว้ส่งทีหลัง"</b> · อยู่จอเดิม ค่าที่กรอกทั้งสองขั้นยังอยู่ครบ · ข้อความ --warn เหนือปุ่ม + ปุ่มเปลี่ยนเป็น "ลองใหม่" · ใช้แบบเดียวกันทั้งเน็ตหลุดและเซิร์ฟเวอร์ผิดพลาด (แถบ "เน็ตหลุด" ขึ้นเฉพาะเมื่อเครื่องรู้ว่าออฟไลน์) · ลองใหม่สำเร็จ → หน้าหลักว่าง · ปิดแอปแล้วค่าหาย ต้องกรอกใหม่ (ไม่เขียนลงเครื่อง)' });
 
   // ---------- กลุ่ม 2: หน้าหลัก ----------
   const g2 = grp('g2', '2 · หน้าหลักและการเริ่มเซสชัน (US-3.1 · US-2.3 · US-4.1 · US-3.5)', 'เริ่มได้ 1 แตะด้วยสถานที่ล่าสุด · เทมเพลตแตะแล้วเริ่มเลย · ระหว่างเล่นมีแถบลอยกลับหน้าจด');
-  const homeTop = `
+  const homeTop = (live = false) => `
     <div class="between"><div class="hw">today</div><span class="mut">${T('อา 15 พ.ย.', 'Sun 15 Nov')}</span></div>
     <p class="t1">${T('วันนี้เล่นอะไรดี', "What's it today?")}</p>
     <div class="mt12">${week([1, 3], 6)}</div>
     <p class="mut mt8">${T('สัปดาห์นี้มาแล้ว 2 วัน', '2 days this week')}</p>
     ${wob()}
     <div class="sec"><b>${T('เทมเพลต', 'Templates')}</b><span class="lnk">${T('ทั้งหมด', 'All')}</span></div>
-    ${li(T('อกและแขน', 'Chest &amp; arms'), 'Incline DB press · Bench press · Triceps pushdown', ic('chev', 20), tap(1))}
+    ${live ? `<p class="mut" style="margin:-4px 0 0">${T('จบเซสชันที่เล่นอยู่ก่อน แล้วค่อยเริ่มเทมเพลต', 'Finish the current session to start a template')}</p>` : ''}
+    <div class="${live ? 'dimmed' : ''}">
+    ${li(T('อกและแขน', 'Chest &amp; arms'), 'Incline DB press · Bench press · Triceps pushdown', ic('chev', 20), live ? '' : tapB(1))}
     ${li(T('ขา', 'Legs'), 'Squat · Romanian deadlift · Leg press · Calf raise', ic('chev', 20))}
     ${li(T('เดินชัน 30 นาที', 'Incline walk 30 min'), 'Treadmill incline walk', ic('chev', 20))}
-    ${li(T('ทำซ้ำครั้งก่อน', 'Repeat last'), T('ขา · พฤ 12 พ.ย.', 'Legs · Thu 12 Nov'), ic('chev', 20), '', `<span style="color:var(--ink)">${ic('repeat', 22)}</span>`)}`;
+    ${li(T('ทำซ้ำครั้งก่อน', 'Repeat last'), T('ขา · พฤ 12 พ.ย.', 'Legs · Thu 12 Nov'), ic('chev', 20), '', `<span style="color:var(--ink)">${ic('repeat', 22)}</span>`)}
+    </div>`;
   const startArea = (t1 = '', t2 = '') => `
     <div class="row mt8"><span class="mut">${T('ที่', 'At')}</span><span class="chip"${t2}>${ic('pin', 18)}${LOC}${ic('down', 16)}</span></div>
     <span class="btn big mt8"${t1}>${T('เริ่ม', 'Start')}</span>`;
-  add(g2, { t: 'หน้าหลัก · มีข้อมูล', us: 'US-3.1 · US-4.1 · US-5.1', thumb: true, html: `${homeTop}<div class="sp"></div>${startArea(tap(1))}${tabs(0)}`,
-    note: '<b>เริ่ม</b> = เริ่มเซสชันที่สถานที่บนชิป แล้วเปิดเลือกท่าทันที · แตะเทมเพลต/ทำซ้ำ = เริ่มเซสชันพร้อมท่าทั้งชุดเลย (ใช้สถานที่บนชิป) · ส้ม = วันที่มา · เทมเพลตแสดง 3 อันที่ใช้ล่าสุด' });
+  add(g2, { t: 'หน้าหลัก · มีข้อมูล', us: 'US-3.1 · US-4.1 · US-5.1', thumb: true, html: `${homeTop()}<div class="sp"></div>${startArea(tap(1))}${tabs(0)}`,
+    note: '<b>เริ่ม</b> (1) = เริ่มเซสชันที่สถานที่บนชิป แล้วเปิดเลือกท่าทันที · <b>B1</b> แตะเทมเพลต/ทำซ้ำ = เริ่มเซสชันพร้อมท่าทั้งชุดเลย (ใช้สถานที่บนชิป) · ส้ม = วันที่มา · เทมเพลตแสดง 3 อันที่ใช้ล่าสุด' });
   add(g2, { t: 'หน้าหลัก · ว่าง (ครั้งแรก)', us: 'US-3.1', thumb: true, html: `
     <div class="between"><div class="hw">today</div><span class="mut">${T('อา 15 พ.ย.', 'Sun 15 Nov')}</span></div>
     <p class="t1">${T('ยินดีต้อนรับ', 'Welcome')}</p>
@@ -631,9 +661,9 @@
     note: 'Empty state = แมว + ประโยคเดียว + ปุ่มเดียว · ไม่มีส่วนเทมเพลตจนกว่าจะมี · สัปดาห์นี้ซ่อนจนกว่าจะมีเซสชันแรก' });
   add(g2, { t: 'หน้าหลัก · กำลังเล่น + ค้างส่ง', us: 'US-3.5 · US-3.6', html: `
     <div class="net">${ic('sync', 18)}${T('ค้างส่ง 3 รายการ · จะส่งเมื่อมีเน็ต', '3 waiting to sync · will send when online')}</div>
-    ${homeTop}<div class="sp"></div>${live(tap(1))}${tabs(0)}`,
-    note: 'แถบดำ "กำลังเล่น" แทนที่ปุ่มเริ่ม (มีได้ทีละเซสชัน) · แตะ = กลับหน้าจด · แถบนี้ลอยเหนือแถบล่างในทุกแท็บ · แถบบนบอกค้างส่ง แตะเพื่อดูรายการ/ส่งตอนนี้ · ค้างเกิน 24 ชม. เปลี่ยนข้อความเป็นเตือน' });
-  add(g2, { t: 'เลือก/เพิ่มสถานที่', us: 'US-2.3 · US-3.1', html: `${homeTop}<div class="sp"></div>${startArea()}${tabs(0)}`,
+    ${homeTop(true)}<div class="sp"></div>${live(tap(1))}${tabs(0)}`,
+    note: 'แถบดำ "กำลังเล่น" แทนที่ปุ่มเริ่มและชิปสถานที่ (มีได้ทีละเซสชัน) · แตะ = กลับหน้าจด · แถวเทมเพลต/ทำซ้ำจางและแตะไม่ได้ ("ทั้งหมด" ยังเปิดได้) · แถบนี้ลอยเหนือแถบล่างในทุกแท็บ · แถบบนบอกค้างส่ง แตะเพื่อดูรายการ/ส่งตอนนี้ · ค้างเกิน 24 ชม. เปลี่ยนข้อความเป็นเตือน' });
+  add(g2, { t: 'เลือก/เพิ่มสถานที่', us: 'US-2.3 · US-3.1', html: `${homeTop()}<div class="sp"></div>${startArea()}${tabs(0)}`,
     over: `<div class="scrim"></div><div class="sheet"><div class="grab"></div>
       <p class="t2">${T('เล่นที่ไหน', 'Where are you?')}</p>
       <div class="opt mt8"${tap(1)}><span class="cb on">${ic('check', 20, 3)}</span>${LOC}<span class="mut">${T('ล่าสุด', 'last used')}</span></div>
@@ -643,7 +673,7 @@
       ${fld(T('เพิ่มสถานที่', 'Add a place'), T('ยิมที่ทำงาน', 'Office gym') + '<span class="caret"></span>')}
       <span class="btn mt12">${T('เพิ่ม', 'Add')}</span></div>`,
     note: 'เปิดจากชิปสถานที่บนหน้าหลัก · แตะแถว = เลือกแล้วปิดแผ่นเลย (1 แตะ) · จำล่าสุดไว้ใช้ครั้งหน้า · แก้ชื่อ/ลบสถานที่อยู่ใน ฉัน › สถานที่ของฉัน' });
-  add(g2, { t: 'กลับมาหลังปิดแอปนาน', us: 'US-3.5', html: `${homeTop}<div class="sp"></div>${live()}${tabs(0)}`,
+  add(g2, { t: 'กลับมาหลังปิดแอปนาน', us: 'US-3.5', html: `${homeTop(true)}<div class="sp"></div>${live()}${tabs(0)}`,
     over: `<div class="scrim"></div><div class="sheet"><div class="grab"></div>
       ${cat(36, 140)}
       <p class="t2 c">${T('ยังเล่นอยู่ไหม', 'Still going?')}</p>
@@ -693,7 +723,7 @@
     ${tt(false, 'น้ำหนัก × ครั้ง', 'Weight × reps', 'เบนช์', 'bench')}
     ${tt(false, 'ครั้งอย่างเดียว', 'Reps only', 'ซิทอัพ', 'sit-up')}
     ${tt(true, 'เวลา', 'Time', 'แพลงก์', 'plank')}
-    ${tt(false, 'ระยะ + เวลา', 'Distance + time', 'วิ่ง', 'run')}
+    ${tt(false, 'เวลา + ระยะ', 'Time + distance', 'วิ่ง', 'run')}
     ${tt(false, 'น้ำหนัก + เวลา', 'Weight + time', 'ฟาร์เมอร์', 'carry')}
     ${tt(false, 'ชัน + เร็ว + เวลา', 'Incline + speed + time', 'ลู่', 'treadmill')}
     <p class="mut mt4">${T('เปลี่ยนสิ่งที่จดไม่ได้หลังเริ่มจดแล้ว', "You can't change this once you've logged it.")}</p>
@@ -733,7 +763,7 @@
   add(g4, { t: 'เมนูของเซ็ต', us: 'US-3.5', cls: 'dense', html: `${benchHead}${wob()}${benchBlock(lr(3, [['62.5', KG], ['8', REP]], 'sug', C2))}<div class="sp"></div>${logBottom()}`,
     over: `<div class="scrim"></div><div class="sheet"><div class="grab"></div>
       <p class="t2">${T('เซ็ต 2 · 62.5 kg × 8', 'Set 2 · 62.5 kg × 8')}</p>
-      <div class="opt mt8"${tap(1)}><span class="cb"></span>${T('เซ็ตวอร์มอัพ', 'Warm-up set')}<span class="mut">${T('ไม่นับสถิติ', "doesn't count for records")}</span></div>
+      <div class="opt mt8"${tap(1)}><span class="cb"></span>${T('เซ็ตวอร์มอัพ', 'Warm-up set')}<span class="mut">${T('ไม่นับสถิติ', 'not in records')}</span></div>
       <div class="opt warn">${ic('close', 22)}${T('ลบเซ็ต', 'Delete set')}</div>
       <span class="btn mt12">${T('ปิด', 'Close')}</span></div>`,
     note: 'เปิดโดยแตะเลขเซ็ต · วอร์มอัพแสดง "W" แทนเลข · ลบเซ็ตไม่ถามยืนยัน แต่มี toast "ลบแล้ว · ย้อนกลับ" 5 วินาที · แตะ ✓ ส้มอีกครั้ง = เอาติ๊กออก (มีย้อนกลับเหมือนกัน)' });
@@ -779,11 +809,16 @@
   add(g4, { t: 'แถวจดชนิดอื่น (อ้างอิง)', us: 'US-3.2', cls: 'dense long', html: `
     <p class="t2">${T('แถวจดของแต่ละชนิด', 'Row per log type')}</p>
     ${mini('Sit-up', 'reps_only · ' + T('ครั้ง', 'reps'), 'c1', [T('เซ็ต', 'Set'), T('ครั้ง', 'Reps')], [['20', REP]])}
-    ${mini(T('วิ่ง', 'Run'), 'distance_duration · ' + T('เพซ 6:12 /km คิดให้', 'pace 6:12 /km auto'), 'c2', [T('เซ็ต', 'Set'), T('ระยะ', 'Dist'), T('เวลา', 'Time')], [['5.0', 'km'], ['31:00', '']])}
+    <div class="exn mt12">${T('วิ่ง', 'Run')}</div><p class="prev">distance_duration · ${T('ระยะไม่บังคับ · มีระยะ = คิดเพซให้', 'distance optional')}</p>
+    ${hd('c2', [T('เซ็ต', 'Set'), T('ระยะ', 'Dist'), T('เวลา', 'Time')])}
+    ${lr(1, [['5.0', 'km'], ['31:00', '']], 'on', 'c2')}
+    <p class="mut" style="padding-left:36px;margin:0">${T('เพซ 6:12 /km', 'pace 6:12 /km')}</p>
+    <div class="lr c2"><span class="n">2</span><span class="num v sug" style="color:var(--ink-3)">–<small>km</small></span>${val('20:00', '', 'sug')}${tick(false)}</div>
+    <p class="mut" style="padding-left:36px;margin:0">${T('ไม่มีระยะก็ ✓ ได้ · ไม่คิดเพซ', 'No distance is OK · no pace')}</p>
     ${mini('Farmer carry', 'weight_duration', 'c2', [T('เซ็ต', 'Set'), 'kg', T('เวลา', 'Time')], [['24', KG], ['0:45', '']])}
     ${mini('Pull-up', T('น้ำหนักตัว · น้ำหนักเพิ่มไม่บังคับ', 'bodyweight · added weight optional'), 'c2', [T('เซ็ต', 'Set'), T('ตัว +', 'BW +'), T('ครั้ง', 'Reps')], [['0', KG], ['8', REP]])}
-    ${mini('Assisted dip', T('เครื่องช่วย · น้อยลง = เก่งขึ้น', 'assisted · less is better'), 'c2', [T('เซ็ต', 'Set'), T('ช่วย −', 'Assist −'), T('ครั้ง', 'Reps')], [['20', KG], ['10', REP]])}`,
-    note: 'ไม่ใช่จอจริง เป็นตัวอย่างแถวให้ Front-end · ทุกช่องในตาราง UX.md ข้อ 3 บังคับยกเว้น "ตัว +" ของท่าน้ำหนักตัว · ท่าทีละข้างเพิ่มป้าย "ข้างละ" ใต้หัวคอลัมน์ครั้ง' });
+    ${mini('Assisted dip', T('เครื่องช่วย · น้อยลง = เก่งขึ้น', 'assisted · less is better'), 'c2', [T('เซ็ต', 'Set'), T('ช่วย −', 'Assist −'), T('ครั้ง', 'Reps')], [['20', KG], ['10', REP]])}<div class="pb16"></div>`,
+    note: 'ไม่ใช่จอจริง เป็นตัวอย่างแถวให้ Front-end · ทุกช่องในตาราง UX.md ข้อ 3 บังคับ ยกเว้น "ตัว +" ของท่าน้ำหนักตัว และ<b>ระยะของวิ่ง</b> (boss ตัดสิน: บังคับเฉพาะเวลา) · ช่องไม่บังคับที่ว่างแสดง "–" สีจาง เส้นประ · วิ่งแถว 2 = วิ่งลู่ไม่จดระยะ ✓ กดได้ เพราะเวลาครบ · ท่าทีละข้างเพิ่มป้าย "ข้างละ" ใต้หัวคอลัมน์ครั้ง' });
   add(g4, { t: 'ออฟไลน์ระหว่างจด', us: 'US-3.6', cls: 'dense', html: `
     <div class="net">${ic('cloudoff', 18)}${T('เน็ตหลุด · จดไว้ในเครื่องก่อน (4)', 'Offline · saved on this phone (4)')}</div>
     ${lhead(T('ขา', 'Legs'), LOC, `<span class="num" style="font-size:18px">31:22</span>`)}${wob()}
@@ -831,11 +866,11 @@
     <div class="sp"></div>
     <span class="btn big">${ic('plus', 20)}${T('เทมเพลตใหม่', 'New template')}</span>${tabs(0)}`,
     note: 'แตะแถว = เริ่มเซสชันเลย · ⋯ = แก้ / ทำสำเนา / ลบ · เรียงตามใช้ล่าสุด · ไม่จำกัดจำนวน · ว่าง: แมว #2 "ยังไม่มีเทมเพลต · จบเซสชันแล้วบันทึกได้"' });
-  const tRow = (n, s) => `<div class="li"><span style="color:var(--ink-3)">${ic('grip', 22)}</span><div class="tx"><b>${n}</b></div><span class="rb s">−</span><span class="num" style="min-width:58px;text-align:center">${s} ${T('เซ็ต', 'sets')}</span><span class="rb s">+</span></div>`;
+  const tRow = (n, s) => `<div class="li" style="gap:8px"><span style="color:var(--ink-3)">${ic('grip', 22)}</span><div class="tx"><b>${n}</b></div><span class="rb s">−</span><span class="num" style="min-width:30px;text-align:center;font-size:18px">${s}</span><span class="rb s">+</span></div>`;
   add(g5, { t: 'แก้ / สร้างเทมเพลต', us: 'US-4.1', html: `
     <div class="lhead"><span class="ibtn">${ic('back')}</span><div class="tt"><b>${T('แก้เทมเพลต', 'Edit template')}</b></div></div>
     ${fld(T('ชื่อ (บังคับ)', 'Name (required)'), T('อกและแขน', 'Chest &amp; arms'))}
-    <p class="fl mt16">${T('ท่า (ลากเพื่อสลับลำดับ)', 'Exercises (drag to reorder)')}</p>
+    <div class="between mt16"><p class="fl" style="margin:0">${T('ท่า (ลากเพื่อสลับลำดับ)', 'Exercises (drag to reorder)')}</p><span class="fl" style="width:122px;text-align:center">${T('เซ็ต', 'Sets')}</span></div>
     ${tRow('Incline DB press', 3)}${tRow('Bench press', 4)}${tRow('Triceps pushdown', 3)}
     <span class="lnk l">+ ${T('เพิ่มท่า', 'Add exercise')}</span>
     <p class="mut mt8">${T('น้ำหนักและครั้งเติมจากครั้งล่าสุดของแต่ละท่าเอง', 'Weights and reps fill in from your last time.')}</p>
@@ -844,16 +879,16 @@
     <span class="lnk warn">${T('ลบเทมเพลต', 'Delete template')}</span><div class="pb16"></div>`,
     note: 'ปัดแถวไปซ้ายเพื่อเอาท่าออก (มีปุ่ม ⋯ สำรองสำหรับคนไม่ปัด) · ที่จับ ≡ ลากสลับลำดับ · เทมเพลตไม่เก็บน้ำหนัก/ครั้ง · ลบเทมเพลตถามยืนยัน (ประวัติไม่หาย)' });
   const progHead = (k) => `<p class="t1">${T('ความคืบหน้า', 'Progress')}</p><div class="chips mt8">${chip(T('สรุป', 'Summary'), k === 0)}${chip(T('รายท่า', 'Exercises'), k === 1)}${chip(T('ร่างกาย', 'Body'), k === 2)}</div>`;
-  const bodyBase = `${progHead(2)}
+  const bodyBase = (t = true) => `${progHead(2)}
     <div class="row mt16" style="align-items:baseline"><span class="num" style="font-size:40px">72.4</span><span class="mut">kg · ${T('15 พ.ย.', '15 Nov')}</span></div>
     <div class="chips mt8">${chip(T('1 ด.', '1M'))}${chip(T('3 ด.', '3M'), true)}${chip(T('1 ปี', '1Y'))}${chip(T('ทั้งหมด', 'All'))}</div>
-    <div class="mt12">${chart([73.6, 73.2, 73.5, 73.0, 72.8, 73.1, 72.8, 72.4], [], [[0, T('ก.ย.', 'Sep')], [4, T('ต.ค.', 'Oct')], [7, T('พ.ย.', 'Nov')]], ['72', '74'])}</div>
+    <div class="mt12">${chart([73.6, 73.2, 73.5, 73.0, 72.8, 73.1, 72.8, 72.4], [], [[0, T('ก.ย.', 'Sep')], [4, T('ต.ค.', 'Oct')], [7, T('พ.ย.', 'Nov')]], ['70', '73', '76'], [70, 76])}</div>
     ${li(T('อา 15 พ.ย.', 'Sun 15 Nov'), T('เอว 82 cm', 'waist 82 cm'), '<span class="num">72.4 kg</span>')}
     ${li(T('ส 8 พ.ย.', 'Sat 8 Nov'), '', '<span class="num">72.8 kg</span>')}
     ${li(T('ส 1 พ.ย.', 'Sat 1 Nov'), T('ไขมัน 24%', 'body fat 24%'), '<span class="num">73.1 kg</span>')}
     <div class="sp"></div>
-    <span class="btn big"${tap(1)}>${ic('plus', 20)}${T('จดน้ำหนัก', 'Log weight')}</span>${tabs(2)}`;
-  add(g5, { t: 'จดน้ำหนักตัว / สัดส่วน', us: 'US-4.2', html: bodyBase,
+    <span class="btn big"${t ? tap(1) : ''}>${ic('plus', 20)}${T('จดน้ำหนัก', 'Log weight')}</span>${tabs(2)}`;
+  add(g5, { t: 'จดน้ำหนักตัว / สัดส่วน', us: 'US-4.2', html: bodyBase(false),
     over: `<div class="scrim"></div><div class="sheet"><div class="grab"></div>
       <div class="between"><p class="t2">${T('จดน้ำหนัก', 'Log weight')}</p><span class="chip">${T('วันนี้ 15 พ.ย.', 'Today 15 Nov')}</span></div>
       <div class="fld"><div class="fl">${T('น้ำหนัก (บังคับ)', 'Weight (required)')}</div>${step('72.4', 'kg', true)}</div>
@@ -865,7 +900,7 @@
       </div>
       <p class="mut mt8">${T('+ อก · แขน · ต้นขา', '+ chest · arm · thigh')}</p>
       <span class="btn big mt12"${tap(2)}>${T('บันทึก', 'Save')}</span></div>`,
-    note: 'น้ำหนักเติมค่าล่าสุดให้ ปรับด้วย −/+ ครั้งละ 0.1 · ชิปวันที่เปิดปฏิทินของเครื่อง (วันเดียวกันจดซ้ำ = แทนค่าเดิม) · บอกค่าครั้งก่อนเฉยๆ ไม่มีลูกศร สี หรือคำตัดสิน · รายละเอียดพับไว้ตอนแรก' });
+    note: 'เปิดจากปุ่ม "+ จดน้ำหนัก" (แตะ 1 บนจอ 35) · น้ำหนักเติมค่าล่าสุดให้ ปรับด้วย −/+ ครั้งละ 0.1 · ชิปวันที่เปิดปฏิทินของเครื่อง (วันเดียวกันจดซ้ำ = แทนค่าเดิม) · บอกค่าครั้งก่อนเฉยๆ ไม่มีลูกศร สี หรือคำตัดสิน · รายละเอียดพับไว้ตอนแรก' });
 
   // ---------- กลุ่ม 6: ความคืบหน้า + ประวัติ ----------
   const g6 = grp('g6', '6 · ความคืบหน้าและประวัติ (E5: US-5.1 · US-5.2 · US-3.5)', 'ความคืบหน้า = ดูภาพรวม · ประวัติ = ดูและแก้เซสชันย้อนหลัง');
@@ -905,16 +940,16 @@
     ${progHead(1)}
     <div class="between mt12"><span class="exn">Bench press</span><span class="chip">${T('เปลี่ยนท่า', 'Change')}${ic('down', 16)}</span></div>
     <div class="chips mt8">${chip(T('หนักสุด', 'Heaviest'), true)}${chip(T('ปริมาณ', 'Volume'))}${chip(T('ครั้งสูงสุด', 'Most reps'))}</div>
-    <div class="mt12">${chart([57.5, 57.5, 60, 60, 60, 62.5, 62.5, 65], [2, 5, 7], [[0, T('ก.ย.', 'Sep')], [4, T('ต.ค.', 'Oct')], [7, T('พ.ย.', 'Nov')]], ['55', '65'])}</div>
+    <div class="mt12">${chart([57.5, 57.5, 60, 60, 60, 62.5, 62.5, 65], [2, 5, 7], [[0, T('ก.ย.', 'Sep')], [4, T('ต.ค.', 'Oct')], [7, T('พ.ย.', 'Nov')]], ['55', '60', '65'], [55, 65])}</div>
     <div class="chips">${chip(T('1 ด.', '1M'))}${chip(T('3 ด.', '3M'), true)}${chip(T('1 ปี', '1Y'))}${chip(T('ทั้งหมด', 'All'))}</div>
     <p class="bd mt12" style="color:var(--ink)"><span class="prmark"></span> ${T('สถิติ', 'Record')} <span class="num">65 kg × 5</span> · ${T('15 พ.ย.', '15 Nov')}</p>
     ${wob()}
     ${li(T('อา 15 พ.ย.', 'Sun 15 Nov'), '60×8 · 62.5×8 · 65×5 · 65×5', '<span class="num">65</span>')}
     ${li(T('พฤ 12 พ.ย.', 'Thu 12 Nov'), '60×8 · 62.5×8 · 62.5×6', '<span class="num">62.5</span>')}
     <div class="sp"></div>${tabs(2)}`,
-    note: 'ชิปตัววัดเปลี่ยนตาม track_type (เวลา: นานสุด · วิ่ง: ไกลสุด/เพซ) · จุดส้ม = วันที่ทำสถิติ · แตะจุด = แสดงค่าเหนือจุด · ทำไม่ถึง 2 ครั้ง: แมว #17 "ทำอีกสักครั้ง กราฟจะขึ้น" · เปิดจาก ⋯ ของท่าในหน้าจดได้ด้วย' });
-  add(g6, { t: 'ร่างกาย · กราฟน้ำหนักตัว', us: 'US-5.2 · US-4.2', html: bodyBase,
-    note: 'จุดทุกจุดเหมือนกัน ไม่มีส้ม ไม่มีเส้นเป้า · แกนไม่เริ่มที่ 0 (เห็นการเปลี่ยนแปลง) แต่ไม่ขยายจนดูขึ้นลงแรง: ช่วงแกนอย่างน้อย 2 kg · แตะแถว = แก้/ลบ · ว่าง: แมว #9 "ยังไม่เคยชั่ง · ชั่งเมื่อพร้อม"' });
+    note: 'ชิปตัววัดเปลี่ยนตาม track_type (เวลา: นานสุด · วิ่ง: ไกลสุด/เพซ/นานสุด — ไกลสุดและเพซใช้เฉพาะเซ็ตที่มีระยะ) · แกนใช้ช่วงข้อมูลปัดออกถึงขั้น 5 kg / 10 lb · จุดส้ม = วันที่ทำสถิติ · แตะจุด = แสดงค่าเหนือจุด · ทำไม่ถึง 2 ครั้ง: แมว #17 "ทำอีกสักครั้ง กราฟจะขึ้น" · เปิดจาก ⋯ ของท่าในหน้าจดได้ด้วย' });
+  add(g6, { t: 'ร่างกาย · กราฟน้ำหนักตัว', us: 'US-5.2 · US-4.2', html: bodyBase(),
+    note: 'จุดทุกจุดเหมือนกัน ไม่มีส้ม ไม่มีเส้นเป้า · แกนไม่เริ่มที่ 0 แต่ไม่ขยายจนดูขึ้นลงแรง: <b>ช่วงแกนอย่างน้อย 6 kg / 14 lb ข้อมูลอยู่กลางช่วง</b> ป้ายแกนจำนวนเต็ม 3 ค่า (ตัวอย่าง 70–76 แกว่ง 1.2 kg ใช้ราว 1/5 ของความสูง) · ข้อมูลกว้างกว่านั้นใช้ช่วงข้อมูล + ขอบ 1 kg ต่อข้าง · แตะแถว = แก้/ลบ · ว่าง: แมว #9 "ยังไม่เคยชั่ง · ชั่งเมื่อพร้อม"' });
   const hRow = (d, w, n, m, pr) => `<div class="li"><div style="width:44px;text-align:center;flex:none"><span class="num" style="font-size:22px;display:block;line-height:1.1">${d}</span><span class="mut">${w}</span></div><div class="tx"><b>${n}</b><span>${m}</span></div>${pr ? `<div class="r" style="color:var(--ink)">${ic('star', 18, 2)}</div>` : ''}</div>`;
   add(g6, { t: 'ประวัติ', us: 'US-3.5', html: `
     <p class="t1">${T('ประวัติ', 'History')}</p>
@@ -941,7 +976,7 @@
     ${dRow(4, '65', '5')}
     <div class="sp"></div>
     <span class="lnk pb16">+ ${T('เพิ่มเซ็ต / เพิ่มท่า', 'Add set / exercise')}</span>`,
-    note: 'แตะตัวเลข = แก้ (แบบเดียวกับหน้าจด) · แตะเลขเซ็ต = วอร์มอัพ/ลบ · ⋯ บน = แก้สถานที่ · แก้เวลา · ลบเซสชัน (ถามยืนยัน) · ทุกการแก้คำนวณสถิติใหม่ · ออฟไลน์: อ่านอย่างเดียว' });
+    note: 'แตะตัวเลข = แก้ (แบบเดียวกับหน้าจด) · แตะเลขเซ็ต = วอร์มอัพ/ลบ · ⋯ บน = แก้สถานที่ · แก้เวลา · ลบเซสชัน (ถามยืนยัน) · ทุกการแก้คำนวณสถิติใหม่ · ออฟไลน์: อ่านอย่างเดียว · บรรทัดรองของหัวจอ (วันที่ เวลา สถานที่) บรรทัดเดียว ยาวเกินตัดด้วย …' });
 
   // ---------- กลุ่ม 7: ฉัน ----------
   const g7 = grp('g7', '7 · ฉัน / ตั้งค่า (US-1.5 · US-5.3)', 'ตั้งค่าเปลี่ยนแล้วมีผลทันที ไม่มีปุ่มบันทึก');
@@ -985,7 +1020,7 @@
     <div class="row" style="min-height:52px"${tap(1)}><span class="cb on">${ic('check', 20, 3)}</span><span class="bd" style="color:var(--ink)">${T('เข้าใจแล้ว ลบแล้วกู้คืนไม่ได้', 'I understand this cannot be undone')}</span></div>
     <span class="btn big warnb mt12"${tap(2)}>${T('ลบบัญชีถาวร', 'Delete my account')}</span>
     <span class="lnk">${T('ยกเลิก', 'Cancel')}</span><div class="pb16"></div>`,
-    note: 'ไม่มีแมวในจอนี้ (เรื่องจริงจัง) · ปุ่มปิดจนกว่าจะติ๊ก · ปุ่มเป็นเส้น --warn ไม่ใช่พื้นแดง · ระหว่างลบ: "กำลังลบ…" กดซ้ำไม่ได้ · ต้องออนไลน์' });
+    note: 'ไม่มีแมวในจอนี้ (เรื่องจริงจัง) · ปุ่มปิดจนกว่าจะติ๊ก · ปุ่มเป็นเส้น --warn ไม่ใช่พื้นแดง · ระหว่างลบ: "กำลังลบ…" กดซ้ำไม่ได้ · ต้องออนไลน์ · บรรทัด "มีรายการค้างส่ง" แสดงเมื่อมีคิวค้างเท่านั้น (มีคิวตั้งแต่ R3 · ใน R1 ไม่มีบรรทัดนี้)' });
   add(g7, { t: 'ลบบัญชีเรียบร้อย', us: 'US-1.5', html: `
     <div class="sp"></div>
     ${cat(13, 170)}
@@ -1023,7 +1058,7 @@
     <p class="bd c">${T('หน้านี้ต้องใช้เน็ต · แต่จดยังได้ปกตินะ', 'This page needs a connection. Logging still works.')}</p>
     <div class="sp"></div>
     <span class="btn big"${tap(1)}>${T('กลับไปหน้าหลัก', 'Back to home')}</span>${tabs(3)}`,
-    note: 'ใช้เฉพาะหน้าที่ไม่มีสำเนาในเครื่อง (ส่งออก · ลบบัญชี · ครั้งแรกที่เปิดความคืบหน้า) · หน้าอื่นแสดงสำเนาล่าสุด + แถบบนเท่านั้น' });
+    note: 'ใช้เฉพาะหน้าที่ไม่มีสำเนาในเครื่อง (ส่งออก · ลบบัญชี · ครั้งแรกที่เปิดความคืบหน้า) · หน้าอื่นแสดงสำเนาล่าสุด + แถบบนเท่านั้น · ประโยค "แต่จดยังได้ปกติ" ใช้ตั้งแต่ R3 (ก่อนนั้นยังไม่มีหน้าจด เหลือแค่ "หน้านี้ต้องใช้เน็ต")' });
 
   // =====================================================================
   // วาดทั้งหน้า
@@ -1053,6 +1088,14 @@
   // #only-g4 = แสดงเฉพาะกลุ่ม 4 (ใช้ตอนถ่ายภาพตรวจ)
   const only = h.find(x => /^only-g\d$/.test(x));
   if (only) document.querySelectorAll('section').forEach(s => { if ('only-' + s.id !== only) s.style.display = 'none'; });
+  // #f12 = แสดงเฉพาะจอที่ 12 ไม่มีส่วนหัวเอกสาร (ถ่ายภาพตรวจทีละจอ)
+  const one = h.find(x => /^f\d+$/.test(x));
+  if (one) {
+    document.querySelectorAll('main > :not(#groups)').forEach(e => e.style.display = 'none');
+    document.querySelectorAll('section').forEach(s => { s.querySelector('h2').style.display = s.querySelector('.note').style.display = 'none'; });
+    document.querySelectorAll('figure.fr').forEach((f, i) => { if ('f' + (i + 1) !== one) f.style.display = 'none'; });
+    document.querySelectorAll('section').forEach(s => { if (!s.querySelector('figure.fr:not([style*="none"])')) s.style.display = 'none'; });
+  }
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) apply('wiggle', 'off');
 </script>
 </body>
