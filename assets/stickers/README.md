@@ -2,6 +2,8 @@
 
 สร้างจาก `docs/design/samples.html` ด้วย `node scripts/export-stickers.mjs` — อย่าแก้ไฟล์ในโฟลเดอร์นี้ตรงๆ ให้แก้ต้นฉบับแล้วรันใหม่
 
+**ในแอปใช้ component แทนไฟล์เหล่านี้:** `import { Cat } from "@/components/doodle"` → `<Cat pose="standing" size={120} wiggle title="..." />` (สคริปต์เดียวกันสร้าง `src/components/doodle/poses.generated.ts`) · ไอคอนแอปสร้างด้วย `node scripts/export-icons.mjs`
+
 ## ภาพนิ่ง
 - `svg/color` `png/color` — ลงสี ใช้บนพื้นสว่าง
 - `svg/line` `png/line` — เส้นดำ ตัวขาว
