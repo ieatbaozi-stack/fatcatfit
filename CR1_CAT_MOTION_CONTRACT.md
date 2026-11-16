@@ -1,0 +1,99 @@
+# CR1_CAT_MOTION_CONTRACT.md
+
+> ร่าง 1 · 2026-11-17 · ผู้เขียน: Lead · สถานะ: **รอ boss อนุมัติ**
+> ที่มา: change request ของ boss (2026-11-17) — "animation เดิมแค่ดุ๊กดิ๊กไปมา ต้องการให้มี motion ขยับหรือเปลี่ยนอิริยาบถจริง"
+> อ้างอิง: [DESIGN](docs/design/DESIGN.md) ข้อ motion · [R0 contract](R0_FOUNDATION_CONTRACT.md) (component `Cat`) · `scripts/sprites/README.md` (rig 5 เฟรมของ boss — pull request #3) · [PROCESS](PROCESS.md) · [TEAM](TEAM.md)
+> branch: `cr1-cat-motion`
+
+## เป้าหมาย
+
+แมวในแอปขยับแบบเปลี่ยนท่าจริง 5 เฟรม (ก้าวขา ยุบตัว แขนงอ ของประกอบขยับตามมือ) ตามงานที่ boss ทำไว้ใน `scripts/sprites/` แทนการดุ๊กดิ๊ก 3 เฟรมที่มีอยู่
+
+ไม่มี user story ใหม่ใน PRD — เป็นการแก้คุณภาพของ PRD ข้อ 7 (ภาพแมว) ผู้ใช้เห็นผลทุกจุดที่มีแมวขยับ: หน้าว่างของแต่ละแท็บ หน้า "ฉัน" และ `/styleguide`
+
+## ขอบเขต
+
+| ทำ | ไม่ทำ |
+|---|---|
+| component `Cat` เล่น 5 เฟรมจาก rig ครบ 36 ท่า | วาดท่าใหม่ หรือแก้ท่าใน `rigs.mjs` (งาน art เป็นของ boss) |
+| ยังเป็น SVG inline: เส้น `currentColor` สีจาก CSS variable โหมดมืดเป็นเส้นล้วนเหมือนเดิม | ใช้ไฟล์ PNG ในแอป (ดูข้อตัดสินใจ 1) |
+| เลิกดุ๊กดิ๊ก 3 เฟรมทั้งหมด: prop `wiggle`, `FRAMES` 3 เฟรม, และการสร้าง `assets/stickers/sprites/` ใน `export-stickers.mjs` | เปลี่ยนว่าหน้าไหนใช้แมวท่าไหน (ตาม UX.md เดิม) |
+| แยกส่วนคำนวณเฟรมของ `scripts/sprites/build.mjs` ออกเป็นโมดูล Node ล้วน (ไม่ต้องใช้ Chrome/PowerShell) เพื่อให้ CI บน Linux ตรวจได้ | ทำให้ขั้นเรนเดอร์ PNG รันบน Linux/macOS |
+| อัปเดต DESIGN.md ข้อ motion และ `assets/stickers/README.md` | เสียงหรือ haptic ประกอบ |
+
+## API & ชนิดข้อมูล
+
+```tsx
+import { Cat } from "@/components/doodle";
+
+<Cat pose="squat" size={120} motion title="..." className="text-ink" />
+```
+
+| prop | ชนิด | ค่าเริ่มต้น | หมายเหตุ |
+|---|---|---|---|
+| `pose` | `CatPose` | — | 36 ท่าเดิม ไม่เปลี่ยนชื่อ |
+| `size` | `number` | `120` | เหมือนเดิม |
+| `motion` | `boolean` | `false` | **ใหม่** แทน `wiggle` · เล่น 5 เฟรมวนรอบละ 0.7 วิ (`steps(5)`) ตามค่าใน demo ของ boss |
+| `title` | `string` | — | เหมือนเดิม (มี = `role="img"` · ไม่มี = `aria-hidden`) |
+| `className` | `string` | — | เหมือนเดิม |
+
+- `wiggle` ถูกลบ ไม่เก็บเป็นชื่อสำรอง — จุดเรียกใช้ทั้งหมด (3 จุดบน `r0-foundation`) เปลี่ยนเป็น `motion`
+- `motion={false}` หรือระบบตั้ง reduced motion → เห็นเฟรมแรกนิ่ง ซึ่งต้องเป็นภาพเดียวกับท่านิ่งเดิม
+- ยังไม่มี `"use client"` และไม่มี JS ฝั่งเบราว์เซอร์: สลับเฟรมด้วย CSS ล้วนเหมือนเดิม
+- ข้อมูลเฟรมอยู่ในไฟล์สร้างอัตโนมัติ (`src/components/doodle/*.generated.ts`) ที่มาจาก `samples.html` + `rigs.mjs` เท่านั้น ห้ามแก้มือ · รูปแบบข้างในให้ ux-brand เลือก โดยต้องเก็บ "ตัวร่วม 1 ชุด + ส่วนที่ต่างต่อเฟรม" ไม่ใช่ SVG เต็ม 5 ชุดต่อท่า (คุมขนาด bundle)
+- เส้นสั่นแบบวาดมือ (filter `wob-line` / `wob-fill`) คงไว้ทุกเฟรม ผลที่เห็นต้องตรงกับแผ่น sprite ของ boss
+
+## ความรับผิดชอบไฟล์
+
+| บทบาท | งาน | ไฟล์ |
+|---|---|---|
+| **ux-brand** | แยกโมดูลคำนวณเฟรม (rig → เนื้อ SVG 5 เฟรม) ให้ใช้ได้ทั้งกับ SVG สีจริงและแบบ CSS variable · ให้ `export-stickers.mjs` สร้างข้อมูลเฟรมของ component และเลิกสร้าง sprite 3 เฟรม · แก้ `Cat.tsx` `cat.css` และเทสต์ของ doodle · เทสต์ว่าไฟล์ generated ตรงกับต้นฉบับ (รันได้บน Linux) · อัปเดต DESIGN.md ข้อ motion และ README ของสติกเกอร์ | `scripts/sprites/**`, `scripts/export-stickers.mjs`, `scripts/cat-source.*`, `src/components/doodle/**`, `assets/stickers/**`, `docs/design/DESIGN.md`, `.gitignore` (ลบบรรทัด `sprites/`) |
+| **frontend** | เปลี่ยนจุดเรียก `wiggle` → `motion` · ตรวจหน้าว่าง หน้า "ฉัน" และ `/styleguide` (เพิ่มตัวอย่างแมวขยับอย่างน้อย 4 ท่าใน styleguide) | `src/app/**` (ไม่รวม `api`), `src/components/**` (ไม่รวม `doodle`), `messages/**` |
+| **qa-test** | ตรวจเกณฑ์ผ่านทุกข้อ · เทียบภาพแต่ละเฟรมกับแผ่น sprite ของ boss · ตรวจบนจอมือถือทั้งสองโหมด · เพิ่ม smoke test ว่าแมวขยับและหยุดเมื่อ reduced motion | `tests/e2e/**` |
+
+ไม่ต้องใช้ `security-privacy`: รอบนี้ไม่แตะบัญชีหรือข้อมูลสุขภาพ
+
+## ลำดับ
+
+```
+0. ต้องเสร็จก่อน: pull request #3 (สคริปต์ sprite) merge แล้ว · R0 merge เข้า main แล้ว (component Cat อยู่ใน R0)
+   boss อนุมัติ contract นี้ → Lead สร้าง branch cr1-cat-motion จาก main
+1. ux-brand      โมดูลเฟรม + generated + Cat + เทสต์      ← ต้องผ่าน lint/typecheck/test/build ก่อนข้อ 2
+2. frontend      เปลี่ยนจุดเรียก + styleguide
+3. qa-test       ตรวจทั้งรอบ
+4. Lead          รันเกตซ้ำ ดู diff เสนอเลขรุ่น (patch) ใน pull request → CI เขียว → boss กด merge
+```
+
+ห้ามเพิ่ม dependency ใหม่ — ถ้าจำเป็นให้หยุดและแจ้ง Lead
+
+## เกณฑ์ผ่าน
+
+| # | เกณฑ์ | วิธีตรวจ |
+|---|---|---|
+| 1 | เกตของ R0 ผ่านครบ | `npm run lint` · `npm run typecheck` · `npm test` · `npm run build` |
+| 2 | ทั้ง 36 ท่ามี 5 เฟรม และเฟรมแรกเท่ากับท่านิ่งเดิม | เทสต์ของ doodle |
+| 3 | ไฟล์ generated ตรงกับ `samples.html` + `rigs.mjs` (แก้มือแล้วเทสต์ต้องแดง) | เทสต์ที่รันใน CI บน Linux โดยไม่ใช้ Chrome |
+| 4 | ภาพแต่ละเฟรมใน component ตรงกับแผ่น sprite ชุด `color` ที่ `node scripts/sprites/build.mjs` สร้าง | qa-test เทียบภาพอย่างน้อย 8 ท่า รวมท่าที่ใช้ IK (06, 15, 25, 26) |
+| 5 | `prefers-reduced-motion: reduce` → แมวนิ่งที่เฟรมแรก | เทสต์ e2e |
+| 6 | CSS ไม่โหลด → เห็นเฟรมแรกเฟรมเดียว ไม่ซ้อน 5 เฟรม | เทสต์ของ doodle (เฟรม 2–5 ซ่อนตั้งต้น) |
+| 7 | โหมดมืดแมวเป็นเส้นล้วนทุกเฟรม · ไม่มีค่าสีตายตัวใน component | เทสต์เดิมของ doodle + qa-test ดูทั้งสองโหมด |
+| 8 | แมวหลายตัวในหน้าเดียวไม่ชน id ของ filter | เทสต์เดิมของ doodle ยังผ่าน |
+| 9 | JS ของหน้าแรกโตขึ้นไม่เกิน 30 KB (gzip) เทียบกับ main ก่อนรอบนี้ | Lead เทียบผล `npm run build` ก่อน/หลัง — ถ้าเกินให้หยุดและรายงาน ไม่ลดจำนวนท่าเอง |
+| 10 | ไม่เหลือ `wiggle`, `FRAMES` 3 เฟรม หรือการสร้าง `assets/stickers/sprites/` ในโค้ดและเอกสาร | `git grep` |
+| 11 | ขยับลื่นบนมือถือจริง ไม่กระตุกตอนเลื่อนหน้า | boss ทดสอบบนเครื่องจริงจาก preview ของ pull request |
+
+## ความเสี่ยง / สิ่งที่ boss ต้องตัดสินใจ
+
+**ข้อตัดสินใจ**
+
+1. **ในแอปใช้ SVG inline (ข้อเสนอ) หรือ PNG sprite** — SVG คมทุกขนาด เปลี่ยนสีตามโหมดสว่าง/มืดเอง และไม่ต้องโหลดรูปเพิ่มตอนออฟไลน์ แต่ต้องเขียนตัวสร้างเฟรมเพิ่ม · PNG ใช้แผ่นของ boss ได้ตรงๆ และเสร็จเร็วกว่า แต่ทั้งชุดหนักราว 13 MB ต้องมี 2 ชุดสำหรับสองโหมด และเบลอเมื่อขยาย
+2. **เลิกดุ๊กดิ๊ก 3 เฟรมทั้งหมด (ข้อเสนอ) หรือเก็บไว้เป็นตัวเลือก** — เก็บไว้ทำให้มี animation สองแบบที่ต้องดูแล
+3. **ความเร็ว**: รอบละ 0.7 วิ ทุกท่า (ค่าจาก demo ของ boss) — ถ้าบางท่าควรช้ากว่า (เช่น นั่งสมาธิ นอนแผ่) บอกได้ จะเพิ่มค่าความเร็วต่อท่า
+4. **เกณฑ์ข้อ 9 (30 KB)** เป็นตัวเลขที่ Lead เสนอ ยังไม่ได้วัดจริง — ถ้าทำแล้วเกิน ทางเลือกคือโหลดข้อมูลเฟรมแยกต่อท่า หรือให้ขยับได้เฉพาะท่าที่แอปใช้
+
+**ความเสี่ยง**
+
+- rig อ้าง element ตามลำดับวาดใน SVG — ถ้าเนื้อ SVG ของ component (แบบ CSS variable) เรียงต่างจากไฟล์ใน `assets/stickers/svg/` เฟรมจะเพี้ยน · เกณฑ์ข้อ 4 จับได้
+- ท่าที่ใช้ IK เขียน path ใหม่ทุกเฟรม ข้อมูลต่อท่าจึงใหญ่กว่าท่าที่แค่หมุน — เป็นตัวแปรหลักของเกณฑ์ข้อ 9
+- filter เส้นสั่น 5 ชุดต่อแมวหนึ่งตัวอาจหนักบนมือถือรุ่นเก่าเมื่อมีแมวหลายตัวในจอ — เกณฑ์ข้อ 11 เป็นตัวตรวจ ถ้ากระตุกจะเสนอให้ใช้ filter ชุดเดียวร่วมทุกเฟรม
+- `export-stickers.mjs` ถูกแก้ทั้งใน R0 และรอบนี้ — จึงกำหนดให้เริ่มหลัง R0 merge
