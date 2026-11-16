@@ -1,0 +1,11 @@
+# Dependabot version updates — เฉพาะ GitHub Actions เพื่อให้ commit SHA ที่ปักไว้ใน workflow ได้รับการอัปเดต
+# (Dependabot alerts/security updates ของ npm ตั้งไว้ที่ระดับ repo แล้ว ไม่ต้องเปิดตรงนี้)
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(ci)"
