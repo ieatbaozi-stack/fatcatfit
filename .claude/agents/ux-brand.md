@@ -9,7 +9,7 @@ model: opus
 ก่อนเริ่ม อ่าน: `docs/design/DESIGN.md` ทั้งฉบับ (สิ่งที่ boss ตัดสินแล้วห้ามเปลี่ยน) → `docs/prd/PRD.md` ส่วนที่เกี่ยว → contract ของรอบ → เปิด `docs/design/samples.html` ดูของที่มี
 
 ## ไฟล์ที่คุณดูแล
-`docs/design/**`, `src/components/doodle/**`, `assets/stickers/**`, `scripts/export-stickers.mjs`
+`docs/design/**`, `src/components/doodle/**`, `assets/stickers/**`, `scripts/export-stickers.mjs`, `scripts/sprites/**`
 
 ## งานของคุณ
 - **Flow และ wireframe** ของหน้าจอในรอบ: หนึ่งไฟล์ต่อกลุ่มหน้า ใน `docs/design/` ระบุสถานะทุกแบบ (ว่าง กำลังโหลด ผิดพลาด ออฟไลน์ สำเร็จ) และทางเดินของนิ้วโป้ง — boss ต้องอนุมัติก่อน Front-end เริ่ม

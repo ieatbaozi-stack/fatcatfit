@@ -30,5 +30,5 @@
           <path d="M178 62 v9 M169 73 h18 M164 44 q-9 2 -4 11 M192 44 q9 2 4 11" fill="none" stroke="#171717" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
       </g>
     </g>
-    <g filter="url(#wob-line)"><path transform="translate(150 26) scale(0.8)" d="M0 -10 Q1.5 -1.5 10 0 Q1.5 1.5 0 10 Q-1.5 1.5 -10 0 Q-1.5 -1.5 0 -10Z" fill="#171717"/><path transform="translate(24 60) scale(1)" d="M0 -10 Q1.5 -1.5 10 0 Q1.5 1.5 0 10 Q-1.5 1.5 -10 0 Q-1.5 -1.5 0 -10Z" fill="#171717"/><path transform="translate(40 34) scale(0.6)" d="M0 -10 Q1.5 -1.5 10 0 Q1.5 1.5 0 10 Q-1.5 1.5 -10 0 Q-1.5 -1.5 0 -10Z" fill="#171717"/></g></g>
+    <g filter="url(#wob-line)"><path transform="translate(150 26) scale(0.8) rotate(-6)" d="M0.4 -11.6 C1.9 -5.3 5 -2 11.6 0.1 C5 1.7 1.7 4.8 -0.2 11.3 C-1.8 5 -4.9 1.5 -11.4 -0.2 C-4.7 -1.6 -1.4 -4.7 0.4 -11.6Z" fill="#171717"/><path transform="translate(24 60) scale(1) rotate(4)" d="M0.4 -11.6 C1.9 -5.3 5 -2 11.6 0.1 C5 1.7 1.7 4.8 -0.2 11.3 C-1.8 5 -4.9 1.5 -11.4 -0.2 C-4.7 -1.6 -1.4 -4.7 0.4 -11.6Z" fill="#171717"/><path transform="translate(40 34) scale(0.6) rotate(-9)" d="M0.4 -11.6 C1.9 -5.3 5 -2 11.6 0.1 C5 1.7 1.7 4.8 -0.2 11.3 C-1.8 5 -4.9 1.5 -11.4 -0.2 C-4.7 -1.6 -1.4 -4.7 0.4 -11.6Z" fill="#171717"/></g></g>
 </svg>
