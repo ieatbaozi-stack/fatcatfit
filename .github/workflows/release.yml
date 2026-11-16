@@ -1,0 +1,78 @@
+# Release อัตโนมัติ — boss ไม่ต้องรันคำสั่งใด · เจ้าของ: ops-release · กติกา: docs/VERSIONING.md
+# เมื่อ merge เข้า main: ถ้า "version" ใน package.json ยังไม่มี GitHub release → สร้าง tag vX.Y.Z + release โดยใช้เนื้อหาจาก CHANGELOG.md
+# รันเฉพาะ push เข้า main (ไม่ใช่ pull_request) จึงไม่เปิดสิทธิ์เขียนให้โค้ดจาก PR
+name: release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  # job นี้เท่านั้นที่ได้สิทธิ์เขียน
+  tag-and-release:
+    name: tag-and-release
+    if: ${{ !github.event.repository.fork }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Read version and check for existing release
+        id: ver
+        run: |
+          version="$(jq -r .version package.json)"
+          if ! [[ "$version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "::error::version ใน package.json ไม่ใช่ X.Y.Z: $version"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [ "$version" = "0.0.0" ]; then
+            echo "::notice::version 0.0.0 = ยังไม่เคยออกรุ่น — ข้าม"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          elif gh release view "v$version" > /dev/null 2>&1; then
+            echo "::notice::v$version มี release อยู่แล้ว — ข้าม"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        if: steps.ver.outputs.skip == 'false'
+        with:
+          node-version: 26.x
+          cache: npm
+
+      - name: Install
+        if: steps.ver.outputs.skip == 'false'
+        run: npm ci --ignore-scripts
+
+      # ล้มถ้า CHANGELOG ไม่มีหัวข้อของรุ่นนี้ (กันออกรุ่นที่ไม่มีบันทึก)
+      - name: Extract release notes from CHANGELOG
+        if: steps.ver.outputs.skip == 'false'
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: npx tsx scripts/release-notes.ts "$VERSION" > "$RUNNER_TEMP/release-notes.md"
+
+      - name: Create tag and GitHub release
+        if: steps.ver.outputs.skip == 'false'
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          gh release create "v$VERSION" \
+            --target "$GITHUB_SHA" \
+            --title "v$VERSION" \
+            --notes-file "$RUNNER_TEMP/release-notes.md" \
+            --latest
