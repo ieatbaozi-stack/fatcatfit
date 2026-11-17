@@ -1,27 +1,34 @@
-/* แมวดุ๊กดิ๊ก: สลับ 3 เฟรม รอบละ 0.6 วิ (เหมือน samples.html)
-   แต่ละเฟรมมี seed เส้นสั่นของตัวเอง + ท่าโยกเล็กน้อย — โชว์ทีละเฟรมด้วย visibility */
-.fcf-cat-frame {
-  animation: fcf-cat-wiggle 0.6s steps(1) infinite;
+/* แมวขยับจริง: 5 เฟรมจาก rig (scripts/sprites/rigs.mjs) วนรอบละ 0.7 วิ แบบ steps เหมือน demo ของ boss
+   แต่ละเฟรมเห็นช่วงละ 0.14 วิ — โชว์ทีละเฟรมด้วย visibility
+   ตั้งต้น (ไม่มี CSS หรือ prefers-reduced-motion: reduce) เห็นแต่ชั้นภาพนิ่ง เฟรมทั้ง 5 ซ่อนด้วย attribute */
+@media (prefers-reduced-motion: no-preference) {
+  .fcf-cat-still {
+    visibility: hidden;
+  }
+  .fcf-cat-frame {
+    animation: fcf-cat-play 0.7s steps(1) infinite;
+  }
+  .fcf-cat-f1 {
+    animation-delay: -0.56s;
+  }
+  .fcf-cat-f2 {
+    animation-delay: -0.42s;
+  }
+  .fcf-cat-f3 {
+    animation-delay: -0.28s;
+  }
+  .fcf-cat-f4 {
+    animation-delay: -0.14s;
+  }
 }
-.fcf-cat-f1 {
-  animation-delay: -0.4s;
-}
-.fcf-cat-f2 {
-  animation-delay: -0.2s;
-}
-@keyframes fcf-cat-wiggle {
+@keyframes fcf-cat-play {
   0% {
     visibility: visible;
   }
-  33.333% {
+  20% {
     visibility: hidden;
   }
   100% {
     visibility: hidden;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .fcf-cat-frame {
-    animation: none;
   }
 }

@@ -2,7 +2,7 @@
 
 สร้างจาก `docs/design/samples.html` ด้วย `node scripts/export-stickers.mjs` — อย่าแก้ไฟล์ในโฟลเดอร์นี้ตรงๆ ให้แก้ต้นฉบับแล้วรันใหม่
 
-**ในแอปใช้ component แทนไฟล์เหล่านี้:** `import { Cat } from "@/components/doodle"` → `<Cat pose="standing" size={120} wiggle title="..." />` (สคริปต์เดียวกันสร้าง `src/components/doodle/poses.generated.ts`) · ไอคอนแอปสร้างด้วย `node scripts/export-icons.mjs`
+**ในแอปใช้ component แทนไฟล์เหล่านี้:** `import { Cat } from "@/components/doodle"` → `<Cat pose="standing" size={120} motion title="..." />` (สคริปต์เดียวกันสร้าง `src/components/doodle/poses.generated.ts` ซึ่งมีทั้งภาพนิ่งและแมวขยับจริง 5 เฟรม) · ไอคอนแอปสร้างด้วย `node scripts/export-icons.mjs`
 
 ## ภาพนิ่ง
 - `svg/color` `png/color` — ลงสี ใช้บนพื้นสว่าง
@@ -11,22 +11,12 @@
 
 PNG ขนาด 512×512 พื้นโปร่งใส
 
-**ใน git มีเฉพาะ `svg/`** — โฟลเดอร์ `png/` และ `sprites/` เป็นไฟล์ภาพขนาดใหญ่ที่สร้างใหม่ได้ จึงอยู่ในเครื่องเท่านั้น (รันสคริปต์ด้านบนเพื่อสร้าง ต้องมี Edge หรือ Chrome)
+**ใน git มีเฉพาะ `svg/`** — โฟลเดอร์ `png/` และ `motion/` เป็นไฟล์ภาพขนาดใหญ่ที่สร้างใหม่ได้ จึงอยู่ในเครื่องเท่านั้น (ต้องมี Edge หรือ Chrome)
 
-## แมวดุ๊กดิ๊ก (sprite 3 เฟรม)
-- `sprites/png/<ชุดสี>/` — แผ่นภาพ 1536×512 เรียง 3 เฟรมแนวนอน พื้นโปร่งใส
-- `sprites/svg/<ชุดสี>/` — แบบเวกเตอร์ของแผ่นเดียวกัน
-- `sprites/demo.html` — เปิดดูทุกตัวขยับ
-
-วิธีใช้บนเว็บ:
-
-```css
-.cat { --s: 120px; width: var(--s); height: var(--s);
-  background: url(sprites/png/color/01-standing.png) 0 0 / 300% 100% no-repeat;
-  animation: cat-wiggle .6s steps(3) infinite; }
-@keyframes cat-wiggle { to { background-position-x: calc(var(--s) * -3); } }
-@media (prefers-reduced-motion: reduce) { .cat { animation: none; } }
-```
+## แมวขยับจริง (sprite 5 เฟรม)
+- สคริปต์และวิธีแก้ท่าอยู่ที่ `scripts/sprites/` (ดู `scripts/sprites/README.md`) · ท่าขยับของทุกตัวอยู่ใน `scripts/sprites/rigs.mjs`
+- `node scripts/sprites/build.mjs` สร้างแผ่น 2560×512 (5 เฟรม × 512 px) ทั้ง 3 ชุดสีไว้ที่ `motion/png/<ชุดสี>/` และ `motion/svg/<ชุดสี>/` · `node scripts/sprites/demo.mjs` สร้าง `motion/demo.html`
+- ในแอปไม่ใช้ไฟล์ PNG — `<Cat motion>` วาดท่าเดียวกันเป็น SVG inline
 
 ## รายการ
 

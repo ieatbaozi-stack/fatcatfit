@@ -6,7 +6,7 @@ import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
-import { ROOT, FRAMES, VARIANTS, loadCats, paint, filters } from './cat-source.mjs';
+import { ROOT, STILL_SEEDS, VARIANTS, loadCats, paint, filters } from './cat-source.mjs';
 
 const out = join(ROOT, 'public', 'icons');
 const standing = loadCats()[0].svg; // ท่าแรกใน samples.html = ยืนเฉยๆ
@@ -30,7 +30,7 @@ const iconSvg = (side, { rounded = false } = {}) => {
     ? `<rect x="${x}" y="${y}" width="${side}" height="${side}" rx="${side * 0.22}" fill="${BG}"/>`
     : `<rect x="${x - 1}" y="${y - 1}" width="${side + 2}" height="${side + 2}" fill="${BG}"/>`;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${x} ${y} ${side} ${side}">
-<defs>${filters('', FRAMES[0])}</defs>
+<defs>${filters('', STILL_SEEDS)}</defs>
 ${bg}
 <g>${body}</g>
 </svg>
