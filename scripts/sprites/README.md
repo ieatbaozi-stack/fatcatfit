@@ -1,6 +1,6 @@
 # แมวขยับจริง — sprite 5 เฟรม (`scripts/sprites/` → `assets/stickers/motion/`)
 
-ชุดนี้ทำแทน sprite ดุ๊กดิ๊ก 3 เฟรมเดิม (`assets/stickers/sprites/`) ด้วย **5 เฟรมที่เปลี่ยนท่าจริง** —
+ชุดนี้ทำแทนดุ๊กดิ๊ก 3 เฟรมเดิม (เลิกใช้แล้ว) ด้วย **5 เฟรมที่เปลี่ยนท่าจริง** —
 เดินเห็นก้าวขาสลับ, สควอทเห็นตัวยุบ, ยกดัมเบลล์เห็นแขนงอและดัมเบลล์ขยับตามมือ
 
 ภาพต้นฉบับคือ `assets/stickers/svg/<ชุดสี>/NN-name.svg` (ซึ่งมาจาก `docs/design/samples.html` อีกที) (ตัวเดียวกับที่ใช้ทำ `png/` 512×512)
@@ -10,13 +10,16 @@
 
 | ไฟล์ | คืออะไร |
 |---|---|
-| `build.mjs` | ตัวสร้างแผ่น sprite (อ่าน SVG → จัดท่า 5 เฟรม → เรนเดอร์ → ครอป) |
+| `frames.mjs` | ส่วนคำนวณเฟรม (อ่าน SVG + rig → เนื้อ SVG ต่อเฟรม) Node ล้วน ไม่ใช้ Chrome — ใช้ร่วมกันโดย `build.mjs` และ component `<Cat motion>` (ผ่าน `scripts/cat-source.mjs`) |
+| `build.mjs` | ตัวสร้างแผ่น sprite (เรียก `frames.mjs` → เรนเดอร์ด้วย Chrome → ครอปด้วย PowerShell) |
 | `rigs.mjs` | config การขยับของทั้ง 36 ตัว (แก้ท่าที่นี่) |
 | `demo.mjs` | สร้าง `demo.html` จากแผ่น PNG ที่มีอยู่ |
 | `assets/stickers/motion/demo.html` | หน้าเปิดดูทุกตัวขยับ + สลับชุดสี + ดูเฟรมทีละเฟรม |
 | `assets/stickers/motion/svg/<ชุดสี>/` | แผ่นเวกเตอร์ 5 เฟรม (ไว้ debug / เปิดดูในเบราว์เซอร์ได้) |
 | `assets/stickers/motion/png/<ชุดสี>/` | แผ่น PNG ที่ใช้จริง 36 ไฟล์ต่อชุดสี |
 | `assets/stickers/motion/.tmp/` | cache ตอนเรนเดอร์ ลบได้ทุกเมื่อ (สร้างใหม่เอง) |
+
+**ในแอป** ไม่ใช้แผ่น PNG: `node scripts/export-stickers.mjs --no-png` เอา rig ชุดเดียวกันไปสร้างข้อมูลเฟรมของ `<Cat motion>` ใน `src/components/doodle/poses.generated.ts` (SVG inline) — **แก้ `rigs.mjs` แล้วต้องรันคำสั่งนี้ด้วย** ไม่งั้นเทสต์ `poses.generated.test.ts` จะแดง
 
 โฟลเดอร์ `assets/stickers/motion/` ทั้งหมดสร้างใหม่ได้ จึงไม่ขึ้น git (มีแต่สคริปต์ในโฟลเดอร์นี้) · ถ้าแก้ภาพต้นฉบับใน `samples.html` ให้รัน `node scripts/export-stickers.mjs --no-png` ก่อน แล้วค่อย build sprite ใหม่ — rig อ้างอิง element ตามลำดับวาดใน SVG ถ้าเพิ่ม/ลบชิ้นส่วนต้องไล่ index ใน `rigs.mjs` ใหม่
 
@@ -119,6 +122,13 @@ index ของ element ดูได้จากลำดับ drawing ใน�
 | 36 | `36-peek` | แอบมอง ตัวจมลง 6 หน่วย เอียงซ้าย-ขวา (ตากับมือตรึง) |
 
 ## หมายเหตุของ engine
+
+- **component ต่างจากแผ่น PNG ตรงเส้นสั่นของชิ้นที่ขยับ**: ในแผ่น PNG แขน ขา หาง และของประกอบที่แยกออกมาเป็นกลุ่มของตัวเอง
+  ได้พื้นที่ตัวกรองเส้นสั่น (`x="-10%" width="120%"` ของกรอบชิ้นนั้น) เล็กเกินเส้นหนา 17 จึงถูกตัดเหลือแท่งบางไม่มีขอบดำ
+  (เห็นชัดที่ขาของ 02-side 15-push-up 26-pull-up) และแขนขามีตัวกรองซ้อนสองชั้น ·
+  component ใช้ `frameLayout(..., { fixFilters: true })` ที่ใส่ `<rect fill="none">` เท่ากรอบกลุ่มเดิมให้พื้นที่ตัวกรองไม่หด
+  และไม่ซ้อนตัวกรอง → แขนขามีขอบครบแบบภาพนิ่ง ท่าเหมือนแผ่นทุกเฟรม · `build.mjs` ยังใช้แบบเดิม (ผล PNG เหมือนเดิมทุกไบต์)
+  ถ้าจะให้แผ่น PNG แก้ตามด้วย ให้ส่ง `{ fixFilters: true }` ใน `frameSVG` ของ `build.mjs`
 
 - อ่าน SVG ด้วย parser เล็กๆ ใน `build.mjs` — เก็บ `<defs>` (wobble filter) ไว้ แล้วเติม prefix
   `f0-` `f1-` … ต่อเฟรม เพราะแต่ละเฟรมเป็น `<svg>` ซ้อนกันในแผ่นเดียว
