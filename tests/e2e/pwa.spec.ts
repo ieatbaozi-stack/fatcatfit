@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { collectErrors, msg, waitForCachedPages, waitForServiceWorker } from "./helpers";
+import { TABS, collectErrors, msg, setLocale, waitForCachedPages, waitForServiceWorker } from "./helpers";
 
 // PWA ของ R0 (contract เกณฑ์ 10, 12 + ส่วนที่ตรวจในเบราว์เซอร์ได้ของ 9) — ADR 0004 ข้อ 1
 // "ปิดแล้วเปิดแอป" = ปิดทุกแท็บแล้วเปิดแท็บใหม่ใน context เดิม (SW และ Cache Storage อยู่ต่อ)
@@ -105,6 +105,77 @@ test.describe("PWA", () => {
     // ต้องยังเห็นแอป (แถบล่าง) — ไม่ใช่ chrome-error://
     await expect(nav).toBeVisible();
     expect(page.url()).toMatch(/^http:\/\/localhost:\d+\//);
+  });
+
+  // QA M1: ผู้ใช้ใหม่เปิดแค่ "/" แล้วเน็ตหลุด → ทุกแท็บต้องเป็นหน้าของมันเอง (ไม่ใช่ shell ของ "/")
+  for (const locale of ["th", "en"] as const) {
+    test(`ติดตั้งครั้งแรกที่ / (${locale}) → ออฟไลน์ → แตะทุกแท็บ ได้เนื้อหาและแถบล่างของหน้านั้น`, async ({ page, context, baseURL }) => {
+      if (locale === "en") await setLocale(context, baseURL!, "en");
+      await page.goto("/");
+      await waitForServiceWorker(page);
+      await waitForCachedPages(
+        page,
+        TABS.map((t) => t.path),
+        locale,
+      );
+      await context.setOffline(true);
+      const errors = collectErrors(page);
+
+      const nav = page.getByRole("navigation", { name: msg(locale, "nav.label") });
+      for (const { path, key } of [...TABS.slice(1), TABS[0]]) {
+        await nav.getByRole("link", { name: msg(locale, `nav.${key}`), exact: true }).click();
+        await expect(page).toHaveURL(path);
+        await expect(page.locator("html")).toHaveAttribute("lang", locale);
+        await expect(page.getByRole("heading", { level: 1 })).toHaveText(msg(locale, `nav.${key}`));
+        // แถบล่างไฮไลต์แท็บนี้แท็บเดียว
+        await expect(nav.locator('a[aria-current="page"]')).toHaveCount(1);
+        await expect(nav.getByRole("link", { name: msg(locale, `nav.${key}`), exact: true })).toHaveAttribute("aria-current", "page");
+      }
+      // ทุกหน้ามาจาก cache ได้ครบ (CSS/JS ของหน้าไม่หาย)
+      expect(await page.evaluate(() => getComputedStyle(document.body).fontFamily)).toMatch(/Noto Sans Thai/);
+      expect(errors.filter((e) => !/ERR_INTERNET_DISCONNECTED|Failed to fetch|net::/.test(e))).toEqual([]);
+    });
+  }
+
+  test("เปลี่ยนภาษาตอนออนไลน์ (cookie) → SW ดึงใหม่ครบทั้ง 4 แท็บในภาษาใหม่ → ออฟไลน์แล้วทุกแท็บเป็นภาษาใหม่", async ({ page, context, baseURL }) => {
+    await page.goto("/");
+    await waitForServiceWorker(page);
+    await waitForCachedPages(
+      page,
+      TABS.map((t) => t.path),
+      "th",
+    );
+    // ไม่พึ่งปุ่มภาษา: ตั้ง cookie แบบเดียวกับตัวสลับภาษาแล้วโหลดหน้าใหม่ (navigation ผ่าน SW → เห็นภาษาใหม่)
+    await setLocale(context, baseURL!, "en");
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await waitForCachedPages(
+      page,
+      TABS.map((t) => t.path),
+      "en",
+    );
+    await page.close();
+
+    await context.setOffline(true);
+    const app = await context.newPage();
+    for (const { path, key } of TABS) {
+      await app.goto(path);
+      await expect(app.locator("html")).toHaveAttribute("lang", "en");
+      await expect(app.getByRole("heading", { level: 1 })).toHaveText(msg("en", `nav.${key}`));
+    }
+  });
+
+  test("ออฟไลน์: หน้าที่ไม่ใช่แท็บและไม่เคยเปิด (/styleguide, URL ที่ไม่มี) → ถอยไป app shell ไม่ใช่หน้า error ของเบราว์เซอร์", async ({ page, context }) => {
+    await page.goto("/");
+    await waitForServiceWorker(page);
+    await waitForCachedPages(page, ["/"]);
+    await context.setOffline(true);
+    for (const p of ["/styleguide", "/no-such-page"]) {
+      const res = await page.goto(p);
+      expect(res?.status()).toBe(200);
+      await expect(page.getByRole("navigation", { name: msg("th", "nav.label") })).toBeVisible();
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(msg("th", "nav.home"));
+    }
   });
 
   test("เปลี่ยนภาษาแล้วเน็ตหลุด → เปิดแอปใหม่ได้ภาษาที่เลือกล่าสุด", async ({ page, context }) => {
