@@ -19,6 +19,10 @@ const forbidden: Array<[string, string, string]> = [
   ["component import src/db แบบ relative", "src/components/x.tsx", 'import { getDb } from "../db/client";\nexport const a = getDb;\n'],
   ["หน้าจอ import repository ฝั่งเซิร์ฟเวอร์", "src/app/page.tsx", 'import { isDatabaseHealthy } from "@/lib/data/server/health";\nexport const a = isDatabaseHealthy;\n'],
   ["หน้าจอ import lib/auth/server", "src/app/me/page.tsx", 'import { createAuth } from "@/lib/auth/server";\nexport const a = createAuth;\n'],
+  // relative path ต้องถูกบล็อกเหมือน alias (qa: เดิมหลุด)
+  ["หน้าจอ import repository แบบ relative", "src/app/page.tsx", 'import { isDatabaseHealthy } from "../lib/data/server/health";\nexport const a = isDatabaseHealthy;\n'],
+  ["หน้าจอย่อย import lib/auth/server แบบ relative", "src/app/me/page.tsx", 'import { createAuth } from "../../lib/auth/server";\nexport const a = createAuth;\n'],
+  ["component import lib/email แบบ relative", "src/components/x.tsx", 'import { send } from "../lib/email";\nexport const a = send;\n'],
   ["หน้าจอ import lib/email", "src/app/page.tsx", 'import { send } from "@/lib/email";\nexport const a = send;\n'],
   ["API route import @/db ตรงๆ", "src/app/api/x/route.ts", 'import { getDb } from "@/db/client";\nexport const a = getDb;\n'],
   ["API route import @/db/schema", "src/app/api/x/route.ts", 'import { user } from "@/db/schema";\nexport const a = user;\n'],

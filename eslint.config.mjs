@@ -15,15 +15,15 @@ const DB = {
   message: msg("ห้าม import src/db ตรงๆ — ผ่าน repository ใน src/lib/data/server (ARCHITECTURE ข้อ 3)"),
 };
 const DATA_SERVER = {
-  group: ["@/lib/data/server", "@/lib/data/server/**"],
+  group: ["@/lib/data/server", "@/lib/data/server/**", "**/lib/data/server", "**/lib/data/server/**"],
   message: msg("โค้ดฝั่งเซิร์ฟเวอร์ (lib/data/server) — import จากหน้าจอ/ไคลเอนต์ไม่ได้"),
 };
 const AUTH_SERVER = {
-  group: ["@/lib/auth/server", "@/lib/auth/server/**"],
+  group: ["@/lib/auth/server", "@/lib/auth/server/**", "**/lib/auth/server", "**/lib/auth/server/**"],
   message: msg("lib/auth/server เป็นโค้ดฝั่งเซิร์ฟเวอร์ — หน้าจอใช้ lib/auth/client"),
 };
 const EMAIL = {
-  group: ["@/lib/email", "@/lib/email/**"],
+  group: ["@/lib/email", "@/lib/email/**", "**/lib/email", "**/lib/email/**"],
   message: msg("lib/email ใช้ได้เฉพาะ route handler และ lib/auth"),
 };
 const APP = {
