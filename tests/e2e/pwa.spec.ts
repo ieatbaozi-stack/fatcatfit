@@ -205,10 +205,11 @@ test.describe("PWA", () => {
     await waitForCachedPages(page, ["/", "/me"], "th");
     await context.setOffline(true);
     const errors = collectErrors(page);
-    await page
-      .getByRole("group", { name: msg("th", "me.language.label") })
-      .getByRole("button", { name: msg("th", "me.language.en") })
-      .click();
+    // พฤติกรรมใหม่ (ADR 0005 · QA M2): ออฟไลน์เปลี่ยนภาษาไม่ได้ → ปุ่มภาษาอื่นกดไม่ได้ + มีข้อความบอก (ดู locale-and-404.spec.ts)
+    const enBtn = page.getByRole("group", { name: msg("th", "me.language.label") }).getByRole("button", { name: msg("th", "me.language.en") });
+    await expect(enBtn).toBeDisabled();
+    await expect(page.getByText(msg("th", "me.language.offlineNote"))).toBeVisible();
+    await enBtn.click({ force: true });
     await page.waitForTimeout(1500);
     // หน้ายังอยู่ ใช้ต่อได้
     await expect(page.getByRole("navigation").first()).toBeVisible();
