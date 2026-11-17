@@ -6,6 +6,10 @@
 
 ### Added
 
+- e2e ด้วย Playwright บนจอมือถือและจอคอม (smoke, design, PWA ออฟไลน์, ทางผิด) และ CI รัน e2e ทุก pull request โดยไม่ข้าม
+- หน้า 404 และหน้า error ของแอปเองทั้งสองภาษา พร้อมแมวท่างง
+- ADR 0005 เครื่องมือ service worker
+
 - โครงโปรเจกต์ Next.js 16 (App Router, Turbopack) + TypeScript + Tailwind CSS 4 + ESLint + Vitest (รอบ R0 Foundation)
 - ฐานข้อมูล: ตัวเชื่อมต่อ Postgres แบบ lazy (`node-postgres`), schema ของ Better Auth, migration แรก, ฐานข้อมูลเทสต์ด้วย PGlite ที่รัน migration จริงทุกครั้ง
 - `GET /api/health` ตรวจแอปและ query ฐานข้อมูล 1 ครั้ง (200 เมื่อใช้ได้ 503 เมื่อใช้ไม่ได้)
@@ -20,3 +24,11 @@
 - `vercel.json` (function ภูมิภาค `sin1`) และสคริปต์ migration ตอน deploy ที่ไม่ทำงานจนกว่าจะตั้ง `MIGRATE_ON_DEPLOY=1` บน Production
 - `.env.example` และเทสต์ที่ตรวจว่าทุกตัวแปรที่โค้ดอ่านมีในไฟล์ตัวอย่าง
 - เอกสาร: `docs/OPERATIONS.md` (ขั้นตอนตั้งค่าสำหรับ boss), `docs/VERSIONING.md`
+
+### Fixed
+
+- กดสลับภาษารัวๆ แล้วภาษาสุดท้ายไม่ตรงกับปุ่มที่กดล่าสุด
+- แตะแท็บที่ยังไม่เคยเปิดตอนออฟไลน์แล้วได้หน้าหลักแทน — service worker เก็บทั้ง 4 แท็บตั้งแต่ติดตั้ง
+- สลับภาษาตอนออฟไลน์ไม่มีผลและไม่บอกผู้ใช้ — ปุ่มปิดพร้อมข้อความ
+- กฎขอบเขตโมดูลหลุดได้ด้วย relative import และ import() แบบไดนามิก
+- เส้นใต้แถบล่างยาวเกินขอบขวา
