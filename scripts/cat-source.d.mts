@@ -7,8 +7,6 @@ export const POSES_FILE: string;
 export const SLUGS: string[];
 export const WOB: { line: { baseFrequency: string; scale: string; seed: number }; fill: { baseFrequency: string; scale: string; seed: number } };
 export const STILL_SEEDS: Seeds;
-/** @deprecated ใช้ STILL_SEEDS */
-export const FRAMES: Seeds[];
 export const VARIANTS: Record<"color" | "line" | "line-white", Colors>;
 export const PAD: number;
 export const BOX: number;

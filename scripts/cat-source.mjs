@@ -28,9 +28,6 @@ export const WOB = {
 };
 export const STILL_SEEDS = { line: WOB.line.seed, fill: WOB.fill.seed };
 
-/** @deprecated ชื่อเดิมที่ scripts/export-icons.mjs ยัง import อยู่ (ไฟล์นั้นอยู่นอกขอบเขต ux-brand)
- *  เหลือค่าเดียว = seed ของภาพนิ่ง · แก้ export-icons ให้ใช้ STILL_SEEDS แล้วลบบรรทัดนี้ */
-export const FRAMES = [STILL_SEEDS];
 
 // ดึงโค้ดวาดแมวออกจาก samples.html แล้วรันเพื่อเอารายการ cats
 export function loadCats(html = readFileSync(SAMPLES, 'utf8')) {
