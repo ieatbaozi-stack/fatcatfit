@@ -14,6 +14,7 @@ export function Chip({ pressed, className, type = "button", ...rest }: ChipProps
       className={cx(
         "inline-flex min-h-11 flex-none cursor-pointer items-center gap-1 whitespace-nowrap rounded-hand border-draw-thin border-ink px-3.5 text-body font-normal",
         pressed ? "bg-ink text-paper" : "bg-transparent text-ink",
+        "disabled:cursor-not-allowed disabled:border-dashed disabled:text-ink-3",
         className,
       )}
       {...rest}

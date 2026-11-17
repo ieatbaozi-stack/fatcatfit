@@ -30,9 +30,19 @@
     },
     "language": {
       "label": "Language",
+      "offlineNote": "Change language when you're online",
       "th": "ไทย",
       "en": "English"
     }
+  },
+  "notFound": {
+    "text": "Can't find this page · let's go home",
+    "home": "Back to home"
+  },
+  "error": {
+    "text": "Something tripped · try again",
+    "retry": "Try again",
+    "home": "Back to home"
   },
   "ui": {
     "decrease": "Decrease",
