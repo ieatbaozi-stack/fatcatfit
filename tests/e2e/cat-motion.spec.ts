@@ -1,65 +1,24 @@
 // CR1 smoke test (qa-test): แมวขยับจริงบนจอมือถือ และหยุดนิ่งเมื่อผู้ใช้ตั้งลดการเคลื่อนไหว
 // เกณฑ์ใน CR1_CAT_MOTION_CONTRACT.md: ข้อ 5 (reduced motion นิ่ง) · ข้อ 6/7 (ไม่ซ้อนเฟรม · โหมดมืดเส้นล้วน) · ภาพเปลี่ยนตามเวลา
 //
-// ยังไม่มี playwright.config.ts (ไม่มี webServer) — ไฟล์นี้จึงเปิดเซิร์ฟเวอร์เอง:
-//   E2E_BASE_URL=http://127.0.0.1:3000  ใช้เซิร์ฟเวอร์ที่เปิดไว้แล้ว (เช่น next start หลัง build)
-//   ไม่ตั้ง                              เปิด `next dev` ชั่วคราวที่พอร์ต E2E_PORT (ค่าเริ่มต้น 3123) แล้วปิดเมื่อจบ
-//   E2E_CHANNEL=chrome|msedge           ใช้เบราว์เซอร์ที่ติดตั้งในเครื่องแทน Chromium ของ Playwright
-import { spawn, spawnSync, type ChildProcess } from "node:child_process";
+// เซิร์ฟเวอร์ ขนาดจอ (project mobile 390×844 / desktop) และเบราว์เซอร์มาจาก playwright.config.ts
+// เทสต์ชุดนี้ไม่ขึ้นกับขนาดจอ จึงรันทั้งสอง project
 import { expect, test, type Page } from "@playwright/test";
-
-const PORT = Number(process.env.E2E_PORT ?? 3123);
-const BASE = process.env.E2E_BASE_URL ?? `http://127.0.0.1:${PORT}`;
-let server: ChildProcess | undefined;
-
-test.describe.configure({ mode: "serial" });
-test.use({
-  viewport: { width: 390, height: 844 },
-  deviceScaleFactor: 2,
-  isMobile: true,
-  hasTouch: true,
-  channel: process.env.E2E_CHANNEL || undefined,
-});
-
-test.beforeAll(async () => {
-  test.setTimeout(180_000);
-  if (!process.env.E2E_BASE_URL) {
-    server = spawn(process.execPath, ["node_modules/next/dist/bin/next", "dev", "-p", String(PORT), "-H", "127.0.0.1"], {
-      stdio: "ignore",
-      env: { ...process.env, NEXT_TELEMETRY_DISABLED: "1" },
-    });
-  }
-  // รอจนหน้าแรกตอบ (next dev คอมไพล์ครั้งแรกช้า)
-  for (let i = 0; i < 300; i++) {
-    try {
-      if ((await fetch(`${BASE}/me`)).ok) return;
-    } catch {
-      // ยังไม่พร้อม
-    }
-    await new Promise((r) => setTimeout(r, 500));
-  }
-  throw new Error(`server at ${BASE} did not start`);
-});
-
-test.afterAll(() => {
-  if (!server?.pid) return;
-  // next dev มี process ลูก — ปิดทั้งต้นไม้
-  if (process.platform === "win32") spawnSync("taskkill", ["/pid", String(server.pid), "/T", "/F"]);
-  else server.kill("SIGTERM");
-});
 
 type Locale = "th" | "en";
 type Scheme = "light" | "dark";
 
 async function open(page: Page, path: string, opts: { locale?: Locale; scheme?: Scheme; reduce?: boolean } = {}) {
-  await page.context().addCookies([{ name: "NEXT_LOCALE", value: opts.locale ?? "th", url: BASE }]);
+  const baseURL = test.info().project.use.baseURL;
+  if (!baseURL) throw new Error("playwright.config.ts must set use.baseURL");
+  await page.context().addCookies([{ name: "NEXT_LOCALE", value: opts.locale ?? "th", url: baseURL }]);
   await page.emulateMedia({ colorScheme: opts.scheme ?? "light", reducedMotion: opts.reduce ? "reduce" : "no-preference" });
   const errors: string[] = [];
   page.on("console", (m) => {
     if (m.type() === "error") errors.push(m.text());
   });
   page.on("pageerror", (e) => errors.push(String(e)));
-  await page.goto(`${BASE}${path}`, { waitUntil: "load" });
+  await page.goto(path, { waitUntil: "load" });
   return errors;
 }
 
@@ -101,7 +60,7 @@ test("cat on /me plays real frames: the picture changes over time, one layer at 
   expect(shots.size).toBeGreaterThanOrEqual(3);
 
   // ทุกจังหวะเห็นแค่ 1 เฟรม (ไม่ซ้อน) ภาพนิ่งซ่อน และวนครบ 5 เฟรม
-  const seen = await sampleFrames(page, 1500);
+  const seen = await sampleFrames(page, 2100);
   const all = new Set<number>();
   for (const sample of seen) {
     for (const layers of sample) {
