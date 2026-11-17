@@ -6,6 +6,12 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   loading?: boolean;
 };
 
+/** class ของปุ่มหลัก (ใช้ร่วมกับลิงก์ที่หน้าตาเป็นปุ่ม) */
+export const buttonClass = cx(
+  "inline-flex min-h-13 w-full cursor-pointer items-center justify-center gap-2 rounded-hand border-draw border-ink bg-paper px-4 text-body font-medium text-ink transition-[transform,background-color] duration-150",
+  "active:translate-y-0.5 active:bg-accent active:text-on-accent",
+);
+
 /**
  * ปุ่มหลัก: กรอบวาดมือหนา พื้นขาว ตัวหนังสือดำ · กดแล้วเยื้องลง 2px + พื้นส้ม
  * data-pressed="true" ใช้แสดงสถานะกดค้าง (styleguide)
