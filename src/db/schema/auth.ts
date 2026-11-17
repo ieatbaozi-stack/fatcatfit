@@ -11,7 +11,8 @@ import {
 
 // ตารางของ Better Auth (ADR 0002) — ชื่อ property ตรงกับ model/field ที่ Better Auth ใช้
 // ตามกติกา ADR 0001: id เป็น uuid · เวลาเป็น timestamptz(3) · ไม่มี default ที่เป็นฟังก์ชันฝั่ง DB
-// Better Auth สร้าง id และ createdAt/updatedAt ในโค้ดเอง (advanced.database.generateId = "uuid")
+// Better Auth สร้าง id และ createdAt/updatedAt ในโค้ดเอง (advanced.database.generateId = () => crypto.randomUUID() ใน src/lib/auth/server.ts
+// ไม่ใช้ค่า "uuid" เพราะโหมดนั้นให้ DB สร้างผ่าน gen_random_uuid())
 
 const instant = (name: string) => timestamp(name, { withTimezone: true, precision: 3 });
 
