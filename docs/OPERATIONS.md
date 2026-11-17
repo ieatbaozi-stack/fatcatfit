@@ -103,12 +103,10 @@ $b = New-Object byte[] 32
 ข้อเท็จจริง ([Supported Node.js versions](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions), หน้าอัปเดต 2026-02-27; [ประกาศ Node.js 26 LTS](https://vercel.com/changelog/node-js-26-lts-is-now-generally-available-on-vercel) 2026-10-29; [Node.js 20 deprecation](https://vercel.com/changelog/node-js-20-is-being-deprecated) — เปิดดู 2026-11-17):
 
 - Vercel รองรับ **26.x (ค่าเริ่มต้นของโปรเจกต์ใหม่), 24.x, 22.x** · เลือกได้เฉพาะเลขหลัก (minor/patch Vercel อัปให้เอง)
-- Node.js 20 ถูกประกาศเลิกรองรับ 1 ตุลาคม 2026 (ผ่านไปแล้ว) · `engines.node` ปัจจุบันของโปรเจกต์คือ `>=20.9` ซึ่ง Vercel จะตีความเป็น "รุ่นล่าสุดที่รองรับ" = 26.x (ตามตารางในเอกสาร `>=22.0.0` → 26.x) และประกาศ Node 26 บอกว่าโปรเจกต์เดิมที่ engines เปิดกว้างจะถูกอัปเป็น 26 เองตอน deploy ครั้งถัดไป
+- Node.js 20 ถูกประกาศเลิกรองรับ 1 ตุลาคม 2026 (ผ่านไปแล้ว) · `engines.node` ของโปรเจกต์ตอนนี้ปักเป็น `26.x` แล้ว (เดิมเป็น `>=20.9` ซึ่ง Vercel จะตีความเป็น "รุ่นล่าสุดที่รองรับ" และประกาศ Node 26 บอกว่าโปรเจกต์ที่ engines เปิดกว้างจะถูกอัปเป็น 26 เองตอน deploy ครั้งถัดไป จึงปักไว้เพื่อให้การเปลี่ยนรุ่นเป็นการตัดสินใจของเรา)
 - ตั้งได้สองที่: `package.json` → `engines.node` (มีผลเหนือการตั้งในหน้าเว็บ) หรือ Settings → Build and Deployment → Node.js Version
 
-**ข้อเสนอ: ปักเป็น `26.x`** ให้ตรงกับที่ทุกจุดใช้จริง: เครื่องพัฒนา (Node 26.13), CI (`node-version: 26.x` ใน workflow) และ Vercel · build/test/lint ผ่านบน 26 แล้วในรอบ R0 · ปักเลขหลักไว้เพื่อให้การเปลี่ยนรุ่นเป็นการตัดสินใจของเรา ไม่ใช่เกิดเอง
-
-สิ่งที่ต้องแก้ใน `package.json` (ไม่ใช่ไฟล์ของ ops — Lead แก้): `"engines": { "node": "26.x" }` (จากเดิม `">=20.9"`) · ต้องแก้ใน `ci.yml`/`release.yml` พร้อมกันถ้าเปลี่ยนรุ่นภายหลัง (ค้นหา `26.x`)
+**สถานะ: ปักเป็น `26.x` ครบทุกจุดที่ใช้จริง**: เครื่องพัฒนา (Node 26), CI (`node-version: 26.x` ใน workflow) และ Vercel (ตาม `engines`) · ถ้าเปลี่ยนรุ่นภายหลัง ต้องแก้ `package.json`, `ci.yml` และ `release.yml` พร้อมกัน (ค้นหา `26.x`)
 
 หมายเหตุจากประกาศ Node 26: `fetch` ในตัวใช้ HTTP/2 เป็นค่าเริ่มต้น — แอปนี้ยังไม่ใช้ `fetch` ไปเรียกบริการภายนอก (ฐานข้อมูลใช้ `pg`) ถ้าใน R1 พบปัญหาตอนเรียก API ภายนอก ให้ลองตั้งตัวแปร `VERCEL_FETCH_DISABLE_H2=1` ตามที่ประกาศระบุ
 
@@ -173,7 +171,9 @@ R0 มีแค่ migration แรก (ตารางของ Better Auth) �
 `default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests`
 (ตอน `next dev` เพิ่ม `'unsafe-eval'` ให้ React และตัด `upgrade-insecure-requests` เพราะทำให้ `http://localhost` พัง)
 
-**ทำไมไม่ใช้ nonce**: ตามเอกสารของ Next ([CSP guide](https://nextjs.org/docs/app/guides/content-security-policy), เปิดดู 2026-11-17) nonce ต้อง render ทุก request แบบ dynamic ทุกหน้า → เสียหน้า static ที่ CDN แคชได้ ช้าลงและกิน function มากขึ้น และใช้ร่วมกับ Partial Prerendering ไม่ได้ · แอปนี้มีผู้ใช้หลักสิบคน ข้อมูลสุขภาพอยู่หลังการล็อกอิน และไม่ render HTML จากผู้ใช้ — เลือกรักษา static ไว้ก่อน
+**เรื่อง nonce (สถานะจริง)**: ตอนนี้ยังไม่ใช้ nonce · เหตุผลเดิมที่เคยเขียนว่า "เพื่อคงหน้า static" **ใช้ไม่ได้แล้ว** เพราะทุกหน้าเป็น dynamic อยู่แล้ว (next-intl อ่านภาษาจาก cookie ผ่าน `cookies()` ใน `src/lib/i18n/request.ts` ทำให้ทุกหน้า render ทุก request) การเสียหน้า static จึงไม่ใช่ต้นทุนของ nonce อีกต่อไป · ต้นทุนที่ยังเหลือตามเอกสารของ Next ([CSP guide](https://nextjs.org/docs/app/guides/content-security-policy), เปิดดู 2026-11-17) คือใช้ร่วมกับ Partial Prerendering ไม่ได้ และต้องมี middleware/proxy สร้าง nonce ทุก request · **การตัดสินว่าจะเปลี่ยนไปใช้ CSP แบบ nonce (เอา `'unsafe-inline'` ออกจาก `script-src`) หรือไม่ ยกไปเป็นหัวข้อใน contract รอบ R1** (รอบที่เริ่มมีบัญชีและข้อมูลสุขภาพจริง) ก่อนถึงตอนนั้นยอมรับความเสี่ยงตามรายการด้านล่าง
+
+**ห้ามเอา header ของ `/serwist/*` ออก**: `next.config.ts` ตั้ง `Cache-Control: no-cache, no-store, must-revalidate` ให้ `/serwist/:path*` (ไฟล์ service worker) แยกจาก header ความปลอดภัยของทุกหน้า · ถ้าเอาออก เบราว์เซอร์/CDN อาจแคช service worker เก่าไว้ ผู้ใช้จะไม่ได้รุ่นใหม่และออกจากรุ่นที่มีบั๊กไม่ได้ · เทสต์ e2e `tests/e2e/pwa.spec.ts` ตรวจ header นี้ — ถ้าต้องแก้ให้แจ้ง Lead
 
 **สิ่งที่ยังเปิดอยู่ (ความเสี่ยงที่ยอมรับ)**:
 1. `script-src 'unsafe-inline'` และ `style-src 'unsafe-inline'` — ถ้ามีช่องโหว่ XSS สคริปต์ที่ฉีดเข้ามารันได้ CSP ไม่ช่วยกันส่วนนี้ (ยังกัน: โหลดสคริปต์จากโดเมนอื่น, ส่งข้อมูลไปโดเมนอื่นผ่าน `connect-src 'self'`, ฝังเว็บ, plugin) · Next ต้องใช้ inline script บางส่วนสำหรับ hydration
@@ -188,10 +188,11 @@ R0 มีแค่ migration แรก (ตารางของ Better Auth) �
 
 **boss ไม่ต้องทำอะไร** นอกจากกด merge เมื่อ CI เขียว
 
-- `ci.yml` รันทุก pull request และทุก push เข้า `main`: lint → typecheck → test (รวมเทสต์ migration บนฐานข้อมูลว่าง, i18n, ขอบเขตโมดูล, `.env.example`, release) → `drizzle-kit check` → build · job `e2e` เตรียมไว้ให้ QA (ไม่มีเทสต์ = ข้าม)
+- `ci.yml` รันทุก pull request และทุก push เข้า `main`: lint → typecheck → test (รวมเทสต์ migration บนฐานข้อมูลว่าง, i18n, ขอบเขตโมดูล, `.env.example`, release) → `drizzle-kit check` → build · job `e2e` รัน Playwright (Chromium) กับแอปที่ build จริง ทั้งจอมือถือและจอเดสก์ท็อป · **ไม่มีการข้าม**: ถ้าไม่มีเทสต์หรือเทสต์ล้ม job แดง · เมื่อล้มจะเก็บ report และ trace เป็น artifact 7 วัน (เปิดจากหน้ารอบนั้นในแท็บ Actions หัวข้อ Artifacts)
 - ความปลอดภัยของ CI ใน repo สาธารณะ: ไม่ใช้ `pull_request_target` · ไม่มี secret ในงานที่รันจาก PR · token อ่านอย่างเดียว · action ปักด้วย commit SHA · workflow จากคนนอกต้องรอ boss อนุมัติ (ตั้งไว้แล้วที่ repo)
 - `release.yml` รันเมื่อ merge เข้า `main`: ถ้า `version` ใน `package.json` ยังไม่มี release จะสร้าง tag `vX.Y.Z` และ GitHub release จาก CHANGELOG · กติกาเลขรุ่น: [VERSIONING.md](VERSIONING.md)
 - ถ้า CI แดง: เปิดแท็บ **Actions** ของ repo → คลิกรอบที่แดง → ดูขั้นที่มีกากบาทสีแดง แล้วส่งข้อความผิดพลาดให้ Lead (log ของ repo สาธารณะใครก็อ่านได้ — workflow จึงไม่พิมพ์ค่า env)
+- **ถ้าทำหลายเซสชันพร้อมกัน** (หลาย branch/หลาย worktree): ก่อนเปิด pull request ต้องรวม `main` ล่าสุดเข้า branch ตัวเองก่อน แล้วรันเกตในเครื่อง (`npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, และ `npm run test:e2e` ถ้าแตะหน้าจอหรือ PWA) · เหตุผล: เคยมี PR ของอีกเซสชันถูก merge เข้า `main` ก่อนที่ `main` จะมี CI ทำให้ `main` แดง และ e2e เคยเขียวเพราะยังไม่มีเทสต์ · `main` ตั้งให้ต้องผ่าน check `gates` (และ `e2e`) และ branch ต้องเป็นรุ่นล่าสุดของ `main` ก่อน merge
 - Dependabot ของ GitHub Actions เปิด pull request เดือนละครั้งเมื่อ action ที่ปักไว้มีรุ่นใหม่ — ส่งต่อให้ Lead ตรวจ ไม่ต้อง merge เอง
 
 ---
@@ -251,4 +252,4 @@ R0 มีแค่ migration แรก (ตารางของ Better Auth) �
 | cron (`/api/cron/daily`) และ `CRON_SECRET` | R1 | ต้องยืนยันวิธีที่ Vercel ส่ง secret จากเอกสารก่อน แล้วเพิ่ม `crons` ใน `vercel.json` |
 | ชื่อ header IP ที่เชื่อถือได้ (`TRUSTED_IP_HEADER`) | R1 | security-privacy ยืนยัน |
 | backup/restore ที่ลองทำจริง + แผนรับมือข้อมูลรั่วฉบับเต็ม + health check เชิงลึก + นโยบาย log ไม่มีข้อมูลส่วนตัว | R6 | ตอนนี้ `/api/health` ตอบแค่ ok/ไม่ ok และ log ของแอปไม่พิมพ์ connection string หรือ error object ของฐานข้อมูล |
-| ตั้ง required status check บน `main` | หลัง CI รันครั้งแรกบน GitHub | Lead ตั้ง — ชื่อ check ที่ต้องบังคับคือ `gates` (เพิ่ม `e2e` เมื่อ qa-test ใส่เทสต์แล้ว) |
+| ตั้ง required status check บน `main` | หลัง CI รันครั้งแรกบน GitHub | Lead ตั้ง — ชื่อ check ที่ต้องบังคับคือ `gates` และ `e2e` (qa-test ใส่เทสต์แล้ว) |

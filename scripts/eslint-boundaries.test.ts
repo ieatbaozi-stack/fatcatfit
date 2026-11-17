@@ -10,7 +10,7 @@ const eslint = new ESLint({ cwd: root });
 
 async function restrictedMessages(file: string, code: string): Promise<string[]> {
   const [result] = await eslint.lintText(code, { filePath: path.join(root, file) });
-  return result.messages.filter((m) => m.ruleId === "no-restricted-imports").map((m) => m.message);
+  return result.messages.filter((m) => m.ruleId === "no-restricted-imports" || m.ruleId === "no-restricted-syntax").map((m) => m.message);
 }
 
 const forbidden: Array<[string, string, string]> = [
@@ -35,6 +35,18 @@ const forbidden: Array<[string, string, string]> = [
   ["stats import ฐานข้อมูล", "src/lib/stats/pr.ts", 'import { getDb } from "@/db/client";\nexport const a = getDb;\n'],
   ["data/shared import pg", "src/lib/data/shared/x.ts", 'import { Pool } from "pg";\nexport const a = Pool;\n'],
   ["pwa import โค้ดแอป", "src/pwa/sw.ts", 'import { x } from "@/lib/offline/queue";\nexport const a = x;\n'],
+  // import() แบบ dynamic และ require() ต้องถูกบล็อกเหมือน import ปกติ (qa M4)
+  ["หน้าจอ import() repository", "src/app/page.tsx", 'export const a = () => import("@/lib/data/server/health");\n'],
+  ["หน้าจอ import() repository แบบ relative", "src/app/me/page.tsx", 'export const a = () => import("../../lib/data/server/health");\n'],
+  ["component await import() src/db", "src/components/x.tsx", 'export async function f() {\n  const m = await import("@/db/client");\n  return m;\n}\n'],
+  ["หน้าจอ import() lib/auth/server", "src/app/me/page.tsx", 'export const a = () => import("@/lib/auth/server");\n'],
+  ["หน้าจอ import() lib/email", "src/app/page.tsx", 'export const a = () => import("@/lib/email");\n'],
+  ["หน้าจอ require() repository", "src/app/page.tsx", 'export const a = () => require("@/lib/data/server/health");\n'],
+  ["API route import() @/db", "src/app/api/x/route.ts", 'export const a = () => import("@/db/client");\n'],
+  ["offline import() React", "src/lib/offline/queue.ts", 'export const a = () => import("react");\n'],
+  ["offline import() node:fs", "src/lib/offline/queue.ts", 'export const a = () => import("node:fs");\n'],
+  ["stats import() ฐานข้อมูล", "src/lib/stats/pr.ts", 'export const a = () => import("@/db/client");\n'],
+  ["pwa import() โค้ดแอป", "src/pwa/sw.ts", 'export const a = () => import("@/lib/offline/queue");\n'],
 ];
 
 const allowed: Array<[string, string, string]> = [
@@ -43,6 +55,10 @@ const allowed: Array<[string, string, string]> = [
   ["repository import src/db", "src/lib/data/server/x.ts", 'import { getDb } from "@/db/client";\nexport const a = getDb;\n'],
   ["lib/auth/server import src/db", "src/lib/auth/server.ts", 'import { getDb } from "@/db/client";\nexport const a = getDb;\n'],
   ["stats import data/shared", "src/lib/stats/pr.ts", 'import { t } from "@/lib/data/shared/track-types";\nexport const a = t;\n'],
+  ["หน้าจอ import() component/โมดูลอื่นที่ไม่ใช่เซิร์ฟเวอร์", "src/app/page.tsx", 'export const a = () => import("@/components/chart");\nexport const b = () => import("@/lib/offline/queue");\n'],
+  ["route handler import() repository", "src/app/api/x/route.ts", 'export const a = () => import("@/lib/data/server/health");\n'],
+  ["repository import() src/db", "src/lib/data/server/x.ts", 'export const a = () => import("@/db/client");\n'],
+  ["เทสต์ใช้ import() โค้ดเซิร์ฟเวอร์ได้", "src/app/page.test.tsx", 'export const a = () => import("@/db/testing/pglite");\n'],
   ["เทสต์ของ route ใช้ตัวช่วยฐานข้อมูลได้", "src/app/api/x/route.test.ts", 'import { createTestDb } from "@/db/testing/pglite";\nexport const a = createTestDb;\n'],
 ];
 
@@ -59,7 +75,7 @@ describe("ขอบเขตโมดูลด้วย ESLint", () => {
 
   it("โค้ดจริงของ platform ผ่านกฎ", async () => {
     const results = await eslint.lintFiles(["src/app/api/health/route.ts", "src/lib/data/server/health.ts", "src/lib/auth/server.ts", "src/db/client.ts"]);
-    const bad = results.flatMap((r) => r.messages).filter((m) => m.ruleId === "no-restricted-imports");
+    const bad = results.flatMap((r) => r.messages).filter((m) => m.ruleId === "no-restricted-imports" || m.ruleId === "no-restricted-syntax");
     expect(bad).toEqual([]);
   });
 });

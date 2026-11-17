@@ -13,50 +13,82 @@ const msg = (text) => text;
 const DB = {
   group: ["@/db", "@/db/**", "**/db", "**/db/**"],
   message: msg("ห้าม import src/db ตรงๆ — ผ่าน repository ใน src/lib/data/server (ARCHITECTURE ข้อ 3)"),
+  re: "(^|\\W)db(\\W|$)",
 };
 const DATA_SERVER = {
   group: ["@/lib/data/server", "@/lib/data/server/**", "**/lib/data/server", "**/lib/data/server/**"],
   message: msg("โค้ดฝั่งเซิร์ฟเวอร์ (lib/data/server) — import จากหน้าจอ/ไคลเอนต์ไม่ได้"),
+  re: "lib\\Wdata\\Wserver(\\W|$)",
 };
 const AUTH_SERVER = {
   group: ["@/lib/auth/server", "@/lib/auth/server/**", "**/lib/auth/server", "**/lib/auth/server/**"],
   message: msg("lib/auth/server เป็นโค้ดฝั่งเซิร์ฟเวอร์ — หน้าจอใช้ lib/auth/client"),
+  re: "lib\\Wauth\\Wserver(\\W|$)",
 };
 const EMAIL = {
   group: ["@/lib/email", "@/lib/email/**", "**/lib/email", "**/lib/email/**"],
   message: msg("lib/email ใช้ได้เฉพาะ route handler และ lib/auth"),
+  re: "lib\\Wemail(\\W|$)",
 };
 const APP = {
   group: ["@/app", "@/app/**"],
   message: msg("โมดูลชั้นล่างห้าม import src/app"),
+  re: "^@\\Wapp(\\W|$)",
 };
 const COMPONENTS = {
   group: ["@/components", "@/components/**"],
   message: msg("ห้าม import React component จากโมดูลนี้"),
+  re: "^@\\Wcomponents(\\W|$)",
 };
 const OFFLINE = {
   group: ["@/lib/offline", "@/lib/offline/**"],
   message: msg("lib/offline ใช้ได้เฉพาะหน้าจอ"),
+  re: "^@\\Wlib\\Woffline(\\W|$)",
 };
 const AUTH_ALL = {
   group: ["@/lib/auth", "@/lib/auth/**"],
   message: msg("โมดูลนี้ไม่มี I/O — import lib/auth ไม่ได้"),
+  re: "^@\\Wlib\\Wauth(\\W|$)",
 };
 const SERVER_ONLY_PKG = {
   name: "server-only",
   message: msg("โมดูลนี้ต้องใช้ได้ทั้งไคลเอนต์และเซิร์ฟเวอร์"),
+  re: "^server-only$",
 };
 const FRAMEWORK = {
   group: ["react", "react-dom", "react/*", "react-dom/*", "next", "next/*"],
   message: msg("โมดูลนี้ไม่ผูกกับ React/Next"),
+  re: "^(react|react-dom|next)(\\W|$)",
 };
 const IO_PACKAGES = {
   group: ["pg", "drizzle-orm", "drizzle-orm/*", "better-auth", "better-auth/*", "@better-auth/*", "idb", "node:*"],
   message: msg("โมดูลนี้ต้องไม่มี I/O (ฐานข้อมูล ไฟล์ เครือข่าย)"),
+  re: "^(pg|drizzle-orm|better-auth|@better-auth|idb)(\\W|$)|^node:",
 };
 
+// no-restricted-imports ไม่ตรวจ import() แบบ dynamic และ require() (qa M4) จึงใช้ no-restricted-syntax
+// ตรวจ source ที่เป็นสตริงตายตัวด้วย regex ชุดเดียวกัน (esquery ใส่ "/" ใน regex ไม่ได้ จึงใช้ \W แทน)
+// ข้อจำกัด: import(variable) หรือ template literal ตรวจไม่ได้ด้วย ESLint
+const syntaxSelectors = (paths, patterns) => {
+  const res = [...paths, ...patterns].map((x) => x.re).filter(Boolean);
+  return res.flatMap((re) => [
+    `ImportExpression[source.value=/${re}/]`,
+    `CallExpression[callee.name="require"][arguments.0.value=/${re}/]`,
+  ]);
+};
+
+const withoutRe = (x) => Object.fromEntries(Object.entries(x).filter(([k]) => k !== "re"));
+
 const restrict = (paths = [], patterns = []) => ({
-  "no-restricted-imports": ["error", { paths, patterns }],
+  // ตัด re ออก: schema ของ no-restricted-imports ไม่รับ property แปลก
+  "no-restricted-imports": ["error", { paths: paths.map(withoutRe), patterns: patterns.map(withoutRe) }],
+  "no-restricted-syntax": [
+    "error",
+    ...syntaxSelectors(paths, patterns).map((selector) => ({
+      selector,
+      message: "ขอบเขตโมดูล (ARCHITECTURE ข้อ 3): ห้าม import() แบบ dynamic หรือ require() ข้ามขอบเขต — ดูกฎ import ของโมดูลนี้",
+    })),
+  ],
 });
 
 const boundaries = [
@@ -110,14 +142,14 @@ const boundaries = [
     files: ["src/pwa/**/*.{ts,tsx}"],
     rules: restrict(
       [SERVER_ONLY_PKG],
-      [{ group: ["@/*"], message: msg("src/pwa แยกจากโค้ดแอป — import ผ่าน alias @/ ไม่ได้") }],
+      [{ group: ["@/*"], message: msg("src/pwa แยกจากโค้ดแอป — import ผ่าน alias @/ ไม่ได้"), re: "^@\\W" }],
     ),
   },
   // เทสต์ต้อง import ตัวช่วยฝั่งเซิร์ฟเวอร์ได้ (เช่น @/db/testing/pglite) — ขอบเขตบังคับกับโค้ดจริง
   {
     name: "boundaries/tests-exempt",
     files: ["**/*.test.{ts,tsx}"],
-    rules: { "no-restricted-imports": "off" },
+    rules: { "no-restricted-imports": "off", "no-restricted-syntax": "off" },
   },
 ];
 
