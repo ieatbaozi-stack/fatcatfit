@@ -252,7 +252,6 @@ function renderFrame(doc, rig, i, prefix) {
     if (limbAt.has(idx) && limbAt.get(idx).first) {
       const limb = limbAt.get(idx).limb;
       const idxs = limb.el;
-      const cnt = idxs.length;
       limb.el.forEach((e) => skip.add(e));
       flush();
       const f = el.filter ? ` filter="url(#${prefix}-${el.filter})"` : "";
