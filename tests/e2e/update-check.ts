@@ -14,7 +14,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-const PORT = 3112;
+// พอร์ตเปลี่ยนได้ด้วย E2E_PORT (ตัวแปรเดียวกับ playwright.config.ts · ค่าเริ่มของสคริปต์นี้ 3112)
+const PORT = Number(process.env.E2E_PORT ?? 3112);
 const ORIGIN = `http://localhost:${PORT}`;
 const PROFILE = path.join(os.tmpdir(), "fcf-qa-update-profile");
 const STATE = path.join(os.tmpdir(), "fcf-qa-update-state.json");
@@ -93,6 +94,8 @@ async function before() {
     await page.waitForTimeout(1500);
     const pages = await cachedPages(page);
     check("before: /, /history, /me cached", ["/", "/history", "/me"].every((p) => pages.includes(p)), pages.join(","));
+    // /progress ไม่เคยเปิด — ต้องถูกเก็บตั้งแต่ติดตั้ง (QA M1)
+    check("before: /progress cached without visiting", pages.includes("/progress"), pages.join(","));
   } finally {
     await ctx.close();
     await stopServer(server);
@@ -141,7 +144,7 @@ async function after() {
   try {
     await ctx.setOffline(true);
     const page = await firstPage(ctx);
-    for (const p of ["/", "/history", "/me"]) {
+    for (const p of ["/", "/history", "/progress", "/me"]) {
       const errors: string[] = [];
       const failedReq: string[] = [];
       page.removeAllListeners("pageerror");
