@@ -9,8 +9,8 @@ const root = path.resolve(import.meta.dirname, "..");
 // ตัวแปรที่ระบบ/ผู้ให้บริการตั้งให้เอง ไม่ต้องอยู่ใน .env.example
 const PROVIDED = new Set(["NODE_ENV", "CI", "VERCEL_ENV"]);
 
-const SCAN_DIRS = ["src", "scripts"];
-const SCAN_FILES = ["next.config.ts", "drizzle.config.ts", "vitest.config.ts", "eslint.config.mjs"];
+const SCAN_DIRS = ["src", "scripts", "tests"];
+const SCAN_FILES = ["next.config.ts", "drizzle.config.ts", "vitest.config.ts", "eslint.config.mjs", "playwright.config.ts"];
 
 function walk(dir: string, out: string[]): void {
   for (const name of readdirSync(dir)) {
@@ -29,7 +29,13 @@ function envNamesUsedInCode(): Map<string, string[]> {
       return false;
     }
   });
-  for (const d of SCAN_DIRS) walk(path.join(root, d), files);
+  for (const d of SCAN_DIRS) {
+    try {
+      if (statSync(path.join(root, d)).isDirectory()) walk(path.join(root, d), files);
+    } catch {
+      // ไม่มีโฟลเดอร์นี้
+    }
+  }
   const used = new Map<string, string[]>();
   const re = /process\.env(?:\.([A-Z][A-Z0-9_]*)|\[\s*["']([A-Z][A-Z0-9_]*)["']\s*\])/g;
   for (const file of files) {
