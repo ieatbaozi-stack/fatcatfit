@@ -13,11 +13,31 @@ export const CACHE_NAMES = {
   assets: `${CACHE_PREFIX}assets-v${CACHE_VERSION}`,
   /** HTML ของหน้า (app shell) — ใช้ตอนออฟไลน์เท่านั้น */
   pages: `${CACHE_PREFIX}pages-v${CACHE_VERSION}`,
+  /**
+   * HTML ของรุ่นใหม่ที่ SW ตัวใหม่ดึงไว้ตอน install — ย้ายเข้า `pages` ตอน activate
+   * (ไม่เขียนลง `pages` ตรงๆ เพราะ SW ตัวเก่ายังคุมอยู่ และ precache ของมันไม่รู้จัก chunk ของรุ่นใหม่)
+   */
+  pagesStaging: `${CACHE_PREFIX}pages-staging-v${CACHE_VERSION}`,
 } as const;
 
-/** cache ที่ต้องล้างตอนออกจากระบบ (ADR 0004 ข้อ 8): หน้า HTML + ทุก cache ที่ขึ้นต้น `user-` */
+/** path ของ app shell — ถอยไปหน้านี้เมื่อ URL ที่ขอไม่มีสำเนา */
+export const APP_SHELL_PATH = "/";
+
+/**
+ * หน้าที่ต้องเปิดได้ตอนออฟไลน์ตั้งแต่ติดตั้งครั้งแรก (ADR 0005 สิ่งที่ R3 ต้องรู้ ข้อ ง)
+ * = แท็บทั้ง 4 ของแถบล่าง (src/components/nav/bottom-tabs.tsx — เทสต์ตรวจว่าตรงกัน)
+ * เพิ่มหน้าใหม่ที่ต้องใช้ออฟไลน์ (เช่นหน้าจดของ R3) ที่นี่ · path ต้องคงที่ ไม่มี id หรือ query
+ */
+export const OFFLINE_PAGES = ["/", "/history", "/progress", "/me"] as const;
+
+/** URL เต็มของ OFFLINE_PAGES */
+export function offlinePageUrls(origin: string): string[] {
+  return OFFLINE_PAGES.map((p) => new URL(p, origin).href);
+}
+
+/** cache ที่ต้องล้างตอนออกจากระบบ (ADR 0004 ข้อ 8): หน้า HTML (รวมที่รอย้าย) + ทุก cache ที่ขึ้นต้น `user-` */
 export function isUserScopedCache(name: string): boolean {
-  return name === CACHE_NAMES.pages || name.startsWith("user-");
+  return name === CACHE_NAMES.pages || name === CACHE_NAMES.pagesStaging || name.startsWith("user-");
 }
 
 /**
@@ -105,4 +125,72 @@ export function pagesInOtherLocale(
   justCachedUrl: string,
 ): string[] {
   return entries.filter((e) => e.url !== justCachedUrl && e.lang !== currentLang).map((e) => e.url);
+}
+
+export interface CachedPage {
+  url: string;
+  lang: string | null;
+}
+
+const unique = (urls: string[]) => [...new Set(urls)];
+
+/**
+ * ทำให้ cache หน้าเป็นภาษาเดียว และมีครบทุกหน้าใน OFFLINE_PAGES
+ * - remove: หน้าภาษาอื่น/ไม่รู้ภาษา (ลบทันที แม้ออฟไลน์ — หน้าภาษาผิดต้องไม่ถูกแสดง)
+ * - fetch: หน้าที่ลบ + หน้าใน OFFLINE_PAGES ที่ยังไม่มีในภาษานี้ (ลองดึงใหม่ ล้ม = ไว้รอบหน้า)
+ * ไม่รวม justCachedUrl (เพิ่งได้จากเครือข่าย) · ไม่รู้ภาษาปัจจุบัน (lang = null) → ไม่ทำอะไร
+ */
+export function planPageSync(
+  entries: CachedPage[],
+  lang: string | null,
+  justCachedUrl: string,
+  origin: string,
+): { remove: string[]; fetch: string[] } {
+  if (!lang) return { remove: [], fetch: [] };
+  const remove = pagesInOtherLocale(entries, lang, justCachedUrl);
+  const have = new Set(entries.filter((e) => e.lang === lang).map((e) => e.url));
+  have.add(justCachedUrl);
+  const missing = offlinePageUrls(origin).filter((u) => !have.has(u));
+  return { remove, fetch: unique([...remove, ...missing]).filter((u) => u !== justCachedUrl) };
+}
+
+/** ภาษาของชุดหน้า: ใช้ภาษาของ app shell ก่อน ไม่มีก็ใช้หน้าแรกที่รู้ภาษา */
+export function langOfPages(entries: CachedPage[], origin: string): string | null {
+  const shell = new URL(APP_SHELL_PATH, origin).href;
+  return entries.find((e) => e.url === shell && e.lang)?.lang ?? entries.find((e) => e.lang)?.lang ?? null;
+}
+
+/**
+ * ตอน SW ใหม่ activate: ย้ายหน้าที่ดึงไว้ตอน install (staged) เข้า cache หน้า
+ * - ภาษาเป้าหมาย = ภาษาของ cache หน้าปัจจุบัน (SW ตัวเก่าคุมให้ตรงกับที่ผู้ใช้เลือกล่าสุด แม้เปลี่ยนหลัง install)
+ *   cache ว่าง (ติดตั้งครั้งแรก/เพิ่งออกจากระบบ) → ภาษาของหน้าที่ staged
+ * - promote: หน้าที่ staged ในภาษาเป้าหมาย
+ * - refetch: หน้าอื่นทั้งหมดที่มีอยู่หรือควรมี (ดึงไม่สำเร็จตอน install, ภาษาไม่ตรง, หน้าที่เปิดระหว่างรอ)
+ *   → ลองดึงใหม่ ได้ก็แทน ไม่ได้ก็คงสำเนาเดิมไว้ (ดีกว่าไม่มีหน้าเลยตอนออฟไลน์)
+ */
+export function planActivation(
+  current: CachedPage[],
+  staged: CachedPage[],
+  origin: string,
+): { lang: string | null; promote: string[]; refetch: string[] } {
+  const lang = langOfPages(current, origin) ?? langOfPages(staged, origin);
+  const promote = lang ? unique(staged.filter((e) => e.lang === lang).map((e) => e.url)) : [];
+  const done = new Set(promote);
+  const refetch = unique([...current.map((e) => e.url), ...staged.map((e) => e.url), ...offlinePageUrls(origin)]).filter(
+    (u) => !done.has(u),
+  );
+  return { lang, promote, refetch };
+}
+
+/** หน้าที่ SW ใหม่ต้องดึงตอน install: ทุกแท็บ + ทุกหน้าที่ cache ไว้แล้ว (กัน HTML รุ่นเก่าอ้าง chunk ที่ถูกลบ — ADR 0005 ข้อ จ) */
+export function pagesToStage(cachedUrls: string[], origin: string): string[] {
+  const own = cachedUrls.filter((u) => {
+    try {
+      const url = new URL(u);
+      return url.origin === origin && !isApiPath(url.pathname);
+    } catch {
+      return false;
+    }
+  });
+  return unique([...offlinePageUrls(origin), ...own]);
 }

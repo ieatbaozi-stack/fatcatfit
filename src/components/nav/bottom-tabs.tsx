@@ -28,7 +28,10 @@ export function BottomTabs() {
   return (
     <nav aria-label={t("label")} className="pb-safe fixed inset-x-0 bottom-0 z-10 bg-paper">
       <div className="relative mx-auto max-w-120 px-1 pt-3 pb-3">
-        <Squiggle variant={0} className="absolute inset-x-2 top-0" />
+        {/* ห่อด้วย div: Squiggle มี w-full อยู่แล้ว ถ้าใส่ inset-x-2 ตรงๆ เส้นจะยาวเกินขอบขวา 8px */}
+        <div className="absolute inset-x-2 top-0">
+          <Squiggle variant={0} />
+        </div>
         <ul className="m-0 grid list-none grid-cols-4 p-0">
           {TABS.map(({ href, key, icon }) => {
             const active = isTabActive(pathname, href);

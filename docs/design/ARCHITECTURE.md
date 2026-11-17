@@ -1,7 +1,7 @@
 # ARCHITECTURE — แมวอ้วนจะผอม (Fat Cat Fit) v1
 
-> ร่าง 1 · 2026-11-15 · ผู้เขียน: architect · สถานะ: **อนุมัติโดย boss 2026-11-16** พร้อม ADR 0001–0004
-> เอกสารนี้เป็นภาพรวมหน้าเดียว รายละเอียดและเหตุผลอยู่ใน ADR: [0001 ฐานข้อมูล/โฮสต์](../adr/0001-database-and-hosting.md) · [0002 auth](../adr/0002-auth.md) · [0003 โมเดลข้อมูล](../adr/0003-data-model.md) · [0004 ออฟไลน์/sync](../adr/0004-offline-sync.md)
+> ร่าง 1 · 2026-11-15 · ผู้เขียน: architect · สถานะ: **อนุมัติโดย boss 2026-11-16** พร้อม ADR 0001–0004 · **ร่าง 2 · 2026-11-17**: ปรับให้ตรงกับโค้ดจริงหลัง R0 (ดูบันทึกการแก้ไขท้ายไฟล์)
+> เอกสารนี้เป็นภาพรวมหน้าเดียว รายละเอียดและเหตุผลอยู่ใน ADR: [0001 ฐานข้อมูล/โฮสต์](../adr/0001-database-and-hosting.md) · [0002 auth](../adr/0002-auth.md) · [0003 โมเดลข้อมูล](../adr/0003-data-model.md) · [0004 ออฟไลน์/sync](../adr/0004-offline-sync.md) · [0005 service worker](../adr/0005-service-worker-tool.md) (เสนอ)
 > boss เลือก Neon (Singapore) ตาม ADR 0001 · Vercel function ต้องตั้งภูมิภาค `sin1`
 
 ## 1. แผนภาพส่วนประกอบ
@@ -12,9 +12,9 @@ flowchart LR
     UI["หน้าจอ React<br/>src/app · src/components"]
     OFF["src/lib/offline<br/>outbox · snapshot · active_session · sync engine"]
     IDB[("IndexedDB<br/>fcf:v1:&lt;user_id&gt; · fcf:device")]
-    SW["Service worker<br/>src/pwa (asset + app shell เท่านั้น)"]
+    SW["Service worker /serwist/sw.js<br/>src/pwa/sw.ts (@serwist/turbopack)<br/>precache asset + HTML ทีละภาษา · ไม่แตะ /api"]
     UI --> OFF --> IDB
-    UI -. โหลด asset .-> SW
+    UI -. "navigation + asset" .-> SW
   end
   subgraph Vercel["Vercel Hobby · function ภูมิภาค sin1 · Node.js runtime"]
     API["Route handlers<br/>src/app/api/**"]
@@ -38,34 +38,47 @@ flowchart LR
 
 หลักการเดินข้อมูล: หน้าจอ **อ่าน** จาก snapshot + คิวในเครื่อง และ **เขียน** ผ่าน `src/lib/offline` เท่านั้น → คิวส่งไป `/api/sync/push` → เซิร์ฟเวอร์ upsert แบบส่งซ้ำได้ → ดึง `/api/bootstrap` มาแทน snapshot · ข้อยกเว้นที่ต้องออนไลน์และเรียก API ตรง: เข้าสู่ระบบ, consent, ส่งออก, ลบบัญชี, ประวัติเก่ากว่า 60 วัน, กราฟ
 
+หลักการ render (ผลของ R0): ทุกหน้าเป็น dynamic เพราะภาษาอ่านจาก cookie `NEXT_LOCALE` · HTML ของหน้าถูก SW เก็บไว้ใช้ตอนออฟไลน์ → **HTML ห้ามมีข้อมูลส่วนตัว** ข้อมูลผู้ใช้โหลดฝั่งไคลเอนต์เท่านั้น และหน้าตรวจสถานะล็อกอินฝั่งไคลเอนต์ด้วยเสมอ (ADR 0005 กติกา 1)
+
 ## 2. โครงโฟลเดอร์และเจ้าของ (ตรงกับ TEAM.md)
+
+โครงจริง ณ ปลาย R0 (โฟลเดอร์ที่ยังไม่มีระบุรอบที่จะสร้าง)
 
 ```
 src/
-  app/                      frontend — หน้าจอทั้งหมด (App Router, ไม่มี locale ใน URL)
-    api/                    platform — route handlers ทุกตัว
-      auth/[...all]/        Better Auth handler
-    serwist/[path]/         pwa-offline — มีเฉพาะถ้า spike เลือก @serwist/turbopack (ต้องระบุใน contract R0)
+  app/                      frontend — หน้าจอ (App Router, ไม่มี locale ใน URL): page.tsx (หน้าหลัก), history/, progress/, me/, styleguide/, layout.tsx
+    api/                    platform — route handlers
+      health/               R0 · GET /api/health
+      auth/[...all]/        Better Auth handler (R1)
+    serwist/[path]/         pwa-offline — route.ts สร้าง /serwist/sw.js ตอน build (ADR 0005)
   components/               frontend
-    doodle/                 ux-brand — ภาพแมว SVG
-  db/                       platform — schema/ (Drizzle), client.ts, sql-helpers.ts
+    ui/                     ปุ่ม ชิป ช่องตัวเลข ✓ เส้นคั่นวาดมือ empty state ฯลฯ
+    nav/                    แถบล่าง 4 แท็บ
+    theme/                  โหมดสว่าง/มืด + ตัวสลับภาษา
+    styleguide/             เนื้อหาหน้า /styleguide
+    doodle/                 ux-brand — ภาพแมว SVG (Cat.tsx, poses.generated.ts)
+  db/                       platform — client.ts, schema/ (auth.ts, index.ts), sql-helpers.ts, migrations.test.ts
+    testing/                platform — pglite.ts: ฐานข้อมูลเทสต์ (PGlite + migration จริง) ใช้ใน *.test.ts เท่านั้น
   lib/
-    data/shared/            platform — ใช้ได้ทั้งไคลเอนต์/เซิร์ฟเวอร์: track-types, units, zod schema, ชนิดข้อมูลบนสาย
-    data/server/            platform — repository (import 'server-only')
-    stats/                  platform — สถิติ/PR ฟังก์ชันบริสุทธิ์ (ใช้ร่วม)
-    auth/                   platform — server.ts (config, requireUser, requireConsent), client.ts
-    email/                  ops-release (เสนอ — TEAM.md ยังไม่ระบุเจ้าของ)
-    offline/                pwa-offline — IndexedDB, outbox, sync, active session, rest timer
-    i18n/                   frontend
-  pwa/                      pwa-offline — sw.ts, การลงทะเบียน SW
-public/                     manifest.webmanifest + ไอคอน (pwa-offline) · sw* (ถ้าเลือกทาง C)
-drizzle/                    platform — migration SQL มีเวอร์ชัน
-content/exercises/          catalog — ข้อมูลท่า + UUID คงที่ + ใบอนุญาต
+    data/shared/            platform (R1+) — track-types, units, zod schema, ชนิดข้อมูลบนสาย
+    data/server/            platform — repository (import 'server-only') · R0 มี health.ts
+    stats/                  platform (R3+) — สถิติ/PR ฟังก์ชันบริสุทธิ์
+    auth/                   platform — server.ts (R0: createAuth · R1: requireUser, requireConsent), client.ts (R1)
+    email/                  ops-release (R1)
+    offline/                pwa-offline (R1 แบบส่งทันที · R3 outbox)
+    i18n/                   frontend — config.ts, request.ts (อ่าน cookie), client.ts
+  pwa/                      pwa-offline — sw.ts, strategy.ts (กติกา cache ไม่มี I/O), register.tsx, clear-caches.ts, messages.ts
+    e2e/                    pwa-offline — s5-offline-check.ts สคริปต์ตรวจออฟไลน์/อัปเดต/ภาษาใน Chromium (รันเอง ไม่อยู่ใน CI)
+  test/                     ตัวช่วยของ Vitest (stub `server-only`)
+public/                     manifest.webmanifest (pwa-offline) · icons/ (ux-brand)
+drizzle/                    platform — migration SQL + meta/ (0000_auth_init.sql)
+content/exercises/          catalog (R2)
 messages/                   frontend — th.json, en.json
-scripts/                    seed*.ts (catalog) · release*.ts (ops) · invite.ts, db-*.ts (platform — เสนอ) · export-stickers.mjs (ux-brand)
-tests/e2e/                  qa-test
-next.config.ts · vercel.json   ops-release (vercel.json เสนอให้ ops)
-drizzle.config.ts           platform (เสนอ)
+scripts/                    db-migrate.ts (platform) · release.ts, release-lib.ts, release-notes.ts, release-migrate.ts (ops) · export-stickers.mjs, export-icons.mjs, cat-source.mjs (ux-brand) · invite.ts (R1) · seed*.ts (R2) · เทสต์ของ ops: env-example, eslint-boundaries, security-headers
+tests/e2e/                  qa-test (smoke, design, pwa)
+.github/                    ops-release — ci.yml, release.yml, dependabot.yml
+next.config.ts · vercel.json · eslint.config.mjs   ops-release
+drizzle.config.ts · vitest.config.ts · tsconfig.json   platform · playwright.config.ts   qa-test
 ```
 
 unit/integration test วางคู่กับไฟล์ (`*.test.ts`) ในโฟลเดอร์ของเจ้าของ · E2E อยู่ `tests/e2e/`
@@ -74,21 +87,23 @@ unit/integration test วางคู่กับไฟล์ (`*.test.ts`) ใ�
 
 | โมดูล | import ได้ | ห้าม import |
 |---|---|---|
-| `src/app/**` (หน้าจอ), `src/components/**` | components, doodle, i18n, `lib/offline`, `lib/data/shared`, `lib/stats`, `lib/auth/client` | `src/db`, `lib/data/server`, `lib/auth/server`, `lib/email` |
+| `src/app/**` (หน้าจอ), `src/components/**` | components, doodle, i18n, `lib/offline`, `lib/data/shared`, `lib/stats`, `lib/auth/client`, `src/pwa/register` (layout), `src/pwa/clear-caches` (ออกจากระบบ) | `src/db`, `lib/data/server`, `lib/auth/server`, `lib/email` |
 | `src/lib/offline/**` | `lib/data/shared`, `lib/stats` · คุยกับเซิร์ฟเวอร์ด้วย `fetch` เท่านั้น | ทุกอย่างฝั่งเซิร์ฟเวอร์, React component |
 | `src/app/api/**` | `lib/auth/server`, `lib/data/server`, `lib/data/shared`, `lib/stats`, `lib/email` | `src/db` ตรงๆ (ผ่าน repository) |
 | `src/lib/data/server/**` | `src/db`, `lib/data/shared`, `lib/stats` | `src/app` |
 | `src/lib/auth/**` | `src/db`, `lib/email`, `lib/data/shared` | `src/app` |
 | `src/lib/stats/**`, `src/lib/data/shared/**` | กันเองเท่านั้น (ไม่มี I/O) | ทุกอย่างที่มี I/O |
-| `src/pwa/**` | ไม่มี (ตัว SW แยกจากแอป) | โค้ดแอป |
+| `src/pwa/**` | ไฟล์ใน `src/pwa` ด้วยกัน (relative) · แพ็กเกจ `serwist` (ใน `sw.ts`) · `react` (ใน `register.tsx`) | ทุกอย่างผ่าน alias `@/` (กฎ ESLint `boundaries/pwa`) · `server-only` |
+| `src/db/testing/**` | `src/db` | ห้าม import จากโค้ดแอป — ใช้ใน `*.test.ts` เท่านั้น (ข้อตกลง ยังไม่มีกฎ ESLint) |
 
-บังคับด้วย: `import 'server-only'` ในโมดูลฝั่งเซิร์ฟเวอร์ + กฎ ESLint `no-restricted-imports` (ops ตั้งใน R0) · **ไม่ใช้ Server Actions เขียนข้อมูลใน v1** — ทุกการเขียนเป็น HTTP endpoint เพื่อให้คิวออฟไลน์ใช้ทางเดียวกัน · ทุก route handler ข้อมูลเริ่มด้วย `requireUser()` แล้ว `requireConsent()` และส่ง `userId` ให้ repository (repository ไม่รับ query ที่ไม่มี `userId`)
+บังคับด้วย: `import 'server-only'` ในโมดูลฝั่งเซิร์ฟเวอร์ + กฎ ESLint `no-restricted-imports` ใน `eslint.config.mjs` (ops ตั้งใน R0, มีเทสต์ `scripts/eslint-boundaries.test.ts`; ไฟล์ `*.test.*` ได้รับยกเว้น) · **ไม่ใช้ Server Actions เขียนข้อมูลใน v1** — ทุกการเขียนเป็น HTTP endpoint เพื่อให้คิวออฟไลน์ใช้ทางเดียวกัน · ทุก route handler ข้อมูลเริ่มด้วย `requireUser()` แล้ว `requireConsent()` และส่ง `userId` ให้ repository (repository ไม่รับ query ที่ไม่มี `userId`)
 
 ## 4. API ระดับสูงของ v1
 
 | method · path | ทำอะไร | ออนไลน์เท่านั้น | รอบ |
 |---|---|---|---|
-| `GET /api/health` | ตรวจแอป + query ฐานข้อมูล 1 ครั้ง | — | R0 |
+| `GET /api/health` | ตรวจแอป + query ฐานข้อมูล 1 ครั้ง · 200 `{ok:true}` / 503 `{ok:false}` | — | R0 |
+| `GET /serwist/sw.js` | ไฟล์ service worker (สร้างตอน build, `Cache-Control: no-cache, no-store, must-revalidate`) — ไม่ใช่ API แต่ URL นี้ตายตัว (ADR 0005) | — | R0 |
 | `* /api/auth/*` | Better Auth: Google, email OTP ส่ง/ยืนยัน, sign-out, get-session | ✓ | R1 |
 | `POST /api/invite/check` | ตรวจโค้ดเชิญ (ไม่ใช้สิทธิ์) + ตั้ง cookie `fcf_invite` | ✓ | R1 |
 | `GET /api/me` | ผู้ใช้ + สถานะ consent + profile | — | R1 |
@@ -112,9 +127,10 @@ R1 ยังไม่มีคิวเต็มรูป (คิวเป็น
 
 | ตัวแปร | ใช้ที่ | หมายเหตุ |
 |---|---|---|
-| `DATABASE_URL` | db | connection string แบบ pooled ของ Neon |
-| `DATABASE_URL_UNPOOLED` | drizzle-kit migrate | ถ้า spike R0 พบว่า migrate ผ่าน pooler ไม่ได้ (ยังไม่ยืนยัน) |
-| `BETTER_AUTH_SECRET` | auth | สุ่มยาว ต่างกันทุกสภาพแวดล้อม |
+| `DATABASE_URL` | db (แอปตอนรัน) | connection string แบบ pooled ของ Neon |
+| `DATABASE_URL_UNPOOLED` | `npm run db:migrate` (ถ้าไม่มีถอยไป `DATABASE_URL`) · `scripts/release-migrate.ts` (ต้องมี ไม่ถอย) | direct (ไม่มี `-pooler`) — migration และ advisory lock ต้องใช้ session จริง |
+| `MIGRATE_ON_DEPLOY` | `scripts/release-migrate.ts` | ตั้ง `1` เฉพาะ Vercel Production เพื่อให้ build รัน migration · ไม่ตั้ง = ข้าม · ทำงานคู่กับ `VERCEL_ENV=production` ที่ Vercel ตั้งให้เอง |
+| `BETTER_AUTH_SECRET` | auth | สุ่มยาว ≥ 32 ตัว ต่างกันระหว่าง production กับ preview/dev |
 | `BETTER_AUTH_URL` | auth | URL เต็มของแต่ละสภาพแวดล้อม (ไม่ตั้ง = redirect_uri_mismatch) |
 | `GOOGLE_CLIENT_ID` · `GOOGLE_CLIENT_SECRET` | auth | boss สร้าง OAuth client |
 | `EMAIL_TRANSPORT` | email | `smtp` \| `log` \| `http` |
@@ -123,28 +139,45 @@ R1 ยังไม่มีคิวเต็มรูป (คิวเป็น
 | `OTP_DAILY_CAP` | auth | ค่าเริ่ม 400 |
 | `CRON_SECRET` | cron | วิธีที่ Vercel ส่ง secret ให้ cron — ops ยืนยันจากเอกสาร Vercel ใน R1 |
 | `TRUSTED_IP_HEADER` | auth | ชื่อ header IP ของ Vercel (security-privacy ยืนยัน R1) |
+| `S5_CHANNEL` | `src/pwa/e2e/s5-offline-check.ts` เท่านั้น | ช่องเบราว์เซอร์ของ Playwright (เช่น `chrome`) · ไม่ใช้ในแอป |
 
-## 6. เวอร์ชันของไลบรารีหลัก (npm `latest` ณ 2026-11-15 จากไฟล์วิจัย)
+ไม่ใช่ env: ภาษาเก็บใน **cookie `NEXT_LOCALE`** (`th` | `en`, ค่าเริ่ม/ค่าไม่รู้จัก = `th`, อายุ 1 ปี) อ่านโดย `src/lib/i18n/request.ts` · ตัวแปรที่ R0 อ่านจริง: `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `BETTER_AUTH_SECRET`, `MIGRATE_ON_DEPLOY` · ที่เหลือเริ่มใช้ R1 (อยู่ใน `.env.example` แบบ comment)
 
-| แพ็กเกจ | รุ่นที่ใช้ | สถานะ |
+## 6. เวอร์ชันของไลบรารีหลัก (ที่ติดตั้งจริงตาม `package.json` ณ 2026-11-17)
+
+| แพ็กเกจ | รุ่นที่ปัก | หมายเหตุ |
 |---|---|---|
-| Node.js | ≥ 20.9 (ตามที่ Next ต้องการ) | รุ่นที่ Vercel รองรับ — ops ยืนยัน R0 |
-| `next` | 16.4.x | ยืนยัน · Turbopack เริ่มต้น |
-| `react` / `react-dom` | ตาม peer ของ Next 16.4 | ไม่ได้ระบุรุ่นในวิจัย |
-| `drizzle-orm` / `drizzle-kit` | 0.45.x (stable) / รุ่นคู่กัน | ยืนยันรุ่น · 1.0 ยังเป็น rc |
-| `better-auth` + `@better-auth/drizzle-adapter` | 1.7.x | ยืนยันรุ่น better-auth · adapter ตรวจตอนติดตั้ง |
-| `next-intl` | 4.15.x | ยืนยัน |
-| `tailwindcss` | 4.3.x | ยืนยัน · ต้อง Safari 16.4+/Chrome 111+ |
-| `@serwist/turbopack` หรือ `@serwist/next` | 9.5.x | **ตัดสินหลัง spike R0** (ADR 0004) |
-| `pg`, `@electric-sql/pglite`, `nodemailer`, `zod`, `idb`, `vitest`, `@playwright/test` | ล่าสุด ณ วันติดตั้ง | ยังไม่ได้ตรวจรุ่น — ผู้เพิ่ม dependency ระบุรุ่นใน contract และ Lead รวม lockfile |
+| Node.js | `engines.node: "26.x"` | S6: Vercel รองรับ 26.x (ค่าเริ่ม) 24.x 22.x · CI ใช้ 26.x ตรงกัน (`docs/OPERATIONS.md` ข้อ 2.1) |
+| `next` · `eslint-config-next` | `~16.4.6` | Turbopack (dev และ build) |
+| `react` / `react-dom` | `^19.3.1` | ตาม peer ของ Next |
+| `typescript` | `~5.9.3` | **ปักที่ 5.9 โดยตั้งใจ** (npm latest เป็น 7.0 ณ R0 — ตามรายงาน platform) · ขยับเป็นงาน chore |
+| `eslint` | `^9.39.5` | ESLint 9 ตาม peer ของ eslint-config-next |
+| `drizzle-orm` / `drizzle-kit` | `~0.45.4` / `~0.31.11` | คู่กัน · 1.0 ยังเป็น rc |
+| `better-auth` + `@better-auth/drizzle-adapter` | `~1.7.25` | `generateId` แบบฟังก์ชัน (ADR 0002) |
+| `next-intl` | `~4.15.1` | ไม่มี locale ใน URL ไม่ใช้ middleware/proxy (S4) |
+| `tailwindcss` · `@tailwindcss/postcss` | `~4.3.5` | ต้อง Safari 16.4+/Chrome 111+ |
+| `@serwist/turbopack` · `serwist` · `esbuild` | `~9.5.14` · `~9.5.14` · `~0.28.2` | **ADR 0005** (ทาง A) · อยู่ใน devDependencies (ใช้ตอน build) |
+| `pg` · `@electric-sql/pglite` | `^8.23.1` · `^0.5.16` | PGlite ใช้ในเทสต์เท่านั้น (S1) |
+| `zod` · `idb` | `^4.6.7` · `^8.0.4` | |
+| `vitest` · `@playwright/test` · `jsdom` · `tsx` | `^5.1.0` · `^1.65.1` · `^31.0.1` · `^4.23.15` | |
+| `nodemailer` | ยังไม่ติดตั้ง | R1 (ชั้นส่งอีเมล) |
 
-ปักรุ่นแบบ `~` (patch) สำหรับ next, better-auth, drizzle, serwist · อัปรุ่น minor เป็นงาน chore ที่ผ่านเกตครบ
+ปักรุ่นแบบ `~` (patch) สำหรับ next, better-auth, drizzle, serwist, next-intl, tailwind, typescript · อัปรุ่น minor เป็นงาน chore ที่ผ่านเกตครบ (อัป serwist/next ต้องรันสคริปต์ S5 ซ้ำ · อัป better-auth ต้องเทียบ schema ตาม ADR 0002)
 
 ## 7. สภาพแวดล้อม
 
-| | ฐานข้อมูล | อีเมล | URL |
-|---|---|---|---|
-| เครื่องนักพัฒนา | Neon `dev` หรือ PGlite | `log` | `http://localhost:3000` |
-| เทสต์/CI | PGlite (หรือ Postgres container) รัน migration ทุกครั้ง | `log` | — |
-| Vercel preview | Neon `dev` | `log` หรือ `smtp` ไปยังอีเมลทดสอบ | URL preview (ต้องเพิ่มใน Google OAuth ถ้าจะทดสอบ Google) |
-| Vercel production | Neon `prod` | `smtp` | โดเมน Vercel ของโปรเจกต์ |
+| | ฐานข้อมูล | migration | service worker | อีเมล | URL |
+|---|---|---|---|---|---|
+| เครื่องนักพัฒนา (`next dev`) | Neon `dev` | Lead/platform รัน `npm run db:migrate` | ไม่ลงทะเบียน | `log` | `http://localhost:3000` |
+| เทสต์/CI (Vitest) | PGlite ในโปรเซส รัน migration จาก `drizzle/` ทุกครั้ง · ไม่มี container | อัตโนมัติในเทสต์ + `drizzle-kit check` | — | `log` | — |
+| ตรวจ SW ในเครื่อง | — | — | `npm run build` + `src/pwa/e2e/s5-offline-check.ts` (`next start` หลัง proxy พอร์ต 3102) | — | `http://localhost:3102` |
+| Vercel preview | Neon `dev` | ไม่รันอัตโนมัติ (Lead รัน `db:migrate` กับ `dev` ก่อนทดสอบ PR ที่มี migration) | ลงทะเบียน | `log` หรือ `smtp` ไปยังอีเมลทดสอบ | URL preview (ต้องเพิ่มใน Google OAuth ถ้าจะทดสอบ Google) |
+| Vercel production | Neon `production` | ขั้น build ของ Vercel เมื่อ `MIGRATE_ON_DEPLOY=1` (ยังไม่เปิด) | ลงทะเบียน | `smtp` | โดเมน Vercel ของโปรเจกต์ |
+
+ทุกสภาพแวดล้อมบน Vercel: function ภูมิภาค `sin1` · Node 26.x · security headers จาก `next.config.ts` (CSP ไม่ใช้ nonce ณ R0 — `docs/OPERATIONS.md` ข้อ 3)
+
+## บันทึกการแก้ไข
+
+| วันที่ | สิ่งที่แก้ | เหตุผล |
+|---|---|---|
+| 2026-11-17 | แผนภาพ SW · หลักการ render · โครงโฟลเดอร์จริง · ขอบเขตโมดูลของ `src/pwa` และ `src/db/testing` · `/serwist/sw.js` ในตาราง API · env (`DATABASE_URL_UNPOOLED` ใช้จริง, เพิ่ม `MIGRATE_ON_DEPLOY`, `S5_CHANNEL`, cookie `NEXT_LOCALE`) · รุ่นแพ็กเกจที่ติดตั้ง · ตารางสภาพแวดล้อม | ให้ตรงกับโค้ดหลัง R0 และผล spike S1 S2 S4 S5 S6 · ไม่เปลี่ยนการตัดสินใจนอกจากที่บันทึกใน ADR 0001, 0004, 0005 |

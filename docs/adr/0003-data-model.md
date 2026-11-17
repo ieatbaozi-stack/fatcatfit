@@ -57,7 +57,7 @@ PRD ข้อ 5/7: เก็บหน่วยมาตรฐาน (kg/เม�
 
 | ตาราง | รอบ | คอลัมน์หลัก (นอกจากคอลัมน์ร่วม) | ความสัมพันธ์ |
 |---|---|---|---|
-| `user` `session` `account` `verification` `rateLimit` | R0* | สร้างโดย Better Auth CLI · `user` เพิ่ม `invite_code_id` | `session`/`account` → `user` CASCADE |
+| `user` `session` `account` `verification` `rate_limit` | R0* | schema เขียนเองให้ตรงกับ `getAuthTables()` ของ better-auth (ไม่ใช้ CLI — ADR 0002 บันทึกการแก้ไข 2026-11-17) · `user.invite_code_id` เพิ่มใน R1 (nullable) | `session`/`account` → `user` CASCADE |
 | `invite_code` | R1 | `code_hash` UNIQUE · `label` · `max_uses` · `uses_count` · `expires_at` · `revoked_at` · `created_at` | `user.invite_code_id` → นี่ ON DELETE SET NULL · ไม่มี `user_id` |
 | `auth_throttle` | R1 | `key` PK (`otp-email:<sha256>` / `otp-day:<YYYY-MM-DD>`) · `window_started_at` · `count` · `expires_at` | ไม่ผูกผู้ใช้ · ลบด้วย hash ตอนลบบัญชี |
 | `consent_record` | R1 | `notice_version` · `accepted_at` · `locale` (ไม่มีคอลัมน์ sync) | → `user` CASCADE |
@@ -114,3 +114,9 @@ RPE → `set_record.rpe` · drop set → เพิ่มค่าใน `set_kin
 | หน่วยเป็นชุดหรือแยก (UX ข้อ 5.5) — `profile` เก็บแยก 3 คอลัมน์จึงรองรับทั้งสองแบบ | boss | ก่อน R1 |
 | ช่วงค่าที่ยอมรับ · กติกาเพซ · เริ่มสัปดาห์วันจันทร์ไหม | Lead ใน contract | R3 / R5 |
 | เวลาตอบของการคำนวณสถิติสดเมื่อข้อมูลหลักแสนแถว | platform วัด | R3 / R5 |
+
+## บันทึกการแก้ไข
+
+| วันที่ | สิ่งที่แก้ | เหตุผล | เปลี่ยนการตัดสินใจไหม |
+|---|---|---|---|
+| 2026-11-17 | ข้อ 3 แถวตาราง Better Auth: ชื่อ `rate_limit`, ไม่ใช้ CLI, `invite_code_id` มาใน R1 | ให้ตรงกับ migration แรกที่ทำจริงใน R0 (spike S2) | ไม่ |

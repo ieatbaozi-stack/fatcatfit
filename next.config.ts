@@ -9,8 +9,10 @@ import { withSerwist } from "@serwist/turbopack";
 const withNextIntl = createNextIntlPlugin("./src/lib/i18n/request.ts");
 
 // ---- security headers (เริ่ม) ---------------------------------------------
-// CSP แบบไม่ใช้ nonce: ใช้ 'unsafe-inline' กับ script/style เพื่อให้หน้ายังเป็น static render ได้
-// (nonce ต้อง render ทุก request แบบ dynamic — เอกสาร Next: https://nextjs.org/docs/app/guides/content-security-policy)
+// CSP แบบไม่ใช้ nonce: ใช้ 'unsafe-inline' กับ script/style
+// หมายเหตุ (qa 2026-11-17): เหตุผลเดิม "ให้หน้ายังเป็น static render ได้" ไม่จริงแล้ว — ทุกหน้าเป็น dynamic อยู่แล้ว
+// เพราะ next-intl อ่านภาษาจาก cookie ทุก request (ผล `next build`: ƒ ทุกหน้า) · จะเปลี่ยนเป็น nonce หรือไม่ ให้ ops/security ตัดสิน
+// (เอกสาร Next: https://nextjs.org/docs/app/guides/content-security-policy)
 // ส่วนที่ยังเปิดอยู่และเหตุผล: docs/OPERATIONS.md หัวข้อ "Security headers และ CSP"
 export function buildCsp(isDev: boolean): string {
   const directives = [

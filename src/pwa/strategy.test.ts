@@ -1,9 +1,17 @@
 import { describe, expect, it } from "vitest";
+import { TABS } from "../components/nav/bottom-tabs";
 import {
+  APP_SHELL_PATH,
   CACHE_NAMES,
+  OFFLINE_PAGES,
   classifyRequest,
   extractHtmlLang,
+  langOfPages,
+  offlinePageUrls,
   pagesInOtherLocale,
+  pagesToStage,
+  planActivation,
+  planPageSync,
   isApiPath,
   isCacheableResponse,
   isOutdatedRuntimeCache,
@@ -160,5 +168,123 @@ describe("ภาษาของหน้าที่ cache (NEXT_LOCALE)", () =>
       { url: "https://x/history", lang: "th" },
     ];
     expect(pagesInOtherLocale(entries, "th", "https://x/")).toEqual([]);
+  });
+});
+
+describe("หน้าที่ต้องเปิดได้ตอนออฟไลน์ (OFFLINE_PAGES)", () => {
+  it("ตรงกับแท็บทั้ง 4 ของแถบล่าง — เพิ่มแท็บแล้วต้องเพิ่มที่นี่ด้วย", () => {
+    expect([...OFFLINE_PAGES].sort()).toEqual(TABS.map((t) => t.href).sort());
+  });
+
+  it("app shell อยู่ในรายการ และทุก path คงที่ (ไม่มี query/id)", () => {
+    expect(OFFLINE_PAGES).toContain(APP_SHELL_PATH);
+    for (const p of OFFLINE_PAGES) expect(p).toMatch(/^\/[a-z-]*$/);
+  });
+
+  it("offlinePageUrls เป็น URL เต็มของ origin", () => {
+    expect(offlinePageUrls(ORIGIN)).toEqual([`${ORIGIN}/`, `${ORIGIN}/history`, `${ORIGIN}/progress`, `${ORIGIN}/me`]);
+  });
+
+  it("cache พักหน้าถูกล้างตอนออกจากระบบ และไม่ถูกลบเป็นของเก่าตอน activate", () => {
+    expect(isUserScopedCache(CACHE_NAMES.pagesStaging)).toBe(true);
+    expect(isOutdatedRuntimeCache(CACHE_NAMES.pagesStaging)).toBe(false);
+    expect(isOutdatedRuntimeCache("fcf-pages-staging-v0")).toBe(true);
+  });
+});
+
+const u = (p: string) => `${ORIGIN}${p}`;
+const ALL_TABS = ["/", "/history", "/progress", "/me"].map(u);
+
+describe("pagesToStage — SW ใหม่ดึงอะไรตอน install", () => {
+  it("ติดตั้งครั้งแรก (cache ว่าง) → ทั้ง 4 แท็บ", () => {
+    expect(pagesToStage([], ORIGIN)).toEqual(ALL_TABS);
+  });
+
+  it("อัปเดต → ทุกแท็บ + ทุกหน้าที่ cache อยู่ ไม่ซ้ำ ไม่เอาต่าง origin หรือ /api", () => {
+    const cached = [u("/"), u("/styleguide"), u("/me"), "https://evil.example/x", u("/api/health"), "not a url"];
+    expect(pagesToStage(cached, ORIGIN)).toEqual([...ALL_TABS, u("/styleguide")]);
+  });
+});
+
+describe("planPageSync — ภาษาเดียว และมีครบทุกแท็บ", () => {
+  it("เปลี่ยนภาษา → ลบหน้าภาษาเดิมทั้งหมด และดึงใหม่ทั้ง 4 แท็บ (ไม่ใช่แค่ /)", () => {
+    const entries = [
+      { url: u("/"), lang: "th" },
+      { url: u("/history"), lang: "th" },
+      { url: u("/progress"), lang: "th" },
+      { url: u("/me"), lang: "th" },
+      { url: u("/styleguide"), lang: "th" },
+    ];
+    const plan = planPageSync(entries, "en", "", ORIGIN);
+    expect(plan.remove.sort()).toEqual([...ALL_TABS, u("/styleguide")].sort());
+    expect(plan.fetch.sort()).toEqual([...ALL_TABS, u("/styleguide")].sort());
+  });
+
+  it("เปลี่ยนภาษาจากการเปิด /me (เพิ่งได้จากเครือข่าย) → ไม่ลบ/ไม่ดึง /me ซ้ำ", () => {
+    const entries = ALL_TABS.map((url) => ({ url, lang: url === u("/me") ? "en" : "th" }));
+    const plan = planPageSync(entries, "en", u("/me"), ORIGIN);
+    expect(plan.remove.sort()).toEqual([u("/"), u("/history"), u("/progress")].sort());
+    expect(plan.fetch).not.toContain(u("/me"));
+    expect(plan.fetch.sort()).toEqual([u("/"), u("/history"), u("/progress")].sort());
+  });
+
+  it("ภาษาเดิมและครบแล้ว → ไม่ทำอะไร (ไม่ยิงเครือข่ายทุกครั้งที่เปลี่ยนหน้า)", () => {
+    const entries = ALL_TABS.map((url) => ({ url, lang: "th" }));
+    expect(planPageSync(entries, "th", u("/history"), ORIGIN)).toEqual({ remove: [], fetch: [] });
+  });
+
+  it("แท็บขาด (เช่นหลังออกจากระบบ หรือดึงไม่สำเร็จตอน install) → เติมเฉพาะที่ขาด", () => {
+    const plan = planPageSync([{ url: u("/"), lang: "th" }], "th", "", ORIGIN);
+    expect(plan).toEqual({ remove: [], fetch: [u("/history"), u("/progress"), u("/me")] });
+  });
+
+  it("cache ว่าง → เติมทั้ง 4 แท็บ", () => {
+    expect(planPageSync([], "en", "", ORIGIN).fetch).toEqual(ALL_TABS);
+  });
+
+  it("ไม่รู้ภาษาปัจจุบัน → ไม่ลบและไม่ดึง", () => {
+    expect(planPageSync([{ url: u("/"), lang: "th" }], null, "", ORIGIN)).toEqual({ remove: [], fetch: [] });
+  });
+});
+
+describe("planActivation — ย้ายหน้าที่พักไว้ตอน SW ใหม่ activate", () => {
+  it("ติดตั้งครั้งแรก: cache หน้าว่าง → ย้ายทุกหน้าที่พักไว้ ใช้ภาษาของหน้าที่พัก", () => {
+    const staged = ALL_TABS.map((url) => ({ url, lang: "en" }));
+    expect(planActivation([], staged, ORIGIN)).toEqual({ lang: "en", promote: ALL_TABS, refetch: [] });
+  });
+
+  it("อัปเดต: ย้ายหน้าที่พักไว้แทนของเดิม · หน้าที่ดึงไม่สำเร็จตอน install อยู่ใน refetch (คงสำเนาเดิมไว้ก่อน)", () => {
+    const current = [...ALL_TABS, u("/styleguide")].map((url) => ({ url, lang: "th" }));
+    const staged = [u("/"), u("/history"), u("/me"), u("/styleguide")].map((url) => ({ url, lang: "th" }));
+    const plan = planActivation(current, staged, ORIGIN);
+    expect(plan.lang).toBe("th");
+    expect(plan.promote).toEqual([u("/"), u("/history"), u("/me"), u("/styleguide")]);
+    expect(plan.refetch).toEqual([u("/progress")]);
+  });
+
+  it("ผู้ใช้เปลี่ยนภาษาหลัง SW ใหม่ install (ระหว่างรอ) → ยึดภาษาของ cache ปัจจุบัน ไม่ย้ายหน้าภาษาเก่าที่พักไว้", () => {
+    const current = ALL_TABS.map((url) => ({ url, lang: "en" }));
+    const staged = ALL_TABS.map((url) => ({ url, lang: "th" }));
+    const plan = planActivation(current, staged, ORIGIN);
+    expect(plan).toEqual({ lang: "en", promote: [], refetch: ALL_TABS });
+  });
+
+  it("ไม่มีอะไรพักไว้ (install ออฟไลน์ หรือออกจากระบบระหว่างรอ) → ไม่ย้าย และลองดึงทุกแท็บ", () => {
+    const plan = planActivation([], [], ORIGIN);
+    expect(plan).toEqual({ lang: null, promote: [], refetch: ALL_TABS });
+  });
+
+  it("langOfPages: ใช้ภาษาของ / ก่อน", () => {
+    expect(
+      langOfPages(
+        [
+          { url: u("/me"), lang: "th" },
+          { url: u("/"), lang: "en" },
+        ],
+        ORIGIN,
+      ),
+    ).toBe("en");
+    expect(langOfPages([{ url: u("/me"), lang: "th" }], ORIGIN)).toBe("th");
+    expect(langOfPages([{ url: u("/"), lang: null }], ORIGIN)).toBeNull();
   });
 });

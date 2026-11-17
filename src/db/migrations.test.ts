@@ -21,6 +21,8 @@ describe("migration ผ่านกติกาชนิดข้อมูล AD
     ["extension", /CREATE EXTENSION/i],
     ["default ที่เป็นฟังก์ชันฝั่ง DB", /DEFAULT\s+(now|gen_random_uuid|uuid_generate|pg_catalog|current_timestamp|\()/i],
     ["serial", /\bserial\b/i],
+    // ADR 0001 ฉบับแก้ 2026-11-17: ห้าม bigint (epoch ms ใช้ double precision)
+    ["bigint/int8", /\b(bigint|int8|bigserial)\b/i],
     ["timestamp ที่ไม่ใช่ (3) with time zone", /timestamp(?! \(3\) with time zone)/i],
   ])("ไม่มี %s", (_name, re) => {
     expect(sqlText).not.toMatch(re);

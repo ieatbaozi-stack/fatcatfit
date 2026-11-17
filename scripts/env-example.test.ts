@@ -9,8 +9,8 @@ const root = path.resolve(import.meta.dirname, "..");
 // ตัวแปรที่ระบบ/ผู้ให้บริการตั้งให้เอง ไม่ต้องอยู่ใน .env.example
 const PROVIDED = new Set(["NODE_ENV", "CI", "VERCEL_ENV"]);
 
-const SCAN_DIRS = ["src", "scripts"];
-const SCAN_FILES = ["next.config.ts", "drizzle.config.ts", "vitest.config.ts", "eslint.config.mjs"];
+const SCAN_DIRS = ["src", "scripts", "tests"];
+const SCAN_FILES = ["next.config.ts", "drizzle.config.ts", "vitest.config.ts", "eslint.config.mjs", "playwright.config.ts"];
 
 function walk(dir: string, out: string[]): void {
   for (const name of readdirSync(dir)) {
@@ -29,21 +29,84 @@ function envNamesUsedInCode(): Map<string, string[]> {
       return false;
     }
   });
-  for (const d of SCAN_DIRS) walk(path.join(root, d), files);
+  for (const d of SCAN_DIRS) {
+    try {
+      if (statSync(path.join(root, d)).isDirectory()) walk(path.join(root, d), files);
+    } catch {
+      // ไม่มีโฟลเดอร์นี้
+    }
+  }
   const used = new Map<string, string[]>();
-  const re = /process\.env(?:\.([A-Z][A-Z0-9_]*)|\[\s*["']([A-Z][A-Z0-9_]*)["']\s*\])/g;
   for (const file of files) {
-    const text = readFileSync(file, "utf8");
-    for (const m of text.matchAll(re)) {
-      const name = (m[1] ?? m[2])!;
+    for (const name of extractEnvNames(readFileSync(file, "utf8"))) {
       used.set(name, [...(used.get(name) ?? []), path.relative(root, file)]);
     }
   }
   return used;
 }
 
+// รูปที่จับ: process.env.X · process.env["X"] · const { X, Y: y } = process.env · const e = process.env; e.X
+// · ไฟล์ที่ส่ง process.env ต่อเป็นอาร์กิวเมนต์ (decide(process.env)) แล้วอ่าน env.X ในฟังก์ชัน
+// ไม่จับ: ชื่อตัวพิมพ์เล็ก, process.env ที่ถูกสเปรดทั้งก้อน ({ ...process.env }) โดยไม่อ่านชื่อ
+const NAME = "[A-Z][A-Z0-9_]*";
+const NAME_ONLY = new RegExp(`^${NAME}$`);
+const DIRECT = new RegExp(`process\\.env(?:\\.(${NAME})|\\[\\s*["'](${NAME})["']\\s*\\])`, "g");
+const DESTRUCTURE = /\{([^{}]*)\}\s*=\s*process\.env\b(?!\s*[.[])/g;
+const ALIAS_DECL = /\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*(?::[^=]+)?=\s*process\.env\b(?!\s*[.[])/g;
+// process.env เปล่าๆ (ถูกส่งเป็นอาร์กิวเมนต์) ไม่นับการสเปรด
+const BARE_PASSED = /(?<!\.\.\.)\bprocess\.env\b(?!\s*[.[])(?!\s*\})/;
+
+export function extractEnvNames(text: string): Set<string> {
+  const names = new Set<string>();
+  for (const m of text.matchAll(DIRECT)) names.add((m[1] ?? m[2])!);
+
+  for (const m of text.matchAll(DESTRUCTURE)) {
+    for (const part of m[1]!.split(",")) {
+      const key = /^\s*([A-Za-z_][A-Za-z0-9_]*)/.exec(part)?.[1];
+      if (key && NAME_ONLY.test(key)) names.add(key);
+    }
+  }
+
+  const aliases = new Set<string>();
+  for (const m of text.matchAll(ALIAS_DECL)) aliases.add(m[1]!);
+  if (BARE_PASSED.test(text)) aliases.add("env");
+  for (const a of aliases) {
+    const esc = a.replace(/\$/g, "\\$");
+    const re = new RegExp(`(?<![\\w$.])${esc}(?:\\??\\.(${NAME})\\b|\\[\\s*["'](${NAME})["']\\s*\\])`, "g");
+    for (const m of text.matchAll(re)) names.add((m[1] ?? m[2])!);
+  }
+  return names;
+}
+
 const example = readFileSync(path.join(root, ".env.example"), "utf8");
 const declared = new Set([...example.matchAll(/^#?\s*([A-Z][A-Z0-9_]*)=/gm)].map((m) => m[1]!));
+
+describe("extractEnvNames (ตัวจับตัวแปร env)", () => {
+  it("จับรูปตรง", () => {
+    expect([...extractEnvNames('const a = process.env.FOO_BAR; const b = process.env["BAZ"];')].sort()).toEqual(["BAZ", "FOO_BAR"]);
+  });
+  it("จับ destructuring", () => {
+    expect([...extractEnvNames('const { AAA, BBB: renamed = "x", lower } = process.env;')].sort()).toEqual(["AAA", "BBB"]);
+  });
+  it("จับ alias", () => {
+    expect([...extractEnvNames("const e = process.env;\nconst v = e.ALIAS_ONE + e['ALIAS_TWO'];")].sort()).toEqual(["ALIAS_ONE", "ALIAS_TWO"]);
+    expect([...extractEnvNames("const env: NodeJS.ProcessEnv = process.env;\nenv.TYPED_ALIAS;")]).toEqual(["TYPED_ALIAS"]);
+  });
+  it("จับ env.X เมื่อไฟล์ส่ง process.env ต่อเป็นอาร์กิวเมนต์", () => {
+    const code = "export function decide(env: Record<string, string | undefined>) { return env.MIGRATE_ON_DEPLOY; }\ndecide(process.env);";
+    expect([...extractEnvNames(code)]).toEqual(["MIGRATE_ON_DEPLOY"]);
+  });
+  it("ไม่ false positive", () => {
+    expect(extractEnvNames("const env = { NOT_ENV: 1 }; env.NOT_ENV; other.env.SOMETHING;").size).toBe(0);
+    expect(extractEnvNames("const x = { ...process.env, NODE_ENV: 'production' }; const y = env.lower;").size).toBe(0);
+    expect(extractEnvNames("const { lower } = process.env; foo.BAR;").size).toBe(0);
+  });
+  it("ตัวแปรที่ใช้จริงใน release-migrate.ts ถูกจับ", () => {
+    const names = extractEnvNames(readFileSync(path.join(root, "scripts/release-migrate.ts"), "utf8"));
+    expect(names.has("MIGRATE_ON_DEPLOY")).toBe(true);
+    expect(names.has("DATABASE_URL_UNPOOLED")).toBe(true);
+  });
+});
 
 describe(".env.example", () => {
   it("มีทุกตัวแปรที่โค้ดอ่านผ่าน process.env", () => {
