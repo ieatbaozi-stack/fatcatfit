@@ -119,9 +119,15 @@
     "cats": {
       "title": "Cat",
       "still": "Still",
-      "wiggle": "Wiggling",
+      "motion": "Cat moving",
       "meaning": "Meaningful (read out by screen readers)",
-      "meaningTitle": "Cat standing still"
+      "meaningTitle": "Cat standing still",
+      "poses": {
+        "side": "Side view",
+        "squat": "Squat",
+        "overhead-press": "Overhead press",
+        "pull-up": "Pull-up"
+      }
     }
   }
 }

@@ -119,9 +119,15 @@
     "cats": {
       "title": "แมว",
       "still": "นิ่ง",
-      "wiggle": "ดุ๊กดิ๊ก",
+      "motion": "แมวขยับ",
       "meaning": "มีความหมาย (มีป้ายอ่านออกเสียง)",
-      "meaningTitle": "แมวยืนเฉยๆ"
+      "meaningTitle": "แมวยืนเฉยๆ",
+      "poses": {
+        "side": "ยืนข้าง",
+        "squat": "squat",
+        "overhead-press": "ดันไหล่",
+        "pull-up": "ดึงข้อ"
+      }
     }
   }
 }

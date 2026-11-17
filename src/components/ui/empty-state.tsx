@@ -5,7 +5,7 @@ import { Cat, type CatPose } from "@/components/doodle";
 export function EmptyState({ pose, children, action }: { pose: CatPose; children: ReactNode; action?: ReactNode }) {
   return (
     <div className="flex flex-col items-center gap-6 pt-12 text-center">
-      <Cat pose={pose} size={176} wiggle className="text-ink" />
+      <Cat pose={pose} size={176} motion className="text-ink" />
       <p className="max-w-72 text-body text-ink-2">{children}</p>
       {action}
     </div>
