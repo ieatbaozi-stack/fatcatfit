@@ -113,3 +113,13 @@ User story: US-1.1 – US-1.5 (PRD E1)
 | PDPA | ใช้ฉบับแปลไม่เป็นทางการ ยังไม่ผ่านผู้รู้กฎหมาย · ไม่พึ่งข้อยกเว้น ม.4(1) · พอสำหรับกลุ่มเพื่อน แต่ต้องตรวจก่อนเปิดกว้าง (PRD) |
 | ทดสอบบน preview | Google ต้องการ redirect URI ตรงตัว — Lead ส่ง URL preview ของ branch ให้ boss เพิ่มใน Google Console ตอนขั้น 6 |
 | migration ขึ้น production | ครั้งแรกที่มีตารางของแอป · ทำตอน deploy หลัง merge ตาม `docs/OPERATIONS.md` (`MIGRATE_ON_DEPLOY`) · Lead ตรวจ `/api/health` หลัง deploy |
+
+## บันทึกระหว่างรอบ
+
+| วันที่ | เรื่อง | ผล |
+|---|---|---|
+| 2026-11-18 | spike A1–A3 (platform) | ผ่านทั้งหมด ไม่ต้องแก้ ADR · A2: Google กับ OTP อีเมลเดียวกันได้บัญชีเดียว (ทดสอบด้วย id token ที่ mock — redirect จริงตรวจบน preview) · A3: token ของ Google ไม่ถูกเก็บ |
+| 2026-11-18 | ช่วงค่าของแบบสอบถาม (Lead ตัดสิน — contract ไม่ได้ระบุ) | น้ำหนัก 20–500 kg · ส่วนสูง 0.5–2.8 m · ปีเกิด 1920–ปีปัจจุบัน · ชื่อสถานที่ ≤ 60 ตัว · เป้าหมาย ≤ 4 (`stronger` `fitter` `lose_weight` `show_up`) · ประสบการณ์ `new` `some` `regular` |
+| 2026-11-18 | ลิงก์เชิญ | `/welcome#invite=` แทน `?invite=` (ADR 0006: Vercel เก็บ query ลง log) |
+| 2026-11-18 | `/api/cron/daily` ล้างแถว `auth_throttle` ที่หมดอายุ | ไม่ทำใน R1 — ตารางโตช้ามากในกลุ่มขนาดนี้ · ฟังก์ชัน `purgeExpiredThrottles` มีแล้ว · ทำพร้อมงาน cron อื่นใน R6 |
+| 2026-11-18 | ลำดับขั้น 3 | frontend แบ่งเป็นช่วง A (จอ) และช่วง B (ต่อโมดูลของ pwa-offline) เพื่อให้ทำขนานกันได้โดยไม่ชนไฟล์ |
