@@ -121,5 +121,6 @@ User story: US-1.1 – US-1.5 (PRD E1)
 | 2026-11-18 | spike A1–A3 (platform) | ผ่านทั้งหมด ไม่ต้องแก้ ADR · A2: Google กับ OTP อีเมลเดียวกันได้บัญชีเดียว (ทดสอบด้วย id token ที่ mock — redirect จริงตรวจบน preview) · A3: token ของ Google ไม่ถูกเก็บ |
 | 2026-11-18 | ช่วงค่าของแบบสอบถาม (Lead ตัดสิน — contract ไม่ได้ระบุ) | น้ำหนัก 20–500 kg · ส่วนสูง 0.5–2.8 m · ปีเกิด 1920–ปีปัจจุบัน · ชื่อสถานที่ ≤ 60 ตัว · เป้าหมาย ≤ 4 (`stronger` `fitter` `lose_weight` `show_up`) · ประสบการณ์ `new` `some` `regular` |
 | 2026-11-18 | ลิงก์เชิญ | `/welcome#invite=` แทน `?invite=` (ADR 0006: Vercel เก็บ query ลง log) |
-| 2026-11-18 | `/api/cron/daily` ล้างแถว `auth_throttle` ที่หมดอายุ | ไม่ทำใน R1 — ตารางโตช้ามากในกลุ่มขนาดนี้ · ฟังก์ชัน `purgeExpiredThrottles` มีแล้ว · ทำพร้อมงาน cron อื่นใน R6 |
+| 2026-11-18 | `/api/cron/daily` ล้างแถว `auth_throttle` ที่หมดอายุ | ~~ไม่ทำใน R1~~ → **กลับคำ 2026-11-19: ทำใน R1** — security-privacy พบว่าตาราง `rate_limit` ของ Better Auth เก็บ IP ดิบค้างไม่มีกำหนด · cron วันละครั้งล้าง `rate_limit` `verification` `auth_throttle` ที่หมดอายุ (platform · อนุญาตแก้ `vercel.json`) |
 | 2026-11-18 | ลำดับขั้น 3 | frontend แบ่งเป็นช่วง A (จอ) และช่วง B (ต่อโมดูลของ pwa-offline) เพื่อให้ทำขนานกันได้โดยไม่ชนไฟล์ |
+| 2026-11-19 | ผลตรวจ security-privacy | สูง 1 · กลาง 4 · ต่ำ 9 — ฝั่งเซิร์ฟเวอร์แก้แล้ว (platform) · ข้อความประกาศ/จอ OTP ให้ frontend · อายุขั้นต่ำรอ boss · รายละเอียดช่องโหว่ไม่เขียนลงไฟล์ |
