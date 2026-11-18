@@ -88,6 +88,7 @@
   .wob { display: block; width: 100%; height: 10px; margin: 10px 0; color: var(--ink); flex: none; }
   .wob.thin { color: var(--ink-3); margin: 6px 0; }
   .wob.thin.mt16 { margin-top: 16px; }
+  .wob.gap { margin: 24px 0; }
 
   /* ปุ่ม */
   .btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 52px; padding: 0 16px; font-size: 17px; font-weight: 500; color: var(--ink); background: var(--paper); flex: none;
@@ -110,6 +111,10 @@
   .chip { display: inline-flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 400; color: var(--ink); padding: 0 14px; min-height: 44px; white-space: nowrap; flex: none;
     border: 2px solid var(--ink); border-radius: 255px 18px 225px 18px / 18px 225px 18px 255px; }
   .chip.on { background: var(--ink); color: var(--paper); }
+  .chip.dis { border-style: dashed; color: var(--ink-3); }
+  .li.dis .tx b { color: var(--ink-3); }
+  .cbox { border: 2.5px solid var(--ink); border-radius: 18px 24px 20px 26px / 24px 18px 26px 20px; padding: 12px 14px 4px; flex: none; }
+  .doc-h { font-size: 16px; font-weight: 500; color: var(--ink); margin: 14px 0 0; line-height: 1.4; }
   .cb { width: 30px; height: 30px; flex: none; border: 2.5px solid var(--ink); border-radius: 6px 9px 7px 10px / 9px 6px 10px 7px; display: grid; place-items: center; color: var(--on-accent); }
   .cb.on { background: var(--accent); }
 
@@ -295,7 +300,7 @@
   </div>
 
   <h1>Wireframe v1 · แมวอ้วนจะผอม</h1>
-  <p class="note">ร่าง 2 · 2026-11-16 · <b>boss อนุมัติแล้ว</b> และแก้ตามที่ตัดสิน (UX.md ข้อ 5) · คู่กับ <b>UX.md</b> (flow ฟอร์มจด ตารางสถานะ กติกาส้ม รุ่นที่รองรับ) · ทุกจอกว้าง 360px · ข้อความใต้กรอบเป็นหมายเหตุถึงทีม (ภาษาไทยเท่านั้น) ปุ่ม TH/EN เปลี่ยนเฉพาะข้อความในจอ · ตั้งค่าเริ่มผ่าน URL ได้ เช่น <code>#dark,en</code> หรือเฉพาะกลุ่ม <code>#dark,en,only-g3</code></p>
+  <p class="note">ร่าง 2 · 2026-11-16 · <b>boss อนุมัติแล้ว</b> และแก้ตามที่ตัดสิน (UX.md ข้อ 5) · <b>แก้ 2026-11-18 สำหรับ R1</b> (UX.md ข้อ 10): กลุ่ม 1 ตรงกับ ADR 0006 + API จริง · เพิ่มจอยินดีต้อนรับออฟไลน์ ไม่ยินยอม ประกาศความเป็นส่วนตัว · กลุ่ม 7 ยึดหน้า "ฉัน" ของ R0 แล้วต่อส่วนบัญชี (D1) ·คู่กับ <b>UX.md</b> (flow ฟอร์มจด ตารางสถานะ กติกาส้ม รุ่นที่รองรับ) · ทุกจอกว้าง 360px · ข้อความใต้กรอบเป็นหมายเหตุถึงทีม (ภาษาไทยเท่านั้น) ปุ่ม TH/EN เปลี่ยนเฉพาะข้อความในจอ · ตั้งค่าเริ่มผ่าน URL ได้ เช่น <code>#dark,en</code> หรือเฉพาะกลุ่ม <code>#dark,en,only-g3</code></p>
   <div class="legend">
     <span><i>1</i>ลำดับแตะของเส้นทางหลักของจอ (สีฟ้าเป็นหมายเหตุ ไม่ใช่สีของแอป)</span>
     <span><i class="b">B1</i>ลำดับแตะของเส้นทางรองบนจอเดียวกัน</span>
@@ -308,7 +313,7 @@
     <div><b>หน้าหลัก</b>เลือกสถานที่ · เริ่ม · เทมเพลต · ทำซ้ำ · สัปดาห์นี้</div>
     <div><b>ประวัติ</b>เซสชันเรียงตามวัน → รายละเอียด → แก้/ลบเซ็ต</div>
     <div><b>ความคืบหน้า</b>สรุป (สัปดาห์/เดือน) · รายท่า (กราฟ) · ร่างกาย</div>
-    <div><b>ฉัน</b>หน่วย ภาษา โหมด เวลาพัก · สถานที่ ท่า เทมเพลต · ส่งออก · ลบบัญชี</div>
+    <div><b>ฉัน</b>R1: โหมด · ภาษา · บัญชี (ความเป็นส่วนตัว · ส่งออก ปิดไว้ · ออกจากระบบ · ลบบัญชี) · รอบหลังเพิ่ม หน่วย เวลาพัก สถานที่ ท่า เทมเพลต</div>
   </div>
   <table>
     <tr><th>เส้นทางหลัก</th><th>แตะ</th><th>เป้า PRD</th></tr>
@@ -516,6 +521,7 @@
   // ---------- กลุ่ม 1: เข้าใช้ครั้งแรก ----------
   const g1 = grp('g1', '1 · เข้าใช้ครั้งแรก (E1 บัญชี + E6 ติดตั้ง)', 'ยินดีต้อนรับ → (สอนติดตั้งบน iOS) → Google หรืออีเมล OTP → ยินยอม → แบบสอบถาม 2 ขั้น → หน้าหลักว่าง');
 
+  // ตัวอย่างโค้ดเชิญใช้ตัวอักษรที่ระบบออกจริง (ไม่มี I L O 0 1 — src/lib/auth/invite-code.ts)
   const welcome = (err, noTap = false) => `
     <div class="sp" style="flex:.5"></div>
     <div class="hw xl">fat cat fit</div>
@@ -524,25 +530,35 @@
     ${cat(1, 150, 'margin-top:12px')}
     <div class="sp"></div>
     ${err
-      ? fld(T('โค้ดเชิญ', 'Invite code'), '<span class="num">MEOW-4812</span>', { err: T('โค้ดนี้ใช้ไม่ได้ · ลองเช็กกับเพื่อนที่ส่งให้อีกที', "This code doesn't work. Check with the friend who sent it.") })
-      : fld(T('โค้ดเชิญ', 'Invite code'), '<span class="num">MEOW-4821</span>', { hint: T('เติมให้จากลิงก์เชิญ · มีบัญชีแล้วไม่ต้องใส่', 'Filled in from your invite link · not needed if you have an account') })}
+      ? fld(T('โค้ดเชิญ', 'Invite code'), '<span class="num">MEWZ-4823</span>', { err: T('โค้ดนี้ใช้ไม่ได้ · ลองเช็กกับเพื่อนที่ส่งให้อีกที', "This code doesn't work. Check with the friend who sent it.") })
+      : fld(T('โค้ดเชิญ', 'Invite code'), '<span class="num">MEWZ-4829</span>', { hint: T('เติมให้จากลิงก์เชิญ · มีบัญชีแล้วไม่ต้องใส่', 'Filled in from your invite link · not needed if you have an account') })}
     <span class="btn big mt16"${noTap ? '' : tap(1)}><span class="gmark">G</span>${T('เข้าด้วย Google', 'Continue with Google')}</span>
-    <span class="lnk mt4">${T('ใช้อีเมลแทน', 'Use email instead')}</span>
+    <span class="lnk mt4"${noTap ? '' : tapB(1)}>${T('ใช้อีเมลแทน', 'Use email instead')}</span>
     <div class="pb16"></div>`;
-  add(g1, { t: 'ยินดีต้อนรับ + โค้ดเชิญ', us: 'US-1.1 · US-1.3', html: welcome(false), thumb: true,
-    note: 'ปุ่ม Google เป็นปุ่มหลัก อีเมลเป็นลิงก์รอง · โค้ดตรวจก่อนเด้งไป Google · เข้าครั้งต่อไปไม่มีช่องโค้ด · <b>ปุ่ม Google ต้องตามแนวทางแบรนด์ของ Google</b> (ใช้โลโก้ทางการ) ตัว G ในกรอบเป็นแค่ที่วาง' });
+  add(g1, { t: 'ยินดีต้อนรับ + โค้ดเชิญ', us: 'US-1.1 · US-1.3 · <code>/welcome</code>', html: welcome(false), thumb: true,
+    note: 'path <code>/welcome</code> (ADR 0006) · ลิงก์เชิญ <code>/welcome#invite=XXXX-XXXX</code> — อ่าน hash ฝั่งไคลเอนต์ เติมช่อง แล้วลบ hash ออกจาก URL (<code>history.replaceState</code>) · ห้ามรับโค้ดทาง <code>?invite=</code> · ช่องโค้ดรับตัวเล็ก/ไม่มีขีดได้ แสดงเป็น XXXX-XXXX · ปุ่ม Google เป็นปุ่มหลัก (1) อีเมลเป็นลิงก์รอง (B1 → จอ 6 ในหน้าเดียวกัน) · โค้ดตรวจด้วย <code>POST /api/invite/check</code> ก่อนเด้งไป Google · ช่องโค้ดว่าง = ไปต่อได้ (คนมีบัญชี) · เครื่องที่เคยเข้า (<code>fcf:known-device</code>) ไม่มีช่องโค้ด · กำลังตรวจ/ไป Google: ปุ่ม "กำลังไปหา Google…" กดซ้ำไม่ได้ · แมว #1 · ไม่มีส้ม · <b>ปุ่ม Google ต้องตามแนวทางแบรนด์ของ Google</b> (ใช้โลโก้ทางการ) ตัว G ในกรอบเป็นแค่ที่วาง' });
+  add(g1, { t: 'ยินดีต้อนรับ · ออฟไลน์', us: 'US-1.1 · เกณฑ์ 13 · ADR 0006 ข้อ 3', thumb: true, html: `
+    <div class="sp" style="flex:.5"></div>
+    <div class="hw xl">fat cat fit</div>
+    <p class="t1">${T('แมวอ้วนจะผอม', 'Fat Cat Fit')}</p>
+    ${cat(24, 170, 'margin-top:12px')}
+    <p class="bd c mt8">${T('ต่อเน็ตก่อน แล้วค่อยเข้ากันนะ', "Get online first, then come on in.")}</p>
+    <div class="sp"></div>
+    <span class="btn big dis" aria-disabled="true">${T('ต้องต่อเน็ตเพื่อเข้าสู่ระบบ', 'Connect to the internet to sign in')}</span>
+    <div class="pb20"></div>`,
+    note: 'component เดียวใช้ 2 ที่: สถานะออฟไลน์ของ <code>/welcome</code> และ AuthGate แสดงแทนเนื้อหาในที่เดิมเมื่อออฟไลน์และไม่มี hint <code>ready</code> (ADR 0006 ข้อ 3) · ไม่มีช่องโค้ด/อีเมล ไม่มีลิงก์ "ใช้อีเมลแทน" (ใช้ไม่ได้อยู่ดี) · ปุ่มปิด ข้อความตรงตาม contract เกณฑ์ 13 · แมว #24 (แทน #1) · ไม่มีแถบ "เน็ตหลุด" ในจอนี้ (EN ของแถบคือ "Offline" ซึ่งชนกับเทสต์ ADR 0006 ข้อ 6.3 ที่ตรวจว่าไม่มีคำ <code>Offline</code> ของหน้า 503 — และจอบอกเรื่องเน็ตเองแล้ว) · กลับมาออนไลน์: กลับเป็นจอ 1 เอง ไม่ต้องโหลดหน้าใหม่ · ไม่มีส้ม' });
   add(g1, { t: 'ยินดีต้อนรับ · ไม่มีปุ่ม Google (แอปที่ติดตั้งบน iPhone)', us: 'US-1.1 · US-1.2 · ADR 0002 ทางถอย', thumb: true, html: `
     <div class="sp" style="flex:.35"></div>
     <div class="hw xl">fat cat fit</div>
     <p class="t1">${T('แมวอ้วนจะผอม', 'Fat Cat Fit')}</p>
     ${cat(1, 110, 'margin-top:8px')}
     <div class="sp"></div>
-    ${fld(T('โค้ดเชิญ', 'Invite code'), '<span class="num">MEOW-4821</span>', { hint: T('มีบัญชีแล้วไม่ต้องใส่', 'Not needed if you have an account') })}
+    ${fld(T('โค้ดเชิญ', 'Invite code'), '<span class="num">MEWZ-4829</span>', { hint: T('มีบัญชีแล้วไม่ต้องใส่', 'Not needed if you have an account') })}
     ${fld(T('อีเมล', 'Email'), 'nok@example.com<span class="caret"></span>', { hint: T('ใช้อีเมลเดียวกับที่เคยเข้า รวมถึง Gmail ที่เคยใช้กับ Google', 'Use the email you signed in with before, including the Gmail you used with Google') })}
     <span class="btn big mt16"${tap(1)}>${T('ส่งรหัสเข้าอีเมล', 'Email me a code')}</span>
     <p class="mut c mt4">${T('รหัส 6 หลัก ไม่ต้องจำรหัสผ่าน', '6-digit code. No password.')}</p>
     <div class="pb16"></div>`,
-    note: '<b>ใช้เมื่อทดสอบเครื่องจริง R1 แล้ว Google ใช้ไม่ได้ในแอปที่ติดตั้งบน iPhone</b> (ดู UX.md ข้อ 2 · E1 ข้อ 5) · แสดงเฉพาะ iOS + <code>display-mode: standalone</code> · Safari แท็บ/Android ยังเป็นจอ 1 · โค้ดเชิญ + อีเมล + ส่งรหัสบนจอเดียว → จอ 6 กรอก OTP · ไม่บอกว่าทำไมไม่มี Google · บัญชีเดิมไม่มีช่องโค้ด · ส่งอีเมลไม่ได้ชั่วคราว: "ส่งอีเมลไม่ได้ตอนนี้ · ลองใหม่พรุ่งนี้นะ" ใต้ช่องอีเมล · ออฟไลน์: ปุ่มปิด + "ต้องต่อเน็ตเพื่อเข้าสู่ระบบ"' });
+    note: '<b>ใช้เมื่อทดสอบเครื่องจริง R1 แล้ว Google ใช้ไม่ได้ในแอปที่ติดตั้งบน iPhone</b> (ดู UX.md ข้อ 2 · E1 ข้อ 5) · แสดงเฉพาะ iOS + <code>display-mode: standalone</code> · Safari แท็บ/Android ยังเป็นจอ 1 · โค้ดเชิญ + อีเมล + ส่งรหัสบนจอเดียว → จอ 7 กรอก OTP (ขั้นในหน้า <code>/welcome</code>) · ไม่บอกว่าทำไมไม่มี Google · บัญชีเดิมไม่มีช่องโค้ด · ส่งอีเมลไม่ได้ชั่วคราว: "ส่งอีเมลไม่ได้ตอนนี้ · ลองใหม่พรุ่งนี้นะ" ใต้ช่องอีเมล · ออฟไลน์: ปุ่มปิด + "ต้องต่อเน็ตเพื่อเข้าสู่ระบบ"' });
   add(g1, { t: 'สอนติดตั้งบน iOS (Safari)', us: 'E6', html: welcome(false, true),
     over: `<div class="scrim"></div><div class="sheet"><div class="grab"></div>
       <p class="t2">${T('ติดตั้งก่อน แล้วค่อยเข้า', 'Install first, then sign in')}</p>
@@ -556,18 +572,18 @@
       <span class="lnk">${T('ไว้ทีหลัง', 'Maybe later')}</span></div>`,
     note: 'แสดงเฉพาะ Safari บน iPhone ที่ยังไม่ได้ติดตั้ง · ขึ้นก่อนเข้าสู่ระบบ (ตัดสินแล้ว UX.md ข้อ 5.1) · ลูกศรชี้ลงไปที่ปุ่มแชร์ของ Safari · "ไว้ทีหลัง" แล้วไม่ถามซ้ำ 14 วัน · ชื่อเมนูภาษาไทยของ iOS ต้องตรวจกับเครื่องจริง' });
   add(g1, { t: 'โค้ดเชิญใช้ไม่ได้', us: 'US-1.1 (ผิดพลาด)', html: welcome(true),
-    note: 'ข้อความอื่นในช่องเดียวกัน: "โค้ดนี้หมดอายุแล้ว" · "โค้ดนี้ใช้ครบแล้ว" · บัญชี Google ใหม่ที่ไม่ได้ใส่โค้ด: "ต้องมีโค้ดเชิญก่อนนะ · ขอจากเพื่อนที่ชวนมา" · ไม่มีแมว (ผิดพลาดในช่อง)' });
+    note: '<b>แก้ R1: ข้อความเดียวสำหรับโค้ดผิด/หมดอายุ/ใช้ครบ/ถูกยกเลิก</b> — API ตอบ <code>invalid</code> เหมือนกันหมดเพื่อกันเดา (contract เกณฑ์ 3) ห้ามแยกข้อความ · รูปแบบไม่ถูก (ไม่ครบ 8 ตัว / มีตัวที่ระบบไม่ใช้) ใช้ข้อความเดียวกันนี้ ไม่ต้องยิง API · ตรวจถี่เกิน (429): "ลองหลายครั้งไปแล้ว · ลองใหม่ใน m:ss" ใต้ช่อง นับถอยหลังจาก <code>X-Retry-After</code> · บัญชีใหม่ที่ไม่มีโค้ด (Google กลับมาที่ <code>/welcome?error=…</code> หรือ OTP ตอบ <code>invite_required</code>): "ต้องมีโค้ดเชิญก่อนนะ · ขอจากเพื่อนที่ชวนมา" ใต้ช่องโค้ด แล้ว focus ช่องโค้ด · ไม่มีแมวเปลี่ยน (ผิดพลาดในช่อง แมว #1 คงเดิม)' });
   add(g1, { t: 'เข้าด้วยอีเมล', us: 'US-1.2', html: `
     <div class="lhead"><span class="ibtn">${ic('back')}</span></div>
     <p class="t1 mt8">${T('เข้าด้วยอีเมล', 'Sign in with email')}</p>
     <p class="bd">${T('เราจะส่งรหัส 6 หลักไปให้ ไม่ต้องจำรหัสผ่าน', "We'll email you a 6-digit code. No password.")}</p>
     ${fld(T('อีเมล', 'Email'), 'nok@example.com<span class="caret"></span>')}
-    <p class="mut mt8">${T('โค้ดเชิญ', 'Invite code')} <span class="num">MEOW-4821</span> · <u>${T('แก้', 'edit')}</u></p>
+    <p class="mut mt8">${T('โค้ดเชิญ', 'Invite code')} <span class="num">MEWZ-4829</span> · <u>${T('แก้', 'edit')}</u></p>
     <div class="sp"></div>
     <span class="btn big"${tap(1)}>${T('ส่งรหัส', 'Send code')}</span>
     <p class="mut c mt8">${T('ไม่ได้รับ? ดูในจดหมายขยะด้วย', "Didn't get it? Check your spam folder.")}</p>
     <div class="mt8"></div>${kbText()}`,
-    note: 'ปุ่มอยู่เหนือแป้นพิมพ์เสมอ · ช่องอีเมล 20px (กัน iOS ซูม) · กำลังส่ง: ปุ่มเป็น "กำลังส่ง…" · ขอถี่เกิน: "ขอรหัสถี่ไปหน่อย · ลองใหม่ใน 4:59" ใต้ช่อง' });
+    note: '<b>ขั้นในหน้า <code>/welcome</code></b> (ไม่มี path ย่อย — ADR 0006 ข้อ 1) · ‹ กลับไปขั้นยินดีต้อนรับในหน้าเดียวกัน ค่าที่กรอกไม่หาย · บรรทัดโค้ดเชิญแสดงเมื่อกรอกโค้ดไว้เท่านั้น ("แก้" = กลับขั้นแรก focus ช่องโค้ด) · ปุ่มอยู่เหนือแป้นพิมพ์เสมอ · ช่องอีเมล 20px (กัน iOS ซูม) <code>type="email" autocomplete="email"</code> · Enter = ส่งรหัส · กำลังส่ง: ปุ่มเป็น "กำลังส่ง…" · ขอถี่เกิน (429): "ขอรหัสถี่ไปหน่อย · ลองใหม่ใน m:ss" ใต้ช่อง นับถอยจาก <code>X-Retry-After</code> ปุ่มปิดจนครบเวลา · <code>email_unavailable</code>: "ส่งอีเมลไม่ได้ตอนนี้ · ลองเข้าด้วย Google" (จอไม่มี Google: "ลองใหม่พรุ่งนี้นะ") · อีเมลที่ไม่มีบัญชีและไม่มีโค้ด: "ต้องมีโค้ดเชิญก่อนนะ" แล้วพากลับขั้นแรก · ไม่มีแมว (แป้นพิมพ์กินที่) · ไม่มีส้ม' });
   add(g1, { t: 'กรอกรหัส OTP', us: 'US-1.2', html: `
     <div class="lhead"><span class="ibtn">${ic('back')}</span></div>
     <p class="t1 mt8">${T('ใส่รหัส 6 หลัก', 'Enter the 6-digit code')}</p>
@@ -578,21 +594,44 @@
     <span class="lnk dim">${T('ส่งรหัสอีกครั้ง (0:42)', 'Resend code (0:42)')}</span>
     <span class="lnk">${T('เปลี่ยนอีเมล', 'Change email')}</span>
     ${kbNum()}`,
-    note: 'แป้นตัวเลข + เติมรหัสจากอีเมลอัตโนมัติ · ครบ 6 หลักส่งเองไม่ต้องกดปุ่ม · ผิดครบ 5 ครั้ง: "ลองหลายครั้งไปแล้ว · ขอรหัสใหม่นะ" + ปุ่มขอใหม่ · หมดอายุ: "รหัสหมดอายุแล้ว · ขอใหม่ได้เลย"' });
-  add(g1, { t: 'ยินยอมความเป็นส่วนตัว', us: 'US-1.4', thumb: true, html: `
-    <p class="t1 mt16">${T('ก่อนเริ่ม ขอบอกตรงๆ', 'Before we start')}</p>
+    note: 'ขั้นในหน้า <code>/welcome</code> · ช่องจริงเป็น input เดียว <code>inputmode="numeric" autocomplete="one-time-code" maxlength=6</code> แสดงเป็น 6 ช่อง · วางรหัสทั้งก้อนได้ · ครบ 6 หลักส่งเองไม่ต้องกดปุ่ม · ระหว่างตรวจ: ช่องล็อก + "กำลังตรวจ…" · สำเร็จ: <code>location.replace("/")</code> (ADR 0006 ข้อ 1) · รหัสผิด: ล้างช่อง focus ใหม่ "รหัสไม่ตรง · ลองได้อีก N ครั้ง" — <b>ถ้า API ไม่บอกจำนวนที่เหลือ</b> ใช้ "รหัสไม่ตรง · ลองอีกที" (frontend ตรวจกับ platform) · ผิดครบ 5 ครั้ง: "ลองหลายครั้งไปแล้ว · ขอรหัสใหม่นะ" + ปุ่มขอใหม่ · หมดอายุ (10 นาที): "รหัสหมดอายุแล้ว · ขอใหม่ได้เลย" · ส่งอีกครั้ง: นับถอยหลัง 60 วิ (ลิงก์จาง) แล้วกดได้ · ไม่มีแมว ไม่มีส้ม' });
+  add(g1, { t: 'ยินยอมความเป็นส่วนตัว', us: 'US-1.4 · <code>/consent</code>', thumb: true, html: `
+    <p class="t1 mt8">${T('ก่อนเริ่ม ขอบอกตรงๆ', 'Before we start')}</p>
     <ul class="bul">
-      <li>${T('แอปเก็บน้ำหนัก ส่วนสูง อายุ และการออกกำลังกายของเธอ ซึ่งนับเป็น<b>ข้อมูลสุขภาพ</b>', 'We store your weight, height, age and workouts. That counts as <b>health data</b>.')}</li>
+      <li>${T('แอปเก็บน้ำหนัก ส่วนสูง ปีเกิด และการออกกำลังกายของเธอ ซึ่งนับเป็น<b>ข้อมูลสุขภาพ</b>', 'We store your weight, height, birth year and workouts. That counts as <b>health data</b>.')}</li>
       <li>${T('เห็นได้เฉพาะเธอคนเดียว เพื่อนในกลุ่มก็ไม่เห็น', 'Only you can see it. Not even friends in the group.')}</li>
       <li>${T('ไม่ขาย ไม่ใช้ทำโฆษณา ไม่ส่งต่อ', 'Never sold, never used for ads, never shared.')}</li>
-      <li>${T('ส่งออก หรือลบบัญชีพร้อมข้อมูลทั้งหมดได้เองทุกเมื่อ', 'Export it, or delete your account and all data, any time.')}</li>
+      <li>${T('<b>ถอนความยินยอมได้ทุกเมื่อ</b> ด้วยการลบบัญชี (ฉัน › ลบบัญชี) · ถอนแล้วข้อมูลทั้งหมดถูกลบ และใช้แอปต่อไม่ได้', '<b>You can withdraw consent any time</b> by deleting your account (Me › Delete account). That deletes all your data and you can no longer use the app.')}</li>
     </ul>
-    <span class="lnk l mt8">${T('อ่านประกาศฉบับเต็ม (ฉบับ 1 · 15 พ.ย. 2026)', 'Read the full notice (v1 · 15 Nov 2026)')}</span>
+    <span class="lnk l mt4">${T('อ่านประกาศฉบับเต็ม (ฉบับ 18 พ.ย. 2026)', 'Read the full notice (18 Nov 2026)')}</span>
     <div class="sp"></div>
-    <div class="row" style="align-items:flex-start;min-height:52px"${tap(1)}><span class="cb on">${ic('check', 20, 3)}</span><span class="bd" style="color:var(--ink)">${T('ยินยอมให้เก็บและใช้ข้อมูลสุขภาพตามประกาศนี้', 'I agree to the storage and use of my health data as described.')}</span></div>
+    <div class="cbox">
+      <div class="row" style="align-items:flex-start;min-height:52px"${tap(1)}><span class="cb on">${ic('check', 20, 3)}</span><span class="bd" style="color:var(--ink)">${T('ฉันยินยอมให้ Fat Cat Fit เก็บและใช้ข้อมูลสุขภาพของฉันตามประกาศนี้', 'I consent to Fat Cat Fit storing and using my health data as described in this notice.')}</span></div>
+    </div>
     <span class="btn big mt12"${tap(2)}>${T('ยินยอมและไปต่อ', 'Agree and continue')}</span>
-    <span class="lnk">${T('ไม่ยินยอม', "I don't agree")}</span><div class="pb16"></div>`,
-    note: 'ช่องติ๊กไม่ติ๊กไว้ให้ก่อน ปุ่มปิดจนกว่าจะติ๊ก · บันทึกเวลา + เวอร์ชันประกาศ · "ไม่ยินยอม" → อธิบายว่าใช้แอปไม่ได้ แล้วออกจากระบบและลบบัญชีที่เพิ่งสร้าง · ส้มที่เดียว = ช่องติ๊ก' });
+    <span class="lnk"${tapB(1)}>${T('ไม่ยินยอม', "I don't agree")}</span><div class="pb16"></div>`,
+    note: 'path <code>/consent</code> · <b>การยินยอมแยกจากข้อความอื่น</b>: ข้อความยินยอมอยู่ในกรอบของตัวเอง มีเรื่องเดียว (ข้อมูลสุขภาพ) ไม่รวมกับเงื่อนไขอื่น · ช่องติ๊กไม่ติ๊กไว้ให้ก่อน ปุ่มปิดจนกว่าจะติ๊ก · แตะได้ทั้งแถว (ไม่ใช่แค่กล่อง) · บอกชัดว่า <b>ถอน = ลบบัญชี</b> (PDPA ม.19) ในหัวข้อสุดท้าย · ฉบับ/วันที่มาจาก <code>PRIVACY_NOTICE_VERSION</code> (ไม่เขียนตายตัว) · ลิงก์เปิด <code>/privacy</code> (กลับมาแล้วติ๊กยังอยู่ หรือเริ่มใหม่ก็ได้ ไม่บังคับ) · ส่ง <code>POST /api/consent</code> → "กำลังบันทึก…" → <code>/onboarding</code> · บันทึกไม่ได้: ข้อความ --warn เหนือปุ่ม + ปุ่ม "ลองใหม่" · ออฟไลน์: ปุ่มปิด "ต้องต่อเน็ต" · B1 ไม่ยินยอม → จอถัดไป · <b>ส้มที่เดียว = ช่องติ๊ก</b> · ไม่มีแมว (เรื่องจริงจัง)' });
+  add(g1, { t: 'ไม่ยินยอม', us: 'US-1.4 (ผิดทาง) · <code>/consent</code>', html: `
+    <p class="t1 mt8">${T('ไม่ยินยอมก็ได้นะ', "That's okay")}</p>
+    <p class="bd mt8">${T('แต่แอปนี้ทำงานไม่ได้ถ้าไม่เก็บข้อมูลสุขภาพ', "But the app can't work without storing health data.")}</p>
+    <p class="bd mt8">${T('เราจะลบบัญชีที่เพิ่งสร้างให้ทันที ยังไม่มีข้อมูลอื่นถูกเก็บ', "We'll delete the account you just created right away. Nothing else has been stored.")}</p>
+    <p class="mut mt8">${T('เปลี่ยนใจทีหลัง ขอโค้ดเชิญจากเพื่อนแล้วสมัครใหม่ได้', 'Changed your mind? Ask your friend for an invite code and sign up again.')}</p>
+    <div class="sp"></div>
+    <span class="btn big warnb"${tap(1)}>${T('ลบบัญชีและออก', 'Delete account and leave')}</span>
+    <span class="lnk">${T('กลับไปอ่านอีกที', 'Go back')}</span><div class="pb16"></div>`,
+    note: 'ซ้อนบน <code>/consent</code> (ไม่มี path ใหม่) · ยืนยันก่อน ไม่ลบทันทีที่แตะ "ไม่ยินยอม" (แตะพลาดได้) · ลบด้วย <code>DELETE /api/me</code> (ใช้ได้โดยยังไม่ยินยอม) → <code>resetDeviceAfterSignOut({ accountDeleted: true })</code> → <code>location.replace("/welcome")</code> · ไม่ต้องแสดงจอ "ลบเรียบร้อย" (ยังไม่มีข้อมูล) · กำลังลบ: "กำลังลบ…" กดซ้ำไม่ได้ · ลบไม่ได้: ข้อความใต้ปุ่ม + ลองใหม่ · ออฟไลน์: ปุ่มปิด · ปุ่มเป็นเส้น --warn · ไม่มีแมว ไม่มีส้ม' });
+  add(g1, { t: 'ประกาศความเป็นส่วนตัว', us: 'US-1.4 · <code>/privacy</code>', cls: 'long', html: `
+    <div class="lhead"><span class="ibtn">${ic('back')}</span><div class="tt"><b>${T('ประกาศความเป็นส่วนตัว', 'Privacy notice')}</b></div></div>
+    <p class="mut mt8">${T('ฉบับ 18 พ.ย. 2026', 'Version 18 Nov 2026')}</p>
+    <p class="doc-h">${T('1. เก็บข้อมูลไปทำอะไร', '1. Why we collect data')}</p><div class="skel"></div><div class="skel" style="width:70%"></div>
+    <p class="doc-h">${T('2. ต้องให้ข้อมูลไหม ถ้าไม่ให้จะเป็นอย่างไร', "2. Do you have to give it, and what if you don't")}</p><div class="skel" style="width:85%"></div>
+    <p class="doc-h">${T('3. ข้อมูลที่เก็บ และเก็บนานแค่ไหน', '3. What we keep, and for how long')}</p><div class="skel"></div><div class="skel" style="width:60%"></div>
+    <p class="doc-h">${T('4. ใครได้รับข้อมูล และการส่งไปต่างประเทศ', '4. Who receives it, and transfers abroad')}</p><div class="skel"></div><div class="skel" style="width:75%"></div>
+    <p class="doc-h">${T('5. สำเนาสำรอง', '5. Backups')}</p><div class="skel" style="width:80%"></div>
+    <p class="doc-h">${T('6. สิทธิ์ของเธอ และการถอนความยินยอม', '6. Your rights, and withdrawing consent')}</p><div class="skel"></div><div class="skel" style="width:65%"></div>
+    <p class="doc-h">${T('7. ผู้ควบคุมข้อมูลและช่องทางติดต่อ', '7. Data controller and contact')}</p><div class="skel" style="width:55%"></div>
+    <div class="pb20"></div>`,
+    note: 'path <code>/privacy</code> kind <code>open</code> เปิดได้ทั้งก่อนและหลังล็อกอิน (ADR 0006) · <b>หน้าข้อความล้วน</b> ไม่มีแมว ไม่มีส้ม ไม่มีแถบล่าง · แถบเทาในกรอบ = เนื้อหา (security-privacy ตรวจว่าครบ contract เกณฑ์ 8: วัตถุประสงค์ · ต้องให้หรือไม่ · ข้อมูล+ระยะเวลา · ผู้รับ+ต่างประเทศ Vercel/Neon/Google · backup ยังอยู่จนหมดอายุ · สิทธิ์ · ถอน = ลบบัญชี · ผู้ควบคุมจาก env ห้ามเขียนชื่อจริงใน repo) · หัวข้อ 16px/500 · เนื้อความ 16px line-height 1.6 · ‹ = ย้อนกลับ (ไม่มีประวัติ = ไป <code>/welcome</code>) · ภาษาตามเบราว์เซอร์ (D2) ไม่มีตัวสลับในหน้านี้ · ออฟไลน์: ไม่อยู่ใน <code>OFFLINE_PAGES</code> → SW ถอยตาม ADR 0006 ข้อ 4' });
 
   const pline = (pct) => `<div class="pline"><svg class="l" viewBox="0 0 320 12" preserveAspectRatio="none" aria-hidden="true">
       <path d="M2 6 C60 3 120 9 180 6 S280 4 318 6" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 7" vector-effect="non-scaling-stroke"/>
@@ -608,12 +647,12 @@
     <div class="fld"><div class="fl">${T('ปีเกิด (บังคับ) · อายุ 32', 'Birth year (required) · age 32')}</div>${step('1994')}</div>
     <div class="sp"></div>
     <span class="btn big"${tap(2)}>${T('ต่อไป', 'Next')}</span><div class="pb20"></div>`,
-    note: 'แตะตัวเลขเพื่อพิมพ์เอง (แป้นตัวเลข) หรือใช้ −/+ (0.1 kg · 1 cm · 1 ปี) · ค่าเริ่มว่าง ช่องบังคับว่าง = ปุ่มปิด · นอกช่วงที่เป็นไปได้: "ตัวเลขดูแปลกๆ ลองดูอีกที" · แมวเดินบนเส้นความคืบหน้า' });
+    note: 'path <code>/onboarding</code> (2 ขั้นในหน้าเดียว) · <b>หน่วยเป็นชุด</b>: ชิป "kg · cm" = weightUnit kg + lengthUnit cm + distanceUnit km · "lb · in" = lb + in + mi · ชุดเริ่มต้น kg · cm · สลับชุดแล้วแปลงค่าที่กรอกไว้ให้ (ไม่ล้าง) · ส่วนสูงโหมด lb·in เป็นนิ้วล้วน (เช่น 66 in) · แตะตัวเลขเพื่อพิมพ์เอง (แป้นตัวเลข) หรือใช้ −/+ (0.1 kg/lb · 1 cm/in · 1 ปี) · ค่าเริ่มว่าง ช่องบังคับว่าง = ปุ่ม "ต่อไป" ปิด · ช่วงที่รับ (ตรวจหลังแปลงเป็นหน่วยมาตรฐาน ใช้ <code>ONBOARDING_LIMITS</code> ตัวเดียวกับเซิร์ฟเวอร์): น้ำหนัก 20–500 kg · ส่วนสูง 50–280 cm · ปีเกิด 1920–ปีปัจจุบัน · นอกช่วง: "ตัวเลขดูแปลกๆ ลองดูอีกที" ใต้ช่อง (ตรวจตอนออกจากช่องและตอนกด "ต่อไป") · ขั้น 1 → 2 ไม่ส่งอะไร · <b>ส้มที่เดียว = เส้นความคืบหน้า</b> · แมว #2 เดินบนเส้น (ตำแหน่ง 50%)' });
   const q2 = (fail) => `
     ${fail ? `<div class="net">${ic('cloudoff', 18)}${T('เน็ตหลุด', 'Offline')}</div>` : ''}
     ${pline(92)}
     <div class="between"><p class="t1">${T('ส่วนใหญ่เล่นที่ไหน', 'Where do you usually work out?')}</p><span class="mut num">2/2</span></div>
-    <div class="chips mt12">${chip(T('ยิม', 'Gym'), true, fail ? '' : tap(1))}${chip(T('บ้าน', 'Home'))}${chip(T('สวนสาธารณะ', 'Park'))}${chip(T('ออฟฟิศ', 'Office'))}</div>
+    <div class="chips mt12">${chip(T('ยิม', 'Gym'), false, fail ? '' : tap(1))}${chip(T('บ้าน', 'Home'))}${chip(T('สวนสาธารณะ', 'Park'))}${chip(T('ออฟฟิศ', 'Office'))}</div>
     ${fld(T('ตั้งชื่อ (บังคับ)', 'Name it (required)'), T('ยิมใกล้บ้าน', 'Gym near home'))}
     ${wob('thin mt16')}
     <p class="mut">${T('ไม่บังคับ · ข้ามได้', 'Optional · skip if you like')}</p>
@@ -625,7 +664,7 @@
     ${fail ? `<p class="fe c" style="margin:0 0 6px">${T('ยังบันทึกไม่ได้ · ที่กรอกไว้ยังอยู่ครบ', "Couldn't save yet. Everything you entered is still here.")}</p>` : ''}
     <span class="btn big"${tap(fail ? 1 : 2)}>${fail ? T('ลองใหม่', 'Try again') : T('เริ่มใช้', 'Start')}</span><div class="pb20"></div>`;
   add(g1, { t: 'แบบสอบถาม 2/2 · สถานที่ + ไม่บังคับ', us: 'US-1.5 · US-2.3', html: q2(false),
-    note: 'สถานที่แรกเป็นสถานที่เริ่มต้นของหน้าหลัก · ส่วนไม่บังคับไม่มีปุ่มข้าม กด "เริ่มใช้" ได้เลย · ไม่ถามเพศ (ตัดสินแล้ว UX.md ข้อ 5.4) · <b>ต้องออนไลน์</b>: ส่งครั้งเดียวตอนกด "เริ่มใช้" (ทั้งสองขั้น) ระหว่างส่งปุ่มเป็น "กำลังบันทึก…"' });
+    note: '<b>สถานที่ (บังคับ)</b>: ชิป ยิม/บ้าน/สวนสาธารณะ/ออฟฟิศ เป็นทางลัด — แตะแล้วเติมชื่อในช่องด้วยคำของชิป (แก้ต่อได้ · ชิปไม่ถูกเก็บ เก็บแค่ชื่อ · ชิปเป็นพื้นดำเฉพาะตอนชื่อตรงกับคำของชิป — ในกรอบนี้แก้เป็น "ยิมใกล้บ้าน" แล้วจึงไม่มีชิปเลือก) · ช่องชื่อเริ่มว่าง ไม่มีชิปไหนเลือกไว้ · ชื่อ 1–60 ตัว (<code>maxlength=60</code> ตัดเอง · เว้นวรรคล้วน = ว่าง) · <b>ไม่บังคับ</b>: เป้าหมาย เลือกได้ 0–4 จาก 4 อัน (<code>stronger · fitter · lose_weight · show_up</code>) แตะซ้ำ = เอาออก · ประสบการณ์ เลือก 0–1 (<code>new · some · regular</code>) แตะอันที่เลือกอยู่ = เอาออก · ชิปที่เลือก = พื้นดำ (ไม่ใช่ส้ม) · ไม่มีปุ่มข้าม กด "เริ่มใช้" ได้เลย · ไม่ถามเพศ (UX.md ข้อ 5.4) · ‹ กลับขั้น 1 ค่าไม่หาย · <b>ต้องออนไลน์</b>: ส่งครั้งเดียว <code>POST /api/onboarding</code> ตอนกด "เริ่มใช้" (profile + place + body_entry ใน transaction เดียว) ระหว่างส่งปุ่มเป็น "กำลังบันทึก…" · สำเร็จ → <code>/</code> หน้าหลักว่าง (#12) · เซิร์ฟเวอร์ตอบช่องผิด → กลับไปขั้นที่มีช่องนั้น ข้อความใต้ช่อง · ส้ม = เส้นความคืบหน้า · แมว #2 ที่ 92%' });
   add(g1, { t: 'แบบสอบถาม · ส่งไม่สำเร็จ', us: 'US-1.5 (ผิดพลาด / ออฟไลน์)', html: q2(true),
     note: 'R1 ยังไม่มีคิวออฟไลน์ (มาใน R3) จึง<b>ไม่มี "เก็บไว้ส่งทีหลัง"</b> · อยู่จอเดิม ค่าที่กรอกทั้งสองขั้นยังอยู่ครบ · ข้อความ --warn เหนือปุ่ม + ปุ่มเปลี่ยนเป็น "ลองใหม่" · ใช้แบบเดียวกันทั้งเน็ตหลุดและเซิร์ฟเวอร์ผิดพลาด (แถบ "เน็ตหลุด" ขึ้นเฉพาะเมื่อเครื่องรู้ว่าออฟไลน์) · ลองใหม่สำเร็จ → หน้าหลักว่าง · ปิดแอปแล้วค่าหาย ต้องกรอกใหม่ (ไม่เขียนลงเครื่อง)' });
 
@@ -900,7 +939,7 @@
       </div>
       <p class="mut mt8">${T('+ อก · แขน · ต้นขา', '+ chest · arm · thigh')}</p>
       <span class="btn big mt12"${tap(2)}>${T('บันทึก', 'Save')}</span></div>`,
-    note: 'เปิดจากปุ่ม "+ จดน้ำหนัก" (แตะ 1 บนจอ 35) · น้ำหนักเติมค่าล่าสุดให้ ปรับด้วย −/+ ครั้งละ 0.1 · ชิปวันที่เปิดปฏิทินของเครื่อง (วันเดียวกันจดซ้ำ = แทนค่าเดิม) · บอกค่าครั้งก่อนเฉยๆ ไม่มีลูกศร สี หรือคำตัดสิน · รายละเอียดพับไว้ตอนแรก' });
+    note: 'เปิดจากปุ่ม "+ จดน้ำหนัก" (แตะ 1 บนจอ 38) · น้ำหนักเติมค่าล่าสุดให้ ปรับด้วย −/+ ครั้งละ 0.1 · ชิปวันที่เปิดปฏิทินของเครื่อง (วันเดียวกันจดซ้ำ = แทนค่าเดิม) · บอกค่าครั้งก่อนเฉยๆ ไม่มีลูกศร สี หรือคำตัดสิน · รายละเอียดพับไว้ตอนแรก' });
 
   // ---------- กลุ่ม 6: ความคืบหน้า + ประวัติ ----------
   const g6 = grp('g6', '6 · ความคืบหน้าและประวัติ (E5: US-5.1 · US-5.2 · US-3.5)', 'ความคืบหน้า = ดูภาพรวม · ประวัติ = ดูและแก้เซสชันย้อนหลัง');
@@ -979,48 +1018,59 @@
     note: 'แตะตัวเลข = แก้ (แบบเดียวกับหน้าจด) · แตะเลขเซ็ต = วอร์มอัพ/ลบ · ⋯ บน = แก้สถานที่ · แก้เวลา · ลบเซสชัน (ถามยืนยัน) · ทุกการแก้คำนวณสถิติใหม่ · ออฟไลน์: อ่านอย่างเดียว · บรรทัดรองของหัวจอ (วันที่ เวลา สถานที่) บรรทัดเดียว ยาวเกินตัดด้วย …' });
 
   // ---------- กลุ่ม 7: ฉัน ----------
-  const g7 = grp('g7', '7 · ฉัน / ตั้งค่า (US-1.5 · US-5.3)', 'ตั้งค่าเปลี่ยนแล้วมีผลทันที ไม่มีปุ่มบันทึก');
-  const set = (l, r, t = '') => `<div class="li" style="min-height:52px"${t}><div class="tx"><b style="font-weight:400">${l}</b></div>${r}</div>`;
-  const seg = (a, k) => `<div class="chips" style="flex-wrap:nowrap;gap:6px">${a.map((x, i) => `<span class="chip ${i === k ? 'on' : ''}" style="padding:0 12px;font-size:14px">${x}</span>`).join('')}</div>`;
-  add(g7, { t: 'ฉัน / ตั้งค่า', us: 'US-1.5 · US-5.3', cls: 'long', html: `
+  // แก้ 2026-11-18 (R1 · D1): ยึดหน้า "ฉัน" ที่ส่งมอบจริงใน R0 (หัวข้อส่วน แล้วชิปบรรทัดถัดไป · โหมด → ภาษา · แมวยืนท้ายจอ)
+  // แล้วต่อส่วน "บัญชี" ด้านล่างเป็นแถวรายการแบบเดิมของกลุ่ม 7 (ป้ายซ้าย ของขวา สูง 52px)
+  const g7 = grp('g7', '7 · ฉัน (US-1.5 · R1)', 'แบบ R0 ที่ boss ทดสอบแล้ว + ส่วนบัญชีด้านล่าง (D1) · ตั้งค่ามีผลทันที ไม่มีปุ่มบันทึก · รอบหลังเพิ่มส่วนใหม่ด้วยรูปเดียวกัน (UX.md ข้อ 10)');
+  const set = (l, r, t = '', dis = false) => `<div class="li${dis ? ' dis' : ''}" style="min-height:52px"${t}${dis ? ' aria-disabled="true"' : ''}><div class="tx"><b style="font-weight:400">${l}</b></div>${r}</div>`;
+  const meSec = (label, chips, after = '') => `<p class="t2">${label}</p><div class="chips mt12">${chips}</div>${after}`;
+  const meTop = (off) => `
     <p class="t1">${T('ฉัน', 'Me')}</p>
-    <p class="mut">${T('นก · nok@example.com · เข้าด้วย Google', 'Nok · nok@example.com · Google sign-in')}</p>
-    ${wob()}
-    ${set(T('หน่วย', 'Units'), seg(['kg·cm·km', 'lb·in·mi'], 0))}
-    ${set(T('ภาษา', 'Language'), seg(['ไทย', 'English'], 0))}
-    ${set(T('โหมด', 'Theme'), seg([T('สว่าง', 'Light'), T('มืด', 'Dark'), T('ตามเครื่อง', 'Auto')], 2))}
-    ${set(T('เวลาพักเริ่มต้น', 'Default rest'), `<span class="rb s">−</span><span class="num" style="min-width:48px;text-align:center">1:30</span><span class="rb s">+</span>`)}
-    ${wob()}
-    ${set(T('ข้อมูลตั้งต้น', 'My basics'), ic('chev', 20))}
-    ${set(T('สถานที่ของฉัน', 'My places'), ic('chev', 20))}
-    ${set(T('ท่าของฉัน', 'My exercises'), ic('chev', 20))}
-    ${set(T('เทมเพลต', 'Templates'), ic('chev', 20))}
-    ${wob()}
-    ${set(T('ส่งออกข้อมูลทั้งหมด (CSV)', 'Export all my data (CSV)'), ic('chev', 20), tap(1))}
-    ${set(T('ประกาศความเป็นส่วนตัว', 'Privacy notice'), ic('chev', 20))}
-    ${set(T('เครดิตข้อมูลท่า', 'Exercise data credits'), ic('chev', 20))}
-    ${set(T('ออกจากระบบ', 'Sign out'), '')}
-    ${set(`<span class="warn">${T('ลบบัญชี', 'Delete account')}</span>`, ic('chev', 20), tap(2))}
-    <p class="mut mt8 pb16">Fat Cat Fit 1.0.0</p>
+    <div class="mt24"></div>
+    ${meSec(T('โหมด', 'Mode'), chip(T('ตามระบบ', 'System'), true) + chip(T('สว่าง', 'Light')) + chip(T('มืด', 'Dark')))}
+    ${wob('gap')}
+    ${meSec(T('ภาษา', 'Language'), chip('ไทย', true) + `<span class="chip ${off ? 'dis' : ''}">English</span>`,
+      off ? `<p class="mut mt8" style="margin-bottom:0">${T('เปลี่ยนภาษาได้เมื่อต่อเน็ต', "Change language when you're online")}</p>` : '')}
+    ${wob('gap')}
+    <p class="t2">${T('บัญชี', 'Account')}</p>
+    <p class="mut" style="margin:2px 0 4px">nok@example.com</p>`;
+  const meAccount = (off) => `
+    ${set(T('ประกาศความเป็นส่วนตัว', 'Privacy notice'), ic('chev', 20), '', off)}
+    ${set(T('ส่งออกข้อมูล', 'Export my data'), `<span class="mut">${T('เร็วๆ นี้', 'Coming soon')}</span>`, '', true)}
+    ${set(T('ออกจากระบบ', 'Sign out'), '', off ? '' : tap(1), off)}
+    ${set(off ? T('ลบบัญชี', 'Delete account') : `<span class="warn">${T('ลบบัญชี', 'Delete account')}</span>`, ic('chev', 20), off ? '' : tap(2), off)}
+    ${off ? `<p class="mut" style="margin:4px 0 0">${T('ออกจากระบบและลบบัญชีต้องต่อเน็ต', 'Signing out and deleting your account need a connection')}</p>` : ''}`;
+  add(g7, { t: 'ฉัน', us: 'US-1.5 · <code>/me</code> · D1', cls: 'long', thumb: true, html: `
+    ${meTop(false)}
+    ${meAccount(false)}
+    ${cat(1, 120, 'margin-top:40px')}
+    <div class="pb16"></div>
     ${tabs(3)}`,
-    note: 'จอยาว เลื่อนได้ (กรอบนี้แสดงทั้งหมด) · ส่งออก: "กำลังเตรียมไฟล์…" → ดาวน์โหลด → toast "ได้ไฟล์แล้ว" · ออฟไลน์: ส่งออก/ออกจากระบบ/ลบบัญชี ปิด พร้อมบอกว่าต้องต่อเน็ต · ข้อมูลตั้งต้น = แบบสอบถามเดิม แก้ได้' });
-  add(g7, { t: 'ยืนยันลบบัญชี', us: 'US-1.5', html: `
+    note: '<b>ส่วนบน = R0 ตรงตัว</b> (UX.md ข้อ 9: โหมด ตามระบบ·สว่าง·มืด / ภาษา ไทย·English · ห่างกันด้วยเส้นคั่นวาดมือ 32px) · <b>ส่วนบัญชีใหม่ R1</b>: หัวข้อส่วน "บัญชี" แบบเดียวกับส่วนบน แล้วอีเมลบรรทัดเดียว (จาก <code>GET /api/me</code> ฝั่งไคลเอนต์เท่านั้น ห้ามอยู่ใน HTML — ADR 0006 ข้อ 3 · ระหว่างรอ = แถบเทาจาง · ยาวเกินตัดด้วย …) · ไม่แสดงชื่อและวิธีเข้า (API ไม่บอกวิธีเข้า) · แถว: ประกาศความเป็นส่วนตัว › <code>/privacy</code> · ส่งออกข้อมูล <b>ปิด "เร็วๆ นี้"</b> (มาใน R6 · แตะไม่ได้ ไม่ใช่ลิงก์) · ออกจากระบบ (1) ไม่ถามยืนยันใน R1 (ยังไม่มีข้อมูลค้างในเครื่อง) → "กำลังออก…" → <code>signOut()</code> → <code>resetDeviceAfterSignOut()</code> → <code>location.replace("/welcome")</code> · ล้มเหลว: toast "ออกจากระบบไม่ได้ · ลองใหม่อีกที" อยู่หน้าเดิม ไม่ล้างอะไร (ADR 0006 ข้อ 5) · ลบบัญชี (2) ตัวหนังสือ --warn › จอยืนยัน · แมว #1 ยืนท้ายจอแบบ R0 (<code>standing</code> + motion · aria-hidden) · ไม่มีส้ม · แถวสูง 52px แตะได้ทั้งแถว' });
+  add(g7, { t: 'ฉัน · ออฟไลน์', us: 'US-1.5 · <code>/me</code> · ADR 0006', cls: 'long', html: `
+    <div class="net">${ic('cloudoff', 18)}${T('เน็ตหลุด', 'Offline')}</div>
+    ${meTop(true)}
+    ${meAccount(true)}
+    ${cat(1, 120, 'margin-top:40px')}
+    <div class="pb16"></div>
+    ${tabs(3)}`,
+    note: 'ใช้ตัวตรวจเน็ตตัวเดียว (<code>useOnline()</code>) ทั้งแถบ "เน็ตหลุด" แถวภาษา และแถวบัญชี · โหมดเปลี่ยนได้ (เก็บในเครื่อง) · ภาษา: ชิปอื่นเป็นเส้นประ + ข้อความใต้ชิปแบบ R0 · ประกาศความเป็นส่วนตัว ออกจากระบบ ลบบัญชี: <b>ปิด</b> (ตัวหนังสือ --ink-3 · aria-disabled) + บรรทัดเดียวใต้แถว "ออกจากระบบและลบบัญชีต้องต่อเน็ต" (ไม่ใส่ซ้ำทุกแถว) · ลบบัญชีตอนปิดไม่เป็นสีแดง · อีเมล: ใช้ค่าที่โหลดไว้ในหน้า ถ้าไม่มี (เปิดตอนออฟไลน์) ซ่อนบรรทัดนี้ · กลับมาออนไลน์: ทุกอย่างกดได้เอง ไม่โหลดหน้าใหม่' });
+  add(g7, { t: 'ยืนยันลบบัญชี', us: 'US-1.5 · ซ้อนบน <code>/me</code>', html: `
     <div class="lhead"><span class="ibtn">${ic('back')}</span><div class="tt"><b>${T('ลบบัญชี', 'Delete account')}</b></div></div>
     <p class="t1 mt8">${T('ลบทุกอย่างของเธอ', 'This deletes everything')}</p>
     <p class="bd">${T('ลบออกจากระบบทันที และกู้คืนไม่ได้', 'Removed right away. It cannot be undone.')}</p>
     <ul class="bul">
-      <li>${T('ทุกเซสชันและทุกเซ็ต', 'All sessions and sets')}</li>
-      <li>${T('น้ำหนักตัวและสัดส่วน', 'Body weight and measurements')}</li>
-      <li>${T('ท่าของฉัน เทมเพลต สถานที่', 'My exercises, templates, places')}</li>
-      <li>${T('คำตอบแบบสอบถามและการยินยอม', 'Questionnaire answers and consent')}</li>
+      <li>${T('บัญชีและการเข้าสู่ระบบ (Google และอีเมล)', 'Your account and sign-ins (Google and email)')}</li>
+      <li>${T('น้ำหนักตัว คำตอบแบบสอบถาม สถานที่', 'Body weight, questionnaire answers, places')}</li>
+      <li>${T('ทุกเซสชัน ท่าของฉัน เทมเพลต', 'All sessions, my exercises, templates')}</li>
+      <li>${T('การยินยอม — ลบบัญชีคือการถอนความยินยอมด้วย', 'Your consent. Deleting your account also withdraws it.')}</li>
     </ul>
-    <span class="lnk l mt8">${T('ส่งออกข้อมูลเก็บไว้ก่อน', 'Export my data first')}</span>
-    <p class="mut mt8">${T('มีรายการค้างส่ง 3 รายการ จะหายไปด้วย', '3 unsynced items will be lost too.')}</p>
+    <p class="mut mt8">${T('สำเนาสำรองของระบบหมดอายุเองตามที่บอกในประกาศความเป็นส่วนตัว', 'System backups expire on their own, as described in the privacy notice.')}</p>
+    <p class="mut mt4">${T('ส่งออกข้อมูลยังไม่เปิด (เร็วๆ นี้)', 'Data export is not available yet (coming soon).')}</p>
     <div class="sp"></div>
     <div class="row" style="min-height:52px"${tap(1)}><span class="cb on">${ic('check', 20, 3)}</span><span class="bd" style="color:var(--ink)">${T('เข้าใจแล้ว ลบแล้วกู้คืนไม่ได้', 'I understand this cannot be undone')}</span></div>
     <span class="btn big warnb mt12"${tap(2)}>${T('ลบบัญชีถาวร', 'Delete my account')}</span>
     <span class="lnk">${T('ยกเลิก', 'Cancel')}</span><div class="pb16"></div>`,
-    note: 'ไม่มีแมวในจอนี้ (เรื่องจริงจัง) · ปุ่มปิดจนกว่าจะติ๊ก · ปุ่มเป็นเส้น --warn ไม่ใช่พื้นแดง · ระหว่างลบ: "กำลังลบ…" กดซ้ำไม่ได้ · ต้องออนไลน์ · บรรทัด "มีรายการค้างส่ง" แสดงเมื่อมีคิวค้างเท่านั้น (มีคิวตั้งแต่ R3 · ใน R1 ไม่มีบรรทัดนี้)' });
+    note: 'จอเต็มซ้อนบน <code>/me</code> ไม่มี path ใหม่ (ADR 0006 ไม่ต้องแก้) · ‹ / ยกเลิก / Esc = ปิดกลับหน้า "ฉัน" · ไม่มีแมว (เรื่องจริงจัง) · ช่องติ๊กไม่ติ๊กไว้ก่อน ปุ่มปิดจนกว่าจะติ๊ก · ปุ่มเป็นเส้น --warn ไม่ใช่พื้นแดง · <b>ส้มที่เดียว = ช่องติ๊ก</b> · กดแล้ว: "กำลังลบ…" กดซ้ำไม่ได้ ปิดจอไม่ได้ → <code>DELETE /api/me</code> → <code>resetDeviceAfterSignOut({ accountDeleted: true })</code> → จอถัดไป · ลบไม่ได้: แมว #23 ทั้งจอ "ยังลบไม่ได้ · ข้อมูลยังอยู่ครบ" + ลองใหม่ (ADR 0006 ข้อ 5: ล้มแล้วไม่ล้างอะไร) · ต้องออนไลน์ (ออฟไลน์ระหว่างเปิดจอนี้ = ปุ่มปิด "ต้องต่อเน็ต") · R1 แก้จากร่างเดิม: ลิงก์ "ส่งออกข้อมูลเก็บไว้ก่อน" เปลี่ยนเป็นบรรทัดบอกว่ายังไม่เปิด (กลับเป็นลิงก์ใน R6) · ไม่มีบรรทัด "รายการค้างส่ง" (มาพร้อมคิว R3) · เพิ่มบรรทัด backup และ "ถอนความยินยอม" ให้ตรงประกาศ' });
   add(g7, { t: 'ลบบัญชีเรียบร้อย', us: 'US-1.5', html: `
     <div class="sp"></div>
     ${cat(13, 170)}
@@ -1029,7 +1079,7 @@
     <p class="bd c">${T('ขอบคุณที่มาด้วยกัน · ข้อมูลของเธอไม่อยู่ในระบบแล้ว', 'Thanks for coming along. Your data is gone from our system.')}</p>
     <div class="sp"></div>
     <span class="btn big"${tap(1)}>${T('กลับหน้าแรก', 'Back to start')}</span><div class="pb20"></div>`,
-    note: 'แมวหันหลังเดินจากไป ไม่มีน้ำตา ไม่ชวนกลับ · ล้างข้อมูลในเครื่อง (คิว แคช) ทั้งหมดก่อนแสดงจอนี้' });
+    note: 'แสดงในที่เดิม (ยังเป็น URL <code>/me</code>) หลัง <code>resetDeviceAfterSignOut</code> เสร็จแล้ว · "กลับหน้าแรก" = <code>location.replace("/welcome")</code> (ขั้น 3 ของ ADR 0006 ข้อ 5 ย้ายมาอยู่ที่ปุ่มนี้) · ปิดแอปค้างจอนี้ก็ไม่เป็นไร: เปิดใหม่ไม่มี cookie → <code>/welcome</code> · แมว #13 หันหลังเดินจากไป ไม่มีน้ำตา ไม่ชวนกลับ · "bye for now" เป็นลายมือ Gaegu (อังกฤษสั้น) คู่กับหัวข้อไทย · ไม่มีแถบล่าง ไม่มีส้ม' });
 
   // ---------- กลุ่ม 8: สถานะรวม ----------
   const g8 = grp('g8', '8 · สถานะรวมทั้งแอป', 'ใช้เมื่อทั้งจอโหลดไม่ขึ้น · ในรายการใช้ skeleton เส้นจาง · ดูตารางสถานะต่อหน้าใน UX.md ข้อ 4');
