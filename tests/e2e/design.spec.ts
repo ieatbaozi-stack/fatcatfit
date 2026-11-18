@@ -1,4 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import { expectNoHorizontalOverflow, PAGES, presetTheme, setLocale, TOKENS } from "./helpers";
 
 // เทียบกับ DESIGN.md / UX.md บนหน้าที่ render จริง (contract เกณฑ์ 6, 7, 8)

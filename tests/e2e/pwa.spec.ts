@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import { TABS, collectErrors, msg, setLocale, waitForCachedPages, waitForServiceWorker } from "./helpers";
 
 // PWA ของ R0 (contract เกณฑ์ 10, 12 + ส่วนที่ตรวจในเบราว์เซอร์ได้ของ 9) — ADR 0004 ข้อ 1
