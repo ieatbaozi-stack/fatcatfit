@@ -32,7 +32,6 @@ import {
   type PlaceKind,
   type UnitSet,
 } from "./onboarding-form";
-import { OfflineBar } from "./offline-sign-in";
 import { useNet } from "./use-net";
 
 type SubmitFailure = "network" | "server" | "clock" | null;
@@ -170,7 +169,6 @@ export function OnboardingScreen() {
 
   return (
     <div className="flex flex-1 flex-col">
-      {offline ? <OfflineBar /> : null}
       <ProgressLine pct={step === 1 ? 50 : 92} />
 
       {step === 1 ? (

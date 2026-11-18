@@ -69,6 +69,15 @@ describe("AuthGate", () => {
     vi.stubGlobal("fetch", vi.fn());
     renderWithIntl(<AuthGate kind="app"><p>เนื้อหาแอป</p></AuthGate>);
     expect(screen.getByText("เนื้อหาแอป")).toBeTruthy();
+    expect(screen.getByRole("status").textContent).toBe(th.offline.bar);
+  });
+
+  it("ออนไลน์: ไม่มีแถบเน็ตหลุด", async () => {
+    window.localStorage.setItem("fcf:auth", "ready");
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(me("ready")));
+    renderWithIntl(<AuthGate kind="app"><p>เนื้อหาแอป</p></AuthGate>);
+    await screen.findByText("เนื้อหาแอป");
+    expect(screen.queryByRole("status")).toBeNull();
   });
 
   it("fetch ล้ม (ถือว่าออฟไลน์) ไม่เปลี่ยนหน้า", async () => {

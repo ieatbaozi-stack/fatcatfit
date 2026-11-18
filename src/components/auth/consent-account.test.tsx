@@ -8,6 +8,9 @@ import { renderWithIntl } from "../test-utils";
 import { AccountSection } from "./account-section";
 import { ConsentScreen } from "./consent-screen";
 
+const reset = vi.hoisted(() => vi.fn(async () => {}));
+vi.mock("@/pwa/reset-device", () => ({ resetDeviceAfterSignOut: reset }));
+
 const json = (status: number, body: unknown = {}) => new Response(JSON.stringify(body), { status });
 let fetchMock: ReturnType<typeof vi.fn>;
 let replace: ReturnType<typeof vi.fn>;
@@ -15,6 +18,7 @@ let replace: ReturnType<typeof vi.fn>;
 beforeEach(() => {
   fetchMock = vi.fn();
   replace = vi.fn();
+  reset.mockClear();
   vi.stubGlobal("fetch", fetchMock);
   vi.stubGlobal("location", { ...window.location, replace });
 });
@@ -66,6 +70,7 @@ describe("ConsentScreen", () => {
     fireEvent.click(screen.getByRole("button", { name: th.consent.declineConfirm }));
     await waitFor(() => expect(replace).toHaveBeenCalledWith("/welcome"));
     expect(fetchMock).toHaveBeenCalledWith("/api/me", expect.objectContaining({ method: "DELETE" }));
+    expect(reset).toHaveBeenCalledWith({ accountDeleted: true });
   });
 
   it("ออฟไลน์: ปุ่มยินยอมปิดแม้ติ๊กแล้ว", () => {
@@ -86,6 +91,7 @@ describe("AccountSection", () => {
     fireEvent.click(screen.getByRole("button", { name: th.account.signOut }));
     await waitFor(() => expect(replace).toHaveBeenCalledWith("/welcome"));
     expect(fetchMock.mock.calls[0][0]).toBe("/api/auth/sign-out");
+    expect(reset).toHaveBeenCalledWith({ accountDeleted: false });
   });
 
   it("ออกจากระบบล้มเหลว: ข้อความ ไม่ไปไหน", async () => {
@@ -94,6 +100,7 @@ describe("AccountSection", () => {
     fireEvent.click(screen.getByRole("button", { name: th.account.signOut }));
     expect((await screen.findByRole("alert")).textContent).toBe(th.account.signOutFailed);
     expect(replace).not.toHaveBeenCalled();
+    expect(reset).not.toHaveBeenCalled(); // ล้มแล้วหยุด ไม่ล้างอะไร
   });
 
   it("ลบบัญชี: ต้องติ๊กก่อน · กำลังลบกดซ้ำไม่ได้ · สำเร็จเห็นจอลบเรียบร้อย แล้ว 'กลับหน้าแรก' = /welcome", async () => {
@@ -109,6 +116,7 @@ describe("AccountSection", () => {
     fireEvent.click(busy);
     expect(fetchMock).toHaveBeenCalledTimes(1);
     finish(json(200, { ok: true }));
+    await waitFor(() => expect(reset).toHaveBeenCalledWith({ accountDeleted: true }));
     const back = await screen.findByRole("button", { name: th.account.deleteScreen.doneButton });
     fireEvent.click(back);
     expect(replace).toHaveBeenCalledWith("/welcome");

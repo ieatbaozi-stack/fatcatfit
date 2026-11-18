@@ -1,30 +1,12 @@
 "use client";
 
-import { useRef, useState, useSyncExternalStore } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Chip } from "@/components/ui/chip";
+import { useOnline } from "@/pwa/use-online";
 import { locales, type Locale } from "@/lib/i18n/config";
 import { writeLocaleCookie } from "@/lib/i18n/client";
-
-function subscribeOnline(notify: () => void) {
-  window.addEventListener("online", notify);
-  window.addEventListener("offline", notify);
-  return () => {
-    window.removeEventListener("online", notify);
-    window.removeEventListener("offline", notify);
-  };
-}
-
-/** ฝั่งเซิร์ฟเวอร์/ตอน hydrate ถือว่าออนไลน์ (กัน hydration mismatch) */
-function useOnline(): boolean {
-  return useSyncExternalStore(
-    subscribeOnline,
-    () => navigator.onLine,
-    () => true,
-  );
-}
-
 /**
  * ตัวสลับภาษา TH/EN: เขียน cookie แล้ว refresh (ไม่มี locale ใน URL)
  * - "ภาษาที่เลือก" เป็น state ของตัวเอง ไม่อิง useLocale() เพราะค่านั้นเป็นของเก่าจนกว่า refresh จะเสร็จ

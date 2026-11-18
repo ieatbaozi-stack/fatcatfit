@@ -7,8 +7,8 @@ import { Button, TextButton } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PRIVACY_NOTICE_VERSION } from "@/lib/data/shared/privacy";
 import { resolveLocale } from "@/lib/i18n/config";
+import { resetDeviceAfterSignOut } from "@/pwa/reset-device";
 import { deleteAccountRequest, postConsent } from "./api";
-import { OfflineBar } from "./offline-sign-in";
 import { useMe } from "./auth-gate";
 import { useNet } from "./use-net";
 
@@ -53,7 +53,7 @@ export function ConsentScreen() {
     setDeleteFailed(false);
     const r = await deleteAccountRequest();
     if (r.ok) {
-      // ช่วง B: เรียก resetDeviceAfterSignOut({ accountDeleted: true }) ก่อนบรรทัดนี้
+      await resetDeviceAfterSignOut({ accountDeleted: true });
       window.location.replace("/welcome");
       return;
     }
@@ -86,7 +86,6 @@ export function ConsentScreen() {
 
   return (
     <div className="flex flex-1 flex-col">
-      {offline ? <OfflineBar /> : null}
       <h1 className="text-page">{t("title")}</h1>
       <ul className="mt-4 flex list-disc flex-col gap-3 pl-5 text-body text-ink-2">
         <li>{t.rich("bullet1", { b: (chunks) => <strong className="font-medium text-ink">{chunks}</strong> })}</li>

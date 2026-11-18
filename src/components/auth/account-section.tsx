@@ -8,6 +8,7 @@ import { Button, TextButton } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cx } from "@/components/ui/cx";
 import { HandWord } from "@/components/ui/hand-word";
+import { resetDeviceAfterSignOut } from "@/pwa/reset-device";
 import { deleteAccountRequest, signOutRequest } from "./api";
 import { useMe } from "./auth-gate";
 import { useNet } from "./use-net";
@@ -51,7 +52,8 @@ export function AccountSection() {
       setSignOutFailed(true); // ล้มแล้วหยุด ไม่ล้างอะไร (ADR 0006 ข้อ 5)
       return;
     }
-    // ช่วง B: await resetDeviceAfterSignOut({ accountDeleted: false }) ตรงนี้ก่อนไปต่อ
+    // ADR 0006 ข้อ 5 ขั้น 2: ล้างแคชหน้าผู้ใช้ + hint ก่อนโหลดเต็มหน้า
+    await resetDeviceAfterSignOut({ accountDeleted: false });
     window.location.replace("/welcome");
   }
 
@@ -132,7 +134,8 @@ function DeleteAccountScreen({ onCancel }: { onCancel: () => void }) {
     setState("deleting");
     const r = await deleteAccountRequest();
     if (r.ok) {
-      // ช่วง B: await resetDeviceAfterSignOut({ accountDeleted: true }) ก่อนแสดงจอสำเร็จ
+      // ล้างเครื่อง (แคช + hint + เครื่องที่เคยเข้า) เสร็จก่อนแสดงจอสำเร็จ
+      await resetDeviceAfterSignOut({ accountDeleted: true });
       setState("done");
     } else setState("failed");
   }

@@ -8,7 +8,7 @@ import { StatusScreen } from "@/components/ui/status-screen";
 import { fetchMe, type MeData, type MeFetch } from "./api";
 import { decideRoute, type MeResult, type ScreenKind } from "./decide-route";
 import { applyHintOp, getAuthHint } from "./gate-hint";
-import { OfflineSignIn } from "./offline-sign-in";
+import { OfflineBar, OfflineSignIn } from "./offline-sign-in";
 import { useNet } from "./use-net";
 
 type GateValue = {
@@ -92,5 +92,12 @@ export function AuthGate({ kind, children }: { kind: ScreenKind; children: React
       </StatusScreen>
     );
   }
-  return <GateContext.Provider value={value}>{children}</GateContext.Provider>;
+  // แถบ "เน็ตหลุด" ตัวเดียวทั้งแอป (ไม่มีแมว) — /welcome ใช้จอ OfflineSignIn แทน
+  const showBar = decision.action === "stay" && decision.offline === true && kind !== "public";
+  return (
+    <GateContext.Provider value={value}>
+      {showBar ? <OfflineBar /> : null}
+      {children}
+    </GateContext.Provider>
+  );
 }

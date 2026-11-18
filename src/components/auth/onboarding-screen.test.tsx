@@ -127,10 +127,9 @@ describe("OnboardingScreen", () => {
     expect((screen.getByLabelText(th.onboarding.step1.weight) as HTMLInputElement).value).toBe("72.4");
   });
 
-  it("ออฟไลน์: ปุ่ม 'เริ่มใช้' ปิด + แถบเน็ตหลุด แต่ยังกรอกต่อได้", () => {
+  it("ออฟไลน์: ปุ่ม 'เริ่มใช้' ปิด แต่ยังกรอกต่อได้ (แถบเน็ตหลุดอยู่ที่ AuthGate)", () => {
     vi.spyOn(window.navigator, "onLine", "get").mockReturnValue(false);
     renderWithIntl(<OnboardingScreen />);
-    expect(screen.getByRole("status").textContent).toBe(th.offline.bar);
     fillStep1();
     fireEvent.click(screen.getByRole("button", { name: th.onboarding.next }));
     fireEvent.click(screen.getByRole("button", { name: th.onboarding.place.kinds.gym }));
