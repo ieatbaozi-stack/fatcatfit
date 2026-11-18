@@ -12,6 +12,7 @@
 5. [เมื่อความลับหลุด](#5-เมื่อความลับหลุด)
 6. [วิธีปรับ repo กลับเป็น private](#6-วิธีปรับ-repo-กลับเป็น-private)
 7. [ยังไม่ได้ทำในรอบนี้](#7-ยังไม่ได้ทำในรอบนี้)
+8. [R1: Gmail ของแอป, Google, env บน Vercel, โค้ดเชิญ](#8-r1-บัญชีผู้ใช้--gmail-ของแอป-google-env-บน-vercel-โค้ดเชิญ)
 
 ---
 
@@ -50,7 +51,7 @@
 - ถ้าช่องประเภท (type) ให้เลือก **Secret** สำหรับตัวแปรทั้ง 3 ตัวนี้ ให้เลือก Secret (ค่าจะอ่านกลับไม่ได้หลังบันทึก — ต้องเก็บค่าไว้ในที่ปลอดภัยของตัวเอง เช่นโปรแกรมจัดการรหัสผ่าน) · ถ้า Development เลือก Secret ไม่ได้ ใช้ Config [ยืนยันไม่ได้ว่าตัวเลือกนี้มีใน Development — เอกสารบอกเพียงว่ามีสองชนิดคือ Config กับ Secret]
 - หลังเพิ่ม/แก้ตัวแปร ต้อง **Redeploy** ถึงจะมีผล (ตัวแปรมีผลกับ deployment ใหม่เท่านั้น) · แหล่ง: [Environment variables](https://vercel.com/docs/environment-variables) (เปิดดู 2026-11-17)
 
-ตัวแปรอื่นใน `.env.example` (Google, อีเมล, cron ฯลฯ) **ยังไม่ต้องใส่** — ใช้ตั้งแต่ R1 และจะมีขั้นตอนแยกตอนนั้น
+ตัวแปรของ R1 (Google, อีเมล ฯลฯ) ดูข้อ 8
 
 ### 1.3 หา connection string ของ Neon (pooled กับ unpooled)
 
@@ -248,8 +249,141 @@ R0 มีแค่ migration แรก (ตารางของ Better Auth) �
 
 | เรื่อง | รอบ | หมายเหตุ |
 |---|---|---|
-| การส่งอีเมล OTP ผ่าน Gmail ของแอป + ลิมิตการส่งจากเอกสาร Google + การสลับผู้ส่งเป็นโดเมนของเราโดยแก้ env | R1 | ตัวแปรที่เกี่ยวอยู่ใน `.env.example` (`EMAIL_*`, `SMTP_*`, `OTP_DAILY_CAP`) แล้ว · ลิมิตต้องเปิดเอกสาร Google ตอนทำ ไม่ใช้ความจำ |
+| ~~การส่งอีเมล OTP ผ่าน Gmail~~ | R1 | ทำแล้ว — ข้อ 8 · เหลือ spike A4 (ข้อ 8.ฉ) รอ preview |
 | cron (`/api/cron/daily`) และ `CRON_SECRET` | R1 | ต้องยืนยันวิธีที่ Vercel ส่ง secret จากเอกสารก่อน แล้วเพิ่ม `crons` ใน `vercel.json` |
-| ชื่อ header IP ที่เชื่อถือได้ (`TRUSTED_IP_HEADER`) | R1 | security-privacy ยืนยัน |
 | backup/restore ที่ลองทำจริง + แผนรับมือข้อมูลรั่วฉบับเต็ม + health check เชิงลึก + นโยบาย log ไม่มีข้อมูลส่วนตัว | R6 | ตอนนี้ `/api/health` ตอบแค่ ok/ไม่ ok และ log ของแอปไม่พิมพ์ connection string หรือ error object ของฐานข้อมูล |
 | ตั้ง required status check บน `main` | หลัง CI รันครั้งแรกบน GitHub | Lead ตั้ง — ชื่อ check ที่ต้องบังคับคือ `gates` และ `e2e` (qa-test ใส่เทสต์แล้ว) |
+
+---
+
+## 8. R1: บัญชีผู้ใช้ — Gmail ของแอป, Google, env บน Vercel, โค้ดเชิญ
+
+> เขียน: 2026-11-18 · ทำตามลำดับ ก ข ค ง · ทุกขั้นในข้อนี้ boss ต้องทำเอง (สร้างบัญชีและใส่ความลับ agent ทำแทนไม่ได้) · ชื่อปุ่มของ Google/Vercel เปลี่ยนได้ ถ้าหน้าจอไม่ตรง ให้ถ่ายภาพ (บังค่าความลับ) ส่ง Lead · สิ่งที่ไม่ได้เปิดเอกสารยืนยันในรอบนี้ทำเครื่องหมาย **[ยืนยันไม่ได้]**
+
+### ก. สร้าง Gmail ของแอป และ app password (สำหรับส่งรหัส OTP)
+
+ใช้บัญชี Gmail **ใหม่เฉพาะของแอป** ไม่ใช่อีเมลส่วนตัวของ boss (ผู้ใช้เห็นชื่อผู้ส่ง และต้องหมุนความลับของบัญชีนี้ได้โดยไม่กระทบชีวิตส่วนตัว)
+
+1. เปิด <https://accounts.google.com/signup> สร้างบัญชี Gmail ใหม่ (ตั้งชื่อให้ดูเป็นแอป) · เก็บรหัสผ่านไว้ในโปรแกรมจัดการรหัสผ่าน
+2. ล็อกอินบัญชีนั้น → <https://myaccount.google.com/security> → หัวข้อ **How you sign in to Google** → **2-Step Verification** → **Get started** → ทำตามขั้นตอนจนเปิดสำเร็จ
+3. เปิด <https://myaccount.google.com/apppasswords> (ถ้าไม่เห็นหน้านี้ แปลว่า 2-Step ยังไม่เปิดสมบูรณ์ — กลับไปทำข้อ 2) · ช่อง **App name** พิมพ์ `fatcatfit` → กด **Create**
+4. Google แสดงรหัส 16 ตัวอักษร (แสดง **ครั้งเดียว**) → คัดลอกเก็บในโปรแกรมจัดการรหัสผ่านทันที (ใส่แบบไม่มีช่องว่าง) → นี่คือ `SMTP_PASS` · อย่าส่งในแชท อย่า commit
+5. ค่าอื่น: `SMTP_USER` = ที่อยู่ Gmail ของแอปทั้งหมด · `SMTP_HOST` = `smtp.gmail.com` · `SMTP_PORT` = `465` · `EMAIL_FROM` = `Fat Cat Fit <ที่อยู่ Gmail ของแอป>` (Gmail เขียนทับที่อยู่ผู้ส่งเป็นบัญชีที่ล็อกอินเสมอ **[ยืนยันไม่ได้จากเอกสาร — เป็นพฤติกรรมที่ทราบทั่วไป]** จึงอย่าตั้งเป็นที่อยู่อื่นจนกว่าจะย้ายไปโดเมนของเรา)
+
+**ลิมิตและข้อควรรู้ (จากเอกสาร Google ที่ researcher เปิดดู 2026-11-18):**
+- host/port: `smtp.gmail.com` พอร์ต 465 (SSL) หรือ 587 (STARTTLS) ([Workspace: ส่งอีเมลจากเครื่องพิมพ์ สแกนเนอร์ หรือแอป](https://knowledge.workspace.google.com/admin/gmail/send-email-from-a-printer-scanner-or-app))
+- จำนวนต่อวัน: **เอกสาร Google ขัดกันเอง** — หน้า Gmail ช่วยเหลือ ([answer 22839](https://support.google.com/mail/answer/22839)) บอก 500 ฉบับ/วัน · หน้า Workspace บอก 2,000 ฉบับ/วัน → ยึด **500** เป็นฐาน · เพดานในแอป `OTP_DAILY_CAP` ค่าเริ่ม 400 (เต็มแล้วผู้ใช้ขอรหัสไม่ได้ถึงวันถัดไป แอปไม่ล่ม) · ถ้าเกินจริง Google แจ้ง "You have reached a limit" ส่งได้อีกใน 1–24 ชั่วโมง
+- app password: Google เขียนว่า "ไม่แนะนำ" และบัญชี Workspace ต้องใช้ OAuth แทนตั้งแต่ 2025-05-01 · **ยังไม่รู้ว่าบัญชี Gmail ส่วนตัวจะถูกบังคับเมื่อไร**
+- เปลี่ยนรหัสผ่านบัญชี Gmail = app password ทุกตัวถูกยกเลิก (อาการ: ผู้ใช้ไม่ได้รับรหัส และ log ของ Vercel ขึ้น `[email] send failed: EAUTH`) → สร้างใหม่ แก้ `SMTP_PASS` บน Vercel → Redeploy
+- เมลอาจเข้า spam: ทดสอบก่อนชวนเพื่อน (ข้อ ฉ)
+- **ทางหนีเมื่อ Google บังคับหรือบล็อก:** ซื้อโดเมน แล้วใช้ผู้ส่งแบบ HTTP API (เช่น Resend) — ต้องเพิ่มตัวส่งในโค้ดชั้นอีเมล (`EMAIL_TRANSPORT=http` ยังไม่มี) ไม่ต้องแตะ auth · ถ้าแค่ย้ายผู้ส่ง SMTP ไปโดเมนของเราเอง แก้เฉพาะ `EMAIL_FROM` และ `SMTP_*` ใน Vercel
+
+### ข. Google OAuth client (ปุ่ม "เข้าด้วย Google")
+
+ใช้โหมด **Testing** (ไม่ต้องส่งให้ Google ตรวจแอป) ใช้ได้เฉพาะอีเมลที่ boss เพิ่มเป็น test user · จำนวนสูงสุดของ test user และอายุ token ในโหมด Testing **[ยืนยันไม่ได้ในรอบนี้ — ดูหน้า Google ตอนตั้งค่า]**
+
+1. เปิด <https://console.cloud.google.com> ล็อกอินด้วยบัญชี Google ของ boss → แถบบนซ้าย **Select a project** → **New project** → ชื่อ `fatcatfit` → **Create** → เลือกโปรเจกต์นั้น
+2. เมนูซ้าย **APIs & Services** → **OAuth consent screen** (ถ้าเป็นหน้าใหม่ชื่อ **Google Auth Platform** กด **Get started**) · **App name** = `Fat Cat Fit` · **User support email** = อีเมลของ boss · **Audience / User type** = **External** · **Contact email** = อีเมลของ boss → ยอมรับนโยบาย → **Create**
+3. **Audience** (หรือ **Publishing status**): ตรวจว่าเป็น **Testing** **ห้ามกด Publish app** · ใต้ **Test users** กด **Add users** → ใส่อีเมล Google ของทุกคนที่จะใช้ Google login (รวมของ boss) → **Save**
+4. **Data Access** (หรือ **Scopes**) → **Add or remove scopes** → ติ๊ก **openid**, **.../auth/userinfo.email**, **.../auth/userinfo.profile** เท่านั้น → **Update** → **Save**
+5. **Clients** (หรือ **Credentials** → **Create credentials** → **OAuth client ID**) → **Create client** → **Application type** = **Web application** · ชื่อ `fatcatfit-web`
+6. **Authorized redirect URIs** → **Add URI** ทีละบรรทัด (รูปแบบ `<BETTER_AUTH_URL>/api/auth/callback/google`):
+   - production: `https://<โดเมน production บน Vercel>/api/auth/callback/google`
+   - เครื่อง dev: `http://localhost:3000/api/auth/callback/google`
+   - preview ของ branch ที่ต้องการทดสอบ Google: `https://<โดเมนของ branch นั้น>/api/auth/callback/google` — ดูโดเมนที่ Vercel → **Deployments** → deployment ของ branch → ช่อง **Domains** (เลือกโดเมนแบบคงที่ของ branch ไม่ใช่ของแต่ละ commit) · เพิ่มทีละ branch (ไม่แน่ใจว่า Google รับ wildcard **[ยืนยันไม่ได้]**) · ไม่ทดสอบ Google บน preview ก็ข้ามได้ (ล็อกอินด้วยรหัสอีเมลใช้ได้ทุกที่)
+7. **Create** → ได้ **Client ID** กับ **Client secret** → คัดลอกเก็บในโปรแกรมจัดการรหัสผ่าน → `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`
+
+### ค. ใส่ env ใน Vercel
+
+ที่: โปรเจกต์ → **Settings** → **Environment Variables** → **Add** · วิธีใส่ค่าที่ต่างกันตาม environment ดูข้อ 1.2 · ช่อง "ลับ" = เลือกชนิด **Secret/Sensitive** ถ้าหน้าจอมีให้เลือก
+
+| ตัวแปร | Production | Preview | ลับ | ค่า |
+|---|---|---|---|---|
+| `DATABASE_URL` | ชุด production | ชุด **dev** | ใช่ | ข้อ 1.3 (ใส่แล้วจาก R0) |
+| `DATABASE_URL_UNPOOLED` | ชุด production | ชุด **dev** | ใช่ | ข้อ 1.3 (ใส่แล้ว) |
+| `BETTER_AUTH_SECRET` | ค่า A | ค่า B (คนละค่า) | ใช่ | ข้อ 1.4 (ใส่แล้ว) |
+| `BETTER_AUTH_URL` | `https://<โดเมน production>` | URL ของ preview นั้น (หมายเหตุ 2) | ไม่ | URL เต็ม ไม่มี `/` ท้าย |
+| `GOOGLE_CLIENT_ID` | ใส่ | ใส่ถ้าจะทดสอบ Google บน preview | ไม่ | ข้อ ข.7 |
+| `GOOGLE_CLIENT_SECRET` | ใส่ | ใส่ถ้าจะทดสอบ Google บน preview | **ใช่** | ข้อ ข.7 |
+| `EMAIL_TRANSPORT` | `smtp` | `log` (ไม่ส่งจริง) หรือ `smtp` เมื่อต้องทดสอบเมลจริง | ไม่ | `smtp` / `log` · **production ไม่ตั้ง = ส่งไม่ได้และ log ขึ้นว่าไม่ได้ตั้ง** |
+| `EMAIL_FROM` | `Fat Cat Fit <gmail ของแอป>` | ใส่เมื่อใช้ `smtp` | ไม่ | ข้อ ก.5 |
+| `SMTP_HOST` | `smtp.gmail.com` | ใส่เมื่อใช้ `smtp` | ไม่ | |
+| `SMTP_PORT` | `465` | ใส่เมื่อใช้ `smtp` | ไม่ | |
+| `SMTP_USER` | ใส่ | ใส่เมื่อใช้ `smtp` | ใช่ (เป็นที่อยู่อีเมล) | ข้อ ก.5 |
+| `SMTP_PASS` | ใส่ | ใส่เมื่อใช้ `smtp` | **ใช่** | app password ข้อ ก.4 |
+| `OTP_DAILY_CAP` | ไม่ต้องใส่ (ค่าเริ่ม 400) | ไม่ต้องใส่ | ไม่ | ใส่เมื่อจะเปลี่ยนเพดาน (ไม่เกิน 500) |
+| `MIGRATE_ON_DEPLOY` | `1` เมื่อ Lead แจ้ง (ข้อ 2.3) | **ห้ามใส่** | ไม่ | |
+
+หมายเหตุ:
+1. **Preview ต้องใช้ฐานข้อมูล dev เท่านั้น** (กฎเหล็กข้อ 1.2) · Preview ใช้ `EMAIL_TRANSPORT=log` เป็นปกติ: Vercel รันโค้ดแบบ production จึง **ไม่แสดงรหัส** ใน log (เจตนา ไม่ให้ log ที่ใครอ่านได้มีรหัส) → ถ้าต้องล็อกอินด้วยรหัสบน preview ให้ตั้ง `smtp` (ส่งเมลจริงจาก Gmail ของแอป นับรวมเพดานรายวัน) หรือให้ Lead ทดสอบในเครื่อง
+2. `BETTER_AUTH_URL` ของ Preview ต่างกันตาม branch: ตอนกด **Add** ติ๊ก **Preview** แล้วเลือกผูกกับ branch ที่ต้องการ (ชื่อตัวเลือกตามหน้าจอ Vercel **[ยืนยันไม่ได้]**) · ถ้าตั้งผิดอาการคือ Google ขึ้น `redirect_uri_mismatch` หรือเด้งไปโดเมนอื่น · ถ้าเปลี่ยนโดเมน production ต้องแก้ตัวแปรนี้และ redirect URI ใน Google
+3. หลังเพิ่ม/แก้ต้อง **Redeploy** (ข้อ 1.2)
+4. เครื่อง dev (`.env.local`): คัดลอกจาก `.env.example` ตั้ง `EMAIL_TRANSPORT=log` — รหัสพิมพ์ลงหน้าต่างที่รัน `npm run dev` (เฉพาะนอก production)
+
+### ง. ออกโค้ดเชิญให้เพื่อน (ใช้ฐานข้อมูล production)
+
+ไม่มีหน้าแอดมินในรุ่นนี้ — boss รันคำสั่งในเครื่อง ต้องมี Node.js, โค้ดของ repo และรัน `npm ci` แล้ว (ถ้ายังไม่มี ให้ Lead ตั้งให้ครั้งแรก)
+
+**connection string ของ production มาจากไหน:** Neon Console → โปรเจกต์ → Branch **production** → **Connect** → ปิดสวิตช์ **Connection pooling** → คัดลอกข้อความ (ข้อ 1.3) · Vercel ไม่ให้อ่านค่า Secret กลับ จึงต้องเอาจาก Neon · **ห้ามใส่ในไฟล์ใดๆ รวมถึง `.env.local`** — ตั้งเป็นตัวแปรชั่วคราวในหน้าต่างเทอร์มินัล แล้วปิดหน้าต่างเมื่อเสร็จ (ตัวแปรในเทอร์มินัลชนะ `.env.local`)
+
+PowerShell ในโฟลเดอร์ของ repo:
+
+```powershell
+# 1) วางค่าเมื่อถูกถาม (ไม่ติดประวัติคำสั่ง)
+$env:DATABASE_URL_UNPOOLED = Read-Host "paste production connection string"
+
+# 2) ออกโค้ด: ใช้ได้ 5 ครั้ง อายุ 14 วัน
+npm run invite -- create --uses 5 --days 14 --label "friends-batch-1" --base https://<โดเมน production>
+
+# 3) ดูรายการ / เพิกถอน
+npm run invite -- list
+npm run invite -- revoke --code XXXX-XXXX
+
+# 4) ล้างค่า แล้วปิดหน้าต่าง
+Remove-Item Env:DATABASE_URL_UNPOOLED
+```
+
+- `create` พิมพ์ **โค้ดและลิงก์เชิญครั้งเดียว** (ฐานข้อมูลเก็บเฉพาะ hash กู้กลับไม่ได้ — ลืมให้ `revoke` แล้วออกใหม่) · ส่งลิงก์ให้เพื่อนทางแชทส่วนตัว
+- คำสั่งไม่พิมพ์ connection string · ถ้าขึ้น `invite failed (...)` ส่งข้อความนั้นให้ Lead (ไม่มีรหัสผ่านในข้อความ)
+
+### จ. ปัญหาที่น่าจะเจอ
+
+| อาการ | สาเหตุที่น่าจะเป็น | แก้ |
+|---|---|---|
+| ไม่ได้รับรหัส OTP | spam · เพดานรายวันเต็ม · app password ถูกยกเลิก | ดูกล่อง spam · ดู Vercel Runtime Logs หา `[email] send failed:` (บอกแค่ชนิด เช่น `EAUTH` = รหัสผ่านแอปใช้ไม่ได้ ไม่มีที่อยู่/รหัส) · แก้ตามข้อ ก |
+| ขอรหัสแล้วแอปตอบ 503 `email_unavailable` | `OTP_DAILY_CAP` เต็ม | รอวันถัดไป หรือเพิ่มค่า (ไม่เกิน 500) |
+| Google ขึ้น `redirect_uri_mismatch` | `BETTER_AUTH_URL` หรือ redirect URI ไม่ตรงโดเมนที่เปิดจริง | ข้อ ข.6 และ ค |
+| Google ขึ้น `access_denied` / app not verified | ผู้ใช้ไม่อยู่ใน Test users | ข้อ ข.3 |
+
+### ฉ. spike A4: `after()` + SMTP ส่งถึง 20 จาก 20 (ทำหลังข้อ ก และมี preview)
+
+ทดสอบความเสี่ยงที่ว่า Vercel อาจตัดฟังก์ชันก่อนส่งเมลเสร็จเมื่อส่งหลังตอบด้วย `after()` (ADR 0002 ข้อ 4) · `scripts/spike-a4.ts` ยิงขอ OTP 20 ครั้งไปที่ preview แล้วให้คนนับเมลในกล่องจดหมาย
+
+เตรียม:
+1. อีเมลทดสอบ 1 กล่องที่ boss ควบคุม · จุดกั้น OTP ไม่ส่งเมลให้อีเมลที่ไม่มีบัญชีและไม่มีโค้ดเชิญ (ADR 0002 ข้อ 2) → ออกโค้ดเชิญกับฐานข้อมูล **dev** (preview ใช้ dev): ตั้ง `DATABASE_URL_UNPOOLED` เป็นของ dev แล้วรัน `npm run invite -- create ...` · แล้วเปิดลิงก์เชิญกับอีเมลทดสอบก่อน 1 ครั้ง หรือให้ Lead เพิ่มบัญชีทดสอบในฐานข้อมูล dev
+2. Preview ของ branch R1 ตั้ง `EMAIL_TRANSPORT=smtp` + `EMAIL_FROM` + `SMTP_*` + `BETTER_AUTH_URL` (ข้อ ค) แล้ว Redeploy
+
+รัน (PowerShell):
+
+```powershell
+$env:SPIKE_BASE_URL = "https://<โดเมนของ preview>"
+$env:SPIKE_EMAIL = "<อีเมลทดสอบ>"
+npx tsx scripts/spike-a4.ts
+```
+
+- สคริปต์เว้น 125 วินาทีระหว่างครั้ง (limit ของเรา 5 ครั้ง/10 นาที/IP) → ใช้เวลา ~42 นาที ใช้โควต้ารายวัน 20 ฉบับ · พิมพ์ `n/20 status=<HTTP> ms=<เวลา>` (ไม่พิมพ์อีเมลเต็มหรือรหัส)
+- **ผ่าน:** HTTP 200 ทุกครั้ง **และ** กล่องจดหมายได้ 20 ฉบับภายใน 2 นาทีหลังครั้งสุดท้าย (ตรวจ inbox และ spam บันทึกจำนวนที่เข้า spam)
+- ได้ไม่ครบ: ดู Runtime Logs หา `[email] send failed` · ถ้าไม่มี error แต่เมลหาย = `after()` ถูกตัดก่อนส่งเสร็จ → แจ้ง Lead เปลี่ยนเป็น await การส่งก่อนตอบ
+- ไม่รันใน CI (ต้องใช้ preview จริงกับ Gmail จริง)
+
+### ช. ช่องโหว่ของ dependency (ตรวจ 2026-11-18)
+
+Dependabot แจ้ง 3 รายการ — ทั้งหมดเป็น dependency ทางอ้อมของเครื่องมือตอน build/dev ไม่ถูกรวมในโค้ดที่รันบน production:
+
+| แพ็กเกจ | มาจาก | กระทบ production ไหม | ที่ทำ |
+|---|---|---|---|
+| `esbuild` ต่ำกว่า 0.25.0 (moderate) | `drizzle-kit` → `@esbuild-kit/*` (รุ่น 0.18.20) | ไม่ — เซิร์ฟเวอร์ dev ของ esbuild ไม่ได้รันใน production | `overrides: esbuild ~0.28.2` ทั้งโปรเจกต์ (เกตผ่าน) |
+| `minimatch` ต่ำกว่า 11.0.1 (moderate) | `eslint`, `typescript-eslint`, `@serwist/build` (ตอน build) | ไม่ — ใช้กับไฟล์ของเราเองตอน lint/build | `overrides: minimatch ^11.0.1` (เกตผ่าน) |
+| `picomatch` ≤ 4.0.7 (high, ReDoS) | `vitest`/`vite`, `next-intl` (`@parcel/watcher`), `eslint-config-next` (`micromatch`) | ไม่ — รันกับ glob ที่เราเขียนเองใน dev/CI ไม่รับ input จากผู้ใช้ | **ยังไม่มีรุ่นแก้** (รุ่นล่าสุด 4.0.7 ยังอยู่ในช่วงที่โดน) · ไม่ override · รอรุ่นแก้แล้วอัปเดต |
+
+(`npm audit` ยังรายงาน high อยู่ ที่เกี่ยวกับ `picomatch` ล้วนๆ จนกว่าจะมีรุ่นแก้)

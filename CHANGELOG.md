@@ -4,6 +4,24 @@
 
 ## [Unreleased]
 
+### Added
+
+- ระบบบัญชี (R1): Better Auth เข้าสู่ระบบด้วย Google หรือรหัส OTP ทางอีเมล, ต้องมีโค้ดเชิญหรือบัญชีอยู่แล้วจึงส่ง OTP (ตอบเหมือนกันทุกกรณี), migration ของตารางบัญชี/โค้ดเชิญ/การจำกัดจำนวนครั้ง
+- API: ตรวจโค้ดเชิญ, `/api/me`, ความยินยอม, แบบสอบถามเริ่มต้น, ลบบัญชีพร้อมข้อมูลทั้งหมด; `requireUser`/`requireConsent`
+- ชั้นส่งอีเมล `src/lib/email`: ส่ง OTP ผ่าน SMTP (Gmail ของแอป) หรือโหมด `log` สำหรับ dev · แม่แบบไทย/อังกฤษ ไม่มีลิงก์ · ไม่ log รหัสหรืออีเมลใน production · สลับผู้ส่งเป็นโดเมนของเราได้โดยแก้ env
+- สคริปต์ออกโค้ดเชิญ `npm run invite -- create|list|revoke` (ลิงก์ใช้ fragment ไม่ลงใน log เซิร์ฟเวอร์) และสคริปต์ทดสอบ spike A4 (`scripts/spike-a4.ts`)
+- ADR 0006 (เส้นทางล็อกอินและหน้า welcome ออฟไลน์) และแก้ ADR 0002/0003/0005, ARCHITECTURE, contract R1
+- `docs/OPERATIONS.md` ข้อ 8: ขั้นตอนสร้าง Gmail ของแอป, Google OAuth, ใส่ env บน Vercel, ออกโค้ดเชิญกับฐานข้อมูล production
+
+### Changed
+
+- `/api/health` ตอบ 503 ภายใน 5 วินาทีเมื่อฐานข้อมูลค้าง
+- `.env.example`: เพิ่มตัวแปรอีเมล/Google/สคริปต์ครบทุกตัวที่โค้ดอ่าน · ลบ `TRUSTED_IP_HEADER` (ใช้ `x-forwarded-for` ตามค่าเริ่มของ Better Auth บน Vercel)
+
+### Security
+
+- `overrides` ของ `esbuild` (~0.28.2) และ `minimatch` (^11.0.1) เพื่อปิดช่องโหว่ของเครื่องมือตอน build/dev · `picomatch` (ReDoS) ยังไม่มีรุ่นแก้ ไม่กระทบ production (ดู OPERATIONS ข้อ 8.ช)
+
 ## [0.1.0] - 2026-11-18
 
 ### Added
