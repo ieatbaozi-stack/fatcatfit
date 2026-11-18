@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { normalizeIP } from "@better-auth/core/utils/ip";
 import { and, eq, gt, inArray, lte } from "drizzle-orm";
 import { authThrottle } from "@/db/schema";
 import { plusOne } from "@/db/sql-helpers";
@@ -27,8 +28,9 @@ export function sha256Hex(value: string): string {
   return createHash("sha256").update(value, "utf8").digest("hex");
 }
 
+/** กติกาเดียวกับปลั๊กอิน email-otp เป๊ะ: ตัวพิมพ์เล็กอย่างเดียว ไม่ตัดช่องว่าง (รูปแบบผิดถูกปฏิเสธก่อนถึงตัวนับ) */
 export function normalizeEmail(email: string): string {
-  return email.trim().toLowerCase();
+  return String(email).toLowerCase();
 }
 
 export function otpEmailKey(email: string, rule: keyof typeof OTP_EMAIL_RULES): string {
@@ -64,7 +66,9 @@ export function clientIp(headers: Headers): string | null {
   const parts = raw.split(",").map((p) => p.trim()).filter(Boolean);
   if (parts.length !== 1) return null;
   const ip = parts[0];
-  return ip.length <= 64 && /^[0-9a-fA-F:.]+$/.test(ip) ? ip : null;
+  if (ip.length > 64 || !/^[0-9a-fA-F:.]+$/.test(ip)) return null;
+  // IPv6 รวมเป็นบล็อก /64 (ผู้ใช้หนึ่งรายได้ทั้งบล็อก — ไม่ให้เปลี่ยนที่อยู่เลี่ยงตัวนับ)
+  return normalizeIP(ip, { ipv6Subnet: 64 });
 }
 
 /**

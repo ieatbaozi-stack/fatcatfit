@@ -31,7 +31,7 @@ export function makeAuth(db: AppDb, extra: Partial<AuthDeps> = {}) {
   return { auth, sent, clock };
 }
 
-export type Call = { cookies?: Record<string, string>; ip?: string; body?: unknown; method?: string };
+export type Call = { cookies?: Record<string, string>; ip?: string; body?: unknown; method?: string; headers?: Record<string, string | null> };
 
 export function call(auth: Auth, path: string, c: Call = {}) {
   const headers = new Headers({
@@ -39,6 +39,10 @@ export function call(auth: Auth, path: string, c: Call = {}) {
     origin: TEST_BASE,
     "x-forwarded-for": c.ip ?? "203.0.113.7",
   });
+  for (const [k, v] of Object.entries(c.headers ?? {})) {
+    if (v === null) headers.delete(k);
+    else headers.set(k, v);
+  }
   if (c.cookies) headers.set("cookie", Object.entries(c.cookies).map(([k, v]) => `${k}=${v}`).join("; "));
   return auth.handler(
     new Request(`${TEST_BASE}/api/auth${path}`, {

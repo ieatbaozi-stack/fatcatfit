@@ -1,5 +1,5 @@
 import "server-only";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { consentRecord, profile } from "@/db/schema";
 import type { AppDb } from "@/db/types";
 import { hasCurrentConsent } from "@/lib/auth/consent";
@@ -43,7 +43,7 @@ export async function getMe(db: AppDb, u: { userId: string; email: string; name:
     ? await db
         .select({ acceptedAt: consentRecord.acceptedAt })
         .from(consentRecord)
-        .where(eq(consentRecord.userId, u.userId))
+        .where(and(eq(consentRecord.userId, u.userId), eq(consentRecord.noticeVersion, PRIVACY_NOTICE_VERSION)))
         .limit(1)
     : [];
   const [p] = await db.select().from(profile).where(eq(profile.userId, u.userId)).limit(1);
