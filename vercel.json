@@ -2,5 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "regions": ["sin1"],
-  "buildCommand": "npx tsx scripts/release-migrate.ts && npm run build"
+  "buildCommand": "npx tsx scripts/release-migrate.ts && npm run build",
+  "crons": [{ "path": "/api/cron/daily", "schedule": "0 3 * * *" }]
 }
