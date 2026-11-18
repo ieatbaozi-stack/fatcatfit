@@ -3,7 +3,9 @@ import { TABS } from "../components/nav/bottom-tabs";
 import {
   APP_SHELL_PATH,
   CACHE_NAMES,
+  OFFLINE_FALLBACK_PATHS,
   OFFLINE_PAGES,
+  WELCOME_PATH,
   classifyRequest,
   extractHtmlLang,
   langOfPages,
@@ -15,7 +17,10 @@ import {
   isApiPath,
   isCacheableResponse,
   isOutdatedRuntimeCache,
+  isStorablePageUrl,
   isUserScopedCache,
+  pageCacheKey,
+  unstorablePageKeys,
   type RequestInfo,
 } from "./strategy";
 
@@ -103,6 +108,9 @@ describe("isCacheableResponse — เก็บเฉพาะ 200", () => {
     [{ status: 200, type: "default" }, true],
     [{ status: 200, type: "basic", redirected: true }, false],
     [{ status: 0, type: "opaque" }, false],
+    // fetchPage ใช้ redirect: "manual" (ADR 0006 ข้อ 4) → redirect ได้ type opaqueredirect status 0
+    [{ status: 0, type: "opaqueredirect" }, false],
+    [{ status: 307, type: "basic" }, false],
     [{ status: 200, type: "cors" }, false],
     [{ status: 204, type: "basic" }, false],
     [{ status: 304, type: "basic" }, false],
@@ -172,8 +180,17 @@ describe("ภาษาของหน้าที่ cache (NEXT_LOCALE)", () =>
 });
 
 describe("หน้าที่ต้องเปิดได้ตอนออฟไลน์ (OFFLINE_PAGES)", () => {
-  it("ตรงกับแท็บทั้ง 4 ของแถบล่าง — เพิ่มแท็บแล้วต้องเพิ่มที่นี่ด้วย", () => {
-    expect([...OFFLINE_PAGES].sort()).toEqual(TABS.map((t) => t.href).sort());
+  it("แถบล่างทุกแท็บอยู่ในรายการ — เพิ่มแท็บแล้วต้องเพิ่มที่นี่ด้วย (ADR 0006 ข้อ 4)", () => {
+    for (const t of TABS) expect(OFFLINE_PAGES).toContain(t.href);
+  });
+
+  it("มีจอยินดีต้อนรับ /welcome (เปิดแอปออฟไลน์ตอนไม่ล็อกอินได้จอนี้ — contract เกณฑ์ 13)", () => {
+    expect(WELCOME_PATH).toBe("/welcome");
+    expect(OFFLINE_PAGES).toContain(WELCOME_PATH);
+  });
+
+  it("นอกจากแท็บแล้วมีแค่ /welcome (หน้าที่เพิ่มต้องตั้งใจเพิ่ม)", () => {
+    expect([...OFFLINE_PAGES].sort()).toEqual([...TABS.map((t) => t.href), WELCOME_PATH].sort());
   });
 
   it("app shell อยู่ในรายการ และทุก path คงที่ (ไม่มี query/id)", () => {
@@ -182,7 +199,13 @@ describe("หน้าที่ต้องเปิดได้ตอนออ�
   });
 
   it("offlinePageUrls เป็น URL เต็มของ origin", () => {
-    expect(offlinePageUrls(ORIGIN)).toEqual([`${ORIGIN}/`, `${ORIGIN}/history`, `${ORIGIN}/progress`, `${ORIGIN}/me`]);
+    expect(offlinePageUrls(ORIGIN)).toEqual([
+      `${ORIGIN}/`,
+      `${ORIGIN}/history`,
+      `${ORIGIN}/progress`,
+      `${ORIGIN}/me`,
+      `${ORIGIN}/welcome`,
+    ]);
   });
 
   it("cache พักหน้าถูกล้างตอนออกจากระบบ และไม่ถูกลบเป็นของเก่าตอน activate", () => {
@@ -193,15 +216,20 @@ describe("หน้าที่ต้องเปิดได้ตอนออ�
 });
 
 const u = (p: string) => `${ORIGIN}${p}`;
-const ALL_TABS = ["/", "/history", "/progress", "/me"].map(u);
+const ALL_TABS = ["/", "/history", "/progress", "/me", "/welcome"].map(u);
 
 describe("pagesToStage — SW ใหม่ดึงอะไรตอน install", () => {
-  it("ติดตั้งครั้งแรก (cache ว่าง) → ทั้ง 4 แท็บ", () => {
+  it("ติดตั้งครั้งแรก (cache ว่าง) → ทั้ง 4 แท็บ + /welcome", () => {
     expect(pagesToStage([], ORIGIN)).toEqual(ALL_TABS);
   });
 
   it("อัปเดต → ทุกแท็บ + ทุกหน้าที่ cache อยู่ ไม่ซ้ำ ไม่เอาต่าง origin หรือ /api", () => {
     const cached = [u("/"), u("/styleguide"), u("/me"), "https://evil.example/x", u("/api/health"), "not a url"];
+    expect(pagesToStage(cached, ORIGIN)).toEqual([...ALL_TABS, u("/styleguide")]);
+  });
+
+  it("key เก่าที่มี query ไม่ถูกดึงซ้ำ · fragment ถูกตัด (ADR 0006 ข้อ 4)", () => {
+    const cached = [u("/welcome?error=access_denied"), u("/?x=1"), u("/styleguide#top")];
     expect(pagesToStage(cached, ORIGIN)).toEqual([...ALL_TABS, u("/styleguide")]);
   });
 });
@@ -213,6 +241,7 @@ describe("planPageSync — ภาษาเดียว และมีครบ�
       { url: u("/history"), lang: "th" },
       { url: u("/progress"), lang: "th" },
       { url: u("/me"), lang: "th" },
+      { url: u("/welcome"), lang: "th" },
       { url: u("/styleguide"), lang: "th" },
     ];
     const plan = planPageSync(entries, "en", "", ORIGIN);
@@ -223,9 +252,9 @@ describe("planPageSync — ภาษาเดียว และมีครบ�
   it("เปลี่ยนภาษาจากการเปิด /me (เพิ่งได้จากเครือข่าย) → ไม่ลบ/ไม่ดึง /me ซ้ำ", () => {
     const entries = ALL_TABS.map((url) => ({ url, lang: url === u("/me") ? "en" : "th" }));
     const plan = planPageSync(entries, "en", u("/me"), ORIGIN);
-    expect(plan.remove.sort()).toEqual([u("/"), u("/history"), u("/progress")].sort());
+    expect(plan.remove.sort()).toEqual([u("/"), u("/history"), u("/progress"), u("/welcome")].sort());
     expect(plan.fetch).not.toContain(u("/me"));
-    expect(plan.fetch.sort()).toEqual([u("/"), u("/history"), u("/progress")].sort());
+    expect(plan.fetch.sort()).toEqual([u("/"), u("/history"), u("/progress"), u("/welcome")].sort());
   });
 
   it("ภาษาเดิมและครบแล้ว → ไม่ทำอะไร (ไม่ยิงเครือข่ายทุกครั้งที่เปลี่ยนหน้า)", () => {
@@ -235,10 +264,10 @@ describe("planPageSync — ภาษาเดียว และมีครบ�
 
   it("แท็บขาด (เช่นหลังออกจากระบบ หรือดึงไม่สำเร็จตอน install) → เติมเฉพาะที่ขาด", () => {
     const plan = planPageSync([{ url: u("/"), lang: "th" }], "th", "", ORIGIN);
-    expect(plan).toEqual({ remove: [], fetch: [u("/history"), u("/progress"), u("/me")] });
+    expect(plan).toEqual({ remove: [], fetch: [u("/history"), u("/progress"), u("/me"), u("/welcome")] });
   });
 
-  it("cache ว่าง → เติมทั้ง 4 แท็บ", () => {
+  it("cache ว่าง → เติมทั้ง 4 แท็บ + /welcome", () => {
     expect(planPageSync([], "en", "", ORIGIN).fetch).toEqual(ALL_TABS);
   });
 
@@ -255,10 +284,10 @@ describe("planActivation — ย้ายหน้าที่พักไว้
 
   it("อัปเดต: ย้ายหน้าที่พักไว้แทนของเดิม · หน้าที่ดึงไม่สำเร็จตอน install อยู่ใน refetch (คงสำเนาเดิมไว้ก่อน)", () => {
     const current = [...ALL_TABS, u("/styleguide")].map((url) => ({ url, lang: "th" }));
-    const staged = [u("/"), u("/history"), u("/me"), u("/styleguide")].map((url) => ({ url, lang: "th" }));
+    const staged = [u("/"), u("/history"), u("/me"), u("/welcome"), u("/styleguide")].map((url) => ({ url, lang: "th" }));
     const plan = planActivation(current, staged, ORIGIN);
     expect(plan.lang).toBe("th");
-    expect(plan.promote).toEqual([u("/"), u("/history"), u("/me"), u("/styleguide")]);
+    expect(plan.promote).toEqual([u("/"), u("/history"), u("/me"), u("/welcome"), u("/styleguide")]);
     expect(plan.refetch).toEqual([u("/progress")]);
   });
 
@@ -286,5 +315,51 @@ describe("planActivation — ย้ายหน้าที่พักไว้
     ).toBe("en");
     expect(langOfPages([{ url: u("/me"), lang: "th" }], ORIGIN)).toBe("th");
     expect(langOfPages([{ url: u("/"), lang: null }], ORIGIN)).toBeNull();
+  });
+});
+
+describe("ADR 0006 เทสต์ 6 — ถอยตอนออฟไลน์ และไม่เก็บ URL ที่มี query", () => {
+  it("ลำดับถอย: (สำเนาของ URL) → / → /welcome → (503)", () => {
+    expect(OFFLINE_FALLBACK_PATHS).toEqual(["/", "/welcome"]);
+    expect(OFFLINE_FALLBACK_PATHS[0]).toBe(APP_SHELL_PATH);
+    // ทุกหน้าที่ใช้ถอยต้องถูกดึงไว้ตั้งแต่ติดตั้ง
+    for (const p of OFFLINE_FALLBACK_PATHS) expect(OFFLINE_PAGES).toContain(p);
+  });
+
+  it.each([
+    ["/", true],
+    ["/welcome", true],
+    ["/history", true],
+    ["/welcome#invite=ABCD-1234", true], // fragment ไม่ไปเซิร์ฟเวอร์ และถูกตัดออกจาก key
+    ["/welcome?error=access_denied", false],
+    ["/?utm=x", false],
+    ["/me?", true], // URL มาตรฐาน: ? เปล่า → search = ""
+    ["/api/me", false],
+    ["https://evil.example/", false],
+    ["not a url", false],
+  ])("isStorablePageUrl(%s) = %s", (path, expected) => {
+    expect(isStorablePageUrl(path.startsWith("/") ? u(path) : path, ORIGIN)).toBe(expected);
+  });
+
+  it("key ของ cache ไม่มี fragment — โค้ดเชิญใน #invite= ไม่ลงเครื่อง", () => {
+    expect(pageCacheKey(u("/welcome#invite=ABCD-1234"))).toBe(u("/welcome"));
+    expect(pageCacheKey(u("/history"))).toBe(u("/history"));
+    expect(pageCacheKey("not a url")).toBe("not a url");
+  });
+
+  it("key ที่มี ? หรือ # (จากรุ่นก่อน) ถูกลบตอน activate · key ปกติคงไว้", () => {
+    const keys = [u("/"), u("/welcome?error=x"), u("/welcome"), u("/styleguide#a"), "https://evil.example/x"];
+    expect(unstorablePageKeys(keys, ORIGIN)).toEqual([u("/welcome?error=x"), u("/styleguide#a"), "https://evil.example/x"]);
+  });
+
+  it("activate ไม่ดึง URL ที่มี query ซ้ำ", () => {
+    const plan = planActivation([{ url: u("/welcome?error=x"), lang: "th" }], [], ORIGIN);
+    expect(plan.refetch).not.toContain(u("/welcome?error=x"));
+    expect(plan.refetch).toEqual(ALL_TABS);
+  });
+
+  it("หลังออกจากระบบ (cache มีแค่ /welcome) → ลองเติมแท็บที่ขาด (เซิร์ฟเวอร์ redirect จึงไม่ถูกเก็บ — ดู page-fetch.test)", () => {
+    const plan = planPageSync([{ url: u("/welcome"), lang: "th" }], "th", u("/welcome"), ORIGIN);
+    expect(plan).toEqual({ remove: [], fetch: [u("/"), u("/history"), u("/progress"), u("/me")] });
   });
 });

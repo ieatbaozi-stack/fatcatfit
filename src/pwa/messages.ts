@@ -14,3 +14,9 @@ export const SKIP_WAITING_MESSAGE = "SKIP_WAITING";
 
 /** หน้าเว็บแจ้งภาษาปัจจุบันของหน้า (`<html lang>`) ให้ SW: `{ type, lang }` — SW ล้าง/ดึงหน้าที่ cache ภาษาอื่นใหม่ */
 export const PAGE_LANG_MESSAGE = "FCF_PAGE_LANG";
+
+/**
+ * หน้าเว็บแจ้ง SW ว่าออกจากระบบ/ลบบัญชีแล้ว (`resetDeviceAfterSignOut`): `{ type }`
+ * SW ทิ้งผลของการดึงหน้าที่ค้างอยู่ (ซึ่งยังใช้ cookie ของผู้ใช้เดิม) ไม่ให้ถูกเขียนกลับหลังล้าง cache
+ */
+export const USER_RESET_MESSAGE = "FCF_USER_RESET";

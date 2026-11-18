@@ -1,0 +1,115 @@
+// @vitest-environment jsdom
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { AUTH_HINT_KEY, KNOWN_DEVICE_KEY, getAuthHint, isKnownDevice, markKnownDevice, setAuthHint } from "./auth-hint";
+import { USER_RESET_MESSAGE } from "./messages";
+import { resetDeviceAfterSignOut } from "./reset-device";
+import { CACHE_NAMES } from "./strategy";
+
+/** SW ปลอมที่ตอบกลับทาง port เหมือน sw.ts */
+function fakeWorker(reply = true) {
+  const received: unknown[] = [];
+  const worker = {
+    postMessage: (data: unknown, transfer?: Transferable[]) => {
+      received.push(data);
+      const port = transfer?.[0] as MessagePort | undefined;
+      if (reply) port?.postMessage({ type: USER_RESET_MESSAGE, ok: true });
+    },
+  } as unknown as ServiceWorker;
+  return { worker, received };
+}
+
+function fakeCaches(initial: string[]) {
+  const names = new Set(initial);
+  return { names, keys: async () => [...names], delete: async (n: string) => names.delete(n) };
+}
+
+beforeEach(() => {
+  setAuthHint("ready");
+  markKnownDevice();
+});
+afterEach(() => {
+  vi.unstubAllGlobals();
+  localStorage.clear();
+});
+
+describe("resetDeviceAfterSignOut", () => {
+  it("ออกจากระบบ: ล้าง cache หน้า + user-* และ fcf:auth · คง fcf:known-device และ asset", async () => {
+    const storage = fakeCaches([CACHE_NAMES.pages, CACHE_NAMES.pagesStaging, CACHE_NAMES.assets, "user-1"]);
+    vi.stubGlobal("caches", storage);
+    await resetDeviceAfterSignOut({ accountDeleted: false }, { getRegistration: async () => undefined });
+    expect([...storage.names]).toEqual([CACHE_NAMES.assets]);
+    expect(getAuthHint()).toBeNull();
+    expect(isKnownDevice()).toBe(true);
+  });
+
+  it("ลบบัญชี: ล้าง fcf:known-device ด้วย", async () => {
+    vi.stubGlobal("caches", fakeCaches([CACHE_NAMES.pages]));
+    await resetDeviceAfterSignOut({ accountDeleted: true }, { getRegistration: async () => undefined });
+    expect(localStorage.getItem(AUTH_HINT_KEY)).toBeNull();
+    expect(localStorage.getItem(KNOWN_DEVICE_KEY)).toBeNull();
+  });
+
+  it("บอก SW ทุกตัว (installing/waiting/active) ให้ทิ้งการดึงที่ค้าง ก่อนล้าง cache", async () => {
+    const order: string[] = [];
+    const a = fakeWorker();
+    const w = fakeWorker();
+    const wrap = (name: string, fw: ReturnType<typeof fakeWorker>) =>
+      ({
+        postMessage: (d: unknown, t?: Transferable[]) => {
+          order.push(name);
+          fw.worker.postMessage(d, t as Transferable[]);
+        },
+      }) as unknown as ServiceWorker;
+    await resetDeviceAfterSignOut(
+      { accountDeleted: false },
+      {
+        getRegistration: async () => ({ active: wrap("active", a), waiting: wrap("waiting", w), installing: null }),
+        clearCaches: async () => {
+          order.push("clear");
+        },
+      },
+    );
+    expect(a.received).toEqual([{ type: USER_RESET_MESSAGE }]);
+    expect(w.received).toEqual([{ type: USER_RESET_MESSAGE }]);
+    expect(order[order.length - 1]).toBe("clear");
+    expect(order.slice(0, 2).sort()).toEqual(["active", "waiting"]);
+  });
+
+  it("SW ไม่ตอบ → รอไม่เกิน timeout แล้วล้างต่อ", async () => {
+    const silent = fakeWorker(false);
+    const clear = vi.fn(async () => {});
+    const started = Date.now();
+    await resetDeviceAfterSignOut(
+      { accountDeleted: false },
+      { getRegistration: async () => ({ active: silent.worker }), clearCaches: clear, timeoutMs: 30 },
+    );
+    expect(clear).toHaveBeenCalledOnce();
+    expect(Date.now() - started).toBeLessThan(1000);
+  });
+
+  it("ไม่โยน error แม้ทุกขั้นล้ม (ไม่มี SW, Cache Storage พัง, localStorage พัง)", async () => {
+    vi.spyOn(Storage.prototype, "removeItem").mockImplementation(() => {
+      throw new Error("blocked");
+    });
+    await expect(
+      resetDeviceAfterSignOut(
+        { accountDeleted: true },
+        {
+          getRegistration: async () => {
+            throw new Error("no sw");
+          },
+          clearCaches: async () => {
+            throw new Error("cache broken");
+          },
+        },
+      ),
+    ).resolves.toBeUndefined();
+    vi.restoreAllMocks();
+  });
+
+  it("ค่าเริ่มต้น: ไม่มี navigator.serviceWorker และไม่มี caches → ไม่โยน และล้าง hint", async () => {
+    vi.stubGlobal("caches", undefined);
+    await expect(resetDeviceAfterSignOut({ accountDeleted: false })).resolves.toBeUndefined();
+    expect(getAuthHint()).toBeNull();
+  });
+});
