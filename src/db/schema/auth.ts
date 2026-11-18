@@ -8,6 +8,7 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
+import { inviteCode } from "./invite";
 
 // ตารางของ Better Auth (ADR 0002) — ชื่อ property ตรงกับ model/field ที่ Better Auth ใช้
 // ตามกติกา ADR 0001: id เป็น uuid · เวลาเป็น timestamptz(3) · ไม่มี default ที่เป็นฟังก์ชันฝั่ง DB
@@ -22,6 +23,8 @@ export const user = pgTable("user", {
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").default(false).notNull(),
   image: text("image"),
+  // โค้ดเชิญที่ใช้ตอนสมัคร (R1 · ADR 0003) — โค้ดถูกลบ = SET NULL · hook ใน src/lib/auth ตั้งค่านี้
+  inviteCodeId: uuid("invite_code_id").references(() => inviteCode.id, { onDelete: "set null" }),
   createdAt: instant("created_at").notNull(),
   updatedAt: instant("updated_at").notNull(),
 });

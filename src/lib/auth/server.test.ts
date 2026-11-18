@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createTestDb, type TestDb } from "@/db/testing/pglite";
-import { createAuth } from "./server";
+import { makeAuth } from "./testing";
 import { user } from "@/db/schema";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
@@ -16,12 +16,11 @@ describe("Better Auth บน schema ของเรา (S2)", () => {
   });
 
   it("สร้างผู้ใช้/session ผ่าน adapter ได้ และ id เป็น uuid", async () => {
-    const auth = createAuth(t.db);
+    // ผู้ใช้ต้องสร้างผ่าน endpoint พร้อมโค้ดเชิญเท่านั้น (hook ปฏิเสธการสร้างนอก endpoint) — เทสต์ใส่แถวตรงๆ
+    const { auth } = makeAuth(t.db);
     const ctx = await auth.$context;
-    const u = await ctx.internalAdapter.createUser(
-      { email: "a@example.com", name: "A", emailVerified: true },
-      { method: "email-otp" },
-    );
+    const u = { id: crypto.randomUUID(), email: "a@example.com", name: "A", emailVerified: true, createdAt: new Date(), updatedAt: new Date() };
+    await t.db.insert(user).values(u);
     expect(u.id).toMatch(UUID);
     const s = await ctx.internalAdapter.createSession(u.id, false);
     expect(s.token).toBeTruthy();
@@ -31,7 +30,7 @@ describe("Better Auth บน schema ของเรา (S2)", () => {
   });
 
   it("เขียน/อ่าน rate limit จากฐานข้อมูลได้", async () => {
-    const auth = createAuth(t.db);
+    const { auth } = makeAuth(t.db);
     const ctx = await auth.$context;
     await ctx.adapter.create({
       model: "rateLimit",
