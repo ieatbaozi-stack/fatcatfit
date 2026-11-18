@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-18
+
 ### Added
 
 - e2e ด้วย Playwright บนจอมือถือและจอคอม (smoke, design, PWA ออฟไลน์, ทางผิด) และ CI รัน e2e ทุก pull request โดยไม่ข้าม
