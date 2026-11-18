@@ -1,0 +1,117 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+const sendMail = vi.fn(async () => ({}));
+const close = vi.fn();
+const createTransport = vi.fn((opts: unknown) => (void opts, { sendMail, close }));
+vi.mock("nodemailer", () => ({ default: { createTransport: (o: unknown) => createTransport(o) } }));
+
+import { EmailConfigError, sendEmail, sendOtpEmail } from "./index";
+import { renderOtpEmail } from "./templates";
+
+const SMTP_ENV = {
+  EMAIL_TRANSPORT: "smtp",
+  SMTP_HOST: "smtp.example.com",
+  SMTP_PORT: "465",
+  SMTP_USER: "app@example.com",
+  SMTP_PASS: "fake-app-password",
+  EMAIL_FROM: "Fat Cat Fit <noreply@example.com>",
+};
+const msg = { to: "a@example.com", subject: "s", text: "t", html: "<p>h</p>" };
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllEnvs();
+  sendMail.mockClear();
+  close.mockClear();
+  createTransport.mockClear();
+});
+
+describe("แม่แบบ OTP", () => {
+  it("เลือกภาษาตาม locale", () => {
+    expect(renderOtpEmail("th", "123456").subject).toMatch(/รหัสเข้าสู่ระบบ/);
+    expect(renderOtpEmail("en", "123456").subject).toMatch(/sign-in code/);
+    expect(renderOtpEmail("th", "123456").text).toContain("ไม่ต้องทำอะไร");
+    expect(renderOtpEmail("en", "123456").text).toContain("ignore this email");
+  });
+  it("มีรหัสและอายุ 10 นาที ไม่มีลิงก์", () => {
+    for (const l of ["th", "en"] as const) {
+      const r = renderOtpEmail(l, "123456");
+      expect(r.text).toContain("123456");
+      expect(r.html).toContain("123456");
+      expect(r.text).toContain("10");
+      for (const s of [r.text, r.html]) expect(s).not.toMatch(/https?:|href|www\./i);
+    }
+  });
+});
+
+describe("transport log", () => {
+  it("production: ไม่ log รหัสและไม่ log อีเมล", async () => {
+    const spy = vi.spyOn(console, "info").mockImplementation(() => {});
+    await sendEmail(msg, { EMAIL_TRANSPORT: "log", NODE_ENV: "production" }, "987654");
+    const out = JSON.stringify(spy.mock.calls);
+    expect(spy).toHaveBeenCalled();
+    expect(out).not.toContain("987654");
+    expect(out).not.toContain("a@example.com");
+  });
+  it("นอก production: แสดงรหัสเพื่อทดสอบ", async () => {
+    const spy = vi.spyOn(console, "info").mockImplementation(() => {});
+    await sendEmail(msg, { EMAIL_TRANSPORT: "log", NODE_ENV: "development" }, "987654");
+    expect(JSON.stringify(spy.mock.calls)).toContain("987654");
+  });
+  it("ไม่ตั้ง EMAIL_TRANSPORT: dev ใช้ log, production error ชัดเจน", async () => {
+    vi.spyOn(console, "info").mockImplementation(() => {});
+    await expect(sendEmail(msg, { NODE_ENV: "development" })).resolves.toBeUndefined();
+    await expect(sendEmail(msg, { NODE_ENV: "production" })).rejects.toThrow(EmailConfigError);
+  });
+  it("ค่า EMAIL_TRANSPORT แปลก → error", async () => {
+    await expect(sendEmail(msg, { EMAIL_TRANSPORT: "http" })).rejects.toThrow(/EMAIL_TRANSPORT/);
+  });
+});
+
+describe("transport smtp", () => {
+  it("ใช้ค่าจาก env", async () => {
+    await sendEmail(msg, SMTP_ENV);
+    expect(createTransport).toHaveBeenCalledWith(
+      expect.objectContaining({
+        host: "smtp.example.com",
+        port: 465,
+        secure: true,
+        auth: { user: "app@example.com", pass: "fake-app-password" },
+      }),
+    );
+    expect(sendMail).toHaveBeenCalledWith(
+      expect.objectContaining({ from: SMTP_ENV.EMAIL_FROM, to: "a@example.com", subject: "s" }),
+    );
+    expect(close).toHaveBeenCalled();
+  });
+  it("พอร์ต 587 ใช้ STARTTLS (secure=false)", async () => {
+    await sendEmail(msg, { ...SMTP_ENV, SMTP_PORT: "587" });
+    expect(createTransport).toHaveBeenCalledWith(expect.objectContaining({ port: 587, secure: false }));
+  });
+  it("ค่าไม่ครบ → error บอกชื่อตัวแปรที่ขาด (ไม่บอกค่า)", async () => {
+    const { SMTP_PASS: _omit, ...rest } = SMTP_ENV;
+    void _omit;
+    const err = await sendEmail(msg, rest).catch((e) => e);
+    expect(err).toBeInstanceOf(EmailConfigError);
+    expect(err.message).toContain("SMTP_PASS");
+    expect(createTransport).not.toHaveBeenCalled();
+  });
+});
+
+describe("sendOtpEmail", () => {
+  it("แสดงรหัสใน log ของ production ไม่ได้ (ผ่านทางเต็ม)", async () => {
+    vi.stubEnv("EMAIL_TRANSPORT", "log");
+    vi.stubEnv("NODE_ENV", "production");
+    const info = vi.spyOn(console, "info").mockImplementation(() => {});
+    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    await sendOtpEmail({ to: "a@example.com", otp: "246810", locale: "en" });
+    expect(JSON.stringify([info.mock.calls, errSpy.mock.calls])).not.toMatch(/246810|a@example\.com/);
+  });
+  it("ส่งผิดพลาด: log ไม่มีอีเมล/รหัส และโยนต่อ", async () => {
+    vi.stubEnv("EMAIL_TRANSPORT", "smtp");
+    vi.stubEnv("SMTP_HOST", "");
+    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    await expect(sendOtpEmail({ to: "a@example.com", otp: "246810", locale: "th" })).rejects.toThrow();
+    expect(JSON.stringify(errSpy.mock.calls)).not.toMatch(/246810|a@example\.com/);
+  });
+});
