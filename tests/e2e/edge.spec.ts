@@ -1,5 +1,6 @@
-import { expect, test } from "@playwright/test";
-import { collectErrors, expectNoHorizontalOverflow, msg, PAGES, TOKENS } from "./helpers";
+import { expect, test } from "./fixtures";
+import { APP_PAGES, collectErrors, expectNoHorizontalOverflow, msg, PAGES, TOKENS } from "./helpers";
+import { applySession } from "./support/auth";
 
 // ทางผิดที่ผู้ใช้จริงเจอได้
 
@@ -79,13 +80,15 @@ test.describe("ทางผิด", () => {
     expect(errors).toEqual([]);
   });
 
-  test("ปิด JavaScript → ทุกหน้ายังอ่านได้ (render ฝั่งเซิร์ฟเวอร์) และมีแถบล่าง", async ({ browser, baseURL }) => {
+  test("ปิด JavaScript → ทุกหน้ายังอ่านได้ (render ฝั่งเซิร์ฟเวอร์) และหน้าแอปมีแถบล่าง", async ({ browser, baseURL, sharedUser }) => {
     const ctx = await browser.newContext({ javaScriptEnabled: false, baseURL, viewport: { width: 390, height: 844 } });
+    await applySession(ctx, sharedUser);
     const page = await ctx.newPage();
     for (const path of PAGES) {
       await page.goto(path);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-      await expect(page.getByRole("navigation", { name: msg("th", "nav.label") }).getByRole("link")).toHaveCount(4);
+      const tabs = (APP_PAGES as readonly string[]).includes(path) ? 4 : 0;
+      await expect(page.getByRole("navigation", { name: msg("th", "nav.label") }).getByRole("link")).toHaveCount(tabs);
     }
     // แท็บเป็นลิงก์จริง กดได้แม้ไม่มี JS
     await page.goto("/");
@@ -105,9 +108,10 @@ test.describe("ทางผิด", () => {
     }
   });
 
-  test("เส้นทางที่ไม่มี → 404 และยังมีแถบล่างให้กลับ", async ({ page }) => {
+  // R1 (ADR 0006): 404 อยู่นอกกลุ่ม (app) → ไม่มีแถบล่าง · ทางกลับคือลิงก์กลับหน้าหลัก
+  test("เส้นทางที่ไม่มี → 404 และมีลิงก์กลับหน้าหลัก", async ({ page }) => {
     const res = await page.goto("/no-such-page");
     expect(res?.status()).toBe(404);
-    await expect(page.getByRole("navigation", { name: msg("th", "nav.label") })).toBeVisible();
+    await expect(page.getByRole("link", { name: msg("th", "notFound.home") })).toBeVisible();
   });
 });

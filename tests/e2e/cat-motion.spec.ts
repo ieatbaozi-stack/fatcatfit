@@ -3,7 +3,8 @@
 //
 // เซิร์ฟเวอร์ ขนาดจอ (project mobile 390×844 / desktop) และเบราว์เซอร์มาจาก playwright.config.ts
 // เทสต์ชุดนี้ไม่ขึ้นกับขนาดจอ จึงรันทั้งสอง project
-import { expect, test, type Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 type Locale = "th" | "en";
 type Scheme = "light" | "dark";
