@@ -226,9 +226,14 @@ export function StyleguideBody() {
           <Labeled label={t("cats.still")}>
             <Cat pose="standing" size={96} />
           </Labeled>
-          <Labeled label={t("cats.wiggle")}>
-            <Cat pose="standing" size={96} wiggle />
+          <Labeled label={t("cats.motion")}>
+            <Cat pose="standing" size={96} motion />
           </Labeled>
+          {(["side", "squat", "overhead-press", "pull-up"] as const).map((pose) => (
+            <Labeled key={pose} label={t(`cats.poses.${pose}`)}>
+              <Cat pose={pose} size={96} motion />
+            </Labeled>
+          ))}
           <Labeled label={t("cats.meaning")}>
             <Cat pose="standing" size={96} title={t("cats.meaningTitle")} />
           </Labeled>

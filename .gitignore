@@ -4,7 +4,6 @@ Pre-start/
 # ภาพแมวที่สร้างจากสคริปต์ (ไฟล์ภาพขนาดใหญ่ สร้างใหม่ได้ด้วย: node scripts/export-stickers.mjs)
 # เก็บขึ้น git เฉพาะ assets/stickers/svg/ กับ README
 assets/stickers/png/
-assets/stickers/sprites/
 # แมวขยับจริง 5 เฟรม สร้างด้วย node scripts/sprites/build.mjs (สคริปต์อยู่ใน git, ผลลัพธ์ไม่อยู่)
 assets/stickers/motion/
 

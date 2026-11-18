@@ -20,7 +20,7 @@ export default async function MePage() {
         <LocaleSwitch />
       </section>
       <div className="mt-12 flex justify-center">
-        <Cat pose="standing" size={120} wiggle className="text-ink" />
+        <Cat pose="standing" size={120} motion className="text-ink" />
       </div>
     </>
   );
