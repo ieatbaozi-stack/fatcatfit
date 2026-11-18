@@ -168,11 +168,6 @@ const SCREENS: Screen[] = [
   },
 ];
 
-/** บั๊กของแอปที่ qa-test รายงาน Lead แล้ว (R1 ขั้น 5) — key = "<จอ>:<ภาษา>" */
-const KNOWN_BUGS: Record<string, string> = {
-  "welcome-email:th":
-    "BUG R1-QA-2: ปุ่มข้อความ \"ใส่โค้ด\" บนขั้นอีเมลกว้าง 33px < 44px (welcome-screen.tsx ปุ่ม inline-flex min-h-11 ไม่มี min-w)",
-};
 
 function parse(rgb: string): [number, number, number, number] {
   const m = rgb.match(/rgba?\(([^)]+)\)/);
@@ -278,10 +273,7 @@ for (const theme of THEMES) {
       });
 
       for (const s of SCREENS) {
-        const known = KNOWN_BUGS[`${s.name}:${locale}`];
         test(`${s.name}: คอนทราสต์ · ฟอนต์ · ปุ่ม ≥ 44px · ไม่ล้นจอ · ส้ม ≤ 1 ที่ · ${locale === "en" ? "ไม่มีไทยหลุด" : "ภาษาไทย"}`, async ({ page, baseURL }, info) => {
-          // บั๊กที่รายงานแล้ว: คาดว่าล้มจนกว่าจะแก้ — แก้แล้วเทสต์จะแดง ให้ลบออกจาก KNOWN_BUGS
-          test.fail(Boolean(known), known);
           await s.open(page, locale, baseURL!);
           await page.evaluate(() => document.fonts.ready);
           await page.waitForTimeout(300);
@@ -348,7 +340,6 @@ test.describe("ป้ายแท็บที่ซูม 200% (งานค้�
   // BUG R1-QA-3: R1 ใส่ `truncate` (overflow:hidden) ให้ป้ายแท็บเพื่อแก้ซูม 200% → เส้นใต้ wavy ของแท็บที่เลือก
   // (text-underline-offset 5px อยู่นอกกล่องบรรทัด) ถูกตัดเหลือแค่จุด · สถานะแท็บที่เลือกต้องไม่พึ่งสีอย่างเดียว
   test("BUG R1-QA-3: เส้นใต้ของแท็บที่เลือกไม่ถูกตัด", async ({ page }) => {
-    test.fail(true, "BUG R1-QA-3: bottom-tabs.tsx span truncate ตัดเส้นใต้ underline-hand ของแท็บที่เลือก");
     await page.goto("/me");
     const clip = await page.evaluate(() => {
       const s = document.querySelector('nav a[aria-current="page"] span')!;

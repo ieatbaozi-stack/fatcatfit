@@ -117,7 +117,7 @@ export type OtpVerify =
   | { ok: true }
   | {
       ok: false;
-      reason: "invalid_otp" | "expired" | "too_many_attempts" | "invite_required" | "error" | "network";
+      reason: "invalid_otp" | "invite_required" | "error" | "network";
     }
   | { ok: false; reason: "rate_limited"; retryAfterS: number };
 
@@ -128,8 +128,6 @@ export async function verifyOtp(email: string, otp: string, f: Fetcher = fetch):
     if (res.status === 429) return { ok: false, reason: "rate_limited", retryAfterS: retryAfterSeconds(res) };
     const code = String((await readJson(res)).code ?? "");
     if (code === "INVALID_OTP") return { ok: false, reason: "invalid_otp" };
-    if (code === "OTP_EXPIRED") return { ok: false, reason: "expired" };
-    if (code === "TOO_MANY_ATTEMPTS") return { ok: false, reason: "too_many_attempts" };
     if (code.toLowerCase() === "invite_required") return { ok: false, reason: "invite_required" };
     return { ok: false, reason: "error" };
   } catch {

@@ -217,7 +217,7 @@ export function WelcomeScreen() {
           ) : (
             <>{t("email.noInvite")} · </>
           )}
-          <button type="button" className="inline-flex min-h-11 cursor-pointer items-center text-ink underline-hand" onClick={() => setStep("start")}>
+          <button type="button" className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center text-ink underline-hand" onClick={() => setStep("start")}>
             {invite ? t("email.edit") : t("email.addInvite")}
           </button>
         </p>

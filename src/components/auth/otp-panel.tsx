@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button, TextButton } from "@/components/ui/button";
 import { sendOtp, verifyOtp } from "./api";
@@ -10,8 +10,7 @@ import { useNet } from "./use-net";
 const RESEND_AFTER_MS = 60_000;
 
 type OtpError =
-  | { kind: "wrong"
-    | "too_many" | "expired" | "invite_required" | "failed" | "send_failed" | "unavailable" | "network" }
+  | { kind: "wrong" | "failed" | "send_failed" | "unavailable" | "network" }
   | { kind: "rate_limited" };
 
 /** ขั้นกรอก OTP: ครบ 6 หลักส่งเอง · ขอใหม่ได้หลัง 60 วิ · 429 แสดง "รอ mm:ss" */
@@ -26,8 +25,17 @@ export function OtpPanel({ email, onChangeEmail, hasGoogle }: { email: string; o
   const [resendAt, setResendAt] = useState<number>(() => Date.now() + RESEND_AFTER_MS);
   const submitting = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const refocus = useRef(false);
   const wait = useCountdown(resendAt);
   const offline = net === "offline";
+
+  // โฟกัสช่องรหัสหลังตรวจไม่ผ่าน: ต้องรอให้ช่องหลุด disabled (render ใหม่) ก่อน ไม่งั้น focus() ไม่ติด
+  useEffect(() => {
+    if (!verifying && refocus.current) {
+      refocus.current = false;
+      inputRef.current?.focus();
+    }
+  }, [verifying]);
 
   async function submit(value: string) {
     if (submitting.current) return;
@@ -37,6 +45,7 @@ export function OtpPanel({ email, onChangeEmail, hasGoogle }: { email: string; o
     const r = await verifyOtp(email, value);
     submitting.current = false;
     setVerifying(false);
+    refocus.current = true;
     if (r.ok) {
       // โหลดเต็มหน้า: ให้ service worker เก็บหน้าในสถานะล็อกอิน (ADR 0006 ข้อ 1)
       window.location.replace("/");
@@ -47,11 +56,8 @@ export function OtpPanel({ email, onChangeEmail, hasGoogle }: { email: string; o
     else if (r.reason === "rate_limited") {
       setResendAt(Date.now() + r.retryAfterS * 1000);
       setError({ kind: "rate_limited" });
-    } else if (r.reason === "too_many_attempts") setError({ kind: "too_many" });
-    else if (r.reason === "expired") setError({ kind: "expired" });
-    else if (r.reason === "invite_required") setError({ kind: "wrong" }); // ห้ามบอกว่าอีเมลนี้ไม่มีบัญชี
+    } else if (r.reason === "invite_required") setError({ kind: "wrong" }); // ห้ามบอกว่าอีเมลนี้ไม่มีบัญชี
     else setError({ kind: r.reason === "network" ? "network" : "failed" });
-    inputRef.current?.focus();
   }
 
   function onType(raw: string) {
@@ -87,7 +93,7 @@ export function OtpPanel({ email, onChangeEmail, hasGoogle }: { email: string; o
               ? t("network")
               : error.kind === "send_failed"
                 ? w("email.failed")
-                : t(error.kind === "too_many" ? "tooMany" : error.kind === "expired" ? "expired" : "failed")
+                : t("failed")
     : null;
 
   const canResend = wait === 0 && !resending && !verifying && !offline;

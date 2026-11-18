@@ -290,7 +290,6 @@ test.describe("โค้ดเชิญผิด / ไม่มี (เกณฑ
   // บั๊กที่ qa-test พบ (รายงาน Lead ใน R1 ขั้น 5): otp-panel.tsx เรียก inputRef.focus() ตอนช่องยัง disabled (ก่อน React render ใหม่)
   // → โฟกัสไม่กลับ · บนมือถือคีย์บอร์ดหุบ ต้องแตะช่องใหม่ · test.fail = คาดว่าล้มจนกว่าจะแก้ (แก้แล้วเทสต์นี้จะแดง ให้ลบ test.fail ออก)
   test("BUG R1-QA-1: รหัสผิดแล้วโฟกัสกลับไปที่ช่องรหัส", async ({ page }) => {
-    test.fail(true, "BUG R1-QA-1: focus ไม่กลับช่อง OTP หลังรหัสผิด (otp-panel.tsx submit())");
     const code = await newInvite();
     const email = uniqueEmail("focus");
     await page.goto(`/welcome#invite=${code}`);

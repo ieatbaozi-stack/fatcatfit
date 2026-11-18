@@ -38,13 +38,14 @@ export async function PrivacyNotice({
         <p className="mt-3 text-body text-ink-2">{t("intro")}</p>
       </header>
       {PRIVACY_SECTIONS.map((key) => {
-        const items = lines(t.raw(`sections.${key}.items`));
+        const items = t.has(`sections.${key}.items`) ? lines(t.raw(`sections.${key}.items`)) : [];
+        const paragraphs = t.has(`sections.${key}.paragraphs`) ? lines(t.raw(`sections.${key}.paragraphs`)) : [];
         return (
           <section key={key} aria-labelledby={`privacy-${key}`} className="flex flex-col gap-2">
             <h2 id={`privacy-${key}`} className="text-section">
               {t(`sections.${key}.title`)}
             </h2>
-            {lines(t.raw(`sections.${key}.paragraphs`)).map((p) => (
+            {paragraphs.map((p) => (
               <p key={p} className="text-body text-ink-2">
                 {p}
               </p>
@@ -56,6 +57,17 @@ export async function PrivacyNotice({
                 ))}
               </ul>
             ) : null}
+            {t.has(`sections.${key}.safety`) ? (
+              <>
+                <p className="mt-2 text-body text-ink-2">{t(`sections.${key}.safetyTitle`)}</p>
+                <ul className="flex list-disc flex-col gap-2 pl-5 text-body text-ink-2">
+                  {lines(t.raw(`sections.${key}.safety`)).map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
+            {t.has(`sections.${key}.after`) ? <p className="text-body text-ink-2">{t(`sections.${key}.after`)}</p> : null}
             {key === "controller" ? (
               <p className="text-body text-ink">
                 {controllerName && contactEmail

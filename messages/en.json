@@ -156,7 +156,7 @@
       "label": "Email",
       "placeholder": "name@example.com",
       "hint": "Use the email you signed in with before, including the Gmail you used with Google",
-      "invalid": "This email doesn't look right · check it again",
+      "invalid": "Please check the email format",
       "tooFast": "Too many requests · try again in {time}",
       "unavailable": "Can't send email right now · try Google instead",
       "unavailableNoGoogle": "Can't send email right now · try again tomorrow",
@@ -178,9 +178,7 @@
     "title": "Enter the 6-digit code",
     "sentTo": "Sent to {email} · valid for 10 minutes",
     "label": "6-digit code",
-    "wrong": "That code didn't match · try again",
-    "tooMany": "Too many tries · ask for a new code",
-    "expired": "That code has expired · ask for a new one",
+    "wrong": "Incorrect or expired code. You can request a new one.",
     "failed": "Couldn't check the code · try again",
     "network": "Connection trouble · try again",
     "verifying": "Checking the code…",
@@ -286,13 +284,13 @@
     "signOutFailed": "Couldn't sign out · try again",
     "deleteScreen": {
       "title": "This deletes everything",
-      "body": "Removed right away. It cannot be undone.",
+      "body": "Removed from the app right away. You can't undo it yourself.",
       "item1": "All sessions and sets",
       "item2": "Body weight and measurements",
       "item3": "My exercises, templates, places",
       "item4": "Questionnaire answers and consent — deleting your account also withdraws your consent",
       "exportSoon": "Data export isn't available yet (coming soon)",
-      "backup": "Provider backups expire on their own, as described in the privacy notice",
+      "backup": "The database provider may be able to restore data for up to 6 hours, then it disappears on its own, as described in the privacy notice",
       "understand": "I understand this cannot be undone",
       "confirm": "Delete my account",
       "deleting": "Deleting…",
@@ -316,7 +314,8 @@
         "title": "1. Why we collect it",
         "paragraphs": [
           "To make the app work: sign you in, let you log workouts, and show your own progress.",
-          "We don't sell data, use it for ads or marketing, or pass it to anyone except the providers in section 4. Friends in the group cannot see your data."
+          "We don't sell data, use it for ads or marketing, or pass it to anyone except the providers in section 4. Friends in the group cannot see your data.",
+          "Weight, height and workouts are health data, which is sensitive data. We collect and use it only with your explicit consent (section 26 of Thailand's Personal Data Protection Act). Account data (email and sign-in data) is kept to provide the service you asked for (section 24(3)), including the time before you tap agree."
         ]
       },
       "required": {
@@ -334,26 +333,37 @@
       "collected": {
         "title": "3. What we store, and for how long",
         "items": [
-          "Account: email and name (with Google sign-in, the name from your Google account) — kept until you delete your account",
-          "Health data: weight, height, birth year, goals, experience, and the workout history you'll log in later versions — kept until you delete your account",
+          "Account: email and name (only with Google sign-in, the name from your Google account) — kept until you delete your account · we do not store your profile picture, and we do not keep your IP address or browser details with your account",
+          "Health data (sensitive): weight, height and birth year from the questionnaire, workout places, goals, experience, and the workout history you'll log in later versions — kept until you delete your account",
           "Settings: units, language, theme, rest time — kept until you delete your account",
           "Consent record: time, notice version and language — kept until you delete your account",
-          "Sign-in: the sign-in in your browser lasts 90 days · the 6-digit email code expires in 10 minutes (stored in a form that can't be reversed)",
-          "Guess protection: how many codes were requested and tried per email and per network address, stored in a form that can't be reversed, for a short time, then it expires",
+          "Sign-in: the sign-in in your browser lasts 90 days",
           "On your own device: language, theme, and a mark that you've signed in before — stays in your browser, sent nowhere"
+        ],
+        "paragraphs": [
+          "Data tied to your account:"
+        ],
+        "safetyTitle": "Security data (not tied to your account) and how long it stays:",
+        "safety": [
+          "Request limiting: IP address and the path requested, deleted automatically within about 2 days",
+          "6-digit sign-in code: stored in a form that can't be reversed, expires in 10 minutes, deleted within about 1 day",
+          "Code request counter: stored in a form that can't be reversed, deleted within about 3 days",
+          "Logs of the hosting provider Vercel: path, user agent and system messages, shown in the app's admin view for at most 1 hour; what Vercel keeps itself follows Vercel's own policy",
+          "The code email: sent from the app's Gmail account, and Gmail keeps a copy in its Sent folder until the admin deletes it (the admin clears it from time to time)"
         ]
       },
       "recipients": {
         "title": "4. Who receives it, and is it sent abroad",
         "paragraphs": [
-          "Providers that help the app run. All are outside Thailand, so data is sent to and processed abroad (the app's servers and database are in Singapore):"
+          "Providers that help the app run. All operate outside Thailand, so data is sent to and processed abroad (section 28):"
         ],
         "items": [
-          "Vercel: hosts the app and receives your requests",
-          "Neon: stores the database (the data in section 3 lives here)",
-          "Google: if you choose Google sign-in, Google knows you use this app · and the app's Gmail account sends you the code email, so it sees the destination address and the code in that message",
+          "Neon: stores the database, in Singapore (the data in section 3 lives here)",
+          "Vercel: hosts the app and receives your requests; the app servers are in Singapore, and the provider may process data in the United States and other countries where it operates",
+          "Google: operates in many countries worldwide — if you choose Google sign-in, Google knows you use this app · and the app's Gmail account sends you the code email, so it sees the destination address and the code in that message",
           "No other recipients"
-        ]
+        ],
+        "after": "The destination countries may have personal data protection standards different from Thailand's."
       },
       "controller": {
         "title": "5. Who is the data controller",
@@ -375,7 +385,7 @@
       "backup": {
         "title": "7. Backups",
         "paragraphs": [
-          "When you delete your account your data leaves the system right away, but the database provider makes automatic backups. Deleted data may remain in a backup until that backup expires on the provider's own schedule. We don't use backups for anything else."
+          "When you delete your account your data leaves the app right away, but the database provider may be able to restore it for up to 6 hours (and up to 7 days if the whole system is deleted), after which it disappears on its own. We don't use data from that period for anything else."
         ]
       },
       "withdraw": {

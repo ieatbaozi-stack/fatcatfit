@@ -47,8 +47,8 @@ export function BottomTabs() {
                   )}
                 >
                   <Icon name={icon} size={26} />
-                  {/* บรรทัดเดียวเสมอ แม้ซูมตัวอักษร 200% — ถ้ายาวเกินช่องจะตัดด้วย … (ชื่อเต็มอยู่ใน aria-label) */}
-                  <span className={cx("block max-w-full truncate whitespace-nowrap", active && "underline-hand")}>{t(key)}</span>
+                  {/* บรรทัดเดียวเสมอ แม้ซูมตัวอักษร 200% — ถ้ายาวเกินช่องจะตัดด้วย … (ชื่อเต็มอยู่ใน aria-label) · pb-2/-mb-2 เว้นที่ให้เส้นใต้วาดมือไม่ถูก overflow ตัด */}
+                  <span className={cx("-mb-2 block max-w-full truncate whitespace-nowrap pb-2", active && "underline-hand")}>{t(key)}</span>
                 </Link>
               </li>
             );

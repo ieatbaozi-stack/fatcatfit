@@ -87,8 +87,8 @@ describe("sendOtp / verifyOtp", () => {
   it("verifyOtp: แยกรหัสผิด หมดอายุ ผิดเกิน invite_required", async () => {
     expect(await verifyOtp("a@example.com", "123456", reply(200, { token: "t" }))).toEqual({ ok: true });
     expect(await verifyOtp("a", "1", reply(400, { code: "INVALID_OTP" }))).toEqual({ ok: false, reason: "invalid_otp" });
-    expect(await verifyOtp("a", "1", reply(400, { code: "OTP_EXPIRED" }))).toEqual({ ok: false, reason: "expired" });
-    expect(await verifyOtp("a", "1", reply(403, { code: "TOO_MANY_ATTEMPTS" }))).toEqual({ ok: false, reason: "too_many_attempts" });
+    // เซิร์ฟเวอร์ตอบ INVALID_OTP ทุกกรณีรหัสไม่ผ่าน · code เก่าที่ไม่รู้จักถือเป็น error ทั่วไป
+    expect(await verifyOtp("a", "1", reply(400, { code: "OTP_EXPIRED" }))).toEqual({ ok: false, reason: "error" });
     expect(await verifyOtp("a", "1", reply(403, { code: "invite_required" }))).toEqual({ ok: false, reason: "invite_required" });
     expect(await verifyOtp("a", "1", reply(500))).toEqual({ ok: false, reason: "error" });
   });
