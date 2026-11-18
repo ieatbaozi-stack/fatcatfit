@@ -1,5 +1,5 @@
 import { assertSameOrigin, handle, json } from "@/lib/auth/http";
-import { getAuth, requireUser } from "@/lib/auth/server";
+import { getAuth, requireUser, requireUserWithCookies } from "@/lib/auth/server";
 import { deleteAccount } from "@/lib/data/server/account";
 import { getDataDb } from "@/lib/data/server/context";
 import { getMe } from "@/lib/data/server/me";
@@ -10,8 +10,11 @@ export const dynamic = "force-dynamic";
 // GET /api/me — สถานะผู้ใช้ปัจจุบัน (ไม่ผ่าน requireConsent: จอยินยอม/แบบสอบถามต้องอ่านได้) · 401 = ไม่ล็อกอิน
 export function GET(request: Request) {
   return handle(async () => {
-    const u = await requireUser(request.headers);
-    return json(await getMe(getDataDb(), u));
+    const { user, setCookies } = await requireUserWithCookies(request.headers);
+    const res = json(await getMe(getDataDb(), user));
+    // ต่ออายุ session ใน cookie ของเบราว์เซอร์ตามที่ฐานข้อมูลต่อให้ (updateAge 1 วัน)
+    for (const c of setCookies) res.headers.append("Set-Cookie", c);
+    return res;
   });
 }
 

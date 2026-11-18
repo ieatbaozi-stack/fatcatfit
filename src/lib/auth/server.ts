@@ -48,9 +48,20 @@ export type AuthedUser = { userId: string; email: string; name: string };
 
 /** ผู้ใช้จาก cookie session — ไม่มี/หมดอายุ/ถูกเพิกถอน → HttpError 401 unauthenticated */
 export async function requireUser(headers: Headers): Promise<AuthedUser> {
-  const session = await getAuth().api.getSession({ headers });
+  return (await requireUserWithCookies(headers)).user;
+}
+
+/**
+ * เหมือน requireUser แต่คืน Set-Cookie ที่ Better Auth ออกให้ด้วย (ต่ออายุ session เมื่อพ้น updateAge)
+ * endpoint ที่แอปเรียกทุกครั้งที่เปิด (GET /api/me) ต้องส่งต่อ cookie เหล่านี้ ไม่งั้นอายุใน cookie ของเบราว์เซอร์ไม่ต่อตามฐานข้อมูล
+ */
+export async function requireUserWithCookies(headers: Headers): Promise<{ user: AuthedUser; setCookies: string[] }> {
+  const { headers: out, response: session } = await getAuth().api.getSession({ headers, returnHeaders: true });
   if (!session?.user) throw new HttpError(401, "unauthenticated");
-  return { userId: session.user.id, email: session.user.email, name: session.user.name };
+  return {
+    user: { userId: session.user.id, email: session.user.email, name: session.user.name },
+    setCookies: out.getSetCookie(),
+  };
 }
 
 /** ยังไม่ยินยอมประกาศเวอร์ชันปัจจุบัน → HttpError 403 consent_required */

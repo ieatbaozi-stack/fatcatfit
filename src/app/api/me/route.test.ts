@@ -145,6 +145,47 @@ describe("GET /api/me", () => {
   });
 });
 
+describe("GET /api/me — consent และ session", () => {
+  it("acceptedAt มาจากแถวของประกาศเวอร์ชันปัจจุบันเท่านั้น (ไม่ใช่แถวเก่า)", async () => {
+    const c = await signUp("acceptedat@example.com");
+    await consent(c);
+    const [u] = await t.db.select().from(user).where(eq(user.email, "acceptedat@example.com"));
+    const [cur] = await t.db.select().from(consentRecord).where(eq(consentRecord.userId, u.id));
+    await t.db.insert(consentRecord).values({
+      id: uuid(),
+      userId: u.id,
+      noticeVersion: "2000-01-01",
+      acceptedAt: new Date("2000-01-02T00:00:00.000Z"),
+      locale: "th",
+    });
+    const me = await (await meGet(req("GET", "/api/me", c))).json();
+    expect(me.consent.accepted).toBe(true);
+    expect(me.consent.acceptedAt).toBe(cur.acceptedAt.toISOString());
+  });
+
+  it("session ถึงรอบต่ออายุ → /api/me ส่ง Set-Cookie ต่ออายุ cookie ของเบราว์เซอร์ · ยังไม่ถึงรอบ → ไม่ส่ง", async () => {
+    const c = await signUp("renew@example.com");
+    const [u] = await t.db.select().from(user).where(eq(user.email, "renew@example.com"));
+    const fresh = await meGet(req("GET", "/api/me", c));
+    expect(fresh.status).toBe(200);
+    expect(fresh.headers.getSetCookie().filter((l) => l.includes("session_token"))).toHaveLength(0);
+    // จำลองว่าผ่านไปหลายวัน: เหลืออายุ 80 วัน (< 90 − 1)
+    const soon = new Date(Date.now() + 80 * 86_400_000);
+    await t.db.update(session).set({ expiresAt: soon }).where(eq(session.userId, u.id));
+    const res = await meGet(req("GET", "/api/me", c));
+    expect(res.status).toBe(200);
+    const line = res.headers.getSetCookie().find((l) => l.includes("session_token="));
+    expect(line).toBeDefined();
+    expect(line).toMatch(/Max-Age=7776000/i); // 90 วัน
+    expect(line).toMatch(/HttpOnly/i);
+    const [row] = await t.db.select().from(session).where(eq(session.userId, u.id));
+    expect(row.expiresAt.getTime() - Date.now()).toBeGreaterThan(89 * 86_400_000);
+    // ครั้งถัดไปไม่ต้องต่ออีก
+    const again = await meGet(req("GET", "/api/me", c));
+    expect(again.headers.getSetCookie().filter((l) => l.includes("session_token"))).toHaveLength(0);
+  });
+});
+
 describe("POST /api/consent", () => {
   it("ไม่ล็อกอิน → 401", async () => {
     const res = await consentPost(req("POST", "/api/consent", undefined, { noticeVersion: PRIVACY_NOTICE_VERSION, locale: "th" }));
@@ -309,6 +350,16 @@ describe("DELETE /api/me", () => {
     const res = await meDelete(req("DELETE", "/api/me", c, undefined, { origin: "https://evil.example" }));
     expect(res.status).toBe(403);
     expect((await meGet(req("GET", "/api/me", c))).status).toBe(200); // ยังอยู่
+  });
+
+  it("Sec-Fetch-Site: cross-site → 403 แม้ Origin จะตรงโฮสต์ · same-origin/same-site ผ่านการตรวจ origin", async () => {
+    const c = await signUp("del-secfetch@example.com");
+    const cross = await meDelete(req("DELETE", "/api/me", c, undefined, { "sec-fetch-site": "cross-site" }));
+    expect(cross.status).toBe(403);
+    expect((await cross.json()).code).toBe("bad_origin");
+    expect((await meGet(req("GET", "/api/me", c))).status).toBe(200); // ยังอยู่
+    const consentCross = await consentPost(req("POST", "/api/consent", c, { noticeVersion: PRIVACY_NOTICE_VERSION, locale: "th" }, { "sec-fetch-site": "cross-site" }));
+    expect(consentCross.status).toBe(403);
   });
 
   it("เกณฑ์ 10: ลบแล้วทุกตารางที่มี user_id/owner_user_id เหลือ 0 แถวของคนนั้น + verification + auth_throttle ของอีเมลนั้นหาย · อีกคนไม่กระทบ", async () => {

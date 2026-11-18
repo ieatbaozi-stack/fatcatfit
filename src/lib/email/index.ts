@@ -70,6 +70,7 @@ export const sendOtpEmail: SendOtpEmail = async ({ to, otp, locale }) => {
     // log เฉพาะชนิดความผิดพลาด ไม่ log อีเมล/รหัส/ข้อความจากเซิร์ฟเวอร์ SMTP (อาจมีที่อยู่ผู้รับ)
     const why = err instanceof EmailConfigError ? err.message : ((err as { code?: string })?.code ?? "unknown");
     console.error(`[email] send failed: ${why}`);
-    throw err;
+    // โยน error ใหม่ที่ไม่มี property อื่น — error ของ SMTP มีที่อยู่ผู้รับ และไลบรารี auth อาจ log ทั้งก้อน
+    throw new Error("email_send_failed");
   }
 };

@@ -1,15 +1,16 @@
 import "server-only";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
-import { APIError, createAuthMiddleware } from "better-auth/api";
+import { APIError, createAuthMiddleware, isAPIError } from "better-auth/api";
 import { emailOTP } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
+import * as z from "zod";
 import { profile, user } from "@/db/schema";
 import type { AppDb } from "@/db/types";
 import * as schema from "@/db/schema";
 import { resolveLocale } from "@/lib/i18n/config";
 import type { OtpLocale, SendOtpEmail } from "./email-port";
-import { INVITE_COOKIE, normalizeInviteCode } from "./invite-code";
+import { INVITE_COOKIE, INVITE_COOKIE_PATH, normalizeInviteCode } from "./invite-code";
 import { consumeInvite, isInviteActive } from "./invite-store";
 import {
   countOtpSent,
@@ -31,6 +32,8 @@ export type AuthDeps = {
   baseURL?: string;
   secret?: string;
   /** null = ไม่เปิด Google (ยังไม่มี OAuth client) · overrides ใช้ในเทสต์เท่านั้น (mock การตรวจ id token) */
+  /** เปิดการตรวจ Origin/CSRF ของ Better Auth ในเทสต์ (ในโปรดักชันเปิดอยู่แล้ว — ค่าเริ่มของไลบรารีปิดเฉพาะตอนรันเทสต์) */
+  enforceOrigin?: boolean;
   google?: ({ clientId: string; clientSecret: string } & Record<string, unknown>) | null;
 };
 
@@ -46,6 +49,16 @@ export const ALLOWED_AUTH_PATHS = [
 ] as const;
 
 const TOO_MANY = "Too many requests. Please try again later.";
+
+/** เส้นทางที่สร้าง session ใหม่ได้ — ใช้ล้าง cookie โค้ดเชิญหลังสมัครสำเร็จ */
+const SIGN_IN_PATHS = ["/sign-in/email-otp", "/sign-in/social"];
+
+/** logger ของ Better Auth: log เฉพาะข้อความ (ไม่ log object ของ error ซึ่งอาจมีอีเมลจากฐานข้อมูล/ตัวส่งเมล) และตัดสิ่งที่หน้าตาเป็นอีเมลออก */
+export function safeLog(level: "debug" | "info" | "warn" | "error", message: string): void {
+  const text = String(message).replace(/[^\s@"'<>,;]+@[^\s@"'<>,;]+/g, "[redacted]");
+  const out = level === "error" ? console.error : level === "warn" ? console.warn : console.info;
+  out(`[auth] ${text}`);
+}
 
 function inviteRequired() {
   return APIError.from("FORBIDDEN", { code: "invite_required", message: "Invite code required" });
@@ -71,7 +84,9 @@ export function createAuth(db: AppDb, deps: AuthDeps) {
     baseURL: deps.baseURL,
     database: drizzleAdapter(db as never, { provider: "pg", schema }),
     // id สร้างในโค้ดเสมอ (ADR 0001) — ห้ามใช้ generateId: "uuid"
+    logger: { level: "warn", log: safeLog },
     advanced: {
+      ...(deps.enforceOrigin ? { disableOriginCheck: false } : {}),
       database: { generateId: () => crypto.randomUUID() },
       ...(deps.runInBackground ? { backgroundTasks: { handler: deps.runInBackground } } : {}),
     },
@@ -119,8 +134,9 @@ export function createAuth(db: AppDb, deps: AuthDeps) {
         if (body.type !== "sign-in") {
           throw APIError.from("BAD_REQUEST", { code: "INVALID_OTP_TYPE", message: "Invalid OTP type" });
         }
+        // กติกาเดียวกับปลั๊กอินเป๊ะ (ตัวพิมพ์เล็ก ไม่ตัดช่องว่าง + ตัวตรวจรูปแบบเดียวกัน) — รูปแบบผิดปล่อยให้ปลั๊กอินตอบ 400 INVALID_EMAIL เหมือนกันทุกกรณี
         const email = typeof body.email === "string" ? normalizeEmail(body.email) : "";
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return; // ปลั๊กอินตอบ 400 INVALID_EMAIL เอง
+        if (!z.email().safeParse(email).success) return;
 
         const t = now();
         const th = await hitOtpEmailThrottle(db, email, t);
@@ -142,9 +158,37 @@ export function createAuth(db: AppDb, deps: AuthDeps) {
           if (!active) return ctx.json({ success: true });
         }
       }),
+      after: createAuthMiddleware(async (ctx) => {
+        const returned: unknown = ctx.context.returned;
+        // คำตอบของการยืนยัน OTP ผิดต้องเหมือนกันทุกกรณี: เกินจำนวนครั้ง/หมดอายุ (เกิดเฉพาะอีเมลที่มี OTP จริง) → INVALID_OTP
+        if (ctx.path === "/sign-in/email-otp" && isAPIError(returned)) {
+          const code = (returned.body as { code?: unknown } | undefined)?.code;
+          if (code === "TOO_MANY_ATTEMPTS" || code === "OTP_EXPIRED") {
+            // ต้องคืน Response (ไม่ใช่ throw APIError): ไลบรารีคง status เดิมของ error ต้นทาง (403) ไว้เสมอ
+            const same = APIError.from("BAD_REQUEST", { code: "INVALID_OTP", message: "Invalid OTP" });
+            return new Response(JSON.stringify(same.body), { status: same.statusCode, headers: { "content-type": "application/json" } });
+          }
+        }
+        // สมัคร/เข้าสำเร็จ (มี session ใหม่) → ล้าง cookie โค้ดเชิญที่ใช้เสร็จแล้ว
+        const isSignIn = SIGN_IN_PATHS.includes(ctx.path) || ctx.path.startsWith("/callback/");
+        if (isSignIn && ctx.context.newSession && ctx.getCookie(INVITE_COOKIE)) {
+          ctx.setCookie(INVITE_COOKIE, "", {
+            maxAge: 0,
+            path: INVITE_COOKIE_PATH,
+            httpOnly: true,
+            sameSite: "lax",
+            secure: ctx.context.baseURL.startsWith("https:"),
+          });
+        }
+      }),
     },
     databaseHooks: {
+      // ไม่เก็บ IP/User-Agent ใน session (ลดข้อมูลที่เก็บ) — ตัวนับ rate limit ใช้ IP แยกต่างหาก
+      session: {
+        create: { before: async () => ({ data: { ipAddress: null, userAgent: null } }) },
+      },
       user: {
+        update: { before: async () => ({ data: { image: null } }) },
         create: {
           // จุดเดียวที่ใช้สิทธิ์โค้ดเชิญ (ทั้ง Google และ OTP) · ctx เป็น null = เรียกนอก endpoint → ปฏิเสธเสมอ
           async before(_u, ctx) {
@@ -153,7 +197,9 @@ export function createAuth(db: AppDb, deps: AuthDeps) {
             if (!code) throw inviteRequired();
             const id = await consumeInvite(db, code, now());
             if (!id) throw inviteRequired();
-            return { data: { inviteCodeId: id } };
+            // ไม่รับชื่อ/รูปจาก body ของ OTP (ผู้ใช้ตั้งชื่อตอน onboarding) · ชื่อจาก Google เก็บได้ รูปไม่เก็บ
+            const viaOtp = ctx.path === "/sign-in/email-otp";
+            return { data: { inviteCodeId: id, image: null, ...(viaOtp ? { name: "" } : {}) } };
           },
         },
       },

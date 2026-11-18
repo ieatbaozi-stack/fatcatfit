@@ -114,4 +114,27 @@ describe("sendOtpEmail", () => {
     await expect(sendOtpEmail({ to: "a@example.com", otp: "246810", locale: "th" })).rejects.toThrow();
     expect(JSON.stringify(errSpy.mock.calls)).not.toMatch(/246810|a@example\.com/);
   });
+  it("error จาก SMTP ที่มีที่อยู่ผู้รับ: โยน error ใหม่ที่ไม่มี property อื่น และไม่ log อีเมล", async () => {
+    for (const k of Object.keys(SMTP_ENV)) vi.stubEnv(k, SMTP_ENV[k as keyof typeof SMTP_ENV]);
+    sendMail.mockRejectedValueOnce(
+      Object.assign(new Error("550 victim@example.com rejected"), {
+        code: "EENVELOPE",
+        rejected: ["victim@example.com"],
+        response: "550 victim@example.com",
+        command: "RCPT TO",
+      }),
+    );
+    const spies = (["log", "info", "warn", "error"] as const).map((k) => vi.spyOn(console, k).mockImplementation(() => {}));
+    let caught: unknown;
+    try {
+      await sendOtpEmail({ to: "victim@example.com", otp: "246810", locale: "en" });
+    } catch (e) {
+      caught = e;
+    }
+    expect(caught).toBeInstanceOf(Error);
+    expect((caught as Error).message).toBe("email_send_failed");
+    expect(Object.keys(caught as object)).toEqual([]);
+    expect((caught as Error).cause).toBeUndefined();
+    expect(JSON.stringify(spies.map((s) => s.mock.calls))).not.toMatch(/victim@example\.com|246810/);
+  });
 });
