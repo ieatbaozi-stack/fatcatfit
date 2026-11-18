@@ -1,5 +1,5 @@
 import type { AppDb } from "@/db/types";
-import { createAuth, type Auth, type AuthDeps } from "./server";
+import { createAuth, type Auth, type AuthDeps } from "./create-auth";
 import { INVITE_COOKIE } from "./invite-code";
 import { createInvite } from "./invite-store";
 
