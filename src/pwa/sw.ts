@@ -2,7 +2,8 @@
 /// <reference lib="webworker" />
 // Service worker ของ Fat Cat Fit — กลยุทธ์ตาม ADR 0004 ข้อ 1 และ ADR 0005
 // - asset ที่มี hash (/_next/static/**) = precache ตอนติดตั้ง + cache-first
-// - navigation = network-first (หมดเวลา 4 วิ) แล้วถอยไป HTML ของ URL นั้น → app shell "/" ที่ cache ไว้
+// - navigation = network-first (หมดเวลา 4 วิ) แล้วถอยไป HTML ของ URL นั้น → "/" → "/welcome" → 503 (ADR 0006 ข้อ 4)
+//   navigation ที่ URL มี query ไม่ถูกเก็บ · key ของ cache ไม่มี fragment (ลิงก์เชิญ #invite=)
 // - /api/** ไม่ผ่าน cache ของ SW เลย (ไม่มี route ที่จับ → เบราว์เซอร์ส่งไปเครือข่ายเอง)
 // - SW ใหม่ไม่ skipWaiting เอง: รอจนเปิดแอปครั้งถัดไป (หน้าเว็บสั่ง SKIP_WAITING ตอนเริ่ม ดู register.tsx)
 // - หน้า HTML ขึ้นกับภาษา (cookie NEXT_LOCALE): ทุกหน้าที่ cache ติดภาษาไว้ และเก็บได้ภาษาเดียว
@@ -10,23 +11,27 @@
 // - ทุกแท็บ (OFFLINE_PAGES) เปิดได้ตอนออฟไลน์ตั้งแต่ติดตั้งครั้งแรก:
 //   install ดึงทุกแท็บ + ทุกหน้าที่ cache อยู่ ลง cache พัก (pagesStaging) → activate ย้ายเข้า cache หน้า
 //   ทำให้ HTML ใน cache หน้าเป็นรุ่นเดียวกับ precache ของ SW ที่คุมอยู่เสมอ
+// - หน้าที่เซิร์ฟเวอร์ redirect (แท็บของแอปตอนไม่ล็อกอิน) ไม่ถูกเก็บ · ออกจากระบบแล้ว (หน้าเว็บส่ง USER_RESET)
+//   ผลของการดึงที่ค้างอยู่ด้วย cookie เดิมถูกทิ้ง → หน้าที่เติมกลับเป็นแบบไม่ล็อกอินเท่านั้น
 // ไฟล์นี้ถูก bundle ด้วย esbuild ผ่าน src/app/serwist/[path]/route.ts — ห้าม import โค้ดแอป
 import type { PrecacheEntry, SerwistGlobalConfig, SerwistPlugin } from "serwist";
 import { CacheFirst, NetworkFirst, Serwist } from "serwist";
-import { PAGE_LANG_MESSAGE } from "./messages";
+import { PAGE_LANG_MESSAGE, USER_RESET_MESSAGE } from "./messages";
+import { createPageFetcher, offlineFallback, tagWithLocale } from "./page-fetch";
 import {
-  APP_SHELL_PATH,
   CACHE_NAMES,
   LOCALE_HEADER,
   type CachedPage,
   classifyRequest,
-  extractHtmlLang,
   isCacheableResponse,
   isOutdatedRuntimeCache,
+  isStorablePageUrl,
+  pageCacheKey,
   pagesInOtherLocale,
   pagesToStage,
   planActivation,
   planPageSync,
+  unstorablePageKeys,
 } from "./strategy";
 
 declare global {
@@ -42,48 +47,12 @@ const ORIGIN = self.location.origin;
 /** ดึงหน้าเองนานสุดเท่านี้ (install/activate/sync) — เซิร์ฟเวอร์ค้างต้องไม่ทำให้ install ค้าง */
 const PAGE_FETCH_TIMEOUT_MS = 10_000;
 
-/** หน้าที่ดึงมาแล้ว ติดภาษาแล้ว — สร้าง Response ใหม่ได้หลายครั้ง (body ของ Response ใช้ได้ครั้งเดียว) */
-interface FetchedPage {
-  lang: string | null;
-  response: () => Response;
-}
-
-/** ติดภาษา (จาก <html lang>) ไว้ใน header ของสำเนา · คง header เดิมทั้งหมด (CSP — ADR 0005 กติกา 4) */
-async function tagWithLocale(res: Response): Promise<FetchedPage> {
-  const html = await res.clone().text();
-  const lang = extractHtmlLang(html);
-  const headers = new Headers(res.headers);
-  headers.set(LOCALE_HEADER, lang ?? "");
-  const init = { status: res.status, statusText: res.statusText, headers };
-  return { lang, response: () => new Response(html, init) };
-}
-
-const inflight = new Map<string, Promise<FetchedPage | null>>();
-
-/**
- * SW ดึงหน้าเอง: credentials same-origin → cookie NEXT_LOCALE ถูกส่งไปด้วย (ได้ภาษาตามที่ผู้ใช้เลือก)
- * ไม่ผ่าน fetch handler ของ SW เอง · ล้ม/ไม่ใช่ 200/redirect/หมดเวลา = null · request ซ้ำที่ยังไม่จบใช้ผลเดียวกัน
- */
-function fetchPage(url: string): Promise<FetchedPage | null> {
-  const running = inflight.get(url);
-  if (running) return running;
-  const job = (async () => {
-    const abort = new AbortController();
-    const timer = setTimeout(() => abort.abort(), PAGE_FETCH_TIMEOUT_MS);
-    try {
-      const res = await fetch(url, { credentials: "same-origin", cache: "no-store", signal: abort.signal });
-      if (!isCacheableResponse(res)) return null;
-      return await tagWithLocale(res);
-    } catch {
-      return null; // ออฟไลน์/หมดเวลา — ไว้รอบหน้า
-    } finally {
-      clearTimeout(timer);
-      inflight.delete(url);
-    }
-  })();
-  inflight.set(url, job);
-  return job;
-}
+/** ตัวดึงหน้าเอง (install/เติมแท็บ/เปลี่ยนภาษา) — redirect: "manual" และทิ้งผลที่ค้างเมื่อออกจากระบบ (page-fetch.ts) */
+const pageFetcher = createPageFetcher({
+  fetch: (url, init) => fetch(url, init),
+  origin: ORIGIN,
+  timeoutMs: PAGE_FETCH_TIMEOUT_MS,
+});
 
 async function readPages(cache: Cache): Promise<CachedPage[]> {
   const requests = await cache.keys();
@@ -91,16 +60,6 @@ async function readPages(cache: Cache): Promise<CachedPage[]> {
     requests.map(async (req) => {
       const tag = (await cache.match(req))?.headers.get(LOCALE_HEADER);
       return { url: req.url, lang: tag ? tag : null };
-    }),
-  );
-}
-
-/** ดึงแล้วเก็บเฉพาะเมื่อได้ภาษาที่ต้องการ (cookie อาจเปลี่ยนระหว่างทาง) */
-async function refreshInto(cache: Cache, urls: string[], lang: string | null) {
-  await Promise.all(
-    urls.map(async (url) => {
-      const page = await fetchPage(url);
-      if (page && lang && page.lang === lang) await cache.put(url, page.response());
     }),
   );
 }
@@ -113,7 +72,7 @@ async function syncPages(lang: string | null, justCachedUrl: string) {
   const cache = await caches.open(CACHE_NAMES.pages);
   const plan = planPageSync(await readPages(cache), lang, justCachedUrl, ORIGIN);
   await Promise.all(plan.remove.map((url) => cache.delete(url)));
-  await refreshInto(cache, plan.fetch, lang);
+  await pageFetcher.refreshInto(cache, plan.fetch, lang);
 }
 
 /** เก็บเฉพาะคำตอบ 200 ที่ไม่ได้ถูก redirect */
@@ -130,10 +89,20 @@ const anyCacheFallback: SerwistPlugin = {
   handlerDidError: async ({ request }) => (await caches.match(request.url)) ?? undefined,
 };
 
-/** หน้า HTML: เก็บพร้อมภาษา และล้าง/เติมหน้าเมื่อภาษาเปลี่ยน */
+/**
+ * หน้า HTML: เก็บพร้อมภาษา และล้าง/เติมหน้าเมื่อภาษาเปลี่ยน
+ * - key = URL ไม่มี fragment · ไม่เก็บ URL ที่มี query (ADR 0006 ข้อ 4)
+ * - ไม่เก็บถ้าออกจากระบบระหว่างรอคำตอบ (คำตอบนี้ได้มาด้วย cookie ของผู้ใช้เดิม)
+ */
 const localeAwarePages: SerwistPlugin = {
-  cacheWillUpdate: async ({ response }) => {
-    if (!isCacheableResponse(response)) return null;
+  cacheKeyWillBeUsed: async ({ request }) => pageCacheKey(request.url),
+  handlerWillStart: async ({ state }) => {
+    if (state) state.epoch = pageFetcher.epoch();
+  },
+  cacheWillUpdate: async ({ request, response, state }) => {
+    if (!isStorablePageUrl(request.url, ORIGIN) || !isCacheableResponse(response)) return null;
+    // state ของ plugin มีทุก request (Serwist StrategyHandler สร้าง {} ให้ทุก plugin)
+    if (state && state.epoch !== pageFetcher.epoch()) return null;
     return (await tagWithLocale(response)).response();
   },
   // Serwist เรียกหลังตอบหน้าเว็บแล้ว ภายใน waitUntil ของ fetch event — ไม่ทำให้หน้าช้า
@@ -142,18 +111,14 @@ const localeAwarePages: SerwistPlugin = {
   },
 };
 
-/** เครือข่ายล้มและไม่มีสำเนาของ URL นี้ (หน้าที่ไม่ใช่แท็บ เช่น /styleguide, URL ที่ไม่มี) → ใช้ app shell "/" */
+/**
+ * เครือข่ายล้มและไม่มีสำเนาของ URL นี้ (หน้าที่ไม่ใช่แท็บ เช่น /styleguide, URL ที่มี query, URL ที่ไม่มี)
+ * → "/" (ล็อกอินอยู่) → "/welcome" (ไม่ล็อกอิน/เพิ่งออกจากระบบ) → 503 Offline
+ */
 const shellFallback: SerwistPlugin = {
   handlerDidError: async () => {
     const cache = await caches.open(CACHE_NAMES.pages);
-    const shell = await cache.match(APP_SHELL_PATH);
-    return (
-      shell ??
-      new Response("Offline", {
-        status: 503,
-        headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" },
-      })
-    );
+    return offlineFallback((url) => cache.match(url), ORIGIN);
   },
 };
 
@@ -206,12 +171,7 @@ self.addEventListener("install", (event) => {
         await caches.delete(CACHE_NAMES.pagesStaging); // ของ SW ที่ติดตั้งแล้วถูกแทนก่อน activate
         const current = (await (await caches.open(CACHE_NAMES.pages)).keys()).map((r) => r.url);
         const staging = await caches.open(CACHE_NAMES.pagesStaging);
-        await Promise.all(
-          pagesToStage(current, ORIGIN).map(async (url) => {
-            const page = await fetchPage(url);
-            if (page) await staging.put(url, page.response());
-          }),
-        );
+        await pageFetcher.refreshInto(staging, pagesToStage(current, ORIGIN));
       } catch {
         // Cache Storage ใช้ไม่ได้ (เช่นพื้นที่เต็ม) — ข้าม navigation จะ cache เองทีหลัง
       }
@@ -236,6 +196,8 @@ async function promoteStagedPages(): Promise<{ lang: string | null; refetch: str
     }
     await caches.delete(CACHE_NAMES.pagesStaging);
   }
+  // key ที่มี query/fragment (เก็บไว้โดยรุ่นก่อน ADR 0006) ลบทิ้ง — ADR 0006 เกณฑ์ 5
+  await Promise.all(unstorablePageKeys((await pages.keys()).map((r) => r.url), ORIGIN).map((url) => pages.delete(url)));
   // หน้าภาษาอื่นที่ค้างอยู่ (ไม่ควรมี) ลบทิ้ง
   if (plan.lang) {
     await Promise.all(pagesInOtherLocale(await readPages(pages), plan.lang, "").map((url) => pages.delete(url)));
@@ -259,7 +221,7 @@ self.addEventListener("activate", (event) => {
       if (pending.refetch.length > 0) {
         void caches
           .open(CACHE_NAMES.pages)
-          .then((cache) => refreshInto(cache, pending.refetch, pending.lang))
+          .then((cache) => pageFetcher.refreshInto(cache, pending.refetch, pending.lang))
           .catch(() => {});
       }
     })(),
@@ -270,7 +232,15 @@ self.addEventListener("activate", (event) => {
 // ใช้เติมแท็บที่ขาดด้วย (เช่นหลังออกจากระบบซึ่งล้าง cache หน้า)
 self.addEventListener("message", (event) => {
   const data: unknown = event.data;
-  if (!data || typeof data !== "object" || (data as { type?: unknown }).type !== PAGE_LANG_MESSAGE) return;
+  if (!data || typeof data !== "object") return;
+  const type = (data as { type?: unknown }).type;
+  // ออกจากระบบ/ลบบัญชี (reset-device.ts): ทิ้งการดึงที่ค้าง แล้วตอบกลับทาง port ให้หน้าเว็บล้าง cache ต่อ
+  if (type === USER_RESET_MESSAGE) {
+    pageFetcher.reset();
+    event.ports[0]?.postMessage({ type: USER_RESET_MESSAGE, ok: true });
+    return;
+  }
+  if (type !== PAGE_LANG_MESSAGE) return;
   const lang = (data as { lang?: unknown }).lang;
   if (typeof lang !== "string" || !/^[a-z]{2,3}(-[a-z0-9]{2,8})*$/i.test(lang)) return;
   event.waitUntil(syncPages(lang.toLowerCase(), ""));
