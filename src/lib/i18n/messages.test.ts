@@ -6,13 +6,14 @@ import en from "../../../messages/en.json";
 import th from "../../../messages/th.json";
 import { defaultLocale, isLocale, locales, resolveLocale } from "./config";
 
-type Tree = { [key: string]: string | Tree };
+type Tree = { [key: string]: string | string[] | Tree };
 
 function flatten(tree: Tree, prefix = ""): Record<string, string> {
   const out: Record<string, string> = {};
   for (const [key, value] of Object.entries(tree)) {
     const full = prefix ? `${prefix}.${key}` : key;
     if (typeof value === "string") out[full] = value;
+    else if (Array.isArray(value)) value.forEach((item, i) => (out[`${full}.${i}`] = item));
     else Object.assign(out, flatten(value, full));
   }
   return out;
@@ -95,6 +96,21 @@ describe("ไม่มีข้อความฝังในโค้ด", () =
         .replace(/(^|[^:])\/\/.*$/gm, "$1")
         .replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
       if (/[฀-๿]/.test(code)) offenders.push(path.relative(root, file));
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  // ข้อความอังกฤษฝังในโค้ด: ข้อความใน JSX และ attribute ที่คนอ่านเห็น/ได้ยิน ต้องมาจาก messages/ เสมอ
+  it("ไม่มีข้อความอังกฤษฝังใน JSX (.tsx) ของ app และ components", () => {
+    const offenders: string[] = [];
+    for (const file of files.filter((f) => f.endsWith(".tsx"))) {
+      const code = readFileSync(file, "utf8")
+        .replace(/\/\*[\s\S]*?\*\//g, "")
+        .replace(/(^|[^:])\/\/.*$/gm, "$1")
+        .replace(/=>/g, "=:"); // ลูกศรของ arrow function ไม่ใช่ปลาย tag
+      const text = [...code.matchAll(/>([^<>{}()=;&|]*[A-Za-z]{3,}[^<>{}()=;&|]*)</g)].map((m) => m[1].trim());
+      const attrs = [...code.matchAll(/(?:aria-label|title|placeholder|alt|label)="([^"]*[A-Za-z]{3,}[^"]*)"/g)].map((m) => m[1]);
+      for (const hit of [...text, ...attrs]) offenders.push(`${path.relative(root, file)}: ${hit}`);
     }
     expect(offenders).toEqual([]);
   });

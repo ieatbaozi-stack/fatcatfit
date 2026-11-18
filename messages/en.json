@@ -129,5 +129,262 @@
         "pull-up": "Pull-up"
       }
     }
+  },
+  "welcome": {
+    "title": "Fat Cat Fit",
+    "tagline": "Log it fast, then get back to it.",
+    "invite": {
+      "label": "Invite code",
+      "placeholder": "XXXX-XXXX",
+      "hint": "Filled in from your invite link · not needed if you have an account",
+      "hintNoGoogle": "Not needed if you have an account",
+      "invalid": "This code doesn't work. Check with the friend who sent it.",
+      "required": "You need an invite code first · ask the friend who invited you",
+      "rateLimited": "Too many code checks · try again in {time}",
+      "checkFailed": "Couldn't check the code right now · try again"
+    },
+    "google": {
+      "label": "Continue with Google",
+      "loading": "Heading to Google",
+      "failed": "Google sign-in didn't work · try again or use email instead"
+    },
+    "useEmail": "Use email instead",
+    "email": {
+      "back": "‹ Back",
+      "title": "Sign in with email",
+      "intro": "We'll email you a 6-digit code. No password.",
+      "label": "Email",
+      "placeholder": "name@example.com",
+      "hint": "Use the email you signed in with before, including the Gmail you used with Google",
+      "invalid": "This email doesn't look right · check it again",
+      "tooFast": "Too many requests · try again in {time}",
+      "unavailable": "Can't send email right now · try Google instead",
+      "unavailableNoGoogle": "Can't send email right now · try again tomorrow",
+      "network": "Connection trouble · try again",
+      "failed": "Couldn't send the code · try again",
+      "inviteSummary": "Invite code {code}",
+      "noInvite": "New here? You need an invite code",
+      "edit": "edit",
+      "addInvite": "add code",
+      "send": "Send code",
+      "sendNoGoogle": "Email me a code",
+      "sending": "Sending…",
+      "noPassword": "6-digit code. No password.",
+      "spamHint": "Didn't get it? Check your spam folder."
+    }
+  },
+  "otp": {
+    "back": "‹ Back",
+    "title": "Enter the 6-digit code",
+    "sentTo": "Sent to {email} · valid for 10 minutes",
+    "label": "6-digit code",
+    "wrong": "That code didn't match · try again",
+    "tooMany": "Too many tries · ask for a new code",
+    "expired": "That code has expired · ask for a new one",
+    "failed": "Couldn't check the code · try again",
+    "network": "Connection trouble · try again",
+    "verifying": "Checking the code…",
+    "resend": "Send code again",
+    "resendIn": "Send code again ({time})",
+    "offline": "Connect to the internet to sign in"
+  },
+  "offline": {
+    "title": "No connection",
+    "body": "Sign in once you're back online.",
+    "signInClosed": "Connect to the internet to sign in",
+    "bar": "Offline"
+  },
+  "consent": {
+    "title": "Before we start",
+    "bullet1": "We store your weight, height, birth year and workouts. That counts as <b>health data</b>.",
+    "bullet2": "Only you can see it. Not even friends in the group.",
+    "bullet3": "Never sold, never used for ads, never shared.",
+    "bullet4": "Delete your account and all data yourself, any time.",
+    "readFull": "Read the full notice (version {version})",
+    "checkbox": "I agree to the storage and use of my health data as described.",
+    "withdraw": "You can withdraw consent any time by deleting your account. Your data is then erased and the app can no longer be used (Me › Delete account).",
+    "agree": "Agree and continue",
+    "saving": "Saving…",
+    "retry": "Try again",
+    "saveFailed": "Couldn't save · try again",
+    "versionChanged": "The notice was just updated · reload the page and read it again",
+    "reload": "Reload",
+    "decline": "I don't agree",
+    "declineTitle": "Without consent the app can't be used",
+    "declineBody": "The app needs health data to work. If you don't agree, we'll sign you out and delete the account you just created.",
+    "declineConfirm": "Sign out and delete account",
+    "declineBack": "Go back and read again",
+    "deleting": "Deleting…",
+    "deleteFailed": "Couldn't delete · try again",
+    "offline": "Connect to the internet to continue"
+  },
+  "onboarding": {
+    "progress": "{step}/{total}",
+    "next": "Next",
+    "start": "Start",
+    "saving": "Saving…",
+    "retry": "Try again",
+    "saveFailed": "Couldn't save yet. Everything you entered is still here.",
+    "back": "Back",
+    "optional": "Optional · skip if you like",
+    "units": {
+      "label": "Units",
+      "metric": "kg · cm",
+      "imperial": "lb · in"
+    },
+    "step1": {
+      "title": "A few basics",
+      "note": "Only used for calculations. Only you can see it.",
+      "weight": "Weight (required)",
+      "height": "Height (required)",
+      "birthYear": "Birth year (required)",
+      "birthYearHint": "Year, e.g. 1994",
+      "age": "Age {age}"
+    },
+    "step2": {
+      "title": "Where do you usually work out?"
+    },
+    "place": {
+      "name": "Name it (required)",
+      "placeholder": "Gym near home",
+      "kinds": {
+        "gym": "Gym",
+        "home": "Home",
+        "park": "Park",
+        "office": "Office"
+      }
+    },
+    "goals": {
+      "title": "What are you after? (pick any)",
+      "stronger": "Stronger",
+      "fitter": "Fitter",
+      "lose_weight": "Lose weight",
+      "show_up": "Show up"
+    },
+    "experience": {
+      "title": "Experience",
+      "new": "New",
+      "some": "Some",
+      "regular": "Regular"
+    },
+    "errors": {
+      "required": "This field is required",
+      "invalid": "This value doesn't work · take another look",
+      "outOfRange": "That number looks off · take another look",
+      "clock": "Your device clock looks off · check the date and time, then try again"
+    }
+  },
+  "account": {
+    "title": "Account",
+    "privacy": "Privacy notice",
+    "export": "Export all my data",
+    "exportSoon": "Coming soon",
+    "signOut": "Sign out",
+    "signingOut": "Signing out…",
+    "delete": "Delete account",
+    "needNet": "Signing out and deleting your account need a connection",
+    "signOutFailed": "Couldn't sign out · try again",
+    "deleteScreen": {
+      "title": "This deletes everything",
+      "body": "Removed right away. It cannot be undone.",
+      "item1": "All sessions and sets",
+      "item2": "Body weight and measurements",
+      "item3": "My exercises, templates, places",
+      "item4": "Questionnaire answers and consent — deleting your account also withdraws your consent",
+      "exportSoon": "Data export isn't available yet (coming soon)",
+      "backup": "Provider backups expire on their own, as described in the privacy notice",
+      "understand": "I understand this cannot be undone",
+      "confirm": "Delete my account",
+      "deleting": "Deleting…",
+      "retry": "Try again",
+      "cancel": "Cancel",
+      "needNet": "Connect to the internet to delete your account",
+      "failed": "Couldn't delete · your data is all still here · try again",
+      "doneHand": "bye for now",
+      "doneTitle": "All deleted",
+      "doneBody": "Thanks for coming along. Your data is gone from our system.",
+      "doneButton": "Back to start"
+    }
+  },
+  "privacy": {
+    "back": "Back to home",
+    "title": "Privacy notice",
+    "version": "Version dated {version}",
+    "intro": "This notice says what Fat Cat Fit collects about you, why, for how long, and what you can do with it.",
+    "sections": {
+      "purpose": {
+        "title": "1. Why we collect it",
+        "paragraphs": [
+          "To make the app work: sign you in, let you log workouts, and show your own progress.",
+          "We don't sell data, use it for ads or marketing, or pass it to anyone except the providers in section 4. Friends in the group cannot see your data."
+        ]
+      },
+      "required": {
+        "title": "2. Do you have to give it",
+        "paragraphs": [
+          "No law requires you to give this data; you give it voluntarily. Some of it is needed to use the app:"
+        ],
+        "items": [
+          "Needed: email (to confirm who you are when you sign in)",
+          "Needed: weight, height, birth year and your first workout place (for calculations and defaults)",
+          "Optional: goals and experience",
+          "Without the needed data you can't sign up or use the app."
+        ]
+      },
+      "collected": {
+        "title": "3. What we store, and for how long",
+        "items": [
+          "Account: email and name (with Google sign-in, the name from your Google account) — kept until you delete your account",
+          "Health data: weight, height, birth year, goals, experience, and the workout history you'll log in later versions — kept until you delete your account",
+          "Settings: units, language, theme, rest time — kept until you delete your account",
+          "Consent record: time, notice version and language — kept until you delete your account",
+          "Sign-in: the sign-in in your browser lasts 90 days · the 6-digit email code expires in 10 minutes (stored in a form that can't be reversed)",
+          "Guess protection: how many codes were requested and tried per email and per network address, stored in a form that can't be reversed, for a short time, then it expires",
+          "On your own device: language, theme, and a mark that you've signed in before — stays in your browser, sent nowhere"
+        ]
+      },
+      "recipients": {
+        "title": "4. Who receives it, and is it sent abroad",
+        "paragraphs": [
+          "Providers that help the app run. All are outside Thailand, so data is sent to and processed abroad (the app's servers and database are in Singapore):"
+        ],
+        "items": [
+          "Vercel: hosts the app and receives your requests",
+          "Neon: stores the database (the data in section 3 lives here)",
+          "Google: if you choose Google sign-in, Google knows you use this app · and the app's Gmail account sends you the code email, so it sees the destination address and the code in that message",
+          "No other recipients"
+        ]
+      },
+      "controller": {
+        "title": "5. Who is the data controller",
+        "contact": "Data controller: {name} · Contact: {email}",
+        "notSet": "The data controller's name and contact are not set up yet"
+      },
+      "rights": {
+        "title": "6. Your rights",
+        "items": [
+          "Ask for access to, and a copy of, your data",
+          "Ask us to correct your data",
+          "Erase your data: delete your account yourself, any time, at Me › Delete account",
+          "Withdraw consent (see section 8)",
+          "Ask for your data as a file: the export button will arrive in a later version; until then ask through the contact in section 5",
+          "Object to, or ask us to restrict, the use of your data",
+          "Complain to the Personal Data Protection Committee Office if you think we broke the law"
+        ]
+      },
+      "backup": {
+        "title": "7. Backups",
+        "paragraphs": [
+          "When you delete your account your data leaves the system right away, but the database provider makes automatic backups. Deleted data may remain in a backup until that backup expires on the provider's own schedule. We don't use backups for anything else."
+        ]
+      },
+      "withdraw": {
+        "title": "8. Withdrawing consent",
+        "paragraphs": [
+          "You can withdraw consent any time by deleting your account (Me › Delete account). After that your data is erased and the app can no longer be used, because it needs health data to work. There is no partial withdrawal. Withdrawing doesn't affect what was done before.",
+          "If this notice changes, we'll ask you to agree again before you keep using the app."
+        ]
+      }
+    }
   }
 }
