@@ -108,8 +108,8 @@ test.describe("สมัครด้วยลิงก์เชิญ → OTP �
     await page.getByRole("button", { name: msg("th", "welcome.email.send") }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(msg("th", "otp.title"));
     const { otp, mail } = await waitForOtp(email, since);
-    // อีเมล OTP: ภาษาไทย ไม่มีลิงก์ มีแต่รหัส
-    expect(mail.subject).toBe("รหัสเข้าสู่ระบบ Fat Cat Fit");
+    // อีเมล OTP: สองภาษา (ไทยก่อน) ไม่มีลิงก์ มีแต่รหัส
+    expect(mail.subject).toBe("รหัสเข้าสู่ระบบ Fat Cat Fit / Your Fat Cat Fit sign-in code");
     expect(mail.text).not.toMatch(/https?:\/\//);
     await expect(page.getByLabel(msg("th", "otp.label"))).toHaveAttribute("autocomplete", "one-time-code");
     await page.getByLabel(msg("th", "otp.label")).fill(otp); // ครบ 6 หลักส่งเอง ไม่ต้องกดปุ่ม
@@ -201,7 +201,8 @@ test.describe("สมัครด้วยลิงก์เชิญ → OTP �
     const since = Date.now();
     await page.getByRole("button", { name: msg("en", "welcome.email.send") }).click();
     const { otp, mail } = await waitForOtp(email, since);
-    expect(mail.subject).toBe("Your Fat Cat Fit sign-in code");
+    expect(mail.subject).toBe("รหัสเข้าสู่ระบบ Fat Cat Fit / Your Fat Cat Fit sign-in code");
+    expect(mail.text.indexOf("Your sign-in code is")).toBeLessThan(mail.text.indexOf("รหัสเข้าสู่ระบบของคุณอยู่ด้านบน"));
     await page.getByLabel(msg("en", "otp.label")).fill(otp);
     await expect(page).toHaveURL(/\/consent$/, { timeout: 15_000 });
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(msg("en", "consent.title"));

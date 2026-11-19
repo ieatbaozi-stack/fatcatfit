@@ -27,19 +27,47 @@ afterEach(() => {
 });
 
 describe("แม่แบบ OTP", () => {
-  it("เลือกภาษาตาม locale", () => {
-    expect(renderOtpEmail("th", "123456").subject).toMatch(/รหัสเข้าสู่ระบบ/);
-    expect(renderOtpEmail("en", "123456").subject).toMatch(/sign-in code/);
-    expect(renderOtpEmail("th", "123456").text).toContain("ไม่ต้องทำอะไร");
-    expect(renderOtpEmail("en", "123456").text).toContain("ignore this email");
-  });
-  it("มีรหัสและอายุ 10 นาที ไม่มีลิงก์", () => {
+  const TH = "ไม่ต้องทำอะไร";
+  const EN = "ignore this email";
+  it("ทั้ง th และ en มีสองภาษาทั้งใน text และ html", () => {
     for (const l of ["th", "en"] as const) {
       const r = renderOtpEmail(l, "123456");
-      expect(r.text).toContain("123456");
-      expect(r.html).toContain("123456");
+      for (const s of [r.text, r.html]) {
+        expect(s).toContain(TH);
+        expect(s).toContain(EN);
+      }
+      expect(r.html).toContain('lang="th"');
+      expect(r.html).toContain('lang="en"');
+    }
+  });
+  it("ภาษาของ locale มาก่อน", () => {
+    for (const s of ["text", "html"] as const) {
+      const th = renderOtpEmail("th", "123456")[s];
+      const en = renderOtpEmail("en", "123456")[s];
+      expect(th.indexOf(TH)).toBeLessThan(th.indexOf(EN));
+      expect(en.indexOf(EN)).toBeLessThan(en.indexOf(TH));
+    }
+    expect(renderOtpEmail("th", "123456").html).toMatch(/^<!doctype html><html lang="th">/);
+    expect(renderOtpEmail("en", "123456").html).toMatch(/^<!doctype html><html lang="en">/);
+  });
+  it("locale ที่ไม่รู้จักถอยไป th", () => {
+    const r = renderOtpEmail("fr" as never, "123456");
+    expect(r.text.indexOf(TH)).toBeLessThan(r.text.indexOf(EN));
+  });
+  it("subject สองภาษา ไม่มีรหัส", () => {
+    for (const l of ["th", "en"] as const) {
+      const { subject } = renderOtpEmail(l, "123456");
+      expect(subject).toBe("รหัสเข้าสู่ระบบ Fat Cat Fit / Your Fat Cat Fit sign-in code");
+      expect(subject).not.toContain("123456");
+    }
+  });
+  it("รหัสปรากฏครั้งเดียวในแต่ละส่วน · อายุ 10 นาที · ไม่มีลิงก์", () => {
+    for (const l of ["th", "en"] as const) {
+      const r = renderOtpEmail(l, "123456");
+      expect(r.text.split("123456")).toHaveLength(2);
+      expect(r.html.split("123456")).toHaveLength(2);
       expect(r.text).toContain("10");
-      for (const s of [r.text, r.html]) expect(s).not.toMatch(/https?:|href|www\./i);
+      for (const s of [r.text, r.html]) expect(s).not.toMatch(/https?:|href|<a |www\./i);
     }
   });
 });
