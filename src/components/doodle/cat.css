@@ -1,34 +1,23 @@
 /* แมวขยับจริง: 5 เฟรมจาก rig (scripts/sprites/rigs.mjs) วนรอบละ 0.7 วิ แบบ steps เหมือน demo ของ boss
-   แต่ละเฟรมเห็นช่วงละ 0.14 วิ — โชว์ทีละเฟรมด้วย visibility
-   ตั้งต้น (ไม่มี CSS หรือ prefers-reduced-motion: reduce) เห็นแต่ชั้นภาพนิ่ง เฟรมทั้ง 5 ซ่อนด้วย attribute */
+   แต่ละเฟรมเห็นช่วงละ 0.14 วิ — แผ่น sprite (fcf-cat-strip) เลื่อนทีละ 1000 หน่วย (CAT_FRAME_STRIDE ใน Cat.tsx)
+   ในกรอบ clip ของชั้นขยับ (fcf-cat-motion) → แอนิเมชันตัวเดียวคุมทุกเฟรม เห็นได้ทีละเฟรมเสมอ
+   ตั้งต้น (ไม่มี CSS หรือ prefers-reduced-motion: reduce) เห็นแต่ชั้นภาพนิ่ง ชั้นขยับซ่อนด้วย attribute */
 @media (prefers-reduced-motion: no-preference) {
   .fcf-cat-still {
     visibility: hidden;
   }
-  .fcf-cat-frame {
-    animation: fcf-cat-play 0.7s steps(1) infinite;
+  .fcf-cat-motion {
+    visibility: visible;
   }
-  .fcf-cat-f1 {
-    animation-delay: -0.56s;
-  }
-  .fcf-cat-f2 {
-    animation-delay: -0.42s;
-  }
-  .fcf-cat-f3 {
-    animation-delay: -0.28s;
-  }
-  .fcf-cat-f4 {
-    animation-delay: -0.14s;
+  .fcf-cat-strip {
+    animation: fcf-cat-play 0.7s steps(5) infinite;
   }
 }
 @keyframes fcf-cat-play {
-  0% {
-    visibility: visible;
+  from {
+    transform: translateX(0);
   }
-  20% {
-    visibility: hidden;
-  }
-  100% {
-    visibility: hidden;
+  to {
+    transform: translateX(-5000px);
   }
 }

@@ -23,16 +23,55 @@ export const CACHE_NAMES = {
 /** path ของ app shell — ถอยไปหน้านี้เมื่อ URL ที่ขอไม่มีสำเนา */
 export const APP_SHELL_PATH = "/";
 
+/** จอยินดีต้อนรับ (ADR 0006 ข้อ 1) — HTML เหมือนกันทุกสถานะ เซิร์ฟเวอร์ไม่ redirect จึงเก็บได้เสมอ */
+export const WELCOME_PATH = "/welcome";
+
 /**
- * หน้าที่ต้องเปิดได้ตอนออฟไลน์ตั้งแต่ติดตั้งครั้งแรก (ADR 0005 สิ่งที่ R3 ต้องรู้ ข้อ ง)
- * = แท็บทั้ง 4 ของแถบล่าง (src/components/nav/bottom-tabs.tsx — เทสต์ตรวจว่าตรงกัน)
- * เพิ่มหน้าใหม่ที่ต้องใช้ออฟไลน์ (เช่นหน้าจดของ R3) ที่นี่ · path ต้องคงที่ ไม่มี id หรือ query
+ * ลำดับถอยเมื่อเครือข่ายล้มและไม่มีสำเนาของ URL ที่ขอ (ADR 0006 ข้อ 4): `/` → `/welcome` → (503 Offline)
+ * - ล็อกอินอยู่: `/` มีสำเนา → หน้าแอป (AuthGate ตัดสินต่อ)
+ * - ยังไม่ล็อกอิน/เพิ่งออกจากระบบ: `/` ถูก redirect จึงไม่มีสำเนา → จอยินดีต้อนรับ (contract เกณฑ์ 13)
  */
-export const OFFLINE_PAGES = ["/", "/history", "/progress", "/me"] as const;
+export const OFFLINE_FALLBACK_PATHS = [APP_SHELL_PATH, WELCOME_PATH] as const;
+
+/**
+ * หน้าที่ต้องเปิดได้ตอนออฟไลน์ตั้งแต่ติดตั้งครั้งแรก (ADR 0005 สิ่งที่ R3 ต้องรู้ ข้อ ง + ADR 0006 ข้อ 4)
+ * = แท็บทั้ง 4 ของแถบล่าง (src/components/nav/bottom-tabs.tsx — เทสต์ตรวจว่าทุกแท็บอยู่ในรายการ) + `/welcome`
+ * เพิ่มหน้าใหม่ที่ต้องใช้ออฟไลน์ (เช่นหน้าจดของ R3) ที่นี่ · path ต้องคงที่ ไม่มี id หรือ query
+ * หน้าที่เซิร์ฟเวอร์ redirect (เช่นแท็บของแอปตอนไม่ล็อกอิน) ถูกดึงแต่ไม่ถูกเก็บ
+ */
+export const OFFLINE_PAGES = ["/", "/history", "/progress", "/me", WELCOME_PATH] as const;
 
 /** URL เต็มของ OFFLINE_PAGES */
 export function offlinePageUrls(origin: string): string[] {
   return OFFLINE_PAGES.map((p) => new URL(p, origin).href);
+}
+
+/**
+ * key ของหน้าใน cache = URL ไม่มี fragment
+ * (ลิงก์เชิญ `/welcome#invite=…` ต้องไม่ทิ้งโค้ดเชิญไว้ใน key ของ cache — ADR 0006 เกณฑ์ 5)
+ */
+export function pageCacheKey(url: string): string {
+  try {
+    const u = new URL(url);
+    u.hash = "";
+    return u.href;
+  } catch {
+    return url;
+  }
+}
+
+/**
+ * URL ของหน้าที่เก็บลง cache หน้าได้: origin เดียวกัน · ไม่ใช่ /api · **ไม่มี query** (ADR 0006 ข้อ 4)
+ * (เช่น `/welcome?error=…` จาก Better Auth ไม่ถูกเก็บ — URL เดียวกันที่ไม่มี query ถูกเก็บแทนเมื่อเปิดครั้งถัดไป)
+ * fragment ไม่นับ เพราะถูกตัดออกจาก key ด้วย pageCacheKey
+ */
+export function isStorablePageUrl(url: string, origin: string): boolean {
+  try {
+    const u = new URL(url);
+    return u.origin === origin && !isApiPath(u.pathname) && u.search === "";
+  } catch {
+    return false;
+  }
 }
 
 /** cache ที่ต้องล้างตอนออกจากระบบ (ADR 0004 ข้อ 8): หน้า HTML (รวมที่รอย้าย) + ทุก cache ที่ขึ้นต้น `user-` */
@@ -177,20 +216,21 @@ export function planActivation(
   const promote = lang ? unique(staged.filter((e) => e.lang === lang).map((e) => e.url)) : [];
   const done = new Set(promote);
   const refetch = unique([...current.map((e) => e.url), ...staged.map((e) => e.url), ...offlinePageUrls(origin)]).filter(
-    (u) => !done.has(u),
+    (u) => !done.has(u) && isStorablePageUrl(u, origin),
   );
   return { lang, promote, refetch };
 }
 
+/**
+ * key ใน cache หน้าที่ต้องลบทิ้ง: มี query (เก็บไว้โดย v0.1.0 ก่อน ADR 0006) หรือมี fragment หรือไม่ใช่หน้าของเรา
+ * (ADR 0006 เกณฑ์ 5: ไม่มี key ที่มี `?` หรือ `#`)
+ */
+export function unstorablePageKeys(urls: string[], origin: string): string[] {
+  return urls.filter((u) => !isStorablePageUrl(u, origin) || pageCacheKey(u) !== u);
+}
+
 /** หน้าที่ SW ใหม่ต้องดึงตอน install: ทุกแท็บ + ทุกหน้าที่ cache ไว้แล้ว (กัน HTML รุ่นเก่าอ้าง chunk ที่ถูกลบ — ADR 0005 ข้อ จ) */
 export function pagesToStage(cachedUrls: string[], origin: string): string[] {
-  const own = cachedUrls.filter((u) => {
-    try {
-      const url = new URL(u);
-      return url.origin === origin && !isApiPath(url.pathname);
-    } catch {
-      return false;
-    }
-  });
+  const own = cachedUrls.filter((u) => isStorablePageUrl(u, origin)).map(pageCacheKey);
   return unique([...offlinePageUrls(origin), ...own]);
 }

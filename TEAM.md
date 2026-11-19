@@ -24,12 +24,12 @@
 | 4 | ตรวจอิสระ & ทดสอบ / QA & Test | `qa-test` | **Opus** | ตรวจงานจากเกณฑ์ใน contract, ใช้งานจริงบนจอมือถือ, เขียนเทสต์ end-to-end, แก้บั๊กที่เจอ (commit `qa:`) | `tests/e2e/**`, `playwright.config.ts` + แก้ได้ทุกไฟล์ที่พบปัญหา | แกน (ท้ายทุกรอบ) |
 | 5 | สถาปนิก / Architect | `architect` | **Opus** | โมเดลข้อมูล, ADR, กลยุทธ์ออฟไลน์, แผนเฟส | `docs/adr/**`, `docs/design/ARCHITECTURE.md` | เฉพาะทาง: ก่อนเขียนโค้ด และก่อนรื้อใหญ่ |
 | 6 | ออกแบบ / UX & Brand | `ux-brand` | **Opus** | flow บนมือถือ, wireframe, design token, ชุดภาพแมว | `docs/design/**`, `src/components/doodle/**`, `assets/stickers/**`, `scripts/export-stickers.mjs`, `scripts/sprites/**` | เฉพาะทาง: ก่อนงานหน้าจอ |
-| 7 | PWA & ออฟไลน์ | `pwa-offline` | **Opus** | manifest, service worker, คิวเขียนออฟไลน์, sync แบบไม่ซ้ำ, ตัวจับเวลาที่ทนจอดับ | `src/pwa/**`, `src/lib/offline/**`, `public/sw*`, `public/manifest*` | เฉพาะทาง: R0 (โครง), R3 |
+| 7 | PWA & ออฟไลน์ | `pwa-offline` | **Opus** | manifest, service worker, คิวเขียนออฟไลน์, sync แบบไม่ซ้ำ, ตัวจับเวลาที่ทนจอดับ | `src/pwa/**`, `src/lib/offline/**`, `public/sw*`, `public/manifest*` | เฉพาะทาง: R0 (โครง), R1 (จอยินดีต้อนรับออฟไลน์ ADR 0006), R3 |
 | 8 | ความปลอดภัย & ความเป็นส่วนตัว | `security-privacy` | **Opus** | ตรวจ auth/OTP/session, rate limit, สิทธิ์เข้าถึงข้อมูล, consent/ลบ/ส่งออก (PDPA) | แก้ได้ในไฟล์ auth/privacy + เทสต์ที่เกี่ยว | เฉพาะทาง: ทุกรอบที่แตะบัญชีหรือข้อมูลสุขภาพ |
 | 9 | คลังท่า & ภาษา / Catalog | `catalog` | Sonnet | นำเข้า/จัดรูปชุดข้อมูลท่า, ใบอนุญาต/เครดิต, ชื่อไทย, ค่า MET | `content/exercises/**`, `scripts/seed*.ts`, `docs/content/**` | เฉพาะทาง: R2 |
 | 10 | ระบบดูแล & ออกรุ่น / OPS & Release | `ops-release` | Sonnet | CI, health check, security headers, อีเมล OTP, backup, SemVer + CHANGELOG + สคริปต์ release | `.github/**`, `next.config.ts`, `docs/OPERATIONS.md`, `docs/VERSIONING.md`, `CHANGELOG.md`, `scripts/release*.ts` | เฉพาะทาง: R0, R1, R6 และเมื่อออกรุ่น |
 | 11 | นักค้นคว้า / Researcher | `researcher` | Sonnet | ค้นข้อมูลภายนอก: ลิมิต/ราคาผู้ให้บริการ, เอกสารไลบรารี, ใบอนุญาต | `docs/research/**` | สนับสนุน: ก่อนตัดสินใจที่ต้องพึ่งข้อมูลภายนอก |
-| 12 | เลขา / Secretary | `secretary` | Haiku | รายงานประจำวัน · **ไม่เขียนโค้ด** | `docs/reports/**` | สนับสนุน: หลังงานใหญ่ และวันละครั้งที่มี commit |
+| 12 | เลขา / Secretary | `secretary` | Haiku | รายงานประจำวัน · ตรวจเอกสารทั้งหมดให้ตรงกับงานปัจจุบัน · **ไม่เขียนโค้ด** | `docs/reports/**` และเอกสาร `*.md` / `docs/**` ที่ไม่ใช่โค้ด (ไม่แตะ `Pre-start/`, `.claude/worktrees/`) | สนับสนุน: หลังงานใหญ่ และวันละครั้งที่มี commit · ทุกครั้งที่ถูกเรียก ตรวจเอกสารล้าสมัยด้วย |
 
 ## หลักการเลือก model
 
@@ -44,7 +44,7 @@
 
 ## ข้อตกลงเรื่องไฟล์ที่ใช้ร่วม
 
-- เจ้าของไฟล์ที่เพิ่มตาม ARCHITECTURE.md: `src/lib/email/**` และ `vercel.json` → OPS & Release · `scripts/invite.ts`, `scripts/db-*.ts`, `drizzle.config.ts` → Platform · `src/app/serwist/**` → PWA & ออฟไลน์ (มีเฉพาะถ้า spike เลือกทางนั้น)
+- เจ้าของไฟล์ที่เพิ่มตาม ARCHITECTURE.md: `src/lib/email/**` และ `vercel.json` → OPS & Release · `scripts/invite.ts`, `scripts/db-*.ts`, `drizzle.config.ts` → Platform · `src/app/serwist/**` → PWA & ออฟไลน์ (มีแล้ว ทาง A ตาม ADR 0005)
 - `src/lib/data/shared/**` และ `src/lib/stats/**` — เจ้าของคือ Platform · Front-end และ PWA import ได้ แก้ไม่ได้
 - `next.config.ts` — เจ้าของคือ OPS & Release · PWA และ Front-end ขอแก้ผ่าน Lead (ระบุใน contract ของรอบ)
 - `src/components/doodle/**` — เจ้าของคือ UX & Brand · Front-end นำไปใช้ได้ แก้ไม่ได้

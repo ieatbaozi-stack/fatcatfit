@@ -1,33 +1,70 @@
 import "server-only";
-import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "@better-auth/drizzle-adapter";
-import { emailOTP } from "better-auth/plugins";
-import type { Database } from "@/db/client";
-import * as schema from "@/db/schema";
+import { after } from "next/server";
+import { getDb } from "@/db/client";
+import type { AppDb } from "@/db/types";
+import { HttpError } from "@/lib/data/shared/http-error";
+import { hasCurrentConsent } from "./consent";
+import { createAuth, type Auth } from "./create-auth";
+import { sendOtpEmail } from "./mailer";
 
-// R0: config ขั้นต่ำเพื่อให้ schema ตรงกับ ADR 0002 · ยังไม่เปิด route /api/auth/* (งาน R1)
+export { createAuth, type Auth, type AuthDeps } from "./create-auth";
 
-/** สร้างอินสแตนซ์จาก db ที่ส่งเข้ามา (เทสต์ส่ง PGlite · แอปส่ง getDb()) */
-export function createAuth(db: Database | Parameters<typeof drizzleAdapter>[0]) {
-  return betterAuth({
-    secret: process.env.BETTER_AUTH_SECRET,
-    database: drizzleAdapter(db, { provider: "pg", schema }),
-    // id สร้างในโค้ดเสมอ (ADR 0001) — ไม่ใช้ generateId: "uuid" เพราะโหมดนั้นให้ DB สร้างผ่าน gen_random_uuid()
-    advanced: { database: { generateId: () => crypto.randomUUID() } },
-    rateLimit: { storage: "database" },
-    session: { expiresIn: 60 * 60 * 24 * 90, updateAge: 60 * 60 * 24 },
-    plugins: [
-      emailOTP({
-        otpLength: 6,
-        expiresIn: 600,
-        allowedAttempts: 5,
-        storeOTP: "hashed",
-        disableSignUp: false,
-        async sendVerificationOTP() {
-          // R1: ส่งผ่าน src/lib/email
-          throw new Error("email transport is not configured yet");
-        },
-      }),
-    ],
-  });
+// จุดเข้าฝั่งเซิร์ฟเวอร์ของ auth: getAuth() · requireUser() · requireConsent() (ADR 0002 ข้อ 6)
+// ทุก endpoint ข้อมูลของผู้ใช้ต้องเรียก requireUser() แล้วกรองทุก query ด้วย userId ที่ได้
+
+let instance: Auth | undefined;
+
+function parseCap(value: string | undefined): number | undefined {
+  const n = Number(value);
+  return Number.isInteger(n) && n > 0 ? n : undefined;
+}
+
+function runInBackground(p: Promise<unknown>): void {
+  try {
+    after(p);
+  } catch {
+    // นอก request scope (ไม่ควรเกิดในแอป) — ปล่อยให้ทำงานต่อโดยไม่รอ
+    void p;
+  }
+}
+
+export function getAuth(): Auth {
+  if (!instance) {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    instance = createAuth(getDb(), {
+      sendOtpEmail,
+      otpDailyCap: parseCap(process.env.OTP_DAILY_CAP),
+      runInBackground,
+      baseURL: process.env.BETTER_AUTH_URL,
+      // ยังไม่มี OAuth client → ไม่เปิด Google (ปุ่มฝั่ง UI ได้ provider ไม่พบ ไม่ใช่ crash)
+      google: clientId && clientSecret ? { clientId, clientSecret } : null,
+    });
+  }
+  return instance;
+}
+
+export type AuthedUser = { userId: string; email: string; name: string };
+
+/** ผู้ใช้จาก cookie session — ไม่มี/หมดอายุ/ถูกเพิกถอน → HttpError 401 unauthenticated */
+export async function requireUser(headers: Headers): Promise<AuthedUser> {
+  return (await requireUserWithCookies(headers)).user;
+}
+
+/**
+ * เหมือน requireUser แต่คืน Set-Cookie ที่ Better Auth ออกให้ด้วย (ต่ออายุ session เมื่อพ้น updateAge)
+ * endpoint ที่แอปเรียกทุกครั้งที่เปิด (GET /api/me) ต้องส่งต่อ cookie เหล่านี้ ไม่งั้นอายุใน cookie ของเบราว์เซอร์ไม่ต่อตามฐานข้อมูล
+ */
+export async function requireUserWithCookies(headers: Headers): Promise<{ user: AuthedUser; setCookies: string[] }> {
+  const { headers: out, response: session } = await getAuth().api.getSession({ headers, returnHeaders: true });
+  if (!session?.user) throw new HttpError(401, "unauthenticated");
+  return {
+    user: { userId: session.user.id, email: session.user.email, name: session.user.name },
+    setCookies: out.getSetCookie(),
+  };
+}
+
+/** ยังไม่ยินยอมประกาศเวอร์ชันปัจจุบัน → HttpError 403 consent_required */
+export async function requireConsent(userId: string, db: AppDb = getDb()): Promise<void> {
+  if (!(await hasCurrentConsent(db, userId))) throw new HttpError(403, "consent_required");
 }

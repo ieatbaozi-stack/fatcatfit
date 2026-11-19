@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Gaegu, Noto_Sans_Thai } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getTranslations } from "next-intl/server";
-import { BottomTabs } from "@/components/nav/bottom-tabs";
 import { themeInitScript } from "@/components/theme/theme";
 import { ServiceWorkerRegister } from "@/pwa/register";
 import "./globals.css";
@@ -59,11 +58,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             {t("skipToContent")}
           </a>
           <div className="mx-auto flex min-h-dvh w-full max-w-120 flex-col px-5">
-            <main id="main" className="flex-1 pt-8 pb-32">
+            <main id="main" className="flex flex-1 flex-col pt-8 pb-8">
               {children}
             </main>
           </div>
-          <BottomTabs />
         </NextIntlClientProvider>
         <ServiceWorkerRegister />
       </body>

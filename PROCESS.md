@@ -10,11 +10,11 @@
 | 0 Discovery | วิจัยแอป/API/stack | Researcher | — | ✅ |
 | 1 Requirements | PRD: user story, ขอบเขต, เกณฑ์รับงาน | Lead | **อนุมัติ PRD** | ✅ อนุมัติ 2026-11-15 |
 | 2 Design | ADR + โมเดลข้อมูล · flow/wireframe · แบรนด์ | Architect, UX & Brand | **อนุมัติ wireframe และ ADR หลัก** | ✅ อนุมัติ 2026-11-16 |
-| 3 Foundation (R0) | โครงโปรเจกต์, CI, migration, release, ธีม, TH/EN, PWA skeleton | ดูตารางรอบ | — | |
-| 4 Build (R1–R5) | ตาม contract ของแต่ละรอบ | ดูตารางรอบ | อนุมัติ contract ก่อนเริ่มแต่ละรอบ | |
-| 5 Review | ตรวจอิสระทุกรอบ | QA & Test, Security & Privacy | — | |
-| 6 Integrate | Lead รวม ทดสอบซ้ำ push และเปิด pull request เสนอเลขเวอร์ชัน | Lead | **กด merge เมื่อ CI เขียว** | |
-| 7 Report | รายงานประจำวัน | Secretary | — | |
+| 3 Foundation (R0) | โครงโปรเจกต์, CI, migration, release, ธีม, TH/EN, PWA skeleton | ดูตารางรอบ | — | ✅ ปิดแล้ว v0.1.0 (2026-11-18) |
+| 4 Build (R1–R5) | ตาม contract ของแต่ละรอบ | ดูตารางรอบ | อนุมัติ contract ก่อนเริ่มแต่ละรอบ | R1 โค้ดและเกณฑ์ 16 (เครื่องจริง) ผ่านแล้ว 2026-11-19 · รอ merge (เสนอ v0.2.0) · R2–R5 ยังไม่เริ่ม · CR1 (แมวขยับ) ✅ |
+| 5 Review | ตรวจอิสระทุกรอบ | QA & Test, Security & Privacy | — | R0 ✅ · CR1 ✅ · R1 ✅ (qa-test และ security-privacy ตรวจแล้ว ข้อ high/medium แก้แล้ว) |
+| 6 Integrate | Lead รวม ทดสอบซ้ำ push และเปิด pull request เสนอเลขเวอร์ชัน | Lead | **กด merge เมื่อ CI เขียว** | R1: pull request #10 ยัง draft (Lead เปลี่ยนเป็น ready ก่อน merge) · รอ boss ตั้ง `MIGRATE_ON_DEPLOY` และ merge |
+| 7 Report | รายงานประจำวัน | Secretary | — | ทำทุกวันที่มี commit · ดู [docs/reports/](docs/reports/) |
 
 หลังเปิดใช้: ความต้องการใหม่ = change request สั้นๆ → contract รอบใหม่ → วนเฟส 4–7
 

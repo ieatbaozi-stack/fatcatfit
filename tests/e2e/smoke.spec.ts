@@ -1,4 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import { collectErrors, expectNoHorizontalOverflow, msg, PAGES, TABS, TOKENS } from "./helpers";
 
 // Smoke test ของ R0 (contract: แถว qa-test + เกณฑ์ข้อ 15)

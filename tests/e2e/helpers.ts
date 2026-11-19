@@ -115,3 +115,22 @@ export async function waitForCachedPages(page: Page, paths: string[], lang?: str
     )
     .toEqual(expect.objectContaining(Object.fromEntries(paths.map((p) => [p, lang ?? expect.any(String)]))));
 }
+
+/** รอให้ AuthGate ได้คำตอบ /api/me = ready แล้วตั้ง hint `fcf:auth` (ADR 0006 ข้อ 3)
+ *  ต้องรอก่อนตัดเน็ตในเทสต์ที่ล็อกอินอยู่ — เน็ตหลุดก่อนรู้สถานะบนเครื่องใหม่ = จอยินดีต้อนรับแบบออฟไลน์ (ถูกตาม ADR) */
+export async function waitForAuthReady(page: Page) {
+  await page.waitForFunction(
+    () => {
+      try {
+        return localStorage.getItem("fcf:auth") === "ready";
+      } catch {
+        return false;
+      }
+    },
+    null,
+    { timeout: 15_000 },
+  );
+}
+
+/** หน้าที่มีแถบล่าง (กลุ่ม (app) ตาม ADR 0006) — /styleguide, 404 อยู่นอกกลุ่ม ไม่มีแถบล่างแล้ว */
+export const APP_PAGES = ["/", "/history", "/progress", "/me"] as const;

@@ -11,6 +11,7 @@ PWA สำหรับกลุ่มเพื่อนกลุ่มเล็�
 - **คนทำกับคนตรวจเป็นคนละ agent** — ทุกรอบที่มีโค้ดจบด้วย `qa-test` และ `security-privacy` เมื่อรอบนั้นแตะบัญชีหรือข้อมูลสุขภาพ
 - รายงานของ agent ไม่ใช่หลักฐาน — Lead รันเกตเองและดู diff ก่อนบอก boss ว่าเสร็จ
 - งานเล็กที่ไม่ใช่ฟีเจอร์ (แก้เอกสาร ตอบคำถาม แก้คำผิด) ทำได้เลยไม่ต้องมี contract
+- **เอกสารต้องเป็นปัจจุบันเสมอ (boss สั่ง 2026-11-19)**: หลังงานทุกชิ้น ทุกเอกสาร (รายงาน contract README CLAUDE.md OPERATIONS ADR คำสั่งของ agent ฯลฯ) ต้องตรงกับสิ่งที่ทำแล้ว สิ่งที่กำลังทำ และสิ่งที่จะทำต่อ · Lead เรียก `secretary` ตรวจเอกสารล้าสมัยพร้อมเขียนรายงานทุกครั้ง แล้วดู diff ก่อน push
 
 ## เมื่อมอบงานให้ agent
 
@@ -55,4 +56,4 @@ CI (GitHub Actions) บน repo สาธารณะ: ห้ามใช้ `pu
 
 ## ภาพแมว
 
-ต้นฉบับอยู่ที่ `docs/design/samples.html` ที่เดียว แก้แล้วรัน `node scripts/export-stickers.mjs` เพื่อสร้าง `assets/stickers/` ใหม่ (ภาพนิ่ง + sprite ดุ๊กดิ๊ก 3 เฟรม)
+ต้นฉบับอยู่ที่ `docs/design/samples.html` ที่เดียว แก้แล้วรัน `node scripts/export-stickers.mjs` เพื่อสร้าง `assets/stickers/` ใหม่ (ภาพนิ่ง + ข้อมูลท่าของ `<Cat>` ใน `src/components/doodle/*.generated.ts`) · แผ่น sprite ขยับ 5 เฟรมแยกด้วย `node scripts/sprites/build.mjs` (ดุ๊กดิ๊ก 3 เฟรมเลิกใช้แล้วตาม CR1)

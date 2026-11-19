@@ -117,7 +117,7 @@ describe(".env.example", () => {
   it("มีทุกตัวแปรใน ARCHITECTURE ข้อ 5", () => {
     const required = [
       "DATABASE_URL", "DATABASE_URL_UNPOOLED", "BETTER_AUTH_SECRET", "BETTER_AUTH_URL", "GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET",
-      "EMAIL_TRANSPORT", "EMAIL_FROM", "SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASS", "OTP_DAILY_CAP", "CRON_SECRET", "TRUSTED_IP_HEADER",
+      "EMAIL_TRANSPORT", "EMAIL_FROM", "SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASS", "OTP_DAILY_CAP", "CRON_SECRET",
     ];
     expect(required.filter((n) => !declared.has(n))).toEqual([]);
   });

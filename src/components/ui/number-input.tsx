@@ -17,6 +17,12 @@ type NumberInputProps = {
   unit?: string;
   placeholder?: string;
   hint?: string;
+  /** ข้อผิดพลาดใต้ช่อง (เส้นใต้ --warn + ข้อความ --warn · แทน hint) */
+  error?: string | null;
+  /** ค่าที่ปุ่ม −/+ เริ่มจากเมื่อช่องว่าง (ไม่ใส่ = เริ่มจาก min หรือ 0) */
+  startAt?: number;
+  /** เรียกเมื่อออกจากช่อง */
+  onBlur?: () => void;
   /** ตัวเลขใหญ่ (44px) สำหรับช่องหลักของหน้าจด */
   big?: boolean;
   disabled?: boolean;
@@ -36,6 +42,9 @@ export function NumberInput({
   unit,
   placeholder,
   hint,
+  error,
+  startAt,
+  onBlur,
   big = false,
   disabled = false,
 }: NumberInputProps) {
@@ -62,6 +71,7 @@ export function NumberInput({
       if (parsed !== null) onChange(clamp(parsed, min, max));
     }
     setDraft(null);
+    onBlur?.();
   }
 
   const stepButton = (direction: 1 | -1) => (
@@ -71,7 +81,7 @@ export function NumberInput({
       aria-label={`${direction === 1 ? t("increase") : t("decrease")} ${label}`}
       onClick={() => {
         setDraft(null);
-        onChange(stepValue(value, direction, step, min, max));
+        onChange(value === null && startAt !== undefined ? startAt : stepValue(value, direction, step, min, max));
       }}
       className="grid size-12 flex-none cursor-pointer place-items-center rounded-blob border-draw border-ink bg-transparent text-ink enabled:active:translate-y-0.5 enabled:active:bg-accent enabled:active:text-on-accent disabled:cursor-not-allowed disabled:opacity-35"
     >
@@ -86,9 +96,15 @@ export function NumberInput({
       </label>
       <div className="mt-1.5 flex items-center gap-3">
         {stepButton(-1)}
-        <div className="flex min-w-0 flex-1 items-baseline justify-center rounded-underline border-b-2 border-ink">
+        <div
+          className={cx(
+            "flex min-w-0 flex-1 items-baseline justify-center rounded-underline border-b-2",
+            error ? "border-warn" : "border-ink",
+          )}
+        >
           <input
             id={id}
+            aria-invalid={error ? true : undefined}
             type="text"
             inputMode={decimals > 0 ? "decimal" : "numeric"}
             enterKeyHint="done"
@@ -107,7 +123,13 @@ export function NumberInput({
         </div>
         {stepButton(1)}
       </div>
-      {hint ? <p className="mt-1 text-caption text-ink-3">{hint}</p> : null}
+      {error ? (
+        <p role="alert" className="mt-1 text-caption text-warn">
+          {error}
+        </p>
+      ) : hint ? (
+        <p className="mt-1 text-caption text-ink-3">{hint}</p>
+      ) : null}
     </div>
   );
 }

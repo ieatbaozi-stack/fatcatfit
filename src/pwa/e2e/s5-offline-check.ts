@@ -5,9 +5,12 @@
 //   npm run build                                     # จำลอง deploy รุ่นใหม่ (BUILD_ID ใหม่ → sw.js ใหม่)
 //   npx tsx src/pwa/e2e/s5-offline-check.ts update    # เปิดครั้งที่ 1 และ 2 หลัง deploy
 //   npx tsx src/pwa/e2e/s5-offline-check.ts locale    # เปลี่ยนภาษาแล้วออฟไลน์ ต้องได้ภาษาที่เลือกล่าสุด
+//   npx tsx src/pwa/e2e/s5-offline-check.ts auth      # ADR 0006: /welcome ออฟไลน์ · ไม่เก็บ query/redirect · ออกจากระบบ
 //
-// เซิร์ฟเวอร์: proxy ที่พอร์ต 3102 (ใส่ CSP ของ ops + เปลี่ยน <html lang> ตาม cookie NEXT_LOCALE)
-//            หน้า next start ที่พอร์ต 31021
+// เซิร์ฟเวอร์: proxy ที่พอร์ต 3102 (ใส่ CSP ของ ops + เปลี่ยน <html lang> ตาม cookie NEXT_LOCALE + ตอบ /api/me แทน)
+//            หน้า next start ที่พอร์ต 31021 — หน้าและการ redirect ทั้งหมดมาจากแอปจริง (layout ของ R1, ADR 0006)
+// "ล็อกอิน" = มี cookie ชื่อ session ของ better-auth (ค่าปลอม): layout จริงตรวจแค่ว่ามี cookie (hasSessionCookie)
+//            ส่วน /api/me ที่ AuthGate ถาม proxy ตอบเอง → สคริปต์ไม่แตะฐานข้อมูล (.env.local) และไม่ต้องมีบัญชีจริง
 // ตัวเลือก: --inject  ใส่ <link rel=manifest> และเรียก register แบบเดียวกับ <ServiceWorkerRegister />
 //                    (ใช้เมื่อ layout ยังไม่ได้ใส่ component — R0 ระหว่างทำขนาน)
 // ใช้พอร์ต 3102 และโปรไฟล์เบราว์เซอร์ใน os.tmpdir()/fcf-s5-profile (เก็บ SW/cache ข้ามการเปิด)
@@ -20,11 +23,31 @@ import path from "node:path";
 
 const PORT = 3102;
 const INTERNAL_PORT = 31021;
-const APP_ROUTES = ["/history", "/progress", "/me", "/styleguide"];
 const ORIGIN = `http://localhost:${PORT}`;
 const PROFILE = path.join(os.tmpdir(), "fcf-s5-profile");
 const STATE = path.join(os.tmpdir(), "fcf-s5-state.json");
 const phase = process.argv[2];
+const AUTH_MODE = phase === "auth";
+/**
+ * ชื่อ cookie session ที่ getSessionCookie ของ better-auth อ่าน (prefix "better-auth" ค่าเริ่มต้น · localhost ไม่มี __Secure-)
+ * ค่าเป็นของปลอม: layout ของ (app)/(setup) ตรวจแค่ว่ามี cookie ไม่ตรวจความถูกต้อง (ADR 0006 ข้อ 2)
+ */
+const S5_SESSION_COOKIE = "better-auth.session_token";
+const S5_SESSION_VALUE = "s5-fake-session";
+const hasS5Session = (cookie: string | undefined) =>
+  (cookie ?? "").split(/;\s*/).includes(`${S5_SESSION_COOKIE}=${S5_SESSION_VALUE}`);
+/** คำตอบ /api/me ของผู้ใช้ที่ล็อกอินครบ (ADR 0006 ข้อ 3: state "ready") — ข้อมูลสมมติ */
+const S5_ME_READY = {
+  state: "ready",
+  noticeVersion: "s5",
+  user: { id: "s5-user", email: "s5@example.com", name: "S5 Cat" },
+  consent: { accepted: true, acceptedAt: "2026-01-01T00:00:00.000Z" },
+  profile: { locale: "th", weightUnit: "kg", lengthUnit: "cm", distanceUnit: "km" },
+};
+/** เฟสที่ไม่ใช่ auth ทดสอบในฐานะผู้ใช้ที่ล็อกอินอยู่ (แท็บของแอป 307 ไป /welcome เมื่อไม่มี cookie ตั้งแต่ R1) */
+async function signIn(ctx: BrowserContext) {
+  await ctx.addCookies([{ name: S5_SESSION_COOKIE, value: S5_SESSION_VALUE, url: ORIGIN }]);
+}
 const inject = process.argv.includes("--inject");
 
 type Result = { name: string; ok: boolean; detail: string };
@@ -47,8 +70,9 @@ type Server = { next: ChildProcess; proxy: http.Server };
 /**
  * next start อยู่ที่ INTERNAL_PORT และ proxy ที่ PORT ซึ่ง:
  * - ใส่ CSP ของ ops ให้ทุกคำตอบ
- * - จำลอง next-intl ของ frontend (ยังไม่รวมใน branch นี้): เปลี่ยน <html lang> ของ HTML ตาม cookie NEXT_LOCALE
- *   → HTML ของ URL เดียวกันต่างกันตามภาษา เหมือนหน้า dynamic จริง
+ * - ตั้ง <html lang> ของ HTML ตาม cookie NEXT_LOCALE (ให้ผลเหมือน next-intl แน่นอน ไม่ขึ้นกับ Accept-Language)
+ * - ตอบ GET /api/me เอง: มี cookie session ของสคริปต์ → 200 ready · ไม่มี → 401 (ไม่ส่งต่อไปแอป = ไม่แตะฐานข้อมูล)
+ * - ไม่แตะเส้นทาง: redirect 307 ไป /welcome มาจาก layout จริง (ADR 0006 ข้อ 2)
  */
 async function startServer(): Promise<Server> {
   const next = spawn(process.execPath, [path.join("node_modules", "next", "dist", "bin", "next"), "start", "-p", String(INTERNAL_PORT)], {
@@ -57,9 +81,14 @@ async function startServer(): Promise<Server> {
   });
   const proxy = http.createServer((req, res) => {
     const headers = { ...req.headers, host: `localhost:${INTERNAL_PORT}`, "accept-encoding": "identity" };
-    // หน้าของ frontend ยังไม่อยู่ใน branch นี้ → ให้ /history /progress /me /styleguide ตอบด้วยหน้า "/" (200)
-    const upstreamPath = APP_ROUTES.includes((req.url ?? "/").split("?")[0]) ? "/" : req.url;
-    const upstream = http.request({ host: "127.0.0.1", port: INTERNAL_PORT, path: upstreamPath, method: req.method, headers }, (up) => {
+    const reqPath = (req.url ?? "/").split("?")[0];
+    if (reqPath === "/api/me" && req.method === "GET") {
+      const signedIn = hasS5Session(req.headers.cookie);
+      res.writeHead(signedIn ? 200 : 401, { "Content-Type": "application/json", "Cache-Control": "no-store", "content-security-policy": OPS_CSP });
+      res.end(JSON.stringify(signedIn ? S5_ME_READY : { error: "unauthorized" }));
+      return;
+    }
+    const upstream = http.request({ host: "127.0.0.1", port: INTERNAL_PORT, path: req.url, method: req.method, headers }, (up) => {
       const outHeaders = { ...up.headers, "content-security-policy": OPS_CSP };
       const isHtml = String(up.headers["content-type"] ?? "").includes("text/html");
       if (!isHtml) {
@@ -71,7 +100,9 @@ async function startServer(): Promise<Server> {
       up.on("data", (c: Buffer) => chunks.push(c));
       up.on("end", () => {
         const locale = /(?:^|;\s*)NEXT_LOCALE=([a-z]{2})/.exec(req.headers.cookie ?? "")?.[1] ?? "th";
-        const body = Buffer.concat(chunks).toString("utf8").replace(/<html([^>]*)\slang="[^"]*"/, `<html$1 lang="${locale}"`);
+        let body = Buffer.concat(chunks).toString("utf8").replace(/<html([^>]*)\slang="[^"]*"/, `<html$1 lang="${locale}"`);
+        // เฟส auth: ติดป้ายว่า HTML นี้เป็นของ path ไหน (ใช้ตรวจว่าตอนออฟไลน์ได้หน้าอะไร)
+        if (AUTH_MODE) body = body.replace("<head>", `<head><meta name="fcf-s5-page" content="${reqPath}">`);
         delete outHeaders["content-length"];
         res.writeHead(up.statusCode ?? 502, outHeaders);
         res.end(body);
@@ -111,11 +142,14 @@ async function stopServer(server: Server) {
 
 async function openApp(): Promise<BrowserContext> {
   // S5_CHANNEL=chrome|msedge ใช้เบราว์เซอร์ที่ติดตั้งในเครื่องแทน Chromium ของ Playwright
-  return chromium.launchPersistentContext(PROFILE, {
+  const ctx = await chromium.launchPersistentContext(PROFILE, {
     headless: true,
     serviceWorkers: "allow",
     channel: process.env.S5_CHANNEL || undefined,
   });
+  // cookie session ของสคริปต์ไม่มีวันหมดอายุ → หายเมื่อปิดเบราว์เซอร์ จึงใส่ใหม่ทุกครั้งที่เปิด (ยกเว้นเฟส auth ที่คุมเอง)
+  if (!AUTH_MODE) await signIn(ctx);
+  return ctx;
 }
 
 /** ทำแบบเดียวกับ src/pwa/register.tsx */
@@ -398,12 +432,167 @@ async function phaseUpdate() {
   }
 }
 
+/** key ใน cache หน้า (path + query) */
+async function pageKeys(page: Page): Promise<string[]> {
+  return page.evaluate(async () => {
+    if (!(await caches.has("fcf-pages-v1"))) return [];
+    const c = await caches.open("fcf-pages-v1");
+    return (await c.keys()).map((r) => new URL(r.url).pathname + new URL(r.url).search + new URL(r.url).hash).sort();
+  });
+}
+
+/** รอจน key ใน cache หน้าตรงกับที่ต้องการ และคงที่อย่างน้อย 1.5 วิ (SW เติมแท็บในพื้นหลัง) */
+async function waitPageKeys(page: Page, want: string[], timeoutMs = 15000) {
+  const target = JSON.stringify([...want].sort());
+  const end = Date.now() + timeoutMs;
+  let keys: string[] = [];
+  let since = 0;
+  while (Date.now() < end) {
+    keys = await pageKeys(page);
+    if (JSON.stringify(keys) === target) {
+      if (!since) since = Date.now();
+      if (Date.now() - since >= 1500) return { ok: true, keys };
+    } else since = 0;
+    await page.waitForTimeout(250);
+  }
+  return { ok: false, keys };
+}
+
+async function servedPage(page: Page, path: string) {
+  const res = await page.goto(ORIGIN + path).catch((e: Error) => e);
+  if (res instanceof Error) return { status: -1, marker: res.message };
+  const marker =
+    res && res.status() === 200
+      ? await page.evaluate(() => document.querySelector('meta[name="fcf-s5-page"]')?.getAttribute("content") ?? "(none)")
+      : "";
+  return { status: res?.status() ?? -1, marker };
+}
+
+/** ทำแบบเดียวกับ resetDeviceAfterSignOut (src/pwa/reset-device.ts) — ไม่มีหน้าออกจากระบบใน branch นี้ */
+async function resetDeviceInPage(page: Page) {
+  await page.evaluate(async () => {
+    localStorage.removeItem("fcf:auth");
+    const reg = await navigator.serviceWorker.getRegistration("/");
+    const workers = [reg?.installing, reg?.waiting, reg?.active].filter(Boolean) as ServiceWorker[];
+    await Promise.all(
+      workers.map(
+        (w) =>
+          new Promise<void>((resolve) => {
+            const ch = new MessageChannel();
+            const t = setTimeout(resolve, 1000);
+            ch.port1.onmessage = () => {
+              clearTimeout(t);
+              resolve();
+            };
+            w.postMessage({ type: "FCF_USER_RESET" }, [ch.port2]);
+          }),
+      ),
+    );
+    for (const name of await caches.keys()) {
+      if (name === "fcf-pages-v1" || name === "fcf-pages-staging-v1" || name.startsWith("user-")) await caches.delete(name);
+    }
+  });
+}
+
+async function phaseAuth() {
+  fs.rmSync(PROFILE, { recursive: true, force: true });
+  let server = await startServer();
+  let ctx = await openApp();
+  try {
+    // 0) เส้นทางของเซิร์ฟเวอร์จริง (layout ของ R1 · ADR 0006 ข้อ 2 · เกณฑ์ 1) — ไม่ผ่าน SW ไม่ตาม redirect
+    const sessionCookie = `${S5_SESSION_COOKIE}=${S5_SESSION_VALUE}`;
+    for (const p of ["/", "/history", "/progress", "/me", "/consent", "/onboarding"]) {
+      const r0 = await fetch(ORIGIN + p, { redirect: "manual" });
+      check(`auth: server, no cookie: GET ${p} → 307 /welcome`, r0.status === 307 && r0.headers.get("location") === "/welcome", `status ${r0.status} location ${r0.headers.get("location")}`);
+      const r1 = await fetch(ORIGIN + p, { redirect: "manual", headers: { cookie: sessionCookie } });
+      check(`auth: server, with cookie: GET ${p} → 200`, r1.status === 200, `status ${r1.status}`);
+    }
+    for (const cookie of [undefined, sessionCookie]) {
+      const r2 = await fetch(ORIGIN + "/welcome", { redirect: "manual", headers: cookie ? { cookie } : {} });
+      check(`auth: server: GET /welcome ${cookie ? "with" : "without"} cookie → 200`, r2.status === 200, `status ${r2.status}`);
+    }
+
+    // 1) ยังไม่ล็อกอิน: SW ติดตั้งจาก /welcome · แท็บของแอปถูก redirect → ไม่ถูกเก็บ
+    let page = ctx.pages()[0] ?? (await ctx.newPage());
+    const first = await page.goto(ORIGIN + "/welcome");
+    check("auth: GET /welcome (no cookie) = 200", first?.status() === 200, `status ${first?.status()}`);
+    await waitForController(page);
+    let r = await waitPageKeys(page, ["/welcome"]);
+    check("auth: not signed in → pages cache holds only /welcome (redirected tabs not stored)", r.ok, JSON.stringify(r.keys));
+
+    // 2) URL ที่มี query / fragment ไม่ลง key
+    await page.goto(ORIGIN + "/welcome?error=access_denied");
+    await page.goto(ORIGIN + "/styleguide");
+    await page.goto(ORIGIN + "/welcome#invite=ABCD-1234");
+    await page.waitForTimeout(1500);
+    const keys = await pageKeys(page);
+    check("auth: no cache key with ? or #, no invite code", !keys.some((k) => /[?#]/.test(k) || k.includes("ABCD")), JSON.stringify(keys));
+    await ctx.close();
+
+    // 3) ออฟไลน์ (ไม่เคยล็อกอิน) → เปิด / ได้ /welcome ไม่ใช่ 503
+    await stopServer(server);
+    ctx = await openApp();
+    await ctx.setOffline(true);
+    page = ctx.pages()[0] ?? (await ctx.newPage());
+    for (const p of ["/", "/history", "/never-visited", "/welcome?error=x"]) {
+      const s = await servedPage(page, p);
+      check(`auth: offline, never signed in: ${p} → /welcome copy`, s.status === 200 && s.marker === "/welcome", JSON.stringify(s));
+    }
+    await ctx.close();
+
+    // 4) ล็อกอิน → ทุกแท็บถูกเก็บ
+    server = await startServer();
+    ctx = await openApp();
+    await signIn(ctx);
+    page = ctx.pages()[0] ?? (await ctx.newPage());
+    await page.goto(ORIGIN + "/");
+    await waitForController(page);
+    r = await waitPageKeys(page, ["/", "/history", "/progress", "/me", "/styleguide", "/welcome"]);
+    check("auth: signed in → every tab + /welcome cached", r.ok, JSON.stringify(r.keys));
+
+    // 5) ออกจากระบบ: cookie หาย → reset → location.replace("/welcome") → เติมกลับได้แค่หน้าแบบไม่ล็อกอิน
+    await ctx.clearCookies({ name: S5_SESSION_COOKIE });
+    await resetDeviceInPage(page);
+    await page.evaluate(() => location.replace("/welcome"));
+    await page.waitForURL(ORIGIN + "/welcome");
+    r = await waitPageKeys(page, ["/welcome"]);
+    check("auth: after sign-out → pages cache refilled with /welcome only", r.ok, JSON.stringify(r.keys));
+    await ctx.close();
+
+    // 6) ออฟไลน์หลังออกจากระบบ → /welcome
+    await stopServer(server);
+    ctx = await openApp();
+    await ctx.setOffline(true);
+    page = ctx.pages()[0] ?? (await ctx.newPage());
+    for (const p of ["/", "/me"]) {
+      const s = await servedPage(page, p);
+      check(`auth: offline after sign-out: ${p} → /welcome copy`, s.status === 200 && s.marker === "/welcome", JSON.stringify(s));
+    }
+
+    // 7) ไม่มีสำเนาเลย → 503 Offline
+    await page.evaluate(async () => {
+      await caches.delete("fcf-pages-v1");
+    });
+    const res = await page.goto(ORIGIN + "/").catch((e: Error) => e);
+    const text = res instanceof Error ? res.message : await page.evaluate(() => document.body.innerText);
+    check(
+      "auth: offline with no page copies → 503 Offline",
+      !(res instanceof Error) && res?.status() === 503 && text.includes("Offline"),
+      `status ${res instanceof Error ? res.message : res?.status()}`,
+    );
+  } finally {
+    await ctx.close().catch(() => {});
+    await stopServer(server).catch(() => {});
+  }
+}
+
 async function main() {
-  if (phase === "first") await phaseFirst();
+  if (phase === "auth") await phaseAuth();
+  else if (phase === "first") await phaseFirst();
   else if (phase === "update") await phaseUpdate();
   else if (phase === "locale") await phaseLocale();
   else {
-    console.error("usage: tsx src/pwa/e2e/s5-offline-check.ts first|update|locale [--inject]");
+    console.error("usage: tsx src/pwa/e2e/s5-offline-check.ts first|update|locale|auth [--inject]");
     process.exit(2);
   }
   const failed = results.filter((r) => !r.ok);

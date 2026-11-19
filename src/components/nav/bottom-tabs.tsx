@@ -36,17 +36,19 @@ export function BottomTabs() {
           {TABS.map(({ href, key, icon }) => {
             const active = isTabActive(pathname, href);
             return (
-              <li key={href}>
+              <li key={href} className="min-w-0">
                 <Link
                   href={href}
                   aria-current={active ? "page" : undefined}
+                  aria-label={t(key)}
                   className={cx(
-                    "flex min-h-13 flex-col items-center justify-center gap-0.5 rounded-hand text-caption no-underline",
+                    "flex min-h-13 min-w-0 flex-col items-center justify-center gap-0.5 rounded-hand text-caption no-underline",
                     active ? "font-medium text-ink" : "font-normal text-ink-3",
                   )}
                 >
                   <Icon name={icon} size={26} />
-                  <span className={cx(active && "underline-hand")}>{t(key)}</span>
+                  {/* บรรทัดเดียวเสมอ แม้ซูมตัวอักษร 200% — ถ้ายาวเกินช่องจะตัดด้วย … (ชื่อเต็มอยู่ใน aria-label) · pb-2/-mb-2 เว้นที่ให้เส้นใต้วาดมือไม่ถูก overflow ตัด */}
+                  <span className={cx("-mb-2 block max-w-full truncate whitespace-nowrap pb-2", active && "underline-hand")}>{t(key)}</span>
                 </Link>
               </li>
             );
