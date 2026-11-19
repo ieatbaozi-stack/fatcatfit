@@ -128,14 +128,14 @@ $b = New-Object byte[] 32
 
 **แนะนำวิธี A** — ตัวสคริปต์ `scripts/release-migrate.ts` และ `vercel.json` (`buildCommand`) อยู่ใน repo แล้ว มีเทสต์ และ **ไม่ทำงานเลยจนกว่า boss จะตั้ง `MIGRATE_ON_DEPLOY=1` ใน Production** (สคริปต์พิมพ์ "ข้าม" แล้วจบ) ฐานข้อมูลที่ใช้คือ `DATABASE_URL_UNPOOLED` เท่านั้น (ไม่ถอยไปใช้ pooled)
 
-### 2.3 วิธีเปิดใช้ (ยังไม่เปิด — boss ทำหลัง merge pull request ของ R1 ตามที่ Lead แจ้ง)
+### 2.3 วิธีเปิดใช้ (ยังไม่เปิด — boss ตั้งตัวแปร**ก่อน** merge pull request ของ R1 ตามที่ Lead แจ้ง)
 
 migration บน production ยังไม่เคยรัน (ฐาน dev รัน `0001` แล้วเมื่อ 2026-11-19 · ฐาน dev ไม่รันอัตโนมัติ) · มี 2 ไฟล์ใน `drizzle/`: `0000_auth_init.sql` (R0 ตารางของ Better Auth) และ `0001_r1_invite_consent_profile.sql` (R1 ตารางบัญชี โค้ดเชิญ ความยินยอม แบบสอบถาม) · ไฟล์แรกของ R1 ที่ขึ้น production คือการรันครั้งแรกทั้งสองไฟล์ตามขั้นตอนด้านล่าง
 
 เมื่อ Lead แจ้งว่าถึงเวลา:
 1. Vercel → โปรเจกต์ → **Settings → Environment Variables → Add**
 2. **Key** = `MIGRATE_ON_DEPLOY` · **Value** = `1` · ติ๊ก **เฉพาะ Production** (ห้ามติ๊ก Preview/Development) → **Save**
-3. ไปที่ **Deployments** → เลือก deployment ล่าสุดของ Production → เมนู (จุดสามจุด) → **Redeploy**
+3. กด merge pull request ที่มี migration → Vercel build production ใหม่เองพร้อมตัวแปรนี้ (ไม่ต้อง Redeploy) · ถ้าตั้งตัวแปร**หลัง** merge ให้ไปที่ **Deployments** → deployment ล่าสุดของ Production → เมนู (จุดสามจุด) → **Redeploy**
 4. เปิด Build Logs ของ deployment นั้น ต้องเห็นบรรทัด `release-migrate: migration เสร็จ` ก่อนขั้น `next build` (ถ้าเห็น `ข้าม (...)` แปลว่าตัวแปรยังไม่มีผล)
 5. เปิด `/api/health` ต้องได้ `{"ok":true}`
 
