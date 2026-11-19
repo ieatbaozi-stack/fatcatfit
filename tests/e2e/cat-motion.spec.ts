@@ -23,16 +23,36 @@ async function open(page: Page, path: string, opts: { locale?: Locale; scheme?: 
   return errors;
 }
 
-/** สำหรับแมวขยับทุกตัวในหน้า: ชั้นไหนที่มองเห็นอยู่ (-1 = ภาพนิ่ง, 0..4 = เฟรม) */
+/** สำหรับแมวขยับทุกตัวในหน้า: ชั้นไหนที่มองเห็นอยู่ (-1 = ภาพนิ่ง, 0..4 = เฟรม)
+ *  เฟรมอยู่ในแผ่น sprite ที่เลื่อนผ่านกรอบ clip (Cat.tsx) → เฟรมที่ "มองเห็น" = visibility เป็น visible
+ *  และกรอบของเฟรมบนจอ (ตำแหน่งจริงตอนนั้น รวมการเลื่อนของแอนิเมชัน) ทับกับกรอบ clip บนจอ
+ *  ถ้าชั้นขยับไม่มี clip-path ถือว่ากรอบไม่จำกัด → ทุกเฟรมนับว่าเห็น (เทสต์ล้ม) */
 function visibleLayers(page: Page) {
   return page.evaluate(() =>
     [...document.querySelectorAll("svg[data-pose]")]
       .filter((svg) => svg.querySelector(".fcf-cat-frame"))
       .map((svg) => {
-        const layers = [...svg.querySelectorAll(":scope > g")];
-        return layers
-          .map((g, i) => (getComputedStyle(g).visibility === "visible" ? i - 1 : null))
-          .filter((i): i is number => i !== null);
+        const shown = (el: Element) => getComputedStyle(el).visibility === "visible";
+        const out: number[] = [];
+        const still = svg.querySelector(":scope > .fcf-cat-still");
+        if (still && shown(still)) out.push(-1);
+        const motion = svg.querySelector(":scope > .fcf-cat-motion") as SVGGElement | null;
+        let win = { left: -Infinity, top: -Infinity, right: Infinity, bottom: Infinity };
+        const clipId = /url\("?#([^")]+)"?\)/.exec(motion ? getComputedStyle(motion).clipPath : "")?.[1];
+        const rect = clipId ? (svg.querySelector(`clipPath[id="${clipId}"] > rect`) as SVGRectElement | null) : null;
+        const ctm = motion?.getScreenCTM();
+        if (rect && ctm) {
+          const { x, y, width, height } = rect.getBBox();
+          const a = new DOMPoint(x, y).matrixTransform(ctm);
+          const b = new DOMPoint(x + width, y + height).matrixTransform(ctm);
+          win = { left: Math.min(a.x, b.x), top: Math.min(a.y, b.y), right: Math.max(a.x, b.x), bottom: Math.max(a.y, b.y) };
+        }
+        svg.querySelectorAll(".fcf-cat-frame").forEach((f, k) => {
+          const r = f.getBoundingClientRect();
+          const overlaps = r.right > win.left && r.left < win.right && r.bottom > win.top && r.top < win.bottom;
+          if (shown(f) && overlaps) out.push(k);
+        });
+        return out;
       })
   );
 }

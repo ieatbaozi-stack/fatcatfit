@@ -86,32 +86,37 @@ describe("<Cat>", () => {
     }
   });
 
-  // นิ่ง = ชั้นภาพนิ่งชั้นเดียว · ขยับ = ภาพนิ่ง + 5 เฟรม ทุกเฟรมซ่อนตั้งต้น
+  // นิ่ง = ชั้นภาพนิ่งชั้นเดียว · ขยับ = ภาพนิ่ง + ชั้นขยับ (ซ่อนตั้งต้น) ที่มีแผ่น sprite 5 เฟรมในกรอบ clip
   // → CSS ไม่โหลดหรือ prefers-reduced-motion: reduce เห็นภาพนิ่งภาพเดียว ไม่ซ้อนกัน
   it("motion=false: one still layer, no animation classes, one pair of wobble filters", () => {
     const still = svgOf(render(<Cat pose="running" />).container);
     expect(layers(still)).toHaveLength(1);
-    expect(still.querySelector(".fcf-cat-frame, .fcf-cat-still")).toBeNull();
+    expect(still.querySelector(".fcf-cat-frame, .fcf-cat-still, .fcf-cat-motion, clipPath")).toBeNull();
     expect(still.querySelectorAll("filter")).toHaveLength(2);
     expect(layers(still)[0].hasAttribute("visibility")).toBe(false);
   });
 
-  it.each(CAT_POSES)("motion: %s has the still layer + 5 hidden frames that share the filters", (pose) => {
+  it.each(CAT_POSES)("motion: %s has the still layer + one hidden clipped strip of 5 frames that share the filters", (pose) => {
     const moving = svgOf(render(<Cat pose={pose} motion />).container);
     const ls = layers(moving);
-    expect(ls).toHaveLength(6);
-    expect(ls.map((f) => f.getAttribute("class"))).toEqual([
-      "fcf-cat-still",
-      "fcf-cat-frame fcf-cat-f0",
-      "fcf-cat-frame fcf-cat-f1",
-      "fcf-cat-frame fcf-cat-f2",
-      "fcf-cat-frame fcf-cat-f3",
-      "fcf-cat-frame fcf-cat-f4",
-    ]);
-    expect(ls.map((f) => f.getAttribute("visibility"))).toEqual([null, "hidden", "hidden", "hidden", "hidden", "hidden"]);
+    expect(ls.map((l) => l.getAttribute("class"))).toEqual(["fcf-cat-still", "fcf-cat-motion"]);
+    const [still, motion] = ls;
+    expect(still.hasAttribute("visibility")).toBe(false);
+    expect(motion.getAttribute("visibility")).toBe("hidden");
+    // กรอบ clip ของชั้นขยับ: −200..400 ครอบภาพทุกท่า และแคบกว่าระยะห่างเฟรม 1000 → เห็นได้ทีละเฟรม
+    const clipId = /^url\(#([^)]+)\)$/.exec(motion.getAttribute("clip-path") ?? "")?.[1];
+    const rect = moving.querySelector(`clipPath[id="${clipId}"] > rect`);
+    expect(rect).not.toBeNull();
+    expect(["x", "y", "width", "height"].map((a) => rect?.getAttribute(a))).toEqual(["-200", "-200", "600", "600"]);
+    // แผ่น sprite แผ่นเดียว (ตัวที่แอนิเมชันเลื่อน) มี 5 เฟรม เฟรม k อยู่ที่ x + 1000k
+    const strips = [...motion.children];
+    expect(strips.map((s) => s.getAttribute("class"))).toEqual(["fcf-cat-strip"]);
+    const frames = [...strips[0].children];
+    expect(frames.map((f) => f.getAttribute("class"))).toEqual([0, 1, 2, 3, 4].map((k) => `fcf-cat-frame fcf-cat-f${k}`));
+    expect(frames.map((f) => f.getAttribute("transform"))).toEqual([null, "translate(1000 0)", "translate(2000 0)", "translate(3000 0)", "translate(4000 0)"]);
     // ทุกเฟรมวาด element ครบชุดเดียวกับภาพนิ่ง และใช้เส้นสั่นทุกเฟรม
-    const n = drawn(ls[0]).length;
-    for (const f of ls.slice(1)) {
+    const n = drawn(still).length;
+    for (const f of frames) {
       expect(drawn(f)).toHaveLength(n);
       expect(f.innerHTML).toMatch(/filter="url\(#doodle[^)]*-l\)"/);
       expect(f.innerHTML).toMatch(/filter="url\(#doodle[^)]*-f\)"/);
@@ -137,21 +142,23 @@ describe("<Cat>", () => {
   });
 
   // CSS: วน 5 เฟรม 0.7 วิ · เฟรมละ 1/5 ของรอบ · ซ่อนภาพนิ่งและเล่นเฉพาะเมื่อผู้ใช้ไม่ได้ขอลดการเคลื่อนไหว
-  it("cat.css plays 5 frames in 0.7s only under prefers-reduced-motion: no-preference", () => {
+  // แอนิเมชันตัวเดียว (เลื่อนแผ่น sprite) คุมทุกเฟรม — ไม่มีแอนิเมชันแยกต่อเฟรมที่อาจเริ่มไม่พร้อมกันจนเห็นเฟรมซ้อน
+  it("cat.css plays 5 frames in 0.7s with one animation, only under prefers-reduced-motion: no-preference", () => {
     const css = readFileSync(join(__dirname, "cat.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
     const media = css.indexOf("@media (prefers-reduced-motion: no-preference)");
     const keyframes = css.indexOf("@keyframes");
     expect(media).toBeGreaterThanOrEqual(0);
     const inMedia = css.slice(media, keyframes);
     expect(inMedia).toMatch(/\.fcf-cat-still\s*\{\s*visibility:\s*hidden;?\s*\}/);
-    expect(inMedia).toMatch(/\.fcf-cat-frame\s*\{\s*animation:\s*fcf-cat-play 0\.7s steps\(1\) infinite;?\s*\}/);
-    // ไม่มีกฎแอนิเมชันหรือการซ่อนภาพนิ่งนอก media query
+    expect(inMedia).toMatch(/\.fcf-cat-motion\s*\{\s*visibility:\s*visible;?\s*\}/);
+    expect(inMedia).toMatch(/\.fcf-cat-strip\s*\{\s*animation:\s*fcf-cat-play 0\.7s steps\(5\) infinite;?\s*\}/);
+    // มีแอนิเมชันแค่ตัวเดียว และไม่มีกฎแอนิเมชันหรือการซ่อน/แสดงนอก media query
+    expect(css.match(/animation/g)).toHaveLength(1);
+    expect(css.match(/@keyframes/g)).toHaveLength(1);
+    expect(inMedia).not.toMatch(/\.fcf-cat-f\d|\.fcf-cat-frame/);
     expect(css.slice(0, media)).not.toMatch(/animation|visibility/);
-    expect(css.slice(keyframes)).not.toMatch(/\.fcf-cat/);
-    // เฟรม k เริ่มเห็นที่ k × 0.14 วิ
-    for (const [k, delay] of [[1, "-0.56s"], [2, "-0.42s"], [3, "-0.28s"], [4, "-0.14s"]] as const) {
-      expect(inMedia).toMatch(new RegExp(`\\.fcf-cat-f${k}\\s*\\{\\s*animation-delay:\\s*${delay};?\\s*\\}`));
-    }
-    expect(css.slice(keyframes)).toMatch(/0%\s*\{\s*visibility:\s*visible;?\s*\}\s*20%\s*\{\s*visibility:\s*hidden;?\s*\}/);
+    expect(css.slice(keyframes)).not.toMatch(/\.fcf-cat|visibility/);
+    // steps(5) จาก 0 ถึง −5000px → เฟรม k (อยู่ที่ x + 1000k) เข้ากรอบที่ k × 0.14 วิ
+    expect(css.slice(keyframes)).toMatch(/from\s*\{\s*transform:\s*translateX\(0\);?\s*\}\s*to\s*\{\s*transform:\s*translateX\(-5000px\);?\s*\}/);
   });
 });
