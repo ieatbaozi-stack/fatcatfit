@@ -21,12 +21,18 @@ export async function handle(fn: () => Promise<Response>): Promise<Response> {
   }
 }
 
-/** คำขอที่เปลี่ยนข้อมูล: ถ้ามี Origin ต้องเป็น host เดียวกับที่รับคำขอ (เสริมจาก SameSite=Lax) */
-export function assertSameOrigin(request: Request): void {
+/**
+ * คำขอที่เปลี่ยนข้อมูล: ถ้ามี Origin ต้องเป็น host เดียวกับที่รับคำขอ (เสริมจาก SameSite=Lax)
+ * `requireOrigin: true` (เส้นทางแอดมิน ADR 0007) = ไม่มี Origin ก็ปฏิเสธ 403 bad_origin · ค่าเริ่มต้น false
+ */
+export function assertSameOrigin(request: Request, opts: { requireOrigin?: boolean } = {}): void {
   // เบราว์เซอร์บอกชัดว่าคำขอมาจากคนละไซต์ → ปฏิเสธไม่ว่าจะมี Origin หรือไม่
   if (request.headers.get("sec-fetch-site") === "cross-site") throw new HttpError(403, "bad_origin");
   const origin = request.headers.get("origin");
-  if (!origin) return;
+  if (!origin) {
+    if (opts.requireOrigin) throw new HttpError(403, "bad_origin");
+    return;
+  }
   const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? new URL(request.url).host;
   let originHost = "";
   try {

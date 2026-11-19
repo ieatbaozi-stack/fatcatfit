@@ -1,4 +1,4 @@
-import { and, asc, eq, gt, isNull, lt } from "drizzle-orm";
+import { and, asc, desc, eq, gt, isNull, lt } from "drizzle-orm";
 import { inviteCode } from "@/db/schema";
 import { plusOne } from "@/db/sql-helpers";
 import type { AppDb } from "@/db/types";
@@ -92,8 +92,17 @@ export type InviteListRow = {
   createdAt: Date;
 };
 
-export async function listInvites(db: AppDb, now: Date): Promise<InviteListRow[]> {
-  const rows = await db.select().from(inviteCode).orderBy(asc(inviteCode.createdAt));
+/** ค่าเริ่มต้น = created_at ASC ไม่จำกัด (สคริปต์ npm run invite) · หน้าแอดมินใช้ { order: "newest", limit: 200 } */
+export async function listInvites(
+  db: AppDb,
+  now: Date,
+  opts: { order?: "oldest" | "newest"; limit?: number } = {},
+): Promise<InviteListRow[]> {
+  const q = db
+    .select()
+    .from(inviteCode)
+    .orderBy(...(opts.order === "newest" ? [desc(inviteCode.createdAt), desc(inviteCode.id)] : [asc(inviteCode.createdAt)]));
+  const rows = await (opts.limit === undefined ? q : q.limit(opts.limit));
   return rows.map((r) => ({
     id: r.id,
     label: r.label,
@@ -118,4 +127,19 @@ export async function revokeInvite(
     .where(and(target, isNull(inviteCode.revokedAt)))
     .returning({ id: inviteCode.id });
   return rows.length;
+}
+
+/**
+ * เพิกถอนด้วย id สำหรับ API แอดมิน (ADR 0007) · คำสั่งเดียว: เฉพาะที่ยังไม่ถูกเพิกถอนและยังไม่หมดอายุ
+ * (exhausted ที่ยังไม่หมดอายุ → revoked) · 0 แถว → มี id = unchanged · ไม่มี = not_found
+ */
+export async function revokeInviteById(db: AppDb, id: string, now: Date): Promise<"revoked" | "unchanged" | "not_found"> {
+  const rows = await db
+    .update(inviteCode)
+    .set({ revokedAt: now })
+    .where(and(eq(inviteCode.id, id), isNull(inviteCode.revokedAt), gt(inviteCode.expiresAt, now)))
+    .returning({ id: inviteCode.id });
+  if (rows.length > 0) return "revoked";
+  const exists = await db.select({ id: inviteCode.id }).from(inviteCode).where(eq(inviteCode.id, id)).limit(1);
+  return exists.length > 0 ? "unchanged" : "not_found";
 }
