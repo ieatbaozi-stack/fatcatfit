@@ -11,9 +11,9 @@
 | 1 Requirements | PRD: user story, ขอบเขต, เกณฑ์รับงาน | Lead | **อนุมัติ PRD** | ✅ อนุมัติ 2026-11-15 |
 | 2 Design | ADR + โมเดลข้อมูล · flow/wireframe · แบรนด์ | Architect, UX & Brand | **อนุมัติ wireframe และ ADR หลัก** | ✅ อนุมัติ 2026-11-16 |
 | 3 Foundation (R0) | โครงโปรเจกต์, CI, migration, release, ธีม, TH/EN, PWA skeleton | ดูตารางรอบ | — | ✅ ปิดแล้ว v0.1.0 (2026-11-18) |
-| 4 Build (R1–R5) | ตาม contract ของแต่ละรอบ | ดูตารางรอบ | อนุมัติ contract ก่อนเริ่มแต่ละรอบ | R1 โค้ดและเกณฑ์ 16 (เครื่องจริง) ผ่านแล้ว 2026-11-19 · รอ merge (เสนอ v0.2.0) · R2–R5 ยังไม่เริ่ม · CR1 (แมวขยับ) ✅ |
-| 5 Review | ตรวจอิสระทุกรอบ | QA & Test, Security & Privacy | — | R0 ✅ · CR1 ✅ · R1 ✅ (qa-test และ security-privacy ตรวจแล้ว ข้อ high/medium แก้แล้ว) |
-| 6 Integrate | Lead รวม ทดสอบซ้ำ push และเปิด pull request เสนอเลขเวอร์ชัน | Lead | **กด merge เมื่อ CI เขียว** | R1: pull request #10 ยัง draft (Lead เปลี่ยนเป็น ready ก่อน merge) · รอ boss ตั้ง `MIGRATE_ON_DEPLOY` และ merge |
+| 4 Build (R1–R5, CR1–CR2) | ตาม contract ของแต่ละรอบ | ดูตารางรอบ | อนุมัติ contract ก่อนเริ่มแต่ละรอบ | R1 ✅ ปิดแล้ว (pull request #10 merged 2026-11-19 · v0.2.0) · v0.2.1 แก้ปุ่ม Google ให้เลือกบัญชีทุกครั้ง (commit ในเครื่อง ยังไม่ push) · R1.5 หน้าแอดมินออกโค้ดเชิญ: ร่าง contract รอ boss อนุมัติ D0–D6 · CR2 ขัดเกลา UI วางแผนไว้ · R2–R5 ยังไม่เริ่ม · CR1 (แมวขยับ) ✅ |
+| 5 Review | ตรวจอิสระทุกรอบ | QA & Test, Security & Privacy | — | R0 ✅ · CR1 ✅ · R1 ✅ (qa-test และ security-privacy ตรวจแล้ว ข้อ high/medium แก้แล้ว) · v0.2.1 qa-test ✅ (2026-11-20 · ย้อนการแก้แล้วเทสต์ล้ม) |
+| 6 Integrate | Lead รวม ทดสอบซ้ำ push และเปิด pull request เสนอเลขเวอร์ชัน | Lead | **กด merge เมื่อ CI เขียว** | R1 ✅ pull request #10 merged 2026-11-19 (v0.2.0) · v0.2.1: Lead ยังไม่ push และยังไม่เปิด pull request · ทดสอบ Google บนมือถือจริงหลัง merge (boss) |
 | 7 Report | รายงานประจำวัน | Secretary | — | ทำทุกวันที่มี commit · ดู [docs/reports/](docs/reports/) |
 
 หลังเปิดใช้: ความต้องการใหม่ = change request สั้นๆ → contract รอบใหม่ → วนเฟส 4–7
@@ -72,7 +72,9 @@ Lead เขียน <รอบ>_CONTRACT.md  →  boss อนุมัติ
 |---|---|---|---|---|
 | เฟส 2 | — | ADR: auth, track_type + โมเดลข้อมูล, ออฟไลน์ · wireframe หน้าหลัก | PRD อนุมัติ | **researcher** (ยืนยันลิมิต/ไลบรารี) → architect ∥ ux-brand |
 | R0 Foundation | P0 | โครงโปรเจกต์ · CI · migration แรก (ตารางของ Better Auth) · release · design token + ฟอนต์ + โหมดสว่าง/มืด · TH/EN · PWA skeleton · component ภาพแมว · **spike ทางเทคนิคตาม ADR 0001/0004 (ผลของ service worker เขียนเป็น ADR 0005 ก่อนปิดรอบ)** | เฟส 2 | **platform** (โครง + db) → frontend ∥ ops-release ∥ pwa-offline ∥ ux-brand → qa-test |
-| R1 บัญชี | P0 | โค้ดเชิญ · Google + อีเมล OTP · session · consent · แบบสอบถาม (รวมตาราง `place` และ `body_entry` เฉพาะน้ำหนัก · ต้องออนไลน์ เพราะคิวออฟไลน์มาใน R3) · ลบบัญชี · ทดสอบ Google/OTP บน iPhone จริง | R0 | **platform** → frontend ∥ ops-release (ส่งอีเมล) → qa-test ∥ security-privacy |
+| R1 บัญชี | P0 | โค้ดเชิญ · Google + อีเมล OTP · session · consent · แบบสอบถาม (รวมตาราง `place` และ `body_entry` เฉพาะน้ำหนัก · ต้องออนไลน์ เพราะคิวออฟไลน์มาใน R3) · ลบบัญชี · ทดสอบ Google/OTP บน iPhone จริง | R0 | **platform** → frontend ∥ ops-release (ส่งอีเมล) → qa-test ∥ security-privacy · ✅ ปิดแล้ว v0.2.0 (2026-11-19) |
+| R1.5 หน้าแอดมินออกโค้ดเชิญ (แทรกหลัง R1) | P0 | `/admin/invites` บนมือถือ: ออก/แชร์/ดู/เพิกถอนโค้ด · ตาราง `app_admin` (migration `0002`) · `requireAdmin()` · ดู [R1_5_ADMIN_INVITES_CONTRACT.md](R1_5_ADMIN_INVITES_CONTRACT.md) (**ร่าง รอ boss อนุมัติ D0–D6** · เสนอรุ่น v0.3.0) | R1 merged + production มี `0001` | architect ∥ ux-brand ∥ researcher → platform ∥ pwa-offline → frontend ∥ ops-release → qa-test ∥ security-privacy |
+| CR2 ขัดเกลา UI (แทรกหลัง R1.5) | — | ขัดเกลาหน้าตาตาม UX/DESIGN (ยังไม่มี contract รายละเอียดจะตกลงก่อนเริ่ม) | R1.5 | ยังไม่กำหนด |
 | R2 คลังท่า | P0 | คลังท่า TH/EN · ค้นหา · ท่า custom · สถานที่ของผู้ใช้ | R1 | **catalog** ∥ **platform** → frontend → qa-test |
 | R3 จดการออกกำลังกาย | P0 | เซสชัน · ฟอร์มตาม track_type · ออฟไลน์ + sync · ตัวจับเวลาพัก · สถิติ (PR) | R2 | **platform** (API แบบส่งซ้ำได้) → frontend ∥ pwa-offline → qa-test ∥ security-privacy |
 | R4 เทมเพลต + ร่างกาย | P1 | เทมเพลต/ทำซ้ำครั้งก่อน · หน้าจดน้ำหนักตัว + สัดส่วน (`body_measurement`) | R3 | **platform** → frontend → qa-test ∥ security-privacy |
