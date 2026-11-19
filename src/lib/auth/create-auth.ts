@@ -105,7 +105,7 @@ export function createAuth(db: AppDb, deps: AuthDeps) {
         inviteCodeId: { type: "string", required: false, input: false, returned: false },
       },
     },
-    socialProviders: deps.google ? { google: { scope: ["openid", "email", "profile"], disableDefaultScope: true, ...deps.google } } : {},
+    socialProviders: deps.google ? { google: { scope: ["openid", "email", "profile"], disableDefaultScope: true, prompt: "select_account", ...deps.google } } : {},
     plugins: [
       emailOTP({
         otpLength: 6,
