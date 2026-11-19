@@ -247,6 +247,35 @@
   .pline svg.l { position: absolute; left: 0; right: 0; bottom: 6px; width: 100%; height: 12px; }
   .pline .catw { position: absolute; bottom: 8px; }
 
+  /* R1.5 ออกโค้ดเชิญ */
+  .inv { display: flex; align-items: center; gap: 10px; min-height: 72px; padding: 6px 0; }
+  .inv .tx { flex: 1; min-width: 0; }
+  .inv .tx b { display: block; font-size: 16px; font-weight: 500; color: var(--ink); line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .inv .st { display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 400; color: var(--ink); line-height: 1.4; }
+  .inv .mt { display: block; font-size: 14px; color: var(--ink-3); line-height: 1.4; font-variant-numeric: tabular-nums; }
+  .inv.off .tx b, .inv.off .st { color: var(--ink-3); }
+  .inv.off .tx b { font-weight: 400; }
+  .inv.new { margin: 0 -8px; padding: 6px 8px; background: var(--paper-2); border-radius: 10px 14px 12px 16px / 14px 10px 16px 12px; }
+  .chips.g4 { display: grid; grid-template-columns: repeat(4, 1fr); }
+  .chips.g4 .chip { justify-content: center; padding: 0 6px; }
+  .rv { flex: none; min-height: 44px; padding: 0 12px; display: grid; place-items: center; font-size: 15px; font-weight: 400; color: var(--ink);
+    border: 2px solid var(--ink); border-radius: 255px 18px 225px 18px / 18px 225px 18px 255px; white-space: nowrap; }
+  .rv.dis { border-style: dashed; color: var(--ink-3); }
+  .once { border: 2.5px solid var(--ink); border-radius: 18px 24px 20px 26px / 24px 18px 26px 20px; padding: 14px 16px 12px; flex: none; }
+  .once .code { font-size: 36px; font-weight: 500; letter-spacing: .06em; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1.2; text-align: center; margin-top: 6px; }
+  .once .url { font-size: 14px; color: var(--ink-3); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+  .once .flag { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; color: var(--ink); font-weight: 400; line-height: 1.45; }
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex: none; }
+  .duo .btn { min-height: 48px; font-size: 16px; font-weight: 400; }
+  /* จอคอม: กรอบกว้าง ขอบซ้ายขวาย่อ คอลัมน์เนื้อหา 480px ขนาดจริง */
+  .fr.wide { width: 100%; max-width: 780px; }
+  .desk { width: 100%; max-width: 780px; height: 720px; position: relative; overflow: hidden; background: var(--paper); color: var(--ink-2);
+    border: 2.5px solid var(--ink); border-radius: 12px 16px 14px 18px / 16px 12px 18px 14px; }
+  .desk .bar { height: 30px; border-bottom: 2px solid var(--ink-3); display: flex; align-items: center; gap: 6px; padding: 0 12px; font-size: 13px; color: var(--ink-3); }
+  .desk .bar i { width: 10px; height: 10px; border: 1.5px solid var(--ink-3); border-radius: 50%; }
+  .desk .scr { position: relative; inset: auto; width: 480px; max-width: 100%; margin: 0 auto; height: calc(100% - 30px); }
+  .kfoc { outline: 2.5px solid var(--ink); outline-offset: 3px; box-shadow: 0 0 0 6px var(--paper), 0 0 0 8px var(--ink); }
+
   /* หมายเหตุ wireframe: จุดแตะ + เขตนิ้วโป้ง */
   [data-tap], [data-tapb] { position: relative; }
   :root[data-ann="on"] [data-tap]::after { content: attr(data-tap); position: absolute; top: -10px; right: -8px; width: 24px; height: 24px; border-radius: 50%; z-index: 9;
@@ -300,7 +329,7 @@
   </div>
 
   <h1>Wireframe v1 · แมวอ้วนจะผอม</h1>
-  <p class="note">ร่าง 2 · 2026-11-16 · <b>boss อนุมัติแล้ว</b> และแก้ตามที่ตัดสิน (UX.md ข้อ 5) · <b>แก้ 2026-11-18 สำหรับ R1</b> (UX.md ข้อ 10): กลุ่ม 1 ตรงกับ ADR 0006 + API จริง · เพิ่มจอยินดีต้อนรับออฟไลน์ ไม่ยินยอม ประกาศความเป็นส่วนตัว · กลุ่ม 7 ยึดหน้า "ฉัน" ของ R0 แล้วต่อส่วนบัญชี (D1) ·คู่กับ <b>UX.md</b> (flow ฟอร์มจด ตารางสถานะ กติกาส้ม รุ่นที่รองรับ) · ทุกจอกว้าง 360px · ข้อความใต้กรอบเป็นหมายเหตุถึงทีม (ภาษาไทยเท่านั้น) ปุ่ม TH/EN เปลี่ยนเฉพาะข้อความในจอ · ตั้งค่าเริ่มผ่าน URL ได้ เช่น <code>#dark,en</code> หรือเฉพาะกลุ่ม <code>#dark,en,only-g3</code></p>
+  <p class="note">ร่าง 2 · 2026-11-16 · <b>boss อนุมัติแล้ว</b> และแก้ตามที่ตัดสิน (UX.md ข้อ 5) · <b>แก้ 2026-11-18 สำหรับ R1</b> (UX.md ข้อ 10): กลุ่ม 1 ตรงกับ ADR 0006 + API จริง · เพิ่มจอยินดีต้อนรับออฟไลน์ ไม่ยินยอม ประกาศความเป็นส่วนตัว · กลุ่ม 7 ยึดหน้า "ฉัน" ของ R0 แล้วต่อส่วนบัญชี (D1) · <b>แก้ 2026-11-20 สำหรับ R1.5</b> (UX.md ข้อ 11): เพิ่มกลุ่ม 9 ออกโค้ดเชิญของแอดมิน (จอ 48–59) ·คู่กับ <b>UX.md</b> (flow ฟอร์มจด ตารางสถานะ กติกาส้ม รุ่นที่รองรับ) · ทุกจอกว้าง 360px · ข้อความใต้กรอบเป็นหมายเหตุถึงทีม (ภาษาไทยเท่านั้น) ปุ่ม TH/EN เปลี่ยนเฉพาะข้อความในจอ · ตั้งค่าเริ่มผ่าน URL ได้ เช่น <code>#dark,en</code> หรือเฉพาะกลุ่ม <code>#dark,en,only-g3</code></p>
   <div class="legend">
     <span><i>1</i>ลำดับแตะของเส้นทางหลักของจอ (สีฟ้าเป็นหมายเหตุ ไม่ใช่สีของแอป)</span>
     <span><i class="b">B1</i>ลำดับแตะของเส้นทางรองบนจอเดียวกัน</span>
@@ -463,7 +492,12 @@
     play: 'M8 5 L19 12 L8 19 Z',
     stop: 'M7 7 L17 7.3 L17.2 17 L6.8 16.8 Z',
     grip: 'M6 9 L18 9.2 M6 15 L18 14.8',
-    pin: 'M12 21 Q5 13.5 5.5 9.5 Q6 3.5 12 3.5 Q18 3.8 18.5 9.5 Q18.5 13.5 12 21 M12 7.5 Q14.5 7.6 14.4 10 Q14.2 12.3 12 12.2 Q9.6 12 9.7 9.8 Q9.9 7.6 12 7.5'
+    pin: 'M12 21 Q5 13.5 5.5 9.5 Q6 3.5 12 3.5 Q18 3.8 18.5 9.5 Q18.5 13.5 12 21 M12 7.5 Q14.5 7.6 14.4 10 Q14.2 12.3 12 12.2 Q9.6 12 9.7 9.8 Q9.9 7.6 12 7.5',
+    // R1.5 สถานะโค้ดเชิญ (คู่กับคำเสมอ ไม่สื่อด้วยสีอย่างเดียว)
+    dot: 'M12 7.5 Q16.5 7.6 16.4 12 Q16.2 16.4 12 16.3 Q7.6 16.2 7.7 12 Q7.8 7.6 12 7.5 M12 10.5 Q13.6 10.6 13.5 12 Q13.4 13.5 12 13.4 Q10.5 13.3 10.6 12 Q10.7 10.5 12 10.5',
+    clock: 'M12 4 Q20 4.2 20 12 Q19.8 20 12 20 Q4.2 19.8 4 12 Q4.2 4.2 12 4 M12 7.5 L12 12.3 L15.3 14.2',
+    copy: 'M9 8.5 L19.5 8.3 L19.8 20 L9.2 20.2 Z M6 15.5 L4.5 15.5 L4.3 4.2 L15 4 L15.2 6',
+    ticket: 'M3.5 7 L20.5 6.8 L20.5 10 Q18.5 10.5 18.6 12 Q18.7 13.6 20.5 14 L20.6 17.3 L3.6 17.5 L3.5 14 Q5.5 13.6 5.4 12 Q5.3 10.4 3.5 10 Z M10 7 L10 8.5 M10 11 L10 13 M10 15.5 L10 17.4'
   };
   const ic = (n, s = 24, sw = 2.2) => `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[n]}" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
   const WOB = ['M2 5 C50 8 110 2 170 6 S290 3 338 6', 'M2 6 C70 3 130 8 190 5 S300 7 338 4', 'M2 4 C60 7 120 3 180 6 S280 4 338 6', 'M2 6 C40 4 120 7 160 5 S270 3 338 5'];
@@ -1033,11 +1067,12 @@
     ${wob('gap')}
     <p class="t2">${T('บัญชี', 'Account')}</p>
     <p class="mut" style="margin:2px 0 4px">nok@example.com</p>`;
-  const meAccount = (off) => `
+  const meAccount = (off, admin = false) => `
+    ${admin ? set(T('ออกโค้ดเชิญ', 'Invite codes'), ic('chev', 20), off ? '' : tap(1), off) : ''}
     ${set(T('ประกาศความเป็นส่วนตัว', 'Privacy notice'), ic('chev', 20), '', off)}
     ${set(T('ส่งออกข้อมูล', 'Export my data'), `<span class="mut">${T('เร็วๆ นี้', 'Coming soon')}</span>`, '', true)}
-    ${set(T('ออกจากระบบ', 'Sign out'), '', off ? '' : tap(1), off)}
-    ${set(off ? T('ลบบัญชี', 'Delete account') : `<span class="warn">${T('ลบบัญชี', 'Delete account')}</span>`, ic('chev', 20), off ? '' : tap(2), off)}
+    ${set(T('ออกจากระบบ', 'Sign out'), '', off || admin ? '' : tap(1), off)}
+    ${set(off ? T('ลบบัญชี', 'Delete account') : `<span class="warn">${T('ลบบัญชี', 'Delete account')}</span>`, ic('chev', 20), off || admin ? '' : tap(2), off)}
     ${off ? `<p class="mut" style="margin:4px 0 0">${T('ออกจากระบบและลบบัญชีต้องต่อเน็ต', 'Signing out and deleting your account need a connection')}</p>` : ''}`;
   add(g7, { t: 'ฉัน', us: 'US-1.5 · <code>/me</code> · D1', cls: 'long', thumb: true, html: `
     ${meTop(false)}
@@ -1110,6 +1145,147 @@
     <span class="btn big"${tap(1)}>${T('กลับไปหน้าหลัก', 'Back to home')}</span>${tabs(3)}`,
     note: 'ใช้เฉพาะหน้าที่ไม่มีสำเนาในเครื่อง (ส่งออก · ลบบัญชี · ครั้งแรกที่เปิดความคืบหน้า) · หน้าอื่นแสดงสำเนาล่าสุด + แถบบนเท่านั้น · ประโยค "แต่จดยังได้ปกติ" ใช้ตั้งแต่ R3 (ก่อนนั้นยังไม่มีหน้าจด เหลือแค่ "หน้านี้ต้องใช้เน็ต")' });
 
+  // ---------- กลุ่ม 9: ออกโค้ดเชิญ (แอดมิน · R1.5) ----------
+  // R1_5_ADMIN_INVITES_CONTRACT.md · UX.md ข้อ 11 · ตาม DESIGN ปัจจุบัน (CR2 ขัดเกลาทีหลัง) · จอนี้ไม่มีส้ม
+  const g9 = grp('g9', '9 · ออกโค้ดเชิญ (แอดมิน · US-1.6 · R1.5)', 'เฉพาะแอดมิน: ฉัน › ออกโค้ดเชิญ → ฟอร์ม → โค้ดแสดงครั้งเดียว → แชร์ทาง LINE · รายการ + สถานะ + เพิกถอน · คนอื่นเห็นเป็น 404 · ไม่มีส้มทั้งกลุ่ม (UX.md ข้อ 11)');
+  // ตัวอย่างโค้ดใช้ตัวอักษรที่ระบบออกจริง (ไม่มี I L O 0 1) · โดเมนเป็นตัวอย่าง ไม่ใช่โดเมนจริง · ป้ายเป็นชื่อเล่นสมมติ
+  const IST = {
+    active: ['dot', T('ใช้ได้', 'Active')],
+    exhausted: ['check', T('ใช้ครบแล้ว', 'Used up')],
+    expired: ['clock', T('หมดอายุ', 'Expired')],
+    revoked: ['close', T('เพิกถอนแล้ว', 'Revoked')]
+  };
+  const inv = (label, st, used, max, dTh, dEn, o = {}) => `
+    <div class="inv ${st === 'active' ? '' : 'off'} ${o.isNew ? 'new' : ''}">
+      <div class="tx"><b>${label}</b>
+        <span class="st">${ic(IST[st][0], 16, 2.4)}${IST[st][1]}</span>
+        <span class="mt">${T(`ใช้ไป ${used}/${max} · ถึง ${dTh}`, `${used}/${max} used · until ${dEn}`)}</span></div>
+      ${st === 'active' ? `<span class="rv ${o.off ? 'dis' : ''}"${o.t || ''}>${T('เพิกถอน', 'Revoke')}</span>` : ''}
+    </div>`;
+  const INV_ROWS = (o = {}) => [
+    inv(T('ก๊วนแบด', 'Badminton crew'), 'active', 2, 5, '27 พ.ย. 09:30', '27 Nov 09:30', { off: o.off, t: o.t }),
+    inv(T('พี่ข้างบ้าน', 'Neighbor'), 'exhausted', 1, 1, '21 พ.ย. 18:00', '21 Nov 18:00'),
+    inv(T('ทดสอบ', 'Test'), 'revoked', 0, 1, '19 พ.ย. 08:15', '19 Nov 08:15'),
+    inv(T('เพื่อนสมัยเรียน', 'School friend'), 'expired', 0, 3, '12 พ.ย. 20:40', '12 Nov 20:40')
+  ].join('');
+  const invHead = () => `
+    <div class="lhead"><span class="ibtn">${ic('back')}</span></div>
+    <p class="t1 mt4">${T('ออกโค้ดเชิญ', 'Invite codes')}</p>`;
+  const DAYS = [[1, 'วัน', 'day'], [3, 'วัน', 'days'], [7, 'วัน', 'days'], [14, 'วัน', 'days']];
+  const invForm = (o = {}) => `
+    <p class="mut">${T('เพื่อนเปิดลิงก์แล้วสมัครได้เลย ตามจำนวนคนและวันที่ตั้งไว้', 'Your friend opens the link and signs up, within the limits you set.')}</p>
+    ${fld(T('ป้าย (ไว้จำเองว่าให้ใคร)', 'Label (just for you)'),
+      o.label ? `${o.label}${o.caret ? '<span class="caret"></span>' : ''}` : T('เช่น เพื่อนที่ออฟฟิศ', 'e.g. office friend'),
+      { ph: !o.label, hint: T('เพื่อนไม่เห็นป้ายนี้ · ไม่ต้องใส่ชื่อจริง', "Your friend won't see this. No real names needed.") })}
+    <div class="fld"><div class="fl">${T('ใช้ได้กี่วัน', 'Valid for')}</div>
+      <div class="chips g4 mt8" role="radiogroup">${DAYS.map(([n, th, en]) => `<span class="chip ${n === (o.days || 3) ? 'on' : ''} ${o.focus && n === 3 ? 'kfoc' : ''}">${n} ${T(th, en)}</span>`).join('')}</div></div>
+    <div class="fld"><div class="fl">${T('ใช้ได้กี่คน', 'How many people')}</div>${step(o.uses || '1', T('คน', o.uses > 1 ? 'people' : 'person'))}</div>
+    ${o.err ? `<p class="fe mt16" style="margin-bottom:0">${o.err}</p>` : ''}
+    <span class="btn big ${o.err ? 'mt8' : 'mt24'} ${o.dis || !o.label ? 'dis' : ''}"${o.t || ''}>${o.btn || T('ออกโค้ด', 'Create code')}</span>`;
+  const invListHead = () => `${wob('gap')}<div class="sec"><b>${T('โค้ดที่ออกแล้ว', 'Codes you made')}</b></div>`;
+  const onceBox = (o = {}) => `
+    <div class="once">
+      <p class="t3" style="margin:0">${T('โค้ดแสดงครั้งเดียว', 'Shown only once')}</p>
+      <p class="mut" style="margin:2px 0 0">${T('ออกจากหน้านี้แล้วจะดูโค้ดนี้อีกไม่ได้ · แชร์หรือคัดลอกไว้ก่อนนะ', "Once you leave this page, you can't see this code again. Share or copy it first.")}</p>
+      <div class="code num" style="user-select:all">KPTW-8M3D</div>
+      <div class="url">fatcatfit.example/welcome#invite=KPTW-8M3D</div>
+      <p class="mut c" style="margin:6px 0 0">${T('เพื่อนที่ออฟฟิศ · 1 คน · ถึง 23 พ.ย. 14:05', 'Office friend · 1 person · until 23 Nov 14:05')}</p>
+    </div>
+    ${o.noShare
+      ? `<span class="btn big mt12"${tap(1)}>${ic('copy', 22)}${T('คัดลอกข้อความเชิญ', 'Copy invite message')}</span>
+         <div class="duo mt8"><span class="btn">${T('คัดลอกลิงก์', 'Copy link')}</span><span class="btn">${T('คัดลอกโค้ด', 'Copy code')}</span></div>`
+      : `<span class="btn big mt12"${o.off ? '' : tap(1)}>${ic('share', 22)}${T('แชร์ลิงก์', 'Share link')}</span>
+         <div class="duo mt8"><span class="btn"${o.off ? '' : tapB(1)}>${T('คัดลอกลิงก์', 'Copy link')}</span><span class="btn">${T('คัดลอกโค้ด', 'Copy code')}</span></div>`}
+    <span class="lnk ${o.off ? 'dim' : ''}">${T('ออกอีกอัน', 'Make another')}</span>`;
+  const NEW_ROW = (o = {}) => inv(T('เพื่อนที่ออฟฟิศ', 'Office friend'), 'active', 0, 1, '23 พ.ย. 14:05', '23 Nov 14:05', { isNew: true, off: o.off });
+  const invMain = (o = {}) => `${invHead()}${invForm({ t: o.noTap ? '' : tap(2), label: T('เพื่อนที่ออฟฟิศ', 'Office friend'), caret: !o.noTap, focus: o.focus })}${invListHead()}${INV_ROWS({ t: o.noTap ? '' : tapB(1) })}<div class="pb16"></div><div class="sp"></div>${tabs(3)}`;
+
+  add(g9, { t: 'ฉัน · แอดมิน', us: 'US-1.6 · <code>/me</code> · D2', cls: 'long', html: `
+    ${meTop(false)}
+    ${meAccount(false, true)}
+    ${cat(1, 120, 'margin-top:40px')}
+    <div class="pb16"></div>
+    ${tabs(3)}`,
+    note: 'เหมือนจอ 41 ทุกอย่าง + <b>แถว "ออกโค้ดเชิญ ›" เป็นแถวแรกของส่วนบัญชี</b> (ใต้อีเมล) เฉพาะเมื่อ <code>GET /api/me</code> ตอบ <code>isAdmin: true</code> · HTML จากเซิร์ฟเวอร์ไม่มีแถวนี้ (เหมือนกันทุกคน — เกณฑ์ 13) · แถวโผล่พร้อมอีเมล (คำตอบเดียวกัน) ระหว่างรอไม่มีที่ว่างจองไว้ ผู้ใช้ทั่วไปจึงไม่เห็นช่องว่างแปลกๆ · ไม่ใช่แอดมิน / <code>/api/me</code> ล้มเหลว = ไม่มีแถว (ไม่บอกอะไร) · แตะ (1) → <code>/admin/invites</code> · ออฟไลน์: แถวปิดเหมือนแถวอื่น (ถ้ามีค่า isAdmin ที่โหลดไว้) · ไม่มีในแถบล่าง · ไม่มีส้ม' });
+
+  add(g9, { t: 'ออกโค้ดเชิญ', us: 'US-1.6 · <code>/admin/invites</code> · D3', cls: 'long', thumb: true, html: invMain(),
+    note: '<b>หน้าเดียว ฟอร์มบน รายการล่าง</b> · ‹ = กลับ <code>/me</code> · แถบล่างแสดง แท็บ "ฉัน" เป็นตัวเลือก (<code>/admin/**</code> นับเป็นของ "ฉัน") · <b>ป้าย</b> บังคับ 1–40 ตัว (<code>maxlength=40</code> · ตัดช่องว่างหัวท้าย · ว่างล้วน = ว่าง) คำแนะนำใต้ช่องเสมอ · ตัวนับ "32/40" ขึ้นเมื่อพิมพ์ถึง 30 · ป้ายว่าง = ปุ่มปิด (แบบแบบสอบถาม) · <b>ใช้ได้กี่วัน</b> ชิป 1/3/7/14 เลือกได้อันเดียว ค่าเริ่ม 3 (radiogroup) · <b>ใช้ได้กี่คน</b> −/+ 1–10 ค่าเริ่ม 1 (ถึงขอบแล้วปุ่มนั้นปิด · พิมพ์เองได้ แป้นตัวเลข) · Enter ในช่องป้าย = ออกโค้ด · กด (2) → "กำลังออกโค้ด…" กดซ้ำไม่ได้ → จอถัดไป · <b>รายการ</b> ใหม่สุดก่อน (ตาม API ≤ 200) · แต่ละแถว: ป้าย · <b>สถานะเป็นไอคอน + คำ</b> (● ใช้ได้ · ✓ ใช้ครบแล้ว · นาฬิกา หมดอายุ · ✕ เพิกถอนแล้ว) · "ใช้ไป x/y · ถึง <วันเวลาเครื่อง>" · แถวที่ใช้ไม่ได้แล้วตัวหนังสือ --ink-3 แต่คำสถานะยังอยู่ (ไม่สื่อด้วยสีอย่างเดียว) · ปุ่ม "เพิกถอน" (B1) มีเฉพาะแถว "ใช้ได้" · ไม่แสดงว่าใครใช้โค้ด (D4) · ไม่มีโค้ดในรายการ (API ไม่ส่ง) · ไม่มีแมว ไม่มีส้ม' });
+
+  add(g9, { t: 'โค้ดแสดงครั้งเดียว', us: 'US-1.6 · D5', cls: 'long', thumb: true, html: `
+    ${invHead()}
+    <div class="mt12"></div>
+    ${onceBox()}
+    ${invListHead()}${NEW_ROW()}${INV_ROWS()}<div class="pb16"></div><div class="sp"></div>${tabs(3)}`,
+    note: 'แทนที่ฟอร์มในที่เดิมหลัง <code>POST</code> ได้ 201 · focus ย้ายมาที่หัวกรอบ + อ่านออกเสียง (<code>role="status"</code>) · <b>กรอบวาดมือ</b> = สิ่งเดียวที่ต้องเด่นในจอ (DESIGN ข้อ 7) · โค้ด 36px ตัวกว้างเท่ากัน เลือกทั้งก้อนด้วยการแตะค้าง · ลิงก์ = <code>location.origin + "/welcome#invite=" + code</code> แสดงบรรทัดเดียวตัดด้วย … · <b>แชร์ลิงก์ (1)</b> = <code>navigator.share({ text, url })</code> ข้อความตาม D5 ภาษาของแอปตอนกด · ผู้ใช้ยกเลิก (<code>AbortError</code>) = ไม่มีอะไรเกิดขึ้น · reject แบบอื่น = คัดลอกข้อความเชิญ (D5) แทน + toast "คัดลอกข้อความแล้ว" · <b>คัดลอกลิงก์ (B1)</b> / <b>คัดลอกโค้ด</b> → toast · โค้ดอยู่ในหน่วยความจำของหน้าเท่านั้น (ห้ามลง storage ใดๆ) · ออกจากหน้า/โหลดใหม่ = หาย · <b>ออกอีกอัน</b> = กลับเป็นฟอร์มเปล่า (ค่าอายุ/จำนวนกลับค่าเริ่ม) โค้ดเดิมหายจากจอแต่ยังใช้ได้และอยู่ในรายการ — ไม่ถามยืนยัน · แถวใหม่ขึ้นบนสุดของรายการ พื้น --paper-2 จางหายใน 2 วินาที (ไม่ใช่ส้ม · reduced motion = ไม่มีพื้น) · ไม่มีปุ่มเพิกถอนในกรอบ (ใช้ในรายการ) · ไม่มีแมว ไม่มีส้ม' });
+
+  add(g9, { t: 'ไม่มีปุ่มแชร์ · คัดลอกแล้ว', us: 'US-1.6 · เกณฑ์ 14', cls: 'long', html: `
+    ${invHead()}
+    <div class="mt12"></div>
+    ${onceBox({ noShare: true })}
+    ${invListHead()}${NEW_ROW()}${INV_ROWS()}<div class="pb16"></div><div class="sp"></div>${tabs(3)}`,
+    over: `<div class="toast">${ic('check', 22)}<span class="bd" style="color:var(--ink)">${T('คัดลอกข้อความแล้ว · ไปวางในแชตได้เลย', 'Message copied. Paste it in your chat.')}</span></div>`,
+    note: 'ใช้เมื่อเบราว์เซอร์ไม่มี <code>navigator.share</code> (ตรวจด้วย feature detection ไม่เดาจากอุปกรณ์ — คอมบางเครื่องก็มี) · ปุ่มหลักกลายเป็น <b>คัดลอกข้อความเชิญ (1)</b> = ข้อความแชร์ D5 ทั้งข้อความ (มีลิงก์ โค้ด วันหมดอายุ — วางในแชตแล้วเพื่อนเข้าใจทันที) · ปุ่มรอง "คัดลอกลิงก์" = ลิงก์อย่างเดียว · "คัดลอกโค้ด" = <code>XXXX-XXXX</code> อย่างเดียว (ปุ่มชื่อเดียวกันทำอย่างเดียวกันทุกโหมด) · toast ขอบวาดมือบนสุด 3 วินาที (<code>role="status"</code>): "คัดลอกข้อความแล้ว · ไปวางในแชตได้เลย" / "คัดลอกลิงก์แล้ว" / "คัดลอกโค้ดแล้ว" · คัดลอกไม่ได้ (clipboard ถูกปฏิเสธ): toast "คัดลอกไม่ได้ · แตะค้างที่โค้ดเพื่อคัดลอกเอง" · ข้อความแชร์ไม่มีป้ายและอีเมล (เกณฑ์ 14)' });
+
+  add(g9, { t: 'ยืนยันเพิกถอน', us: 'US-1.6 · เกณฑ์ 8', html: invMain({ noTap: true }),
+    over: `<div class="scrim"></div><div class="sheet"><div class="grab"></div>
+      <p class="t2">${T('เพิกถอน "ก๊วนแบด" ไหม', 'Revoke "Badminton crew"?')}</p>
+      <p class="bd mt8">${T('ลิงก์และโค้ดนี้จะใช้สมัครไม่ได้อีก · เพื่อนที่สมัครไปแล้วยังใช้แอปได้ตามปกติ', "This link and code will stop working for sign-up. Friends who already joined aren't affected.")}</p>
+      <p class="mut mt8">${T('ย้อนกลับไม่ได้ · ถ้าต้องการ ออกโค้ดใหม่ได้เสมอ', "This can't be undone. You can always make a new code.")}</p>
+      <span class="btn big warnb mt16"${tap(1)}>${T('เพิกถอน', 'Revoke')}</span>
+      <span class="lnk mt4">${T('ยกเลิก', 'Cancel')}</span></div>`,
+    note: 'แผ่นล่างซ้อนบนหน้าเดิม ไม่มี path ใหม่ · ชื่อป้ายอยู่ในหัวข้อ (กันเพิกถอนผิดอัน) · ปุ่มเส้น --warn ไม่ใช่พื้นแดง · ยกเลิก / แตะพื้นมืด / Esc = ปิด focus กลับปุ่ม "เพิกถอน" ของแถวเดิม · กด (1) → "กำลังเพิกถอน…" กดซ้ำไม่ได้ → <code>POST /api/admin/invites/{id}/revoke</code> → แผ่นปิด แถวเปลี่ยนเป็น ✕ เพิกถอนแล้ว + toast "เพิกถอนแล้ว" · ตอบ <code>unchanged</code> (หมดอายุ/เพิกถอนไปก่อน) = โหลดรายการใหม่ + toast "โค้ดนี้ใช้ไม่ได้อยู่แล้ว" · ล้มเหลว/เน็ตหลุด = แผ่นยังเปิด ข้อความ --warn เหนือปุ่ม "เพิกถอนไม่ได้ · ลองอีกที" ปุ่มเป็น "ลองใหม่" · ไม่มีแมว ส้มไม่มี (ปุ่มตอนถูกกดเท่านั้น)' });
+
+  add(g9, { t: 'ออกถี่เกิน (429)', us: 'US-1.6 · เกณฑ์ 6', cls: 'long', html: `
+    ${invHead()}
+    ${invForm({ label: T('เพื่อนที่ฟิตเนส', 'Gym friend'), days: 7, uses: 2, dis: true, btn: T('ออกโค้ด', 'Create code'),
+      err: T('ออกโค้ดครบ 20 อันใน 24 ชม. แล้ว · ออกใหม่ได้ใน 3 ชม. 12 นาที', "You've made 20 codes in 24 hours. Try again in 3 h 12 min.") })}
+    ${invListHead()}${INV_ROWS()}<div class="pb16"></div><div class="sp"></div>${tabs(3)}`,
+    note: '<b>429</b>: ค่าที่กรอกยังอยู่ · ข้อความ --warn เหนือปุ่ม · ปุ่มปิดจนครบเวลา นับถอยจาก <code>X-Retry-After</code> (วินาที) แสดงเป็น "h ชม. m นาที" · ไม่ถึงชั่วโมง "m นาที" · ไม่ถึงนาที "ไม่ถึงนาที" · ครบแล้วข้อความหายเอง · <b>ข้อผิดพลาดอื่นของการออกโค้ด ใช้ที่เดียวกันนี้</b>: เน็ตหลุด/5xx/403 = "ยังออกโค้ดไม่ได้ · ที่กรอกไว้ยังอยู่ ลองอีกที" ปุ่มเป็น "ลองใหม่" · 400 <code>invalid_input</code> (ไม่ควรเกิดเพราะตรวจในเครื่องก่อน) = ข้อความเดียวกันนี้ · <b>404 จาก API แอดมินทุกตัว</b> (หมดสิทธิ์/session หมดกลางทาง) = <code>location.reload()</code> ให้เซิร์ฟเวอร์ตัดสิน (ไป <code>/welcome</code> หรือหน้า 404) · ไม่มีแมว' });
+
+  add(g9, { t: 'รายการ · กำลังโหลด', us: 'US-1.6 · UX ข้อ 4', cls: 'long', html: `
+    ${invHead()}${invForm()}${invListHead()}
+    ${[0, 1, 2].map(() => `<div style="padding:10px 0"><div class="skel" style="width:45%;margin:4px 0"></div><div class="skel" style="width:70%;margin:10px 0 4px"></div></div>`).join('')}
+    <div class="pb16"></div><div class="sp"></div>${tabs(3)}`,
+    note: 'ฟอร์มใช้ได้ทันที ไม่รอรายการ (HTML มาจากเซิร์ฟเวอร์ รายการโหลดจาก <code>GET /api/admin/invites</code> ฝั่งไคลเอนต์) · &lt; 400 ms ไม่แสดงอะไร · เกินนั้น skeleton 3 แถว · ไม่มีแมว #14 ในจอนี้ (มีฟอร์มให้ทำอยู่แล้ว) · โหลดเสร็จแล้วแถวแทนที่ skeleton ไม่กระโดด (แถวสูงพอๆ กัน)' });
+
+  add(g9, { t: 'รายการ · ว่าง', us: 'US-1.6 · UX ข้อ 4', cls: 'long', html: `
+    ${invHead()}${invForm()}${invListHead()}
+    <p class="mut mt8">${T('ยังไม่เคยออกโค้ด · โค้ดที่ออกจะขึ้นที่นี่', "No codes yet. The ones you make show up here.")}</p>
+    <div class="pb16"></div><div class="sp"></div>${tabs(3)}`,
+    note: 'ประโยคเดียว ไม่มีแมว ไม่มีปุ่มเพิ่ม (ฟอร์มด้านบนคือปุ่มเดียวของจอ) — ยกเว้นจาก "empty state = แมว + ประโยค + ปุ่ม" เพราะเป็นหน้าเครื่องมือของคนเดียว และปุ่มหลักอยู่บนจออยู่แล้ว · ป้ายว่าง = ปุ่มออกโค้ดปิด (ตามภาพ)' });
+
+  add(g9, { t: 'รายการ · โหลดไม่ได้', us: 'US-1.6 · UX ข้อ 4', cls: 'long', html: `
+    ${invHead()}${invForm()}${invListHead()}
+    <p class="bd mt8" style="color:var(--ink)">${T('โหลดรายการไม่ได้', "Couldn't load your codes")}</p>
+    <p class="mut">${T('ออกโค้ดใหม่ได้ตามปกติ', 'You can still make new codes.')}</p>
+    <span class="rv mt12" style="width:max-content">${T('ลองใหม่', 'Try again')}</span>
+    <div class="pb16"></div><div class="sp"></div>${tabs(3)}`,
+    note: 'ผิดพลาดเฉพาะส่วนรายการ (5xx / เน็ตสะดุด) ไม่ใช่ทั้งจอ — ฟอร์มยังใช้ได้ · ไม่ใช้ --warn (ไม่ใช่ความผิดของผู้ใช้ และไม่ใช่การลบ) · "ลองใหม่" โหลดรายการซ้ำ · ทั้งหน้า render ไม่ได้ (เซิร์ฟเวอร์ล้ม) = จอผิดพลาดรวม #23 ของแอป (จอ 46) · ไม่มีแมว' });
+
+  add(g9, { t: 'ออฟไลน์ระหว่างใช้', us: 'US-1.6 · ADR 0006', cls: 'long', html: `
+    <div class="net">${ic('cloudoff', 18)}${T('เน็ตหลุด', 'Offline')}</div>
+    ${invHead()}
+    <div class="mt12"></div>
+    ${onceBox({ off: true })}
+    ${invListHead()}
+    <p class="mut" style="margin:0 0 4px">${T('ออกโค้ดและเพิกถอนต้องต่อเน็ต', 'Making and revoking codes need a connection')}</p>
+    ${NEW_ROW({ off: true })}${INV_ROWS({ off: true })}<div class="pb16"></div><div class="sp"></div>${tabs(3)}`,
+    note: 'เน็ตหลุดหลังเปิดหน้าแล้ว (ตัวตรวจเน็ตตัวเดียว <code>useOnline()</code>): <b>โค้ดที่แสดงอยู่ไม่หาย</b> · แชร์และคัดลอกยังใช้ได้ (ไม่ต้องใช้เน็ต) · "ออกอีกอัน" จาง/ปิด · ฟอร์ม (ถ้าอยู่หน้าฟอร์ม) ปุ่มปิด + ข้อความเดียวกัน · ปุ่มเพิกถอนทุกแถวเป็นเส้นประ ปิด (<code>aria-disabled</code>) · ข้อความบรรทัดเดียวใต้หัวรายการ ไม่ซ้ำทุกแถว · รายการแสดงค่าที่โหลดไว้ · กลับมาออนไลน์ = กดได้เอง โหลดรายการใหม่ 1 ครั้ง · ไม่มีแมว (มีของให้ทำต่ออยู่)' });
+
+  add(g9, { t: 'ออฟไลน์ · ยังไม่มีอะไรให้ดู', us: 'US-1.6 · UX ข้อ 4', html: `
+    <div class="net">${ic('cloudoff', 18)}${T('เน็ตหลุด', 'Offline')}</div>
+    ${invHead()}
+    <div class="sp"></div>
+    ${cat(24, 160)}
+    <p class="t2 c mt16">${T('ออกโค้ดต้องต่อเน็ต', 'Invite codes need a connection')}</p>
+    <p class="bd c">${T('ต่อเน็ตแล้วหน้านี้จะกลับมาเอง', 'This page comes back once you are online.')}</p>
+    <div class="sp"></div>
+    <span class="btn big"${tap(1)}>${T('กลับไปหน้า ฉัน', 'Back to Me')}</span><div class="pb16"></div><div class="sp"></div>${tabs(3)}`,
+    note: 'ใช้เมื่อหน้าโหลดมาแล้วแต่ออฟไลน์ก่อนได้รายการ และไม่มีโค้ดแสดงอยู่ (เช่นเปิดจากหน้า "ฉัน" ตอนเน็ตเพิ่งหลุด) · แมว #24 (UX ข้อ 4: จอที่ต้องใช้เน็ตจริงๆ) · ฟอร์มซ่อน · กลับมาออนไลน์ = แสดงฟอร์ม + โหลดรายการเอง ไม่ต้องกดอะไร · <b>เปิด URL นี้ตรงๆ ตอนออฟไลน์</b>: หน้า <code>/admin/**</code> ไม่ถูกเก็บใน cache จึงได้ fallback ของ service worker (ADR 0006 ข้อ 4) ไม่ใช่จอนี้ — pwa-offline ยืนยันพฤติกรรม · ไม่มีส้ม' });
+
+  add(g9, { t: 'จอคอม 1280px · คีย์บอร์ด', us: 'US-1.6 · เกณฑ์ 15', wide: 'กว้าง 1280 px (ภาพย่อขอบซ้ายขวา · คอลัมน์ 480 px ขนาดจริง)', html: invMain({ noTap: true, focus: true }),
+    note: 'คอลัมน์เดียวกว้างสูงสุด 480 px กลางจอ (UX ข้อ 7) ไม่จัดวางใหม่ · แถบล่างอยู่ล่างคอลัมน์ · <b>คีย์บอร์ด</b>: Tab ไล่ตามลำดับบนลงล่าง (‹ → ป้าย → กลุ่มชิปวัน → −/ช่องจำนวน/+ → ออกโค้ด → แชร์/คัดลอก → ปุ่มเพิกถอนของแต่ละแถว) · กลุ่มชิปวันเป็น radiogroup: Tab เข้าที่ชิปที่เลือก ลูกศรซ้าย/ขวาเปลี่ยน (ภาพ: focus ที่ "3 วัน") · ช่องจำนวนรับลูกศรขึ้น/ลง · Enter ในช่องป้าย = ออกโค้ด · แผ่นยืนยัน: focus อยู่ที่ "ยกเลิก" ก่อน (กันกด Enter แล้วเพิกถอนเลย) Esc ปิด focus ถูกขังในแผ่น · กรอบ focus เส้นหนา 2 ชั้นแบบทั้งแอป · เมาส์: ทุกปุ่ม/ชิปมี cursor pointer · คอมบางเครื่องมี <code>navigator.share</code> (เช่น Windows) — ใช้ตามที่ตรวจเจอ ไม่ใช่ตามขนาดจอ' });
+
   // =====================================================================
   // วาดทั้งหน้า
   // =====================================================================
@@ -1117,7 +1293,7 @@
   document.getElementById('groups').innerHTML = G.map(g => `
     <section id="${g.id}"><h2>${g.title}</h2><p class="note">${g.desc}</p>
       <div class="frames">${g.s.map(s => { no++; return `
-        <figure class="fr"><div class="ph ${s.cls || ''}"><div class="scr">${s.html}</div>${s.over || ''}${s.thumb ? thumb : ''}</div>
+        <figure class="fr${s.wide ? ' wide' : ''}"><div class="${s.wide ? 'desk' : 'ph'} ${s.cls || ''}">${s.wide ? `<div class="bar"><i></i><i></i><i></i><span style="margin-left:8px">${s.wide}</span></div>` : ''}<div class="scr">${s.html}</div>${s.over || ''}${s.thumb ? thumb : ''}</div>
           <figcaption><div class="ct"><span class="no">${no}</span>${s.t}</div><div class="us">${s.us}</div><p>${s.note}</p></figcaption></figure>`; }).join('')}
       </div></section>`).join('');
 
