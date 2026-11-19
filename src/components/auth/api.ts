@@ -8,6 +8,8 @@ export type MeData = {
   noticeVersion: string;
   user: { id: string; email: string; name: string };
   consent: { accepted: boolean; acceptedAt: string | null };
+  /** แอดมินหรือไม่ (R1.5) · ไม่มี field = ไม่ใช่ */
+  isAdmin?: boolean;
   profile: null | { locale: "th" | "en"; weightUnit: string; lengthUnit: string; distanceUnit: string };
 };
 

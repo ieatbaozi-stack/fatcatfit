@@ -45,3 +45,11 @@ describe("BottomTabs", () => {
     for (const a of screen.getAllByRole("link")) expect(a.className).toContain("min-h-13");
   });
 });
+
+describe("isTabActive admin", () => {
+  it("admin pages belong to the me tab", () => {
+    expect(isTabActive("/admin/invites", "/me")).toBe(true);
+    expect(isTabActive("/admin/invites", "/")).toBe(false);
+    expect(isTabActive("/administrator", "/me")).toBe(false);
+  });
+});

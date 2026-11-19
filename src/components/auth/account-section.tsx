@@ -69,6 +69,22 @@ export function AccountSection() {
       )}
 
       <ul className="m-0 mt-2 flex list-none flex-col p-0">
+        {/* แถวของแอดมิน (D2): โผล่เมื่อ /api/me ตอบ isAdmin เท่านั้น · HTML จากเซิร์ฟเวอร์เหมือนกันทุกคน · ปิดตอนออฟไลน์ */}
+        {me?.isAdmin === true ? (
+          <Row>
+            {offline ? (
+              <span aria-disabled="true" className="flex min-h-13 w-full items-center justify-between text-ink-3">
+                {t("adminInvites")}
+                <Chevron />
+              </span>
+            ) : (
+              <Link href="/admin/invites" className="flex min-h-13 w-full items-center justify-between text-ink no-underline">
+                {t("adminInvites")}
+                <Chevron />
+              </Link>
+            )}
+          </Row>
+        ) : null}
         <Row>
           <Link href="/privacy" className="flex min-h-13 w-full items-center justify-between text-ink no-underline">
             {t("privacy")}

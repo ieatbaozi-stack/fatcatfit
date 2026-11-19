@@ -39,6 +39,7 @@ export function WelcomeScreen() {
   const [googleError, setGoogleError] = useState(false);
   const [showGoogle, setShowGoogle] = useState(true);
   const [knownDevice, setKnownDevice] = useState(false);
+  const [inLineApp, setInLineApp] = useState(false);
   const inviteWait = useCountdown(inviteWaitUntil);
   const emailWait = useCountdown(emailWaitUntil);
 
@@ -57,6 +58,8 @@ export function WelcomeScreen() {
     const env = detectIosStandalone();
     setShowGoogle(shouldShowGoogle(HIDE_GOOGLE_ON_IOS_STANDALONE, env.isIos, env.standalone));
     setKnownDevice(isKnownDevice());
+    // เบราว์เซอร์ในแอป LINE: Google ไม่ให้ sign-in ในนั้น → แสดงคำแนะนำสั้นๆ (ตรวจหลัง mount กัน hydration mismatch)
+    setInLineApp(navigator.userAgent.includes("Line/"));
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
@@ -255,6 +258,11 @@ export function WelcomeScreen() {
               <GoogleMark />
               {busy === "google" ? t("google.loading") : t("google.label")}
             </Button>
+            {inLineApp ? (
+              <p role="note" className="text-center text-caption text-ink-3">
+                {t("lineHint")}
+              </p>
+            ) : null}
             {googleError ? (
               <p role="alert" className="text-center text-caption text-warn">
                 {t("google.failed")}
