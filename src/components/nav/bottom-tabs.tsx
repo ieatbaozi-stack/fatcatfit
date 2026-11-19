@@ -17,8 +17,6 @@ export const TABS = [
 /** แท็บที่เลือก: "/" ตรงเป๊ะ · อื่นๆ ตรงหรืออยู่ใต้ path นั้น */
 export function isTabActive(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";
-  // หน้าแอดมิน (/admin/**) เป็นของแท็บ "ฉัน" (UX 11.1)
-  if (href === "/me" && (pathname === "/admin" || pathname.startsWith("/admin/"))) return true;
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 

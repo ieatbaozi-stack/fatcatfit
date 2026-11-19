@@ -381,10 +381,10 @@ describe("InvitesScreen · ออฟไลน์", () => {
 });
 
 describe("หน้า server", () => {
-  it("ใต้ (app)/admin/invites มีแค่ page.tsx · ตรวจสิทธิ์แล้ว notFound · ไม่มี Suspense", async () => {
+  it("ใต้ (admin)/admin/invites มีแค่ page.tsx · ตรวจสิทธิ์แล้ว notFound · ไม่มี Suspense", async () => {
     const { readdirSync, readFileSync } = await import("node:fs");
     const path = await import("node:path");
-    const dir = path.resolve(import.meta.dirname, "../../app/(app)/admin/invites");
+    const dir = path.resolve(import.meta.dirname, "../../app/(admin)/admin/invites");
     expect(readdirSync(dir)).toEqual(["page.tsx"]);
     const page = readFileSync(path.join(dir, "page.tsx"), "utf8");
     expect(page).toContain("requireAdmin(");
@@ -394,5 +394,19 @@ describe("หน้า server", () => {
       .filter((line) => !line.trim().startsWith("//"))
       .join("\n");
     expect(code).not.toMatch(/Suspense/);
+  });
+
+  it("layout (admin): ตรวจ cookie แล้ว 307 /welcome · ไม่มีแถบล่าง · ไม่มี loading/not-found/Suspense", async () => {
+    const { readdirSync, readFileSync } = await import("node:fs");
+    const path = await import("node:path");
+    const root = path.resolve(import.meta.dirname, "../../app/(admin)");
+    expect(readdirSync(root).sort()).toEqual(["admin", "layout.tsx"]);
+    const layout = readFileSync(path.join(root, "layout.tsx"), "utf8");
+    const code = layout
+      .split("\n")
+      .filter((line) => !line.trim().startsWith("//"))
+      .join("\n");
+    expect(code).toContain('redirect("/welcome")');
+    expect(code).not.toMatch(/BottomTabs|Suspense/);
   });
 });
