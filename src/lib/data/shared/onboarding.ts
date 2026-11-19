@@ -4,15 +4,22 @@ import { heightToMeters, weightToKg } from "./units";
 // แบบสอบถามเริ่มต้น (R1 · UX E1 ข้อ 3) — schema + ช่วงค่าที่ใช้ร่วมไคลเอนต์ (แสดงข้อความใต้ช่อง) และเซิร์ฟเวอร์ (ตัดสินจริง)
 // ช่วงค่าเป็นค่าที่ platform เลือกเอง (contract ไม่ระบุตัวเลข) — แก้ที่เดียวที่นี่
 
+/** อายุขั้นต่ำ (ปี) — boss ตัดสิน 2026-11-19 (แก้จาก 15 เป็น 20) · ตรวจแบบ ปีปัจจุบัน − ปีเกิด ≥ MIN_AGE */
+export const MIN_AGE = 20;
+
 export const ONBOARDING_LIMITS = {
   /** ช่วงน้ำหนักที่ยอมรับ หน่วย kg (ตรวจกับค่ามาตรฐานหลังแปลง lb) */
   weightKg: { min: 20, max: 500 },
   /** ช่วงส่วนสูง หน่วยเมตร (ตรวจกับค่ามาตรฐานหลังแปลง in) */
   heightM: { min: 0.5, max: 2.8 },
   birthYearMin: 1920,
+  /** ปีเกิดมากสุดที่รับ = ปีปัจจุบัน − MIN_AGE (คำนวณตอนอ่าน ตามเวลาเครื่อง) */
+  get birthYearMax(): number {
+    return new Date().getFullYear() - MIN_AGE;
+  },
   placeNameMax: 60,
   maxGoals: 4,
-} as const;
+};
 
 export const GOALS = ["stronger", "fitter", "lose_weight", "show_up"] as const;
 export const EXPERIENCES = ["new", "some", "regular"] as const;
@@ -94,7 +101,7 @@ export function validateOnboarding(input: unknown, now: Date): OnboardingResult 
     fields["profile.height.value"] = "out_of_range";
   }
   const year = now.getUTCFullYear();
-  if (d.profile.birthYear < ONBOARDING_LIMITS.birthYearMin || d.profile.birthYear > year) {
+  if (d.profile.birthYear < ONBOARDING_LIMITS.birthYearMin || d.profile.birthYear > year - MIN_AGE) {
     fields["profile.birthYear"] = "out_of_range";
   }
   if (new Set(d.profile.goals).size !== d.profile.goals.length) fields["profile.goals"] = "invalid";

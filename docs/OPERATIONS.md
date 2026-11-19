@@ -312,7 +312,7 @@ R0 มีแค่ migration แรก (ตารางของ Better Auth) �
 | `SMTP_USER` | ใส่ | ใส่เมื่อใช้ `smtp` | ใช่ (เป็นที่อยู่อีเมล) | ข้อ ก.5 |
 | `SMTP_PASS` | ใส่ | ใส่เมื่อใช้ `smtp` | **ใช่** | app password ข้อ ก.4 |
 | `OTP_DAILY_CAP` | ไม่ต้องใส่ (ค่าเริ่ม 400) | ไม่ต้องใส่ | ไม่ | ใส่เมื่อจะเปลี่ยนเพดาน (ไม่เกิน 500) |
-| `CRON_SECRET` | ใส่ (**Production เท่านั้น**) | ไม่ต้องใส่ | **ใช่** | ข้อ 8.ซ · ไม่ใส่ = cron ถูกปฏิเสธ 401 และไม่ล้างข้อมูลหมดอายุ |
+| `CRON_SECRET` | ใส่ (**Production เท่านั้น**) | ไม่ต้องใส่ | **ใช่** | ข้อ 8.ซ · ไม่ใส่หรือสั้นกว่า 32 ตัว = cron ได้ 500 และไม่ล้างข้อมูลหมดอายุ |
 | `PRIVACY_CONTROLLER_NAME` | ใส่ | ใส่ | ไม่ (แต่**ห้ามลง repo**) | ชื่อผู้ควบคุมข้อมูลที่แสดงในประกาศความเป็นส่วนตัว |
 | `PRIVACY_CONTACT_EMAIL` | ใส่ | ใส่ | ไม่ (แต่**ห้ามลง repo**) | อีเมลติดต่อเรื่องข้อมูลส่วนบุคคลที่แสดงในประกาศ |
 | `MIGRATE_ON_DEPLOY` | `1` เมื่อ Lead แจ้ง (ข้อ 2.3) | **ห้ามใส่** | ไม่ | |
@@ -394,7 +394,7 @@ Dependabot แจ้ง 3 รายการ — ทั้งหมดเป็�
 
 ### ซ. `CRON_SECRET` และงาน cron รายวัน
 
-cron `/api/cron/daily` (ตั้งใน `vercel.json` รันวันละครั้ง 03:00 UTC) ล้างแถวหมดอายุของระบบบัญชี · ปกป้องด้วยค่า `CRON_SECRET` — Vercel ส่งค่านี้ในหัว `Authorization: Bearer ...` ให้เอง ([Managing Cron Jobs](https://vercel.com/docs/cron-jobs/manage-cron-jobs)) · ถ้าไม่ตั้ง แอปปฏิเสธทุกคำขอ (401)
+cron `/api/cron/daily` (ตั้งใน `vercel.json` รันวันละครั้ง 03:00 UTC) ล้างแถวหมดอายุของระบบบัญชี · ปกป้องด้วยค่า `CRON_SECRET` — Vercel ส่งค่านี้ในหัว `Authorization: Bearer ...` ให้เอง ([Managing Cron Jobs](https://vercel.com/docs/cron-jobs/manage-cron-jobs)) · ถ้าไม่ตั้งหรือสั้นกว่า 32 ตัว แอปตอบ 500 และ log `[cron:daily] CRON_SECRET missing or too short` · ค่าตรงแต่หัวคำขอผิด = 401
 
 **สร้างค่า** (ยาวอย่างน้อย 32 ตัวอักษร เป็นตัวอักษรหรือตัวเลขล้วน ไม่มีช่องว่าง) — เลือกวิธีใดวิธีหนึ่ง:
 - Bitwarden (แนะนำ ตัวสุ่มระดับเข้ารหัส): Generator → Password → ความยาว 40 → เปิดเฉพาะ A-Z, a-z, 0-9 → ปิดอักขระพิเศษ → คัดลอก
@@ -409,7 +409,7 @@ $b = [byte[]]::new(30); [Security.Cryptography.RandomNumberGenerator]::Create().
 
 **ใส่บน Vercel:** Settings → Environment Variables → **Add** → ชื่อ `CRON_SECRET` → วางค่า → environment **Production เท่านั้น** → ติ๊ก Sensitive → **Save** → **Redeploy** (Deployments → deployment ล่าสุด → เมนูจุดสามจุด → Redeploy) · **ห้าม** ลงใน repo หรือแชท · เปลี่ยนค่าภายหลังทำแบบเดียวกัน (ต้อง Redeploy ทุกครั้ง)
 
-**ดูว่า cron รันผ่าน:** Vercel → โปรเจกต์ → **Settings** → **Cron Jobs** → **View Logs** (ต้องมี deploy production ที่มี `vercel.json` นี้แล้ว) · ควรเห็นสถานะ 200 และข้อความ `[cron:daily] deleted ...` (จำนวนแถวเท่านั้น ไม่มีข้อมูลส่วนตัว) · **[ยืนยันไม่ได้]** ชื่อเมนูและปุ่มตามหน้าจอ Vercel ณ ตอนนั้น ผู้เขียนไม่ได้เปิดหน้านี้ · เห็น 401 = ยังไม่ได้ตั้ง `CRON_SECRET` ใน Production หรือยังไม่ Redeploy · Runtime Logs แผน Hobby เก็บ 1 ชั่วโมง (งานวิจัย 2026-11-18) จึงควรดูหลังเวลารันไม่นาน
+**ดูว่า cron รันผ่าน:** Vercel → โปรเจกต์ → **Settings** → **Cron Jobs** → **View Logs** (ต้องมี deploy production ที่มี `vercel.json` นี้แล้ว) · ควรเห็นสถานะ 200 และข้อความ `[cron:daily] deleted ...` (จำนวนแถวเท่านั้น ไม่มีข้อมูลส่วนตัว) · **[ยืนยันไม่ได้]** ชื่อเมนูและปุ่มตามหน้าจอ Vercel ณ ตอนนั้น ผู้เขียนไม่ได้เปิดหน้านี้ · เห็น 500 = ยังไม่ได้ตั้ง `CRON_SECRET` ใน Production (หรือสั้นกว่า 32 ตัว) หรือยังไม่ Redeploy · เห็น 401 = ค่าที่ Vercel ส่งไม่ตรงกับค่าที่แอปอ่าน (Redeploy หลังเปลี่ยนค่า) · Runtime Logs แผน Hobby เก็บ 1 ชั่วโมง (งานวิจัย 2026-11-18) จึงควรดูหลังเวลารันไม่นาน
 
 ### ญ. งานประจำของ boss: ลบกล่อง "ส่งแล้ว" ของ Gmail แอป (เดือนละครั้ง)
 
