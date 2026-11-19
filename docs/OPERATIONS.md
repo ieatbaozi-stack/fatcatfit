@@ -1,6 +1,6 @@
 # OPERATIONS — ขั้นตอนตั้งค่าและดูแลระบบ (สำหรับ boss)
 
-> เจ้าของ: ops-release · เขียน/ตรวจเอกสารทางการ: **2026-11-17** · เขียนให้คนที่ไม่ใช่วิศวกรทำตามได้ · repo นี้เป็นสาธารณะ จึง **ห้ามใส่** รหัสโปรเจกต์ ชื่อโปรเจกต์จริง URL หน้าจัดการที่มีรหัส หรืออีเมลลงในไฟล์นี้ — ที่ใดต้องใช้ค่าเหล่านั้น เขียนเป็น `<...>` ให้เปิดดูจากหน้าจอของ boss เอง
+> เจ้าของ: ops-release · เขียน/ตรวจเอกสารทางการ: **2026-11-17** · แก้สถานะล่าสุด **2026-11-19** (ข้อ 1.6, 2.3, 3, 7, 8.ฉ) · เขียนให้คนที่ไม่ใช่วิศวกรทำตามได้ · repo นี้เป็นสาธารณะ จึง **ห้ามใส่** รหัสโปรเจกต์ ชื่อโปรเจกต์จริง URL หน้าจัดการที่มีรหัส หรืออีเมลลงในไฟล์นี้ — ที่ใดต้องใช้ค่าเหล่านั้น เขียนเป็น `<...>` ให้เปิดดูจากหน้าจอของ boss เอง
 > สัญลักษณ์: **[ยืนยันไม่ได้]** = เอกสารทางการที่เปิดดูไม่ได้ระบุ หรือทดสอบไม่ได้จนกว่าจะ push/deploy จริง
 
 ## สารบัญ
@@ -92,6 +92,7 @@ $b = New-Object byte[] 32
 ### 1.6 ตั้งค่าความปลอดภัยของ Vercel (ตรวจครั้งเดียว)
 
 - **Settings → Deployment Protection**: แนะนำใช้ **Standard Protection** (ปกป้อง URL ของ Preview ให้เข้าได้เฉพาะคนที่ล็อกอิน Vercel — ไม่ปกป้องโดเมน production) · เอกสารบอกว่ามีให้ทุกแพ็กเกจรวม Hobby · **[ยืนยันไม่ได้]** ว่าโปรเจกต์ใหม่เปิดไว้เป็นค่าเริ่มต้นหรือไม่ ให้เปิดดูแล้วตั้งเอง · แหล่ง: [Deployment Protection](https://vercel.com/docs/deployment-protection)
+- **ถ้าปิด Deployment Protection ชั่วคราวเพื่อทดสอบ preview** (เช่นให้ทดสอบได้โดยไม่ต้องล็อกอิน Vercel) ต้อง **เปิดคืน** หลังทดสอบเสร็จ · ห้ามปล่อยปิดค้างไว้
 - **Settings → Security → Git Fork Protection**: เปิดไว้ (ค่าเริ่มต้นตามเอกสาร) — pull request จากคนนอกจะไม่ถูก deploy จนกว่า boss จะอนุมัติ เพื่อกันไม่ให้ตัวแปร env รั่ว · แหล่ง: [Vercel for GitHub — Deployment Authorizations for Forks](https://vercel.com/docs/git/vercel-for-github)
 - ถ้าเห็น pull request จากคนที่ไม่รู้จักและมีปุ่มขออนุมัติ deploy ให้ **ไม่อนุมัติ** จนกว่าจะปรึกษา Lead
 
@@ -129,7 +130,7 @@ $b = New-Object byte[] 32
 
 ### 2.3 วิธีเปิดใช้ (ยังไม่เปิด — boss ทำหลัง merge pull request ของ R1 ตามที่ Lead แจ้ง)
 
-migration บน production ยังไม่เคยรัน · มี 2 ไฟล์ใน `drizzle/`: `0000_auth_init.sql` (R0 ตารางของ Better Auth) และ `0001_r1_invite_consent_profile.sql` (R1 ตารางบัญชี โค้ดเชิญ ความยินยอม แบบสอบถาม) · ไฟล์แรกของ R1 ที่ขึ้น production คือการรันครั้งแรกทั้งสองไฟล์ตามขั้นตอนด้านล่าง
+migration บน production ยังไม่เคยรัน (ฐาน dev รัน `0001` แล้วเมื่อ 2026-11-19 · ฐาน dev ไม่รันอัตโนมัติ) · มี 2 ไฟล์ใน `drizzle/`: `0000_auth_init.sql` (R0 ตารางของ Better Auth) และ `0001_r1_invite_consent_profile.sql` (R1 ตารางบัญชี โค้ดเชิญ ความยินยอม แบบสอบถาม) · ไฟล์แรกของ R1 ที่ขึ้น production คือการรันครั้งแรกทั้งสองไฟล์ตามขั้นตอนด้านล่าง
 
 เมื่อ Lead แจ้งว่าถึงเวลา:
 1. Vercel → โปรเจกต์ → **Settings → Environment Variables → Add**
@@ -172,7 +173,7 @@ migration บน production ยังไม่เคยรัน · มี 2 ไ
 `default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests`
 (ตอน `next dev` เพิ่ม `'unsafe-eval'` ให้ React และตัด `upgrade-insecure-requests` เพราะทำให้ `http://localhost` พัง)
 
-**เรื่อง nonce (สถานะจริง)**: ตอนนี้ยังไม่ใช้ nonce · เหตุผลเดิมที่เคยเขียนว่า "เพื่อคงหน้า static" **ใช้ไม่ได้แล้ว** เพราะทุกหน้าเป็น dynamic อยู่แล้ว (next-intl อ่านภาษาจาก cookie ผ่าน `cookies()` ใน `src/lib/i18n/request.ts` ทำให้ทุกหน้า render ทุก request) การเสียหน้า static จึงไม่ใช่ต้นทุนของ nonce อีกต่อไป · ต้นทุนที่ยังเหลือตามเอกสารของ Next ([CSP guide](https://nextjs.org/docs/app/guides/content-security-policy), เปิดดู 2026-11-17) คือใช้ร่วมกับ Partial Prerendering ไม่ได้ และต้องมี middleware/proxy สร้าง nonce ทุก request · **การตัดสินว่าจะเปลี่ยนไปใช้ CSP แบบ nonce (เอา `'unsafe-inline'` ออกจาก `script-src`) หรือไม่ ยกไปเป็นหัวข้อใน contract รอบ R1** (รอบที่เริ่มมีบัญชีและข้อมูลสุขภาพจริง) ก่อนถึงตอนนั้นยอมรับความเสี่ยงตามรายการด้านล่าง
+**เรื่อง nonce (สถานะจริง)**: ตอนนี้ยังไม่ใช้ nonce · เหตุผลเดิมที่เคยเขียนว่า "เพื่อคงหน้า static" **ใช้ไม่ได้แล้ว** เพราะทุกหน้าเป็น dynamic อยู่แล้ว (next-intl อ่านภาษาจาก cookie ผ่าน `cookies()` ใน `src/lib/i18n/request.ts` ทำให้ทุกหน้า render ทุก request) การเสียหน้า static จึงไม่ใช่ต้นทุนของ nonce อีกต่อไป · ต้นทุนที่ยังเหลือตามเอกสารของ Next ([CSP guide](https://nextjs.org/docs/app/guides/content-security-policy), เปิดดู 2026-11-17) คือใช้ร่วมกับ Partial Prerendering ไม่ได้ และต้องมี middleware/proxy สร้าง nonce ทุก request · **การตัดสินว่าจะเปลี่ยนไปใช้ CSP แบบ nonce (เอา `'unsafe-inline'` ออกจาก `script-src`) หรือไม่: boss ตัดสิน 2026-11-18 (D4) เลื่อนไปรอบ R3** — R1 คง CSP เดิม · ทำคู่กับงานออฟไลน์ของ R3 เพราะ HTML ที่ service worker เก็บต้องทดสอบด้วยกัน · ก่อนถึงตอนนั้นยอมรับความเสี่ยงตามรายการด้านล่าง
 
 **ห้ามเอา header ของ `/serwist/*` ออก**: `next.config.ts` ตั้ง `Cache-Control: no-cache, no-store, must-revalidate` ให้ `/serwist/:path*` (ไฟล์ service worker) แยกจาก header ความปลอดภัยของทุกหน้า · ถ้าเอาออก เบราว์เซอร์/CDN อาจแคช service worker เก่าไว้ ผู้ใช้จะไม่ได้รุ่นใหม่และออกจากรุ่นที่มีบั๊กไม่ได้ · เทสต์ e2e `tests/e2e/pwa.spec.ts` ตรวจ header นี้ — ถ้าต้องแก้ให้แจ้ง Lead
 
@@ -249,10 +250,10 @@ migration บน production ยังไม่เคยรัน · มี 2 ไ
 
 | เรื่อง | รอบ | หมายเหตุ |
 |---|---|---|
-| ~~การส่งอีเมล OTP ผ่าน Gmail~~ | R1 | ทำแล้ว — ข้อ 8 · เหลือ spike A4 (ข้อ 8.ฉ) รอ preview |
+| ~~การส่งอีเมล OTP ผ่าน Gmail~~ | R1 | ทำแล้ว — ข้อ 8 · spike A4 ทำแล้ว 2026-11-19 (ข้อ 8.ฉ) |
 | ~~cron (`/api/cron/daily`) และ `CRON_SECRET`~~ | R1 | ทำแล้ว — `vercel.json` มี `crons` วันละครั้ง · Vercel ส่ง `Authorization: Bearer <CRON_SECRET>` · boss ตั้งค่าตามข้อ 8.ซ |
 | backup/restore ที่ลองทำจริง + แผนรับมือข้อมูลรั่วฉบับเต็ม + health check เชิงลึก + นโยบาย log ไม่มีข้อมูลส่วนตัว | R6 | ตอนนี้ `/api/health` ตอบแค่ ok/ไม่ ok และ log ของแอปไม่พิมพ์ connection string หรือ error object ของฐานข้อมูล |
-| ตั้ง required status check บน `main` | หลัง CI รันครั้งแรกบน GitHub | Lead ตั้ง — ชื่อ check ที่ต้องบังคับคือ `gates` และ `e2e` (qa-test ใส่เทสต์แล้ว) |
+| ~~ตั้ง required status check บน `main`~~ | — | ตั้งแล้ว: กฎ `protect-main` (ใช้งานอยู่) บังคับ `gates` และ `e2e` · ตรวจ 2026-11-19 |
 
 ---
 
@@ -359,7 +360,11 @@ Remove-Item Env:DATABASE_URL_UNPOOLED
 | Google ขึ้น `redirect_uri_mismatch` | `BETTER_AUTH_URL` หรือ redirect URI ไม่ตรงโดเมนที่เปิดจริง | ข้อ ข.6 และ ค |
 | Google ขึ้น `access_denied` / app not verified | ผู้ใช้ไม่อยู่ใน Test users | ข้อ ข.3 |
 
-### ฉ. spike A4: `after()` + SMTP ส่งถึง 20 จาก 20 (ทำหลังข้อ ก และมี preview)
+### ฉ. spike A4: `after()` + SMTP ส่งถึง 20 จาก 20 (ทำหลังข้อ ก และมี preview) — **ทำแล้ว 2026-11-19**
+
+> **ผล:** ยิง 20 ครั้งไปอีเมลทดสอบของ boss บน preview ของ branch r1-auth · เซิร์ฟเวอร์ตอบ 200 = 12 ครั้ง · 429 = 8 ครั้ง (จาก limiter ต่อ IP ของ Better Auth) · boss นับเมลได้ **12 จาก 12** ฉบับที่รับไว้ → `after()` + SMTP ไม่ทำให้เมลหาย · ยังไม่ได้ครบ 20 เพราะ limiter ไม่ใช่เพราะเมลหาย
+>
+> **ข้อควรรู้เมื่อรันซ้ำ:** limiter ต่อ IP ผ่านได้ 5 ครั้ง แล้วต้องเว้น 10 นาทีนับจากครั้งที่ผ่านล่าสุด (คำขอที่ถูกบล็อกไม่ต่อเวลา) → ต้องเว้น **อย่างน้อย 10 นาทีทุกๆ 5 ครั้ง** ไม่ใช่ 125 วินาทีทุกครั้ง · ค่าเริ่ม `SPIKE_GAP_MS` ในสคริปต์ยังเป็น 125 วินาที (รอแก้โค้ด) · ล้างตัวนับต่ออีเมลในฐาน dev ก่อนทุกครั้ง (ตามบันทึกใน R1 contract)
 
 ทดสอบความเสี่ยงที่ว่า Vercel อาจตัดฟังก์ชันก่อนส่งเมลเสร็จเมื่อส่งหลังตอบด้วย `after()` (ADR 0002 ข้อ 4) · `scripts/spike-a4.ts` ยิงขอ OTP 20 ครั้งไปที่ preview แล้วให้คนนับเมลในกล่องจดหมาย
 
@@ -375,7 +380,7 @@ $env:SPIKE_EMAIL = "<อีเมลทดสอบ>"
 npx tsx scripts/spike-a4.ts
 ```
 
-- สคริปต์เว้น 125 วินาทีระหว่างครั้ง (limit ของเรา 5 ครั้ง/10 นาที/IP) → ใช้เวลา ~42 นาที ใช้โควต้ารายวัน 20 ฉบับ · พิมพ์ `n/20 status=<HTTP> ms=<เวลา>` (ไม่พิมพ์อีเมลเต็มหรือรหัส)
+- สคริปต์เว้น `SPIKE_GAP_MS` ระหว่างครั้ง (ค่าเริ่ม 125 วินาที — ค่านี้ชนเพดาน limiter ดูข้อควรรู้ข้างบน) · ใช้โควต้ารายวัน 20 ฉบับ · พิมพ์ `n/20 status=<HTTP> ms=<เวลา>` (ไม่พิมพ์อีเมลเต็มหรือรหัส)
 - **ผ่าน:** HTTP 200 ทุกครั้ง **และ** กล่องจดหมายได้ 20 ฉบับภายใน 2 นาทีหลังครั้งสุดท้าย (ตรวจ inbox และ spam บันทึกจำนวนที่เข้า spam)
 - ได้ไม่ครบ: ดู Runtime Logs หา `[email] send failed` · ถ้าไม่มี error แต่เมลหาย = `after()` ถูกตัดก่อนส่งเสร็จ → แจ้ง Lead เปลี่ยนเป็น await การส่งก่อนตอบ
 - ไม่รันใน CI (ต้องใช้ preview จริงกับ Gmail จริง)
