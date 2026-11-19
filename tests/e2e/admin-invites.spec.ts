@@ -160,33 +160,44 @@ test.describe("เกณฑ์ 3: คนที่ไม่ใช่แอดม�
     }
     await anon.dispose();
 
+    // เกณฑ์ 3 (แก้ตามที่ boss อนุมัติ 2026-11-20): วัดจากสิ่งที่ผู้ใช้เห็น — status 404 · ข้อความเหมือนหน้า 404 ปกติ
+    // · ไม่มีแถบล่าง · ไม่มีข้อความของหน้าแอดมิน · no-store — ไม่เทียบ HTML ดิบ (Next 16 ส่ง error shell เมื่อ notFound() ตอน dynamic render)
     const regular = await signUp(baseURL!, { stage: "ready" });
     const admin404 = await regular.api.get(PAGE, { maxRedirects: 0 });
     const missing = await regular.api.get(`/no-such-page-${Date.now().toString(36)}`, { maxRedirects: 0 });
-    expect(admin404.status()).toBe(404);
+    expect(admin404.status(), "regular user GET /admin/invites").toBe(404);
     expect(missing.status()).toBe(404);
-    const strip = (html: string) =>
-      html
-        .replace(/<script[\s\S]*?<\/script>/g, "")
-        .replace(/\s+/g, " ")
-        .trim();
-    // HTML ที่เห็น (ไม่นับ script ของ RSC payload ที่มีชื่อ path) ต้องเหมือนกัน — soft: ให้ส่วนที่เหลือของเทสต์รายงานผลต่อ
-    expect.soft(strip(await admin404.text()), "server HTML of /admin/invites (regular user) == HTML of a missing path").toBe(strip(await missing.text()));
-    expect(admin404.headers()["cache-control"]).toContain("no-store");
+    expect(admin404.headers()["cache-control"], "404 of /admin/invites is no-store").toContain("no-store");
 
-    // ในเบราว์เซอร์: ข้อความและปุ่มของหน้า 404 เดิม · ไม่มีแถบล่าง · ไม่มีข้อความของหน้าแอดมิน
-    const ctx = await browser.newContext({ baseURL });
-    await applySession(ctx, regular);
-    const page = await ctx.newPage();
-    const res = await page.goto(PAGE);
-    expect(res?.status()).toBe(404);
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText(M("notFound.text"));
-    await expect(page.getByText(A("title"))).toHaveCount(0);
-    await expect.soft(page.getByRole("navigation", { name: M("nav.label") }), "404 of /admin/invites has no bottom tabs (like the app 404)").toHaveCount(0);
-    const textAdmin = await page.locator("body").innerText();
-    await page.goto(`/no-such-page-${Date.now().toString(36)}`);
-    expect(textAdmin, "visible text of /admin/invites 404 == missing-path 404").toBe(await page.locator("body").innerText());
-    await ctx.close();
+    // ในเบราว์เซอร์ (จอมือถือ · TH/EN · สว่าง/มืด): ข้อความและปุ่มของหน้า 404 เดิม · ไม่มีแถบล่าง · ไม่มีข้อความของหน้าแอดมิน
+    for (const [locale, colorScheme] of [
+      ["th", "light"],
+      ["en", "dark"],
+    ] as const) {
+      const ctx = await browser.newContext({ baseURL, colorScheme, viewport: { width: 375, height: 812 }, locale: locale === "en" ? "en-US" : "th-TH" });
+      if (locale === "en") await ctx.addCookies([{ name: "NEXT_LOCALE", value: "en", url: baseURL! }]);
+      await applySession(ctx, regular);
+      const page = await ctx.newPage();
+      const res = await page.goto(PAGE);
+      expect(res?.status(), `${locale} browser status`).toBe(404);
+      expect(res?.headers()["cache-control"], `${locale} browser no-store`).toContain("no-store");
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(M("notFound.text", locale));
+      // รอให้ AuthGate ตอบ /api/me แล้ว (ถ้าจะมีอะไรของแอดมินโผล่ ต้องโผล่หลังจุดนี้)
+      await page.waitForLoadState("networkidle");
+      for (const key of ["title", "form.submit", "list.title", "back"]) await expect(page.getByText(A(key, locale), { exact: true }), `no admin text "${key}"`).toHaveCount(0);
+      await expect(page.getByRole("navigation", { name: M("nav.label", locale) }), "404 of /admin/invites has no bottom tabs").toHaveCount(0);
+      const textAdmin = await page.locator("body").innerText();
+      const title = await page.title();
+      const linksAdmin = await page.getByRole("link").evaluateAll((ls) => ls.map((l) => `${l.textContent?.trim()}->${l.getAttribute("href")}`));
+      const r2 = await page.goto(`/no-such-page-${Date.now().toString(36)}`);
+      expect(r2?.status()).toBe(404);
+      await page.waitForLoadState("networkidle");
+      expect(textAdmin, `${locale}: visible text of /admin/invites 404 == missing-path 404`).toBe(await page.locator("body").innerText());
+      expect(title, `${locale}: <title> same`).toBe(await page.title());
+      expect(linksAdmin, `${locale}: same links/buttons`).toEqual(await page.getByRole("link").evaluateAll((ls) => ls.map((l) => `${l.textContent?.trim()}->${l.getAttribute("href")}`)));
+      await expect(page.getByRole("navigation", { name: M("nav.label", locale) }), "app 404 has no bottom tabs either").toHaveCount(0);
+      await ctx.close();
+    }
     await regular.api.dispose();
   });
 });
@@ -625,6 +636,98 @@ test("เกณฑ์ 13: /api/me isAdmin ถูกทั้งสองแบ�
   }
   await admin.api.dispose();
   await regular.api.dispose();
+});
+
+// ---------------------------------------------------------------- หน้าแอดมินอยู่กลุ่ม (admin) (96449fa)
+test("หน้าแอดมินของแอดมิน: ไม่มีแถบล่าง · มีปุ่ม ‹ กลับ \"ฉัน\" (≥ 44px) · กดแล้วไป /me ที่มีแถบล่าง · TH/EN", async ({ browser, baseURL }) => {
+  const admin = await newAdmin(baseURL!);
+  for (const locale of ["th", "en"] as const) {
+    const { context, page } = await openAdminPage(browser, baseURL!, admin, { locale, colorScheme: locale === "en" ? "dark" : "light" });
+    await page.setViewportSize({ width: 375, height: 812 });
+    await expect(page.getByRole("heading", { name: A("list.title", locale) })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: M("nav.label", locale) }), "admin page has no bottom tabs").toHaveCount(0);
+    for (const tab of ["home", "me"]) await expect(page.getByRole("link", { name: M(`nav.${tab}`, locale), exact: true })).toHaveCount(0);
+    const back = page.getByRole("link", { name: A("back", locale), exact: true });
+    await expect(back).toBeVisible();
+    expect(A("back", locale)).toContain(M("nav.me", locale));
+    await expect(back).toHaveAttribute("href", "/me");
+    const box = (await back.boundingBox())!;
+    expect(Math.min(box.width, box.height), "back button >= 44px").toBeGreaterThanOrEqual(44);
+    // อยู่ส่วนบนของจอ (header) ไม่ใช่ท้ายหน้า
+    expect(box.y).toBeLessThan(200);
+    await back.click();
+    await expect(page).toHaveURL(/\/me$/);
+    await expect(page.getByRole("navigation", { name: M("nav.label", locale) }).getByRole("link")).toHaveCount(4);
+    await context.close();
+  }
+  await admin.api.dispose();
+});
+
+// ---------------------------------------------------------------- M1 ทาง ก. (boss 2026-11-20): ลบบัญชีที่สมัครด้วยโค้ด → ป้ายของโค้ดนั้นเป็น "—"
+// "—" = DELETED_INVITE_LABEL ใน src/lib/data/server/account.ts (server-only import ไม่ได้ใน e2e — ค่าที่ boss อนุมัติใน contract)
+const DELETED_LABEL = "—";
+
+test("ลบบัญชีเพื่อนที่สมัครด้วยโค้ด → ป้ายในรายการของแอดมินเป็น \"—\" · โค้ดอื่นไม่ถูกแตะ · สถานะ/ใช้ไป ไม่เปลี่ยน", async ({ browser, baseURL }) => {
+  test.setTimeout(120_000);
+  const admin = await newAdmin(baseURL!);
+  const tag = Date.now().toString(36);
+  const mk = async (label: string, maxUses: number) => {
+    const r = await postInvite(admin.api, { label, days: 3, maxUses });
+    expect(r.status()).toBe(201);
+    return (await r.json()) as { id: string; code: string };
+  };
+  const single = await mk(`ฟ้า-${tag}`, 1);
+  const multi = await mk(`กลุ่ม-${tag}`, 3);
+  const untouched = await mk(`ไม่มีใครใช้-${tag}`, 1);
+
+  const friend1 = await signUp(baseURL!, { stage: "ready", code: single.code });
+  const friend2 = await signUp(baseURL!, { stage: "ready", code: multi.code });
+  const friend3 = await signUp(baseURL!, { stage: "consented", code: multi.code });
+  const labelOf = async (id: string) => (await sql<{ label: string; uses_count: number; revoked_at: unknown }>(`select label, uses_count, revoked_at from invite_code where id = $1`, [id]))[0];
+  expect((await labelOf(multi.id)).uses_count).toBe(2);
+
+  // ลบบัญชีเพื่อน 1 (ผ่าน API จริง) → ป้ายของโค้ด 1 ครั้งเป็น "—" · ใช้ไปยัง 1
+  expect((await friend1.api.delete("/api/me")).status()).toBe(200);
+  expect(await labelOf(single.id)).toMatchObject({ label: DELETED_LABEL, uses_count: 1, revoked_at: null });
+  // โค้ดหลายสิทธิ์: ลบหนึ่งในสองคน → ป้ายเป็น "—" ด้วย (ป้ายอาจระบุตัวคนใดคนหนึ่ง) · ใช้ไปยัง 2
+  expect((await friend2.api.delete("/api/me")).status()).toBe(200);
+  expect(await labelOf(multi.id)).toMatchObject({ label: DELETED_LABEL, uses_count: 2 });
+  // โค้ดที่ไม่มีใครใช้ไม่เปลี่ยน
+  expect((await labelOf(untouched.id)).label).toBe(`ไม่มีใครใช้-${tag}`);
+  // บัญชีที่เหลือยังอยู่และยังผูกกับโค้ดเดิม
+  const f3 = (await userIdOf(friend3.email))!;
+  expect(await sql(`select 1 from "user" where id = $1 and invite_code_id = $2`, [f3, multi.id])).toHaveLength(1);
+
+  // API ของแอดมินและหน้าจอแสดง "—"
+  const { invites: rows } = (await (await admin.api.get("/api/admin/invites")).json()) as { invites: { id: string; label: string }[] };
+  const byId = Object.fromEntries(rows.map((r) => [r.id, r.label]));
+  expect(byId[single.id]).toBe(DELETED_LABEL);
+  expect(byId[multi.id]).toBe(DELETED_LABEL);
+  expect(byId[untouched.id]).toBe(`ไม่มีใครใช้-${tag}`);
+  const listText = JSON.stringify(rows);
+  expect(listText).not.toContain(`ฟ้า-${tag}`);
+  expect(listText).not.toContain(`กลุ่ม-${tag}`);
+
+  const { context, page } = await openAdminPage(browser, baseURL!, admin);
+  await expect(page.getByText(`ไม่มีใครใช้-${tag}`)).toBeVisible();
+  await expect(page.getByText(`ฟ้า-${tag}`)).toHaveCount(0);
+  await expect(page.getByText(`กลุ่ม-${tag}`)).toHaveCount(0);
+  // รายการเป็นของทั้งระบบ (เทสต์อื่นที่รันขนานก็สร้างแถว "—" ได้) → เทียบกับ API ที่หน้าใช้ ณ เวลาเดียวกัน ไม่ใช่เลขตายตัว
+  const dashRows = page.locator("li").filter({ has: page.getByText(DELETED_LABEL, { exact: true }) });
+  const apiDash = async () => ((await (await admin.api.get("/api/admin/invites")).json()) as { invites: { label: string }[] }).invites.filter((r) => r.label === DELETED_LABEL).length;
+  expect(await dashRows.count()).toBeGreaterThanOrEqual(2);
+  await page.reload();
+  await expect(page.getByText(`ไม่มีใครใช้-${tag}`)).toBeVisible();
+  expect(await dashRows.count()).toBe(await apiDash());
+  // เพิกถอนโค้ดหลายสิทธิ์ที่เหลือได้ตามปกติ (ปุ่มยังมีชื่อที่อ่านได้)
+  await expect(page.getByRole("button", { name: fill(A("revoke.buttonLabel"), { label: DELETED_LABEL }) }).first()).toBeVisible();
+  await context.close();
+
+  // ลบซ้ำบัญชีที่ใช้โค้ดหลายสิทธิ์คนสุดท้าย → ไม่ error และยัง "—"
+  expect((await friend3.api.delete("/api/me")).status()).toBe(200);
+  expect((await labelOf(multi.id)).label).toBe(DELETED_LABEL);
+  for (const f of [friend1, friend2, friend3]) await f.api.dispose();
+  await admin.api.dispose();
 });
 
 // ---------------------------------------------------------------- เกณฑ์ 14
