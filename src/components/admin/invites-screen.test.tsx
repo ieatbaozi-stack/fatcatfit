@@ -253,6 +253,43 @@ describe("InvitesScreen · แชร์และคัดลอก", () => {
   });
 });
 
+describe("InvitesScreen · back/forward cache", () => {
+  async function reachResult() {
+    route({ "POST /api/admin/invites": () => json(201, CREATED) });
+    renderWithIntl(<InvitesScreen />);
+    await fillAndCreate();
+    await screen.findByText("ABCD-2345");
+  }
+
+  it("pageshow ที่ persisted = ล้างโค้ดที่เพิ่งออก กลับเป็นฟอร์มเปล่า และโหลดรายการใหม่", async () => {
+    await reachResult();
+    await waitFor(() => expect(calls("GET /api/admin/invites").length).toBeGreaterThanOrEqual(2));
+    const before = calls("GET /api/admin/invites").length;
+    act(() => {
+      window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true }));
+    });
+    expect(screen.queryByText("ABCD-2345")).toBeNull();
+    expect(((await screen.findByLabelText(t.form.label)) as HTMLInputElement).value).toBe("");
+    await waitFor(() => expect(calls("GET /api/admin/invites").length).toBeGreaterThan(before));
+  });
+
+  it("pageshow ปกติ (ไม่ persisted) ไม่แตะโค้ด", async () => {
+    await reachResult();
+    act(() => {
+      window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: false }));
+    });
+    expect(screen.getByText("ABCD-2345")).toBeTruthy();
+  });
+
+  it("pagehide ที่ persisted = ล้างโค้ดก่อนหน้าถูกแช่แข็ง", async () => {
+    await reachResult();
+    act(() => {
+      window.dispatchEvent(new PageTransitionEvent("pagehide", { persisted: true }));
+    });
+    expect(screen.queryByText("ABCD-2345")).toBeNull();
+  });
+});
+
 describe("InvitesScreen · รายการและเพิกถอน", () => {
   it("แสดงสถานะเป็นคำ · ปุ่มเพิกถอนเฉพาะ active", async () => {
     invites = [

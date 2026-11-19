@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Cat } from "@/components/doodle";
@@ -50,6 +51,32 @@ export function InvitesScreen() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (online) void load();
   }, [online, load]);
+
+  // back/forward cache (Safari เก็บหน้าแม้มี no-store): โค้ดที่เพิ่งออกต้องไม่กลับมาให้เห็นตอนกด Back
+  // pagehide = ล้างก่อนหน้าถูกแช่แข็ง (ภาพที่เก็บไว้ไม่มีโค้ด) · pageshow = กันซ้ำถ้าเบราว์เซอร์ข้ามขั้นแรก
+  // กลับเป็นฟอร์มเปล่า + โหลดรายการใหม่เงียบๆ (ไม่ reload ทั้งหน้า: ถ้า session หมด API ตอบ 404 แล้ว load() จะ reload เอง)
+  useEffect(() => {
+    function clearCode() {
+      flushSync(() => {
+        setCreated(null);
+        setHighlightId(null);
+      });
+    }
+    function onPageHide(e: PageTransitionEvent) {
+      if (e.persisted) clearCode();
+    }
+    function onPageShow(e: PageTransitionEvent) {
+      if (!e.persisted) return;
+      clearCode();
+      void load();
+    }
+    window.addEventListener("pagehide", onPageHide);
+    window.addEventListener("pageshow", onPageShow);
+    return () => {
+      window.removeEventListener("pagehide", onPageHide);
+      window.removeEventListener("pageshow", onPageShow);
+    };
+  }, [load]);
 
   useEffect(() => {
     if (!highlightId) return;
