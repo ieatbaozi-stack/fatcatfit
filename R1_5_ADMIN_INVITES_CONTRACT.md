@@ -162,3 +162,4 @@ User story (ใหม่ — Lead เพิ่มใน PRD E1): **US-1.6** ใ�
 |---|---|---|
 | 2026-11-20 | ร่าง contract | รอ boss ตอบ D0–D6 |
 | 2026-11-20 | boss อนุมัติ | รับข้อเสนอ D0–D6 ทั้งหมด · Lead แก้ PRD (US-1.6) · branch `r1-5-admin-invites` แตกจาก `fix-google-account-chooser` (PR #11 ที่มี contract นี้และ v0.2.1 ยังไม่ merge — เมื่อ merge แล้ว PR ของรอบนี้จะเหลือเฉพาะงาน R1.5) |
+| 2026-11-20 | ผล researcher เรื่อง LINE ([research](docs/research/2026-11-20-r1-5-share-line.md)) | Google บล็อก sign-in ใน embedded webview · LINE มี `?openExternalBrowser=1` แต่ไม่ยืนยันว่า fragment รอด · **boss ตัดสิน: รอบนี้ยังไม่ทำอะไรเฉพาะ LINE** — ลิงก์คงเป็น `/welcome#invite=…` · ไม่ตรวจ UA ของ LINE · แชร์ผ่าน `navigator.share` ทั่วไป · ฟีเจอร์ LINE (LINE OA ประชาสัมพันธ์/วิธีใช้/แจ้งเตือน/สรุป progress) เก็บไว้ท้ายสุดของแผน · เกณฑ์ 17 ไม่บังคับต้องแชร์ทาง LINE (ใช้แอปแชร์ใดก็ได้ ถ้าเพื่อนเปิดใน LINE แล้ว Google ใช้ไม่ได้ ให้ใช้ OTP) |
