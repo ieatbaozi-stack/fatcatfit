@@ -142,6 +142,17 @@ describe("GET /api/me", () => {
     const res = await onboardingPost(req("POST", "/api/onboarding", c, goodOnboarding()));
     expect(res.status).toBe(403);
     expect((await res.json()).code).toBe("consent_required");
+    // ยินยอมเวอร์ชันปัจจุบันใหม่ → ใช้งานต่อได้ และแถวเก่ายังอยู่
+    expect((await consent(c)).status).toBe(200);
+    const me2 = await (await meGet(req("GET", "/api/me", c))).json();
+    expect(me2.state).toBe("ready");
+    expect(me2.noticeVersion).toBe(PRIVACY_NOTICE_VERSION);
+    const rows = await t.db.select().from(consentRecord).where(eq(consentRecord.userId, u.id));
+    expect(rows.map((r) => r.noticeVersion).sort()).toEqual(["2000-01-01", PRIVACY_NOTICE_VERSION].sort());
+  });
+
+  it("เวอร์ชันประกาศเป็นวันที่ 2026-11-20 (R1.5 ทาง ก.)", () => {
+    expect(PRIVACY_NOTICE_VERSION).toBe("2026-11-20");
   });
 });
 
@@ -432,6 +443,26 @@ describe("DELETE /api/me", () => {
 
     // session เดิมใช้ไม่ได้อีก
     expect((await meGet(req("GET", "/api/me", c))).status).toBe(401);
+  });
+
+  it("ล้างป้ายโค้ดเชิญที่บัญชีใช้สมัคร (รวมโค้ดหลายสิทธิ์) · ไม่แตะโค้ดอื่น", async () => {
+    const c1 = await signUp("lbl-one@example.com");
+    await signUp("lbl-two@example.com");
+    const [u1] = await t.db.select().from(user).where(eq(user.email, "lbl-one@example.com"));
+    const [u2] = await t.db.select().from(user).where(eq(user.email, "lbl-two@example.com"));
+    expect(u1.inviteCodeId).toBeTruthy();
+    // ให้สองบัญชีใช้โค้ดเดียวกัน (โค้ดหลายสิทธิ์) และตั้งป้ายเป็นชื่อคน
+    await t.db.update(schema.inviteCode).set({ label: "สมชาย", maxUses: 5, usesCount: 2 }).where(eq(schema.inviteCode.id, u1.inviteCodeId!));
+    await t.db.update(user).set({ inviteCodeId: u1.inviteCodeId }).where(eq(user.id, u2.id));
+    await signUp("lbl-other@example.com");
+    const [u3] = await t.db.select().from(user).where(eq(user.email, "lbl-other@example.com"));
+    await t.db.update(schema.inviteCode).set({ label: "เพื่อนอีกคน" }).where(eq(schema.inviteCode.id, u3.inviteCodeId!));
+
+    expect((await meDelete(req("DELETE", "/api/me", c1))).status).toBe(200);
+    const [shared] = await t.db.select().from(schema.inviteCode).where(eq(schema.inviteCode.id, u1.inviteCodeId!));
+    expect(shared.label).toBe("—");
+    const [untouched] = await t.db.select().from(schema.inviteCode).where(eq(schema.inviteCode.id, u3.inviteCodeId!));
+    expect(untouched.label).toBe("เพื่อนอีกคน");
   });
 
   it("ไม่ใช้ LIKE: อีเมลที่มี _ ไม่ลบแถวของอีเมลอื่นที่ตรง wildcard", async () => {

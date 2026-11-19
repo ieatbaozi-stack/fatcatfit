@@ -7,7 +7,7 @@ import { HttpError } from "@/lib/data/shared/http-error";
 import { requireUser, type AuthedUser } from "./server";
 
 // สิทธิ์แอดมิน (ADR 0007 ข้อ 2) · ตรวจจากฐานข้อมูลทุกคำขอ ไม่ cache · ในแอปมีแต่ SELECT ตาราง app_admin
-// หน้าจอที่ import ไฟล์นี้ได้: src/app/(app)/admin/**/page.tsx เท่านั้น
+// หน้าจอที่ import ไฟล์นี้ได้: src/app/(admin)/admin/**/page.tsx เท่านั้น
 
 export async function isAdmin(db: AppDb, userId: string): Promise<boolean> {
   const rows = await db.select({ userId: appAdmin.userId }).from(appAdmin).where(eq(appAdmin.userId, userId)).limit(1);
