@@ -11,15 +11,21 @@
 - ชั้นส่งอีเมล `src/lib/email`: ส่ง OTP ผ่าน SMTP (Gmail ของแอป) หรือโหมด `log` สำหรับ dev · แม่แบบไทย/อังกฤษ ไม่มีลิงก์ · ไม่ log รหัสหรืออีเมลใน production · สลับผู้ส่งเป็นโดเมนของเราได้โดยแก้ env
 - สคริปต์ออกโค้ดเชิญ `npm run invite -- create|list|revoke` (ลิงก์ใช้ fragment ไม่ลงใน log เซิร์ฟเวอร์) และสคริปต์ทดสอบ spike A4 (`scripts/spike-a4.ts`)
 - ADR 0006 (เส้นทางล็อกอินและหน้า welcome ออฟไลน์) และแก้ ADR 0002/0003/0005, ARCHITECTURE, contract R1
-- `docs/OPERATIONS.md` ข้อ 8: ขั้นตอนสร้าง Gmail ของแอป, Google OAuth, ใส่ env บน Vercel, ออกโค้ดเชิญกับฐานข้อมูล production
+- `docs/OPERATIONS.md` ข้อ 8: ขั้นตอนสร้าง Gmail ของแอป, Google OAuth, ใส่ env บน Vercel, ออกโค้ดเชิญกับฐานข้อมูล production, ตั้ง `CRON_SECRET`, และงานประจำรายเดือนลบกล่อง "ส่งแล้ว" ของ Gmail แอป
+- cron รายวัน `/api/cron/daily` ล้างแถวหมดอายุของระบบบัญชี (ป้องกันด้วย `CRON_SECRET`, `vercel.json`)
+- หน้าประกาศความเป็นส่วนตัว (ปรับให้ตรงกับข้อมูลที่เก็บจริง 2026-11-19) และตัวแปร `PRIVACY_CONTROLLER_NAME` / `PRIVACY_CONTACT_EMAIL`
+- e2e ของขั้นตอนเข้าสู่ระบบจริง (ฐานข้อมูล Postgres ในหน่วยความจำ + SMTP จำลอง)
+- หน้าจอเข้าสู่ระบบ ความยินยอม ประกาศความเป็นส่วนตัว แบบสอบถามเริ่มต้น และหน้าบัญชี; service worker ถอยไปหน้า `/welcome` เมื่อออฟไลน์และยังไม่ล็อกอิน
 
 ### Changed
 
+- แก้ UI ตามผลตรวจ QA ของ R1
 - `/api/health` ตอบ 503 ภายใน 5 วินาทีเมื่อฐานข้อมูลค้าง
 - `.env.example`: เพิ่มตัวแปรอีเมล/Google/สคริปต์ครบทุกตัวที่โค้ดอ่าน · ลบ `TRUSTED_IP_HEADER` (ใช้ `x-forwarded-for` ตามค่าเริ่มของ Better Auth บน Vercel)
 
 ### Security
 
+- เสริมความแข็งแรงของขั้นตอนเข้าสู่ระบบ: ปิดช่องให้เดาว่าอีเมลมีบัญชีหรือไม่ (ข้อความผิดพลาด OTP เหมือนกันทุกกรณี) และแก้ข้อสังเกตจากการตรวจฝั่งเซิร์ฟเวอร์รอบ R1
 - `overrides` ของ `esbuild` (~0.28.2) และ `minimatch` (^11.0.1) เพื่อปิดช่องโหว่ของเครื่องมือตอน build/dev · `picomatch` (ReDoS) ยังไม่มีรุ่นแก้ ไม่กระทบ production (ดู OPERATIONS ข้อ 8.ช)
 
 ## [0.1.0] - 2026-11-18

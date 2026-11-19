@@ -12,7 +12,7 @@
 5. [เมื่อความลับหลุด](#5-เมื่อความลับหลุด)
 6. [วิธีปรับ repo กลับเป็น private](#6-วิธีปรับ-repo-กลับเป็น-private)
 7. [ยังไม่ได้ทำในรอบนี้](#7-ยังไม่ได้ทำในรอบนี้)
-8. [R1: Gmail ของแอป, Google, env บน Vercel, โค้ดเชิญ](#8-r1-บัญชีผู้ใช้--gmail-ของแอป-google-env-บน-vercel-โค้ดเชิญ)
+8. [R1: Gmail ของแอป, Google, env บน Vercel, โค้ดเชิญ, cron, งานประจำรายเดือน](#8-r1-บัญชีผู้ใช้--gmail-ของแอป-google-env-บน-vercel-โค้ดเชิญ)
 
 ---
 
@@ -213,7 +213,7 @@ R0 มีแค่ migration แรก (ตารางของ Better Auth) �
 | **`BETTER_AUTH_SECRET`** | เครื่องของ boss | สร้างค่าใหม่ตามข้อ 1.4 | แก้ตัวแปรบน Vercel → Redeploy · ผลต่อผู้ใช้ที่ล็อกอินอยู่: **[ยืนยันไม่ได้]** เอกสารไม่ระบุตรงๆ ว่า session เดิมใช้ต่อได้ไหม — เตรียมใจว่าทุกคนอาจต้องล็อกอินใหม่ · Better Auth มี `BETTER_AUTH_SECRETS` (พหูพจน์) สำหรับหมุนค่าโดยไม่ทำให้ข้อมูลเดิมใช้ไม่ได้ — ให้ Lead/security-privacy ศึกษาก่อนใช้ในรอบ R1 |
 | **Google OAuth client secret** (R1) | Google Cloud Console → APIs & Services → Credentials → OAuth client ของแอป | สร้าง/รีเซ็ต secret ใหม่ (ชื่อปุ่มตามหน้าจอ Google ณ ตอนนั้น) | แก้ `GOOGLE_CLIENT_SECRET` บน Vercel → Redeploy |
 | **รหัสผ่านแอป Gmail** (`SMTP_PASS`, R1) | บัญชี Google ของแอป → Security → App passwords | ลบรหัสผ่านแอปเก่า สร้างใหม่ | แก้ `SMTP_PASS` บน Vercel → Redeploy |
-| **`CRON_SECRET`** (R1) | เครื่องของ boss | สร้างค่าสุ่มใหม่ | แก้บน Vercel → Redeploy |
+| **`CRON_SECRET`** (R1) | เครื่องของ boss | สร้างค่าสุ่มใหม่ตามข้อ 8.ซ | แก้บน Vercel (Production) → **Redeploy** (เอกสาร Vercel ระบุว่าต้อง redeploy ให้ค่าใหม่มีผล) |
 | **token ของ GitHub / Vercel** | GitHub: Settings → Developer settings → Personal access tokens · Vercel: Account Settings → Tokens | ลบ (revoke) token ที่หลุด | — |
 
 3. **ตรวจว่ามีใครใช้ค่าที่หลุดไปแล้วหรือยัง**: Neon Console ดูกิจกรรม/การเชื่อมต่อผิดปกติ · Vercel → โปรเจกต์ → **Logs** ดูคำขอแปลก · บอก Lead ผลที่เห็น
@@ -250,7 +250,7 @@ R0 มีแค่ migration แรก (ตารางของ Better Auth) �
 | เรื่อง | รอบ | หมายเหตุ |
 |---|---|---|
 | ~~การส่งอีเมล OTP ผ่าน Gmail~~ | R1 | ทำแล้ว — ข้อ 8 · เหลือ spike A4 (ข้อ 8.ฉ) รอ preview |
-| cron (`/api/cron/daily`) และ `CRON_SECRET` | R1 | ต้องยืนยันวิธีที่ Vercel ส่ง secret จากเอกสารก่อน แล้วเพิ่ม `crons` ใน `vercel.json` |
+| ~~cron (`/api/cron/daily`) และ `CRON_SECRET`~~ | R1 | ทำแล้ว — `vercel.json` มี `crons` วันละครั้ง · Vercel ส่ง `Authorization: Bearer <CRON_SECRET>` · boss ตั้งค่าตามข้อ 8.ซ |
 | backup/restore ที่ลองทำจริง + แผนรับมือข้อมูลรั่วฉบับเต็ม + health check เชิงลึก + นโยบาย log ไม่มีข้อมูลส่วนตัว | R6 | ตอนนี้ `/api/health` ตอบแค่ ok/ไม่ ok และ log ของแอปไม่พิมพ์ connection string หรือ error object ของฐานข้อมูล |
 | ตั้ง required status check บน `main` | หลัง CI รันครั้งแรกบน GitHub | Lead ตั้ง — ชื่อ check ที่ต้องบังคับคือ `gates` และ `e2e` (qa-test ใส่เทสต์แล้ว) |
 
@@ -312,6 +312,9 @@ R0 มีแค่ migration แรก (ตารางของ Better Auth) �
 | `SMTP_USER` | ใส่ | ใส่เมื่อใช้ `smtp` | ใช่ (เป็นที่อยู่อีเมล) | ข้อ ก.5 |
 | `SMTP_PASS` | ใส่ | ใส่เมื่อใช้ `smtp` | **ใช่** | app password ข้อ ก.4 |
 | `OTP_DAILY_CAP` | ไม่ต้องใส่ (ค่าเริ่ม 400) | ไม่ต้องใส่ | ไม่ | ใส่เมื่อจะเปลี่ยนเพดาน (ไม่เกิน 500) |
+| `CRON_SECRET` | ใส่ (**Production เท่านั้น**) | ไม่ต้องใส่ | **ใช่** | ข้อ 8.ซ · ไม่ใส่ = cron ถูกปฏิเสธ 401 และไม่ล้างข้อมูลหมดอายุ |
+| `PRIVACY_CONTROLLER_NAME` | ใส่ | ใส่ | ไม่ (แต่**ห้ามลง repo**) | ชื่อผู้ควบคุมข้อมูลที่แสดงในประกาศความเป็นส่วนตัว |
+| `PRIVACY_CONTACT_EMAIL` | ใส่ | ใส่ | ไม่ (แต่**ห้ามลง repo**) | อีเมลติดต่อเรื่องข้อมูลส่วนบุคคลที่แสดงในประกาศ |
 | `MIGRATE_ON_DEPLOY` | `1` เมื่อ Lead แจ้ง (ข้อ 2.3) | **ห้ามใส่** | ไม่ | |
 
 หมายเหตุ:
@@ -332,17 +335,18 @@ PowerShell ในโฟลเดอร์ของ repo:
 # 1) วางค่าเมื่อถูกถาม (ไม่ติดประวัติคำสั่ง)
 $env:DATABASE_URL_UNPOOLED = Read-Host "paste production connection string"
 
-# 2) ออกโค้ด: ใช้ได้ 5 ครั้ง อายุ 14 วัน
-npm run invite -- create --uses 5 --days 14 --label "friends-batch-1" --base https://<โดเมน production>
+# 2) ออกโค้ด: 1 โค้ดต่อ 1 คน ใช้ได้ 1 ครั้ง อายุสั้น (เช่น 3 วัน)
+npm run invite -- create --uses 1 --days 3 --label "friend-1" --base https://<โดเมน production>
 
 # 3) ดูรายการ / เพิกถอน
 npm run invite -- list
-npm run invite -- revoke --code XXXX-XXXX
+npm run invite -- revoke --id <id จากผลของ list>
 
 # 4) ล้างค่า แล้วปิดหน้าต่าง
 Remove-Item Env:DATABASE_URL_UNPOOLED
 ```
 
+- **ใช้ `--uses 1` ต่อคน และ `--days` สั้น** เพื่อให้โค้ดที่ส่งไปแล้วหมดอายุเร็วถ้าไม่มีใครใช้ · **เพิกถอนด้วย `--id` ไม่ใช่ `--code`** เพราะโค้ดที่พิมพ์ในคำสั่งจะค้างในประวัติคำสั่งของเทอร์มินัล (shell history) — ถ้าเผลอพิมพ์โค้ดจริงลงคำสั่ง ให้ถือว่าโค้ดนั้นรั่วและเพิกถอนทันที
 - `create` พิมพ์ **โค้ดและลิงก์เชิญครั้งเดียว** (ฐานข้อมูลเก็บเฉพาะ hash กู้กลับไม่ได้ — ลืมให้ `revoke` แล้วออกใหม่) · ส่งลิงก์ให้เพื่อนทางแชทส่วนตัว
 - คำสั่งไม่พิมพ์ connection string · ถ้าขึ้น `invite failed (...)` ส่งข้อความนั้นให้ Lead (ไม่มีรหัสผ่านในข้อความ)
 
@@ -387,3 +391,36 @@ Dependabot แจ้ง 3 รายการ — ทั้งหมดเป็�
 | `picomatch` ≤ 4.0.7 (high, ReDoS) | `vitest`/`vite`, `next-intl` (`@parcel/watcher`), `eslint-config-next` (`micromatch`) | ไม่ — รันกับ glob ที่เราเขียนเองใน dev/CI ไม่รับ input จากผู้ใช้ | **ยังไม่มีรุ่นแก้** (รุ่นล่าสุด 4.0.7 ยังอยู่ในช่วงที่โดน) · ไม่ override · รอรุ่นแก้แล้วอัปเดต |
 
 (`npm audit` ยังรายงาน high อยู่ ที่เกี่ยวกับ `picomatch` ล้วนๆ จนกว่าจะมีรุ่นแก้)
+
+### ซ. `CRON_SECRET` และงาน cron รายวัน
+
+cron `/api/cron/daily` (ตั้งใน `vercel.json` รันวันละครั้ง 03:00 UTC) ล้างแถวหมดอายุของระบบบัญชี · ปกป้องด้วยค่า `CRON_SECRET` — Vercel ส่งค่านี้ในหัว `Authorization: Bearer ...` ให้เอง ([Managing Cron Jobs](https://vercel.com/docs/cron-jobs/manage-cron-jobs)) · ถ้าไม่ตั้ง แอปปฏิเสธทุกคำขอ (401)
+
+**สร้างค่า** (ยาวอย่างน้อย 32 ตัวอักษร เป็นตัวอักษรหรือตัวเลขล้วน ไม่มีช่องว่าง) — เลือกวิธีใดวิธีหนึ่ง:
+- Bitwarden (แนะนำ ตัวสุ่มระดับเข้ารหัส): Generator → Password → ความยาว 40 → เปิดเฉพาะ A-Z, a-z, 0-9 → ปิดอักขระพิเศษ → คัดลอก
+- PowerShell: วางทั้งบล็อกแล้วกด Enter — ค่าอยู่ในคลิปบอร์ด ไม่พิมพ์บนจอ
+
+```powershell
+$c = [char[]](48..57 + 65..90 + 97..122)
+-join (1..40 | ForEach-Object { $c | Get-Random }) | Set-Clipboard
+```
+
+`Get-Random` ไม่ใช่ตัวสุ่มระดับเข้ารหัส แต่ค่ายาว 40 ตัวและใช้แค่กันคนนอกเรียก endpoint ล้างข้อมูลหมดอายุ (ไม่มีข้อมูลผู้ใช้ให้อ่านผ่าน endpoint นี้) จึงเพียงพอ
+
+**ใส่บน Vercel:** Settings → Environment Variables → **Add** → ชื่อ `CRON_SECRET` → วางค่า → environment **Production เท่านั้น** → ติ๊ก Sensitive → **Save** → **Redeploy** (Deployments → deployment ล่าสุด → เมนูจุดสามจุด → Redeploy) · **ห้าม** ลงใน repo หรือแชท · เปลี่ยนค่าภายหลังทำแบบเดียวกัน (ต้อง Redeploy ทุกครั้ง)
+
+**ดูว่า cron รันผ่าน:** Vercel → โปรเจกต์ → **Settings** → **Cron Jobs** → **View Logs** (ต้องมี deploy production ที่มี `vercel.json` นี้แล้ว) · ควรเห็นสถานะ 200 และข้อความ `[cron:daily] deleted ...` (จำนวนแถวเท่านั้น ไม่มีข้อมูลส่วนตัว) · **[ยืนยันไม่ได้]** ชื่อเมนูและปุ่มตามหน้าจอ Vercel ณ ตอนนั้น ผู้เขียนไม่ได้เปิดหน้านี้ · เห็น 401 = ยังไม่ได้ตั้ง `CRON_SECRET` ใน Production หรือยังไม่ Redeploy · Runtime Logs แผน Hobby เก็บ 1 ชั่วโมง (งานวิจัย 2026-11-18) จึงควรดูหลังเวลารันไม่นาน
+
+### ญ. งานประจำของ boss: ลบกล่อง "ส่งแล้ว" ของ Gmail แอป (เดือนละครั้ง)
+
+เหตุผล: Gmail เก็บสำเนาเมลที่ส่งผ่าน SMTP ไว้ในกล่อง "ส่งแล้ว" อัตโนมัติ และปิดไม่ได้ (งานวิจัย `docs/research/2026-11-18-r1-auth.md`) — ในเมลมีรหัส OTP และอีเมลผู้ใช้ · ประกาศความเป็นส่วนตัวของแอประบุว่าผู้ดูแลลบเป็นระยะ จึงต้องทำจริง
+
+ขั้นตอน:
+1. เข้า Gmail ของแอป (บัญชีที่ใช้ส่ง OTP)
+2. เมนูซ้าย **ส่งแล้ว** (Sent)
+3. ติ๊กช่องสี่เหลี่ยมมุมบนซ้ายเพื่อเลือกทั้งหน้า → ถ้ามีข้อความ "เลือกการสนทนาทั้งหมดใน ส่งแล้ว" ให้กดข้อความนั้น (เลือกทุกหน้า)
+4. กดไอคอนถังขยะ (ลบ)
+5. เมนูซ้าย **ถังขยะ** (ถ้าไม่เห็นกด "เพิ่มเติม") → กด **ล้างถังขยะตอนนี้** → ยืนยัน = ลบถาวร
+6. ถ้าไม่ทำข้อ 5 Google ลบถังขยะเองหลัง 30 วัน (งานวิจัยภาคผนวก 2026-11-19)
+
+ชื่อปุ่มตามหน้าจอ Gmail ภาษาของ boss · ตั้งเตือนในปฏิทินวันที่ 1 ของทุกเดือน
