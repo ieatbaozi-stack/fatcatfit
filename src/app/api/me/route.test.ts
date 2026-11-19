@@ -279,6 +279,23 @@ describe("POST /api/onboarding", () => {
     expect(await t.db.select().from(place).where(eq(place.userId, u.id))).toHaveLength(1);
   });
 
+  it("อายุขั้นต่ำ 20: ปีปัจจุบัน−20 ผ่าน · ปีปัจจุบัน−19 → 400 out_of_range และไม่บันทึก", async () => {
+    const year = new Date().getUTCFullYear();
+    const email = `ob-age-${++ipn}@example.com`;
+    const c = await signUp(email);
+    await consent(c);
+    const young = goodOnboarding();
+    young.profile.birthYear = year - 19;
+    const bad = await onboardingPost(req("POST", "/api/onboarding", c, young));
+    expect(bad.status).toBe(400);
+    expect((await bad.json()).fields["profile.birthYear"]).toBe("out_of_range");
+    const [u] = await t.db.select().from(user).where(eq(user.email, email));
+    expect((await t.db.select().from(profile).where(eq(profile.userId, u.id))).length).toBe(0);
+    const ok = goodOnboarding();
+    ok.profile.birthYear = year - 20;
+    expect((await onboardingPost(req("POST", "/api/onboarding", c, ok))).status).toBe(200);
+  });
+
   it.each([
     ["ขาดน้ำหนัก", (b: ReturnType<typeof goodOnboarding>) => { delete (b.bodyEntry as Record<string, unknown>).weight; }, "bodyEntry.weight", "required"],
     ["น้ำหนักต่ำเกิน", (b: ReturnType<typeof goodOnboarding>) => { b.bodyEntry.weight = { value: 10, unit: "kg" }; }, "bodyEntry.weight.value", "out_of_range"],
