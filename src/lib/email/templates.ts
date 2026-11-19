@@ -9,18 +9,18 @@ export const OTP_TTL_MINUTES = 10;
 
 export type RenderedEmail = { subject: string; text: string; html: string };
 
-const SUBJECT = "รหัสเข้าสู่ระบบ Fat Cat Fit / Your Fat Cat Fit sign-in code";
+const SUBJECT = "รหัส OTP เข้าสู่ระบบ Fat Cat Fit / Your Fat Cat Fit sign-in code (OTP)";
 
 const COPY = {
   th: {
-    intro: "รหัสเข้าสู่ระบบของคุณคือ",
-    introAbove: "รหัสเข้าสู่ระบบของคุณอยู่ด้านบน",
+    intro: "รหัส OTP 6 หลักสำหรับเข้าสู่ระบบของคุณคือ",
+    introAbove: "รหัส OTP ของคุณอยู่ด้านบน",
     expiry: `รหัสนี้ใช้ได้ ${OTP_TTL_MINUTES} นาที`,
     ignore: "ถ้าคุณไม่ได้ขอรหัสนี้ ไม่ต้องทำอะไร",
   },
   en: {
-    intro: "Your sign-in code is",
-    introAbove: "Your sign-in code is shown above.",
+    intro: "Your one-time sign-in code (OTP) is",
+    introAbove: "Your one-time sign-in code (OTP) is shown above.",
     expiry: `This code is valid for ${OTP_TTL_MINUTES} minutes.`,
     ignore: "If you did not request this, you can ignore this email.",
   },

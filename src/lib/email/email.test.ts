@@ -57,7 +57,7 @@ describe("แม่แบบ OTP", () => {
   it("subject สองภาษา ไม่มีรหัส", () => {
     for (const l of ["th", "en"] as const) {
       const { subject } = renderOtpEmail(l, "123456");
-      expect(subject).toBe("รหัสเข้าสู่ระบบ Fat Cat Fit / Your Fat Cat Fit sign-in code");
+      expect(subject).toBe("รหัส OTP เข้าสู่ระบบ Fat Cat Fit / Your Fat Cat Fit sign-in code (OTP)");
       expect(subject).not.toContain("123456");
     }
   });
