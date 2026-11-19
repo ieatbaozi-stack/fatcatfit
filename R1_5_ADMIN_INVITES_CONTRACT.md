@@ -1,6 +1,6 @@
 # R1_5_ADMIN_INVITES_CONTRACT.md
 
-> ร่าง 1 · 2026-11-20 · ผู้เขียน: Lead (ร่างโดย architect) · สถานะ: **ร่าง รอ boss อนุมัติ**
+> ร่าง 1 · 2026-11-20 · ผู้เขียน: Lead (ร่างโดย architect) · สถานะ: **boss อนุมัติแล้ว 2026-11-20** — รับข้อเสนอ D0–D6 ทั้งหมด
 > อ้างอิง: [PRD](docs/prd/PRD.md) E1 · ADR [0002](docs/adr/0002-auth.md) ข้อ 2–3, 7 · [0003](docs/adr/0003-data-model.md) ข้อ 3, 5 · [0005](docs/adr/0005-service-worker-tool.md) กติกา 1 · [0006](docs/adr/0006-auth-routing-offline.md) ข้อ 1–4 · [UX](docs/design/UX.md) ข้อ 4, 6, 10.3 · [DESIGN](docs/design/DESIGN.md) · [R1 contract](R1_AUTH_CONTRACT.md) · [PROCESS](PROCESS.md) · [TEAM](TEAM.md)
 > branch: `r1-5-admin-invites` (สร้างจาก `main` ล่าสุด) · รุ่นเมื่อปิดรอบ: `v0.3.0` · ต้องเสร็จก่อน: R1 merge แล้ว (PR #10) และ production มี migration `0001`
 
@@ -161,3 +161,4 @@ User story (ใหม่ — Lead เพิ่มใน PRD E1): **US-1.6** ใ�
 | วันที่ | เรื่อง | ผล |
 |---|---|---|
 | 2026-11-20 | ร่าง contract | รอ boss ตอบ D0–D6 |
+| 2026-11-20 | boss อนุมัติ | รับข้อเสนอ D0–D6 ทั้งหมด · Lead แก้ PRD (US-1.6) · branch `r1-5-admin-invites` แตกจาก `fix-google-account-chooser` (PR #11 ที่มี contract นี้และ v0.2.1 ยังไม่ merge — เมื่อ merge แล้ว PR ของรอบนี้จะเหลือเฉพาะงาน R1.5) |
