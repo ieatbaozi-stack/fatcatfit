@@ -56,4 +56,4 @@ CI (GitHub Actions) บน repo สาธารณะ: ห้ามใช้ `pu
 
 ## ภาพแมว
 
-ต้นฉบับอยู่ที่ `docs/design/samples.html` ที่เดียว แก้แล้วรัน `node scripts/export-stickers.mjs` เพื่อสร้าง `assets/stickers/` ใหม่ (ภาพนิ่ง + sprite ดุ๊กดิ๊ก 3 เฟรม)
+ต้นฉบับอยู่ที่ `docs/design/samples.html` ที่เดียว แก้แล้วรัน `node scripts/export-stickers.mjs` เพื่อสร้าง `assets/stickers/` ใหม่ (ภาพนิ่ง + ข้อมูลท่าของ `<Cat>` ใน `src/components/doodle/*.generated.ts`) · แผ่น sprite ขยับ 5 เฟรมแยกด้วย `node scripts/sprites/build.mjs` (ดุ๊กดิ๊ก 3 เฟรมเลิกใช้แล้วตาม CR1)
