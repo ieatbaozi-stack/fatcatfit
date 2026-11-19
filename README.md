@@ -2,7 +2,7 @@
 
 เว็บแอปแบบติดตั้งได้ (PWA) สำหรับจดการออกกำลังกายบนมือถือ ทำใช้กันเองในกลุ่มเพื่อนกลุ่มเล็ก ไม่แสวงหากำไร
 
-**สถานะ:** อยู่ระหว่างออกแบบ ยังไม่มีโค้ดแอป
+**สถานะ:** v0.1.0 ออกแล้ว (รอบ R0 Foundation และ CR1 แมวขยับ) · รอบ R1 บัญชีและการเข้าสู่ระบบ โค้ดเสร็จบน branch `r1-auth` รอทดสอบบนมือถือจริงและ merge · ดูรายการเปลี่ยนแปลงที่ [CHANGELOG.md](CHANGELOG.md)
 
 ## เอกสาร
 
@@ -13,6 +13,9 @@
 | [docs/design/UX.md](docs/design/UX.md) | flow ของหน้าจอ |
 | [docs/adr/](docs/adr/) | การตัดสินใจทางเทคนิค |
 | [TEAM.md](TEAM.md) · [PROCESS.md](PROCESS.md) | วิธีทำงานของทีม |
+| [CHANGELOG.md](CHANGELOG.md) · [docs/VERSIONING.md](docs/VERSIONING.md) | รุ่นและการเปลี่ยนแปลง · กติกาเลขรุ่น |
+| [docs/OPERATIONS.md](docs/OPERATIONS.md) | ขั้นตอนตั้งค่าและดูแลระบบ (สำหรับ boss) |
+| [docs/reports/](docs/reports/) | รายงานประจำวันของทีม |
 
 ## สิทธิ์ในผลงาน
 
