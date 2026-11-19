@@ -1,6 +1,6 @@
 # ADR 0005 — เครื่องมือ service worker: `@serwist/turbopack` (ทาง A) และกติกา cache ที่ตามมา
 
-- สถานะ: **เสนอ — รอ boss รับทราบ** · วันที่ 2026-11-17 · ผู้เขียน: architect
+- สถานะ: **ยอมรับ** (boss อนุมัติ `R1_AUTH_CONTRACT.md` 2026-11-18 ข้อ D1–D4 รวม D3 รับทราบการเปลี่ยน UX · โค้ดใช้งานแล้วตั้งแต่ v0.1.0 และ R1) · วันที่ 2026-11-17 · ผู้เขียน: architect
 - ฐานข้อเท็จจริง: ผล spike S5 ของ pwa-offline (รายงานต่อ Lead 2026-11-17) · สคริปต์ตรวจ `src/pwa/e2e/s5-offline-check.ts` · โค้ดจริง `src/pwa/**`, `src/app/serwist/[path]/route.ts`, `next.config.ts` · source ของแพ็กเกจที่ติดตั้ง (`node_modules/@serwist/turbopack/src/*`, `node_modules/next/dist/...`) — **ไม่ใช่เอกสารทางการ** ระบุไว้ทุกจุดที่อ้าง
 - เอกสารที่ architect เปิด 2026-11-17: [Serwist — Next.js + Turbopack](https://serwist.pages.dev/docs/next/turbo) · [Next.js — Content Security Policy](https://nextjs.org/docs/app/guides/content-security-policy) (หน้าอัปเดต 2026-03-20)
 - ขึ้นกับ / ทำให้สมบูรณ์: ADR 0004 ข้อ 1 · เกี่ยวกับ ADR 0002 ข้อ 7 (ออกจากระบบ)
@@ -126,3 +126,9 @@ SW คัดลอก header รวม CSP ไปกับ HTML ที่เก�
 กติกา 1 คงเดิม และ ADR 0006 เพิ่ม: หน้า `/welcome` ห้าม redirect ฝั่งเซิร์ฟเวอร์ · ห้ามมี `loading.tsx`/Suspense ครอบ layout ที่ redirect (ไม่งั้นได้ 200 + meta refresh ที่ SW จะเก็บ)
 
 เครื่องจริง: boss รายงานผ่านเกณฑ์ 9–10 ของ R0 (ติดตั้ง ออฟไลน์ทุกแท็บ ปุ่มภาษาตอนออฟไลน์ ภาษาอังกฤษทุกแท็บตอนออฟไลน์) 2026-11-18 ไม่ได้ระบุรุ่นเครื่อง — แถว iOS/Android ใน "สิ่งที่ยังไม่รู้" ยังเปิดสำหรับรุ่นต่ำสุด (iOS 16.4 · Chrome 111)
+
+## บันทึกการแก้ไข
+
+| วันที่ | สิ่งที่แก้ | เหตุผล | เปลี่ยนการตัดสินใจไหม |
+|---|---|---|---|
+| 2026-11-19 | บรรทัดสถานะ: เสนอ → **ยอมรับ** · ไม่แก้เนื้อหา | boss อนุมัติ `R1_AUTH_CONTRACT.md` 2026-11-18 (D1–D4, D3 รับทราบการเปลี่ยน UX) และโค้ดใช้งานแล้ว · secretary ตรวจตามหน้าที่ 2 | ไม่ |
