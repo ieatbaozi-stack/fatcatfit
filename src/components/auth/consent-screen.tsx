@@ -99,7 +99,7 @@ export function ConsentScreen() {
       </Link>
 
       <div className="mt-auto flex flex-col gap-3 pt-8">
-        <Checkbox checked={ageOk} onChange={(e) => setAgeOk(e.target.checked)}>
+        <Checkbox tone="ink" checked={ageOk} onChange={(e) => setAgeOk(e.target.checked)}>
           {t("ageCheckbox")}
         </Checkbox>
         <Checkbox checked={agreed} onChange={(e) => setAgreed(e.target.checked)}>
