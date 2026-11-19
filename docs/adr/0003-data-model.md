@@ -59,7 +59,8 @@ PRD ข้อ 5/7: เก็บหน่วยมาตรฐาน (kg/เม�
 |---|---|---|---|
 | `user` `session` `account` `verification` `rate_limit` | R0* | schema เขียนเองให้ตรงกับ `getAuthTables()` ของ better-auth (ไม่ใช้ CLI — ADR 0002 บันทึกการแก้ไข 2026-11-17) · `user.invite_code_id` เพิ่มใน R1 (nullable) | `session`/`account` → `user` CASCADE |
 | `invite_code` | R1 | `code_hash` UNIQUE · `label` · `max_uses` · `uses_count` · `expires_at` · `revoked_at` · `created_at` | `user.invite_code_id` → นี่ ON DELETE SET NULL · ไม่มี `user_id` |
-| `auth_throttle` | R1 | `key` PK (`otp-email:<sha256>` / `otp-day:<YYYY-MM-DD>` / `invite-ip:<sha256>` — ADR 0002 ข้อ 3) · `window_started_at` · `count` · `expires_at` | ไม่ผูกผู้ใช้ · ลบด้วย hash ตอนลบบัญชี |
+| `auth_throttle` | R1 | `key` PK (`otp-email:<sha256>` / `otp-day:<YYYY-MM-DD>` / `invite-ip:<sha256>` / `admin-invite:<sha256(userId)>` (R1.5) — ADR 0002 ข้อ 3) · `window_started_at` · `count` · `expires_at` | ไม่ผูกผู้ใช้ · ลบด้วย hash ตอนลบบัญชี |
+| `app_admin` | R1.5 | `user_id` PK (`app_admin_pkey`) · `created_at` (ไม่มี DEFAULT) · ไม่มีคอลัมน์ sync · แอปมีแต่ SELECT — เพิ่ม/ถอนด้วย SQL เท่านั้น (ADR 0007 ข้อ 1) | → `user` CASCADE (`app_admin_user_id_user_id_fk`) |
 | `consent_record` | R1 | `notice_version` · `accepted_at` · `locale` (ไม่มีคอลัมน์ sync) | → `user` CASCADE |
 | `profile` | R1 | PK = `user_id` · `locale` · `weight_unit` `length_unit` `distance_unit` · `theme` · `rest_seconds` (90) · `birth_year` · `height_m/_input/_unit` · `goals` (JSON array) · `experience` · `onboarded_at` · `client_updated_at` | 1:1 `user` CASCADE |
 | `place` | R1 | `name` · `last_used_at` · `archived_at` | → `user` |
@@ -121,3 +122,4 @@ RPE → `set_record.rpe` · drop set → เพิ่มค่าใน `set_kin
 |---|---|---|---|
 | 2026-11-17 | ข้อ 3 แถวตาราง Better Auth: ชื่อ `rate_limit`, ไม่ใช้ CLI, `invite_code_id` มาใน R1 | ให้ตรงกับ migration แรกที่ทำจริงใน R0 (spike S2) | ไม่ |
 | 2026-11-18 | `auth_throttle`: เพิ่มรูปแบบ key `invite-ip:<sha256(ip)>` | `/api/invite/check` ไม่ผ่าน limiter ของ Better Auth ต้องจำกัดต่อ IP เอง (ADR 0002 บันทึกการแก้ไข 2026-11-18) · ไม่เปลี่ยนคอลัมน์ | ไม่ |
+| 2026-11-20 | ข้อ 3: เพิ่มตาราง `app_admin` (R1.5) · `auth_throttle` เพิ่มรูปแบบ key `admin-invite:<sha256(userId)>` · ไม่เพิ่ม `invite_code.created_by` | R1.5 contract D1 ที่ boss อนุมัติ · ADR 0007 · `app_admin` มี `user_id` จึงถูกเกตเทสต์ลบบัญชี (ข้อ 5) ตรวจเอง | ไม่ — ตารางเพิ่มแบบ migration ใหม่ กติกาข้อ 1 คงเดิม |

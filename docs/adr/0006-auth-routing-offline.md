@@ -1,6 +1,6 @@
 # ADR 0006 — การพาไปจอที่ถูกตามสถานะบัญชี และจอยินดีต้อนรับตอนออฟไลน์
 
-- สถานะ: **ยอมรับ** (boss อนุมัติ `R1_AUTH_CONTRACT.md` 2026-11-18 ข้อ D1–D4 รวม D3 รับทราบการเปลี่ยน UX ของ "ฉัน / ตั้งค่า" · โค้ดใช้งานแล้วใน R1) · วันที่ 2026-11-18 · ผู้เขียน: architect
+- สถานะ: **ยอมรับ** (boss อนุมัติ `R1_AUTH_CONTRACT.md` 2026-11-18 ข้อ D1–D4 รวม D3 รับทราบการเปลี่ยน UX ของ "ฉัน / ตั้งค่า" · โค้ดใช้งานแล้วใน R1) · วันที่ 2026-11-18 · ผู้เขียน: architect · **แก้ไข 2026-11-20**: ข้อยกเว้นหน้า `/admin/**` ตาม [ADR 0007](0007-admin-invites.md)
 - ขึ้นกับ: ADR 0002 ข้อ 2, 6, 7 · ADR 0004 ข้อ 8 · ADR 0005 กติกา 1–2 และแก้ไขเพิ่มเติม 2026-11-18
 - ฐานข้อเท็จจริง (เปิดดู 2026-11-18): **[โค้ด]** Next 16.4.6 ใน `node_modules/next/dist` · better-auth 1.7.25 ใน `node_modules/better-auth/dist` · **[ทางการ]** [Next — Linking and Navigating](https://nextjs.org/docs/app/getting-started/linking-and-navigating) (lastUpdated 2026-11-06) · [Vercel — Runtime Logs](https://vercel.com/docs/logs/runtime) (last_updated 2026-08-28)
 
@@ -35,6 +35,7 @@
 | `/privacy` ประกาศความเป็นส่วนตัว | `open` (ไม่มีด่านทั้งสองทาง) | ไม่ | ไม่ |
 | `/consent` · `/onboarding` (2 ขั้นในหน้าเดียว) | `setup` | ใช่ | ไม่ (ต้องออนไลน์อยู่แล้ว) |
 | `/` `/history` `/progress` `/me` (+ หน้าใหม่ของแอปในอนาคต) | `app` | ใช่ | ใช่ (เดิม) |
+| `/admin/invites` (R1.5 · **ข้อยกเว้น** — ADR 0007 ข้อ 4–5) | `app` | ใช่ + หน้าเรียก `requireAdmin()` (query DB) → ไม่ผ่าน `notFound()` | **ไม่** และ SW ไม่เก็บทุก path ใต้ `/admin` |
 | `/styleguide`, not-found, error | `open` | ไม่ | ไม่ |
 
 - **ลิงก์เชิญ = `/welcome#invite=XXXX-XXXX`** (fragment ไม่ถูกส่งถึงเซิร์ฟเวอร์ → ไม่ลง log ของ Vercel และไม่เป็น key ของ cache) · หน้าอ่าน hash ฝั่งไคลเอนต์ เติมช่อง แล้ว `history.replaceState` ลบออก · server component ห้ามรับโค้ดเชิญทาง URL · `scripts/invite.ts` พิมพ์ลิงก์รูปแบบนี้
@@ -51,9 +52,11 @@
 
 ห้ามมี `loading.tsx` หรือ `<Suspense>` ครอบ layout ที่ redirect (เช่น `src/app/loading.tsx`) — จะทำให้ได้ 200 + meta refresh ซึ่ง SW เก็บ · เทสต์ข้อ 6 จับ
 
+**ข้อยกเว้นหน้า `/admin/**` (R1.5 · ADR 0007)**: หน้าแอดมินเป็นหน้าเดียวที่ query DB ตอน render (`requireAdmin()` → `notFound()`) และ HTML ต่างกันตามสิทธิ์ (หน้า vs 404) — ยอมได้เพราะ (1) SW ไม่เก็บ path ใต้ `/admin` เลย จึงไม่มี HTML ของสถานะหนึ่งค้างไปเสิร์ฟอีกสถานะ (2) HTML ไม่มีข้อมูลโค้ด/รายการ (โหลดจาก API) (3) ด่านจริงยังเป็น `requireAdmin()` ที่ API · ห้ามมี `loading.tsx`/`<Suspense>`/`not-found.tsx` ใต้ `(app)` หรือ `admin/` · หน้าอื่นทั้งหมดยังอยู่ใต้กติกาเดิม
+
 ### 3. ตารางตัดสินของ `AuthGate` (ฟังก์ชันบริสุทธิ์ `decideRoute(kind, net, me, hint)` + unit test ครบทุกช่อง)
 
-`GET /api/me`: `401` = ไม่ล็อกอิน · `200 { state: "consent_required" | "onboarding_required" | "ready", user: {...} }` · `Cache-Control: no-store`
+`GET /api/me`: `401` = ไม่ล็อกอิน · `200 { state: "consent_required" | "onboarding_required" | "ready", user: {...}, isAdmin }` (`isAdmin` ตั้งแต่ R1.5 — ใช้แสดงแถวทางเข้าหน้าแอดมินเท่านั้น ไม่ใช่สิทธิ์ · `decideRoute` ไม่อ่าน) · `Cache-Control: no-store`
 
 | ผล `/api/me` | `public` (`/welcome`) | `setup` | `app` |
 |---|---|---|---|
@@ -74,6 +77,7 @@
 - `OFFLINE_PAGES = ["/", "/history", "/progress", "/me", "/welcome"]` · เทสต์เปลี่ยนจาก "ตรงกับแถบล่าง" เป็น "แถบล่างทุกแท็บอยู่ในรายการ + มี `/welcome`"
 - ถอยเมื่อเครือข่ายล้ม: สำเนาของ URL นั้น → `/` → **`/welcome`** → `503 Offline`
 - **ไม่เก็บ navigation ที่ URL มี query** (เช่น `/welcome?error=…`) — URL เดียวกันไม่มี query ถูกเก็บแทนเมื่อเปิดครั้งถัดไป
+- **ไม่เก็บ `/admin` และทุก path ใต้ `/admin/`** (R1.5): `isStorablePageUrl()` คืน false · ไม่อยู่ใน `pagesToStage` · เปิดตอนออฟไลน์แบบโหลดเต็มหน้าได้ fallback ตามลำดับเดิม (`/` → `/welcome` → 503) — frontend ปิดแถวทางเข้าตอนออฟไลน์ (ADR 0007 ข้อ 5)
 - `fetchPage` ของ SW ใช้ `redirect: "manual"` (ไม่ตามไป render `/welcome` ซ้ำ 4 รอบเมื่อออกจากระบบแล้ว) · ผลเหมือนเดิม: redirect ไม่ถูกเก็บ
 - หลังออกจากระบบ: แท็บ `app` ถูก redirect → ไม่ถูกเก็บ · `/welcome` ถูกเก็บ → เปิดแอปออฟไลน์ได้จอยินดีต้อนรับ (แทน 503) · ก่อนล็อกอินครั้งแรก: SW ติดตั้งจาก `/welcome` แล้วเก็บ `/welcome` ทันที
 - ถ้ามีการดึงหน้าที่ค้างอยู่ด้วย cookie เดิมเขียน `/` กลับหลังล้าง cache: ไม่เป็นปัญหา (HTML ไม่มีข้อมูลส่วนตัว และ hint ถูกล้างแล้ว → ออฟไลน์ได้จอยินดีต้อนรับในที่เดิม)
@@ -127,3 +131,4 @@
 | วันที่ | สิ่งที่แก้ | เหตุผล | เปลี่ยนการตัดสินใจไหม |
 |---|---|---|---|
 | 2026-11-19 | บรรทัดสถานะ: เสนอ → **ยอมรับ** · ไม่แก้เนื้อหา | boss อนุมัติ `R1_AUTH_CONTRACT.md` 2026-11-18 (D1–D4, D3 รับทราบการเปลี่ยน UX ของ "ฉัน / ตั้งค่า") และโค้ดใช้งานแล้วใน R1 · secretary ตรวจตามหน้าที่ 2 · ตาราง "สิ่งที่ยังไม่รู้" ยังไม่ปิดแถวใด (รอ Lead/architect) | ไม่ |
+| 2026-11-20 | ข้อ 1 แถว `/admin/invites` · ข้อ 2 ข้อยกเว้นหน้า `/admin/**` (query DB ตอน render + `notFound()`) · ข้อ 4 SW ไม่เก็บ `/admin/**` | R1.5 contract ที่ boss อนุมัติ 2026-11-20 · ADR 0007 | ใช่ บางส่วน — ข้อยกเว้นเฉพาะ `/admin/**` · กติกาเดิมของหน้าอื่นไม่เปลี่ยน |

@@ -1,7 +1,7 @@
 # ARCHITECTURE — แมวอ้วนจะผอม (Fat Cat Fit) v1
 
-> ร่าง 1 · 2026-11-15 · ผู้เขียน: architect · สถานะ: **อนุมัติโดย boss 2026-11-16** พร้อม ADR 0001–0004 · **ร่าง 2 · 2026-11-17**: ปรับให้ตรงกับโค้ดจริงหลัง R0 · **ร่าง 3 · 2026-11-18**: ตาม ADR 0006 และ ADR 0002 ที่แก้ 2026-11-18 (ดูบันทึกการแก้ไขท้ายไฟล์)
-> เอกสารนี้เป็นภาพรวมหน้าเดียว รายละเอียดและเหตุผลอยู่ใน ADR: [0001 ฐานข้อมูล/โฮสต์](../adr/0001-database-and-hosting.md) · [0002 auth](../adr/0002-auth.md) · [0003 โมเดลข้อมูล](../adr/0003-data-model.md) · [0004 ออฟไลน์/sync](../adr/0004-offline-sync.md) · [0005 service worker](../adr/0005-service-worker-tool.md) · [0006 การพาไปจอตามสถานะบัญชี + ยินดีต้อนรับออฟไลน์](../adr/0006-auth-routing-offline.md)
+> ร่าง 1 · 2026-11-15 · ผู้เขียน: architect · สถานะ: **อนุมัติโดย boss 2026-11-16** พร้อม ADR 0001–0004 · **ร่าง 2 · 2026-11-17**: ปรับให้ตรงกับโค้ดจริงหลัง R0 · **ร่าง 3 · 2026-11-18**: ตาม ADR 0006 และ ADR 0002 ที่แก้ 2026-11-18 (ดูบันทึกการแก้ไขท้ายไฟล์) · **ร่าง 4 · 2026-11-20**: หน้าแอดมินออกโค้ดเชิญ (R1.5 · ADR 0007)
+> เอกสารนี้เป็นภาพรวมหน้าเดียว รายละเอียดและเหตุผลอยู่ใน ADR: [0001 ฐานข้อมูล/โฮสต์](../adr/0001-database-and-hosting.md) · [0002 auth](../adr/0002-auth.md) · [0003 โมเดลข้อมูล](../adr/0003-data-model.md) · [0004 ออฟไลน์/sync](../adr/0004-offline-sync.md) · [0005 service worker](../adr/0005-service-worker-tool.md) · [0006 การพาไปจอตามสถานะบัญชี + ยินดีต้อนรับออฟไลน์](../adr/0006-auth-routing-offline.md) · [0007 สิทธิ์แอดมินและหน้าออกโค้ดเชิญ](../adr/0007-admin-invites.md)
 > boss เลือก Neon (Singapore) ตาม ADR 0001 · Vercel function ต้องตั้งภูมิภาค `sin1`
 
 ## 1. แผนภาพส่วนประกอบ
@@ -47,11 +47,28 @@ flowchart LR
 | `(public)` — kind `public` | `/welcome` (โค้ดเชิญ · Google · อีเมล → OTP เป็นขั้นในหน้าเดียว · ลิงก์เชิญ `/welcome#invite=…`) | ไม่ redirect · HTML เหมือนกันทุกสถานะ | ใช่ |
 | `(setup)` — kind `setup` | `/consent` · `/onboarding` | ไม่มี cookie session → 307 `/welcome` | ไม่ |
 | `(app)` — kind `app` (มีแถบล่าง) | `/` `/history` `/progress` `/me` | ไม่มี cookie session → 307 `/welcome` | ใช่ |
+| `(app)` — ข้อยกเว้น (ADR 0007) | `/admin/invites` (R1.5 · แอดมินเท่านั้น · ทางเข้าคือแถวในหน้า "ฉัน" ที่เห็นเมื่อ `/api/me` ตอบ `isAdmin: true`) | ไม่มี cookie → 307 `/welcome` · มี cookie → หน้าเรียก `requireAdmin()` (query DB) ไม่ผ่าน → 404 (`notFound()`) | **ไม่** · SW ไม่เก็บทุก path ใต้ `/admin` |
 | ไม่มีด่าน (`open`) | `/privacy` · `/styleguide` · not-found · error | — | ไม่ |
 
 - เซิร์ฟเวอร์ตรวจแค่ "มี cookie session ไหม" ด้วย `hasSessionCookie()` (`src/lib/auth/session-cookie.ts` ห่อ `getSessionCookie` ของ `better-auth/cookies`) — ไม่ query DB ไม่อ่านข้อมูลจาก session · ห้ามมี `loading.tsx`/Suspense ครอบ layout ที่ redirect (ได้ 200 + meta refresh ที่ SW จะเก็บ)
 - ไคลเอนต์ `AuthGate` (`src/components/auth/**`) รับ `kind` จาก layout เรียก `GET /api/me` แล้วพาไป `/welcome` · `/consent` · `/onboarding` · `/` ตามตาราง `decideRoute` ของ ADR 0006 ข้อ 3 · ออฟไลน์ไม่เปลี่ยนหน้า: hint `fcf:auth = ready` → แสดงหน้า · ไม่มี → จอยินดีต้อนรับแบบออฟไลน์ในที่เดิม (hint อ่าน/เขียนผ่าน `src/pwa/auth-hint.ts`)
 - ออกจากระบบ/ลบบัญชี: เรียกเซิร์ฟเวอร์สำเร็จ → `resetDeviceAfterSignOut()` (`src/pwa`) → `location.replace("/welcome")`
+
+### 1.2 ตารางที่มีในฐานข้อมูลแล้ว (migration `0000`–`0002` · ตารางของรอบถัดไปและคอลัมน์เต็มอยู่ใน ADR 0003 ข้อ 3)
+
+```mermaid
+erDiagram
+  user ||--o{ session : "CASCADE"
+  user ||--o{ account : "CASCADE"
+  user ||--o{ consent_record : "CASCADE"
+  user ||--o| profile : "CASCADE (PK user_id)"
+  user ||--o{ place : "CASCADE"
+  user ||--o{ body_entry : "CASCADE"
+  user ||--o| app_admin : "CASCADE (PK user_id) R1.5"
+  invite_code |o--o{ user : "user.invite_code_id SET NULL"
+```
+
+ไม่ผูกผู้ใช้ด้วย FK: `verification` (OTP · ลบด้วย identifier ตรงตัวตอนลบบัญชี) · `rate_limit` (Better Auth ต่อ IP) · `auth_throttle` (key เป็น hash · ลบ `otp-email:` และ `admin-invite:` ตอนลบบัญชี) · `invite_code` ไม่มี `user_id` · `app_admin` แอปอ่านอย่างเดียว เพิ่ม/ถอนด้วย SQL (ADR 0007)
 
 ## 2. โครงโฟลเดอร์และเจ้าของ (ตรงกับ TEAM.md)
 
@@ -63,10 +80,13 @@ src/
     (public)/welcome/       R1 · จอยินดีต้อนรับ (ข้อ 1.1)
     (setup)/consent/ onboarding/   R1 · layout ตรวจ cookie session
     (app)/                  layout ตรวจ cookie session + แถบล่าง · page.tsx (หน้าหลัก), history/, progress/, me/ (ย้ายจาก R0 ใน R1 — URL ไม่เปลี่ยน)
+      admin/invites/        R1.5 · หน้าแอดมินออกโค้ดเชิญ (เรียก requireAdmin → notFound · ห้าม loading.tsx/not-found.tsx ใต้ (app)/admin)
     privacy/ styleguide/    ไม่มีด่าน
     api/                    platform — route handlers
       health/               R0 · GET /api/health
       auth/[...all]/        Better Auth handler (R1)
+      invite/check/ consent/ onboarding/ me/ cron/daily/   R1
+      admin/invites/        R1.5 · GET/POST · [id]/revoke/ POST (ADR 0007)
     serwist/[path]/         pwa-offline — route.ts สร้าง /serwist/sw.js ตอน build (ADR 0005)
   components/               frontend
     auth/                   R1 · AuthGate, decideRoute, จอยินดีต้อนรับแบบออฟไลน์
@@ -75,13 +95,13 @@ src/
     theme/                  โหมดสว่าง/มืด + ตัวสลับภาษา
     styleguide/             เนื้อหาหน้า /styleguide
     doodle/                 ux-brand — ภาพแมว SVG (Cat.tsx, poses.generated.ts)
-  db/                       platform — client.ts, schema/ (auth.ts, index.ts), sql-helpers.ts, migrations.test.ts
+  db/                       platform — client.ts, schema/ (auth.ts, invite.ts, app.ts, index.ts · R1.5: admin.ts), sql-helpers.ts, migrations.test.ts
     testing/                platform — pglite.ts: ฐานข้อมูลเทสต์ (PGlite + migration จริง) ใช้ใน *.test.ts เท่านั้น
   lib/
-    data/shared/            platform (R1+) — track-types, units, zod schema, ชนิดข้อมูลบนสาย
+    data/shared/            platform (R1+) — track-types, units, zod schema, ชนิดข้อมูลบนสาย · R1.5: admin-invite.ts (zod ของฟอร์มออกโค้ด ใช้ร่วมหน้า/API)
     data/server/            platform — repository (import 'server-only') · R0 มี health.ts
     stats/                  platform (R3+) — สถิติ/PR ฟังก์ชันบริสุทธิ์
-    auth/                   platform — server.ts (R0: createAuth · R1: requireUser, requireConsent), session-cookie.ts (R1 · hasSessionCookie ไม่ import db), client.ts (R1)
+    auth/                   platform — server.ts (R0: createAuth · R1: requireUser, requireConsent), session-cookie.ts (R1 · hasSessionCookie ไม่ import db), client.ts (R1), http.ts (json/handle/assertSameOrigin), throttle.ts, invite-store.ts · R1.5: admin.ts (requireAdmin, isAdmin · server-only)
     email/                  ops-release (R1)
     offline/                pwa-offline (R1 แบบส่งทันที · R3 outbox)
     i18n/                   frontend — config.ts, request.ts (อ่าน cookie), client.ts
@@ -89,7 +109,7 @@ src/
     e2e/                    pwa-offline — s5-offline-check.ts สคริปต์ตรวจออฟไลน์/อัปเดต/ภาษาใน Chromium (รันเอง ไม่อยู่ใน CI)
   test/                     ตัวช่วยของ Vitest (stub `server-only`)
 public/                     manifest.webmanifest (pwa-offline) · icons/ (ux-brand)
-drizzle/                    platform — migration SQL + meta/ (0000_auth_init.sql)
+drizzle/                    platform — migration SQL + meta/ (0000_auth_init.sql · 0001_r1_invite_consent_profile.sql · R1.5: 0002_* ตาราง app_admin)
 content/exercises/          catalog (R2)
 messages/                   frontend — th.json, en.json
 scripts/                    db-migrate.ts (platform) · release.ts, release-lib.ts, release-notes.ts, release-migrate.ts (ops) · export-stickers.mjs, export-icons.mjs, cat-source.mjs (ux-brand) · invite.ts (R1) · seed*.ts (R2) · เทสต์ของ ops: env-example, eslint-boundaries, security-headers
@@ -105,7 +125,7 @@ unit/integration test วางคู่กับไฟล์ (`*.test.ts`) ใ�
 
 | โมดูล | import ได้ | ห้าม import |
 |---|---|---|
-| `src/app/**` (หน้าจอ), `src/components/**` | components, doodle, i18n, `lib/offline`, `lib/data/shared`, `lib/stats`, `lib/auth/client`, `src/pwa/register` (layout), `src/pwa/clear-caches` · `auth-hint` · `resetDeviceAfterSignOut` · `useOnline` (R1) · `lib/auth/session-cookie` (เฉพาะ layout ฝั่งเซิร์ฟเวอร์ของ `(app)`/`(setup)`) | `src/db`, `lib/data/server`, `lib/auth/server`, `lib/email` |
+| `src/app/**` (หน้าจอ), `src/components/**` | components, doodle, i18n, `lib/offline`, `lib/data/shared`, `lib/stats`, `lib/auth/client`, `src/pwa/register` (layout), `src/pwa/clear-caches` · `auth-hint` · `resetDeviceAfterSignOut` · `useOnline` (R1) · `lib/auth/session-cookie` (เฉพาะ layout ฝั่งเซิร์ฟเวอร์ของ `(app)`/`(setup)`) · `lib/auth/admin` (เฉพาะ `src/app/(app)/admin/**/page.tsx` — ข้อตกลง ESLint ไม่ได้บังคับเจาะจง · ADR 0007) | `src/db`, `lib/data/server`, `lib/auth/server`, `lib/email` |
 | `src/lib/offline/**` | `lib/data/shared`, `lib/stats` · คุยกับเซิร์ฟเวอร์ด้วย `fetch` เท่านั้น | ทุกอย่างฝั่งเซิร์ฟเวอร์, React component |
 | `src/app/api/**` | `lib/auth/server`, `lib/data/server`, `lib/data/shared`, `lib/stats`, `lib/email` | `src/db` ตรงๆ (ผ่าน repository) |
 | `src/lib/data/server/**` | `src/db`, `lib/data/shared`, `lib/stats` | `src/app` |
@@ -124,10 +144,13 @@ unit/integration test วางคู่กับไฟล์ (`*.test.ts`) ใ�
 | `GET /serwist/sw.js` | ไฟล์ service worker (สร้างตอน build, `Cache-Control: no-cache, no-store, must-revalidate`) — ไม่ใช่ API แต่ URL นี้ตายตัว (ADR 0005) | — | R0 |
 | `* /api/auth/*` | Better Auth: Google (`callbackURL "/"` · `errorCallbackURL "/welcome"` · `prompt: "select_account"` ตั้งแต่ v0.2.1), email OTP ส่ง/ยืนยัน, sign-out, get-session · ส่ง OTP ผ่านจุดกั้นก่อนส่ง (ADR 0002 ข้อ 2: อีเมลไม่มีบัญชี + ไม่มี `fcf_invite` ที่ active → 200 `{success:true}` เหมือนส่งจริง แต่ไม่ส่งเมล) · rate limit ต่อ IP ด้วย `rateLimit.customRules` · 429 + `X-Retry-After` · เพดานรายวันเต็ม → 503 `email_unavailable` · `user.deleteUser` **ไม่เปิด** | ✓ | R1 |
 | `POST /api/invite/check` | ตรวจโค้ดเชิญ (โค้ดใน body เท่านั้น · ไม่ใช้สิทธิ์) + ตั้ง cookie `fcf_invite` · `ok` / `invalid` · จำกัดต่อ IP ด้วย `auth_throttle` key `invite-ip:` | ✓ | R1 |
-| `GET /api/me` | 401 = ไม่ล็อกอิน · 200 `{ state: "consent_required" \| "onboarding_required" \| "ready", user }` · `Cache-Control: no-store` · ไม่ต้อง consent · AuthGate ใช้ตัดสินจอ (ADR 0006) | — | R1 |
+| `GET /api/me` | 401 = ไม่ล็อกอิน · 200 `{ state: "consent_required" \| "onboarding_required" \| "ready", user, …, isAdmin }` (`isAdmin` R1.5 — แสดงแถวทางเข้าหน้าแอดมินเท่านั้น) · `Cache-Control: no-store` · ไม่ต้อง consent · AuthGate ใช้ตัดสินจอ (ADR 0006) | — | R1 · R1.5 |
 | `POST /api/consent` | บันทึก consent ของ `PRIVACY_NOTICE_VERSION` | ✓ | R1 |
 | `POST /api/onboarding` | profile + place แรก + body_entry แรก ใน transaction เดียว | ✓ | R1 |
-| `DELETE /api/me` | ลบบัญชีและข้อมูลทั้งหมด: ใน transaction เดียว ลบ `verification` ด้วย identifier ตรงตัว `<type>-otp-<email>` (ไม่ใช้ `LIKE`) + `auth_throttle` `otp-email:` → ลบ `user` (cascade) · ล้าง cookie session (ADR 0002 ข้อ 7) | ✓ | R1 |
+| `DELETE /api/me` | ลบบัญชีและข้อมูลทั้งหมด: ใน transaction เดียว ลบ `verification` ด้วย identifier ตรงตัว `<type>-otp-<email>` (ไม่ใช้ `LIKE`) + `auth_throttle` `otp-email:` (+ `admin-invite:` ตั้งแต่ R1.5) → ลบ `user` (cascade รวม `app_admin`) · ล้าง cookie session (ADR 0002 ข้อ 7) | ✓ | R1 |
+| `GET /api/admin/invites` | แอดมิน: รายการโค้ด `{ invites: [{ id, label, status, usesCount, maxUses, expiresAt, createdAt }] }` ใหม่สุดก่อน ≤ 200 แถว · **ไม่มีโค้ด/hash** · ลำดับตรวจ: `requireAdmin` | ✓ | R1.5 |
+| `POST /api/admin/invites` | แอดมิน: ออกโค้ด body `{ label, days, maxUses }` (D3: 1/3/7/14 วัน · 1–10 ครั้ง · ป้าย 1–40 ตัว) → 201 `{ id, code, label, maxUses, expiresAt }` (โค้ดดิบครั้งเดียว) · ลำดับตรวจ: Origin แบบเข้ม → `requireAdmin` → throttle 20/24 ชม. (`admin-invite:`) → body → zod | ✓ | R1.5 |
+| `POST /api/admin/invites/:id/revoke` | แอดมิน: เพิกถอน → `{ result: "revoked" \| "unchanged" }` (ส่งซ้ำได้) · ไม่พบ 404 · ลำดับตรวจ: Origin แบบเข้ม → `requireAdmin` → id เป็น UUID | ✓ | R1.5 |
 | `POST /api/sync/push` | รับรายการจากคิว upsert/delete แบบส่งซ้ำได้ (entity เพิ่มตามรอบ: R1 profile, place, body_entry · R2 exercise · R3 session/exercise/set · R4 template, body_measurement) | — | R1 → R4 |
 | `GET /api/bootstrap` | snapshot ของผู้ใช้ (ส่วนเพิ่มตามรอบ: สถิติดีสุด/ค่าครั้งก่อนต่อท่า ตั้งแต่ R3) | — | R1 → R4 |
 | `GET /api/catalog` | คลังท่ากลาง + `catalog_version` (ETag) | — | R2 |
@@ -138,7 +161,9 @@ unit/integration test วางคู่กับไฟล์ (`*.test.ts`) ใ�
 | `GET /api/export` | ไฟล์ CSV ทุกตารางของผู้ใช้ (รูปแบบไฟล์ใน contract R5) | ✓ | R5 |
 | `GET /api/cron/daily` | ล้าง OTP/rate limit/throttle หมดอายุ (ตรวจ secret ของ cron) | — | R1 |
 
-ทุก endpoint ข้อมูล: ตอบ JSON · เวลาเป็น ISO-8601 UTC · ข้อผิดพลาดรูปแบบ `{ error: { code, message } }` · code คงที่ให้ UI แปลด้วย next-intl · มีเทสต์ "ผู้ใช้ A อ่าน/แก้ของ B ไม่ได้" (เกตสิทธิ์ข้อมูล)
+ทุก endpoint ข้อมูล: ตอบ JSON · `Cache-Control: no-store` (`json()` ใน `src/lib/auth/http.ts`) · เวลาเป็น ISO-8601 UTC · ข้อผิดพลาดรูปแบบ `{ code, ...extra }` (`HttpError` ใน `src/lib/data/shared/http-error.ts` — ไม่มีข้อความภาษามนุษย์) · code คงที่ให้ UI แปลด้วย next-intl · มีเทสต์ "ผู้ใช้ A อ่าน/แก้ของ B ไม่ได้" (เกตสิทธิ์ข้อมูล) · คำขอที่เปลี่ยนข้อมูลผ่าน `assertSameOrigin()` (API แอดมินใช้แบบเข้ม: ต้องมี `Origin`)
+
+**API แอดมิน (`/api/admin/**` · ADR 0007)**: ไม่ผ่าน `requireAdmin()` ทุกกรณี (ไม่มี session / หมดอายุ / ไม่ใช่แอดมิน / method ที่ไม่มี) → 404 `{ code: "not_found" }` เหมือนกันทุกไบต์ · ตรวจสิทธิ์ก่อนอ่าน body เสมอ · ไม่เรียก `requireConsent()` · สิทธิ์อ่านจากตาราง `app_admin` ทุกคำขอ (ไม่ cache) · ไม่มี API ใดเขียน `app_admin`
 
 R1 ยังไม่มีคิวเต็มรูป (คิวเป็นงาน R3): การเขียนของ R1–R2 เรียก `/api/sync/push` ผ่านฟังก์ชันใน `src/lib/offline` ที่ส่งทันทีและแจ้งข้อผิดพลาด แล้ว R3 เปลี่ยนไส้ในเป็น outbox โดยหน้าจอไม่ต้องแก้
 
@@ -200,3 +225,5 @@ R1 ยังไม่มีคิวเต็มรูป (คิวเป็น
 |---|---|---|
 | 2026-11-17 | แผนภาพ SW · หลักการ render · โครงโฟลเดอร์จริง · ขอบเขตโมดูลของ `src/pwa` และ `src/db/testing` · `/serwist/sw.js` ในตาราง API · env (`DATABASE_URL_UNPOOLED` ใช้จริง, เพิ่ม `MIGRATE_ON_DEPLOY`, `S5_CHANNEL`, cookie `NEXT_LOCALE`) · รุ่นแพ็กเกจที่ติดตั้ง · ตารางสภาพแวดล้อม | ให้ตรงกับโค้ดหลัง R0 และผล spike S1 S2 S4 S5 S6 · ไม่เปลี่ยนการตัดสินใจนอกจากที่บันทึกใน ADR 0001, 0004, 0005 |
 | 2026-11-18 | เพิ่มข้อ 1.1 (จอ · route group `(public)` `(setup)` `(app)` · ใครตรวจอะไร · ไม่ใช้ `proxy.ts`) · แผนภาพ SW (ถอยไป `/welcome`) · โครงโฟลเดอร์ R1 (`(public)/welcome`, `(setup)`, `(app)`, `components/auth`, `lib/auth/session-cookie.ts`, ไฟล์ใหม่ใน `src/pwa`) · ขอบเขตโมดูลของหน้าจอ · ตาราง API (`/api/me` รูปคำตอบ, จุดกั้น OTP, `customRules`, `X-Retry-After`, `email_unavailable` 503, `POST /api/onboarding`, วิธีลบ `verification`, invite จำกัดด้วย `auth_throttle`) · env: ลบ `TRUSTED_IP_HEADER`, Gmail host/port ยืนยันแล้ว | ADR 0006 และ ADR 0002 แก้ไข 2026-11-18 · ไม่มีการตัดสินใจใหม่ในไฟล์นี้ |
+| 2026-11-20 | ข้อ 1.1 แถว `/admin/invites` · เพิ่มข้อ 1.2 ตารางที่มีจริง + ความสัมพันธ์ (รวม `app_admin`) · โครงโฟลเดอร์ (`admin/` ทั้งหน้าและ API, `lib/auth/admin.ts`, `data/shared/admin-invite.ts`, `schema/admin.ts`, migration `0001`/`0002`, route ของ R1 ที่ตกหล่น) · ขอบเขตโมดูล (`lib/auth/admin` ให้หน้าแอดมิน) · ตาราง API 3 เส้นทางแอดมิน + `isAdmin` + ลบ key `admin-invite:` · **แก้รูปข้อผิดพลาดให้ตรงโค้ด** `{ code, ...extra }` (เดิมเขียน `{ error: { code, message } }` ซึ่งไม่เคยตรงกับ `HttpError`) | ADR 0007 (R1.5 contract ที่ boss อนุมัติ 2026-11-20) · ตรวจกับโค้ด `src/lib/auth/http.ts` `src/lib/data/shared/http-error.ts` · ไม่มีการตัดสินใจใหม่ในไฟล์นี้ |
+
