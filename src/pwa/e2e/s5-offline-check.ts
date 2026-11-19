@@ -7,8 +7,10 @@
 //   npx tsx src/pwa/e2e/s5-offline-check.ts locale    # เปลี่ยนภาษาแล้วออฟไลน์ ต้องได้ภาษาที่เลือกล่าสุด
 //   npx tsx src/pwa/e2e/s5-offline-check.ts auth      # ADR 0006: /welcome ออฟไลน์ · ไม่เก็บ query/redirect · ออกจากระบบ
 //
-// เซิร์ฟเวอร์: proxy ที่พอร์ต 3102 (ใส่ CSP ของ ops + เปลี่ยน <html lang> ตาม cookie NEXT_LOCALE)
-//            หน้า next start ที่พอร์ต 31021
+// เซิร์ฟเวอร์: proxy ที่พอร์ต 3102 (ใส่ CSP ของ ops + เปลี่ยน <html lang> ตาม cookie NEXT_LOCALE + ตอบ /api/me แทน)
+//            หน้า next start ที่พอร์ต 31021 — หน้าและการ redirect ทั้งหมดมาจากแอปจริง (layout ของ R1, ADR 0006)
+// "ล็อกอิน" = มี cookie ชื่อ session ของ better-auth (ค่าปลอม): layout จริงตรวจแค่ว่ามี cookie (hasSessionCookie)
+//            ส่วน /api/me ที่ AuthGate ถาม proxy ตอบเอง → สคริปต์ไม่แตะฐานข้อมูล (.env.local) และไม่ต้องมีบัญชีจริง
 // ตัวเลือก: --inject  ใส่ <link rel=manifest> และเรียก register แบบเดียวกับ <ServiceWorkerRegister />
 //                    (ใช้เมื่อ layout ยังไม่ได้ใส่ component — R0 ระหว่างทำขนาน)
 // ใช้พอร์ต 3102 และโปรไฟล์เบราว์เซอร์ใน os.tmpdir()/fcf-s5-profile (เก็บ SW/cache ข้ามการเปิด)
@@ -21,16 +23,31 @@ import path from "node:path";
 
 const PORT = 3102;
 const INTERNAL_PORT = 31021;
-const APP_ROUTES = ["/history", "/progress", "/me", "/styleguide"];
 const ORIGIN = `http://localhost:${PORT}`;
 const PROFILE = path.join(os.tmpdir(), "fcf-s5-profile");
 const STATE = path.join(os.tmpdir(), "fcf-s5-state.json");
 const phase = process.argv[2];
-/** เฟส auth: proxy จำลองเซิร์ฟเวอร์ของ ADR 0006 ข้อ 2 (หน้าของ frontend ยังไม่อยู่ใน branch นี้) */
 const AUTH_MODE = phase === "auth";
-const S5_SESSION_COOKIE = "fcf_s5_session";
-const AUTH_APP_ROUTES = ["/", "/history", "/progress", "/me"];
-const hasS5Session = (cookie: string | undefined) => (cookie ?? "").split(/;\s*/).includes(`${S5_SESSION_COOKIE}=1`);
+/**
+ * ชื่อ cookie session ที่ getSessionCookie ของ better-auth อ่าน (prefix "better-auth" ค่าเริ่มต้น · localhost ไม่มี __Secure-)
+ * ค่าเป็นของปลอม: layout ของ (app)/(setup) ตรวจแค่ว่ามี cookie ไม่ตรวจความถูกต้อง (ADR 0006 ข้อ 2)
+ */
+const S5_SESSION_COOKIE = "better-auth.session_token";
+const S5_SESSION_VALUE = "s5-fake-session";
+const hasS5Session = (cookie: string | undefined) =>
+  (cookie ?? "").split(/;\s*/).includes(`${S5_SESSION_COOKIE}=${S5_SESSION_VALUE}`);
+/** คำตอบ /api/me ของผู้ใช้ที่ล็อกอินครบ (ADR 0006 ข้อ 3: state "ready") — ข้อมูลสมมติ */
+const S5_ME_READY = {
+  state: "ready",
+  noticeVersion: "s5",
+  user: { id: "s5-user", email: "s5@example.com", name: "S5 Cat" },
+  consent: { accepted: true, acceptedAt: "2026-01-01T00:00:00.000Z" },
+  profile: { locale: "th", weightUnit: "kg", lengthUnit: "cm", distanceUnit: "km" },
+};
+/** เฟสที่ไม่ใช่ auth ทดสอบในฐานะผู้ใช้ที่ล็อกอินอยู่ (แท็บของแอป 307 ไป /welcome เมื่อไม่มี cookie ตั้งแต่ R1) */
+async function signIn(ctx: BrowserContext) {
+  await ctx.addCookies([{ name: S5_SESSION_COOKIE, value: S5_SESSION_VALUE, url: ORIGIN }]);
+}
 const inject = process.argv.includes("--inject");
 
 type Result = { name: string; ok: boolean; detail: string };
@@ -53,8 +70,9 @@ type Server = { next: ChildProcess; proxy: http.Server };
 /**
  * next start อยู่ที่ INTERNAL_PORT และ proxy ที่ PORT ซึ่ง:
  * - ใส่ CSP ของ ops ให้ทุกคำตอบ
- * - จำลอง next-intl ของ frontend (ยังไม่รวมใน branch นี้): เปลี่ยน <html lang> ของ HTML ตาม cookie NEXT_LOCALE
- *   → HTML ของ URL เดียวกันต่างกันตามภาษา เหมือนหน้า dynamic จริง
+ * - ตั้ง <html lang> ของ HTML ตาม cookie NEXT_LOCALE (ให้ผลเหมือน next-intl แน่นอน ไม่ขึ้นกับ Accept-Language)
+ * - ตอบ GET /api/me เอง: มี cookie session ของสคริปต์ → 200 ready · ไม่มี → 401 (ไม่ส่งต่อไปแอป = ไม่แตะฐานข้อมูล)
+ * - ไม่แตะเส้นทาง: redirect 307 ไป /welcome มาจาก layout จริง (ADR 0006 ข้อ 2)
  */
 async function startServer(): Promise<Server> {
   const next = spawn(process.execPath, [path.join("node_modules", "next", "dist", "bin", "next"), "start", "-p", String(INTERNAL_PORT)], {
@@ -64,16 +82,13 @@ async function startServer(): Promise<Server> {
   const proxy = http.createServer((req, res) => {
     const headers = { ...req.headers, host: `localhost:${INTERNAL_PORT}`, "accept-encoding": "identity" };
     const reqPath = (req.url ?? "/").split("?")[0];
-    // เฟส auth: ไม่มี cookie session → แท็บของแอป 307 ไป /welcome (layout ของ (app)) · /welcome ไม่ redirect
-    if (AUTH_MODE && AUTH_APP_ROUTES.includes(reqPath) && !hasS5Session(req.headers.cookie)) {
-      res.writeHead(307, { Location: "/welcome", "Cache-Control": "no-store", "content-security-policy": OPS_CSP });
-      res.end();
+    if (reqPath === "/api/me" && req.method === "GET") {
+      const signedIn = hasS5Session(req.headers.cookie);
+      res.writeHead(signedIn ? 200 : 401, { "Content-Type": "application/json", "Cache-Control": "no-store", "content-security-policy": OPS_CSP });
+      res.end(JSON.stringify(signedIn ? S5_ME_READY : { error: "unauthorized" }));
       return;
     }
-    // หน้าของ frontend ยังไม่อยู่ใน branch นี้ → ให้ /history /progress /me /styleguide (/welcome) ตอบด้วยหน้า "/" (200)
-    const stubbed = APP_ROUTES.includes(reqPath) || (AUTH_MODE && reqPath === "/welcome");
-    const upstreamPath = stubbed ? "/" : req.url;
-    const upstream = http.request({ host: "127.0.0.1", port: INTERNAL_PORT, path: upstreamPath, method: req.method, headers }, (up) => {
+    const upstream = http.request({ host: "127.0.0.1", port: INTERNAL_PORT, path: req.url, method: req.method, headers }, (up) => {
       const outHeaders = { ...up.headers, "content-security-policy": OPS_CSP };
       const isHtml = String(up.headers["content-type"] ?? "").includes("text/html");
       if (!isHtml) {
@@ -127,11 +142,14 @@ async function stopServer(server: Server) {
 
 async function openApp(): Promise<BrowserContext> {
   // S5_CHANNEL=chrome|msedge ใช้เบราว์เซอร์ที่ติดตั้งในเครื่องแทน Chromium ของ Playwright
-  return chromium.launchPersistentContext(PROFILE, {
+  const ctx = await chromium.launchPersistentContext(PROFILE, {
     headless: true,
     serviceWorkers: "allow",
     channel: process.env.S5_CHANNEL || undefined,
   });
+  // cookie session ของสคริปต์ไม่มีวันหมดอายุ → หายเมื่อปิดเบราว์เซอร์ จึงใส่ใหม่ทุกครั้งที่เปิด (ยกเว้นเฟส auth ที่คุมเอง)
+  if (!AUTH_MODE) await signIn(ctx);
+  return ctx;
 }
 
 /** ทำแบบเดียวกับ src/pwa/register.tsx */
@@ -481,6 +499,19 @@ async function phaseAuth() {
   let server = await startServer();
   let ctx = await openApp();
   try {
+    // 0) เส้นทางของเซิร์ฟเวอร์จริง (layout ของ R1 · ADR 0006 ข้อ 2 · เกณฑ์ 1) — ไม่ผ่าน SW ไม่ตาม redirect
+    const sessionCookie = `${S5_SESSION_COOKIE}=${S5_SESSION_VALUE}`;
+    for (const p of ["/", "/history", "/progress", "/me", "/consent", "/onboarding"]) {
+      const r0 = await fetch(ORIGIN + p, { redirect: "manual" });
+      check(`auth: server, no cookie: GET ${p} → 307 /welcome`, r0.status === 307 && r0.headers.get("location") === "/welcome", `status ${r0.status} location ${r0.headers.get("location")}`);
+      const r1 = await fetch(ORIGIN + p, { redirect: "manual", headers: { cookie: sessionCookie } });
+      check(`auth: server, with cookie: GET ${p} → 200`, r1.status === 200, `status ${r1.status}`);
+    }
+    for (const cookie of [undefined, sessionCookie]) {
+      const r2 = await fetch(ORIGIN + "/welcome", { redirect: "manual", headers: cookie ? { cookie } : {} });
+      check(`auth: server: GET /welcome ${cookie ? "with" : "without"} cookie → 200`, r2.status === 200, `status ${r2.status}`);
+    }
+
     // 1) ยังไม่ล็อกอิน: SW ติดตั้งจาก /welcome · แท็บของแอปถูก redirect → ไม่ถูกเก็บ
     let page = ctx.pages()[0] ?? (await ctx.newPage());
     const first = await page.goto(ORIGIN + "/welcome");
@@ -512,7 +543,7 @@ async function phaseAuth() {
     // 4) ล็อกอิน → ทุกแท็บถูกเก็บ
     server = await startServer();
     ctx = await openApp();
-    await ctx.addCookies([{ name: S5_SESSION_COOKIE, value: "1", url: ORIGIN }]);
+    await signIn(ctx);
     page = ctx.pages()[0] ?? (await ctx.newPage());
     await page.goto(ORIGIN + "/");
     await waitForController(page);
