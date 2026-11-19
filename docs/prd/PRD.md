@@ -132,4 +132,4 @@ Next.js (App Router) + TypeScript · Drizzle + Postgres บน Neon (Singapore) 
 
 1. ชื่อแมว
 2. แมวผอมลงตามน้ำหนักผู้ใช้หรือไม่ (ข้อเสนอ: อ้วนเท่าเดิมเสมอ เปลี่ยนแค่ท่าทาง)
-3. boss ต้องสร้างเองก่อน R1: บัญชี Gmail ของแอป · Google OAuth client · บัญชี Vercel (บัญชี Neon สร้างแล้ว)
+3. boss ต้องสร้างเองก่อน R1: บัญชี Gmail ของแอป · Google OAuth client · บัญชี Vercel (บัญชี Neon สร้างแล้ว) — เสร็จแล้วก่อนปิด R1 (2026-11-19)
