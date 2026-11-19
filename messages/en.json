@@ -342,6 +342,7 @@
           "Health data (sensitive): weight, height and birth year from the questionnaire, workout places, goals, experience, and the workout history you'll log in later versions — kept until you delete your account",
           "Settings: units, language, theme, rest time — kept until you delete your account",
           "Consent record: time, notice version and language — kept until you delete your account",
+          "Invite code used to sign up, and the label an admin gave that code (a nickname, visible only to admins and never shown to other users) — kept until you delete your account; when you delete your account, that code's label is cleared",
           "Sign-in: the sign-in in your browser lasts 90 days",
           "On your own device: language, theme, and a mark that you've signed in before — stays in your browser, sent nowhere"
         ],
