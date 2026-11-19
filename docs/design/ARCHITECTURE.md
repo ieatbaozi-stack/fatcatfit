@@ -122,7 +122,7 @@ unit/integration test วางคู่กับไฟล์ (`*.test.ts`) ใ�
 |---|---|---|---|
 | `GET /api/health` | ตรวจแอป + query ฐานข้อมูล 1 ครั้ง · 200 `{ok:true}` / 503 `{ok:false}` | — | R0 |
 | `GET /serwist/sw.js` | ไฟล์ service worker (สร้างตอน build, `Cache-Control: no-cache, no-store, must-revalidate`) — ไม่ใช่ API แต่ URL นี้ตายตัว (ADR 0005) | — | R0 |
-| `* /api/auth/*` | Better Auth: Google (`callbackURL "/"` · `errorCallbackURL "/welcome"`), email OTP ส่ง/ยืนยัน, sign-out, get-session · ส่ง OTP ผ่านจุดกั้นก่อนส่ง (ADR 0002 ข้อ 2: อีเมลไม่มีบัญชี + ไม่มี `fcf_invite` ที่ active → 200 `{success:true}` เหมือนส่งจริง แต่ไม่ส่งเมล) · rate limit ต่อ IP ด้วย `rateLimit.customRules` · 429 + `X-Retry-After` · เพดานรายวันเต็ม → 503 `email_unavailable` · `user.deleteUser` **ไม่เปิด** | ✓ | R1 |
+| `* /api/auth/*` | Better Auth: Google (`callbackURL "/"` · `errorCallbackURL "/welcome"` · `prompt: "select_account"` ตั้งแต่ v0.2.1), email OTP ส่ง/ยืนยัน, sign-out, get-session · ส่ง OTP ผ่านจุดกั้นก่อนส่ง (ADR 0002 ข้อ 2: อีเมลไม่มีบัญชี + ไม่มี `fcf_invite` ที่ active → 200 `{success:true}` เหมือนส่งจริง แต่ไม่ส่งเมล) · rate limit ต่อ IP ด้วย `rateLimit.customRules` · 429 + `X-Retry-After` · เพดานรายวันเต็ม → 503 `email_unavailable` · `user.deleteUser` **ไม่เปิด** | ✓ | R1 |
 | `POST /api/invite/check` | ตรวจโค้ดเชิญ (โค้ดใน body เท่านั้น · ไม่ใช้สิทธิ์) + ตั้ง cookie `fcf_invite` · `ok` / `invalid` · จำกัดต่อ IP ด้วย `auth_throttle` key `invite-ip:` | ✓ | R1 |
 | `GET /api/me` | 401 = ไม่ล็อกอิน · 200 `{ state: "consent_required" \| "onboarding_required" \| "ready", user }` · `Cache-Control: no-store` · ไม่ต้อง consent · AuthGate ใช้ตัดสินจอ (ADR 0006) | — | R1 |
 | `POST /api/consent` | บันทึก consent ของ `PRIVACY_NOTICE_VERSION` | ✓ | R1 |
