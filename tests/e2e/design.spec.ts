@@ -195,12 +195,29 @@ test.describe("การเคลื่อนไหว", () => {
     const seen = new Set<string>();
     for (let i = 0; i < 8; i++) {
       seen.add(
+        // ชั้นที่เห็น: 0 = ภาพนิ่ง · 1..5 = เฟรมในแผ่น sprite ที่ visible และอยู่ในกรอบ clip ของชั้นขยับ (Cat.tsx)
         await page.evaluate(() => {
           const svg = document.querySelector("main svg[data-pose]")!;
-          return Array.from(svg.querySelectorAll(":scope > g"))
-            .map((g, k) => (getComputedStyle(g).visibility === "visible" ? k : null))
-            .filter((k) => k !== null)
-            .join(",");
+          const shown = (el: Element) => getComputedStyle(el).visibility === "visible";
+          const out: number[] = [];
+          const still = svg.querySelector(":scope > g:not(.fcf-cat-motion)");
+          if (still && shown(still)) out.push(0);
+          const motion = svg.querySelector<SVGGElement>(":scope > .fcf-cat-motion");
+          const clipId = /url\("?#([^")]+)"?\)/.exec(motion ? getComputedStyle(motion).clipPath : "")?.[1];
+          const rect = clipId ? svg.querySelector<SVGRectElement>(`clipPath[id="${clipId}"] > rect`) : null;
+          const ctm = motion?.getScreenCTM();
+          let win = { l: -Infinity, t: -Infinity, r: Infinity, b: Infinity };
+          if (rect && ctm) {
+            const { x, y, width, height } = rect.getBBox();
+            const p = new DOMPoint(x, y).matrixTransform(ctm);
+            const q = new DOMPoint(x + width, y + height).matrixTransform(ctm);
+            win = { l: Math.min(p.x, q.x), t: Math.min(p.y, q.y), r: Math.max(p.x, q.x), b: Math.max(p.y, q.y) };
+          }
+          svg.querySelectorAll(".fcf-cat-frame").forEach((f, k) => {
+            const r = f.getBoundingClientRect();
+            if (shown(f) && r.right > win.l && r.left < win.r && r.bottom > win.t && r.top < win.b) out.push(k + 1);
+          });
+          return out.join(",");
         }),
       );
       await page.waitForTimeout(110);
