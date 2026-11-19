@@ -1,7 +1,7 @@
 // logic ล้วนของแบบสอบถามเริ่มต้น (UX E1 ข้อ 3) — ค่าอยู่ในหน่วยความจำ ส่งครั้งเดียวตอน "เริ่มใช้"
 // ช่วงค่าและ schema มาจาก src/lib/data/shared/onboarding.ts (ที่เดียวกับเซิร์ฟเวอร์) — ไม่ประกาศตัวเลขซ้ำ
 
-import { EXPERIENCES, GOALS, ONBOARDING_LIMITS, type Experience, type Goal } from "@/lib/data/shared/onboarding";
+import { EXPERIENCES, GOALS, MIN_AGE, ONBOARDING_LIMITS, type Experience, type Goal } from "@/lib/data/shared/onboarding";
 import { heightToMeters, KG_PER_LB, M_PER_IN, weightToKg } from "@/lib/data/shared/units";
 
 export type UnitSet = "metric" | "imperial";
@@ -33,11 +33,9 @@ export const EMPTY_DRAFT: Draft = {
 
 export type FieldKey = "weight" | "height" | "birthYear" | "placeName";
 export type FieldIssue = "required" | "invalid" | "out_of_range";
-/** อายุขั้นต่ำ 20 (boss 2026-11-19) — สลับไปใช้ MIN_AGE จาก shared/onboarding เมื่อ platform ส่งแล้ว */
-export const MIN_AGE_UI = 20;
-/** ปีเกิดที่อายุไม่ถึงขั้นต่ำ (ปีมากเกิน = อายุไม่ถึง) */
+/** ปีเกิดที่อายุไม่ถึง MIN_AGE (ปีมากเกิน = อายุไม่ถึง) · รับ now เพื่อเทสต์ได้ ค่าเท่ากับ ONBOARDING_LIMITS.birthYearMax */
 export function isTooYoung(birthYear: number, now: Date): boolean {
-  return now.getFullYear() - birthYear < MIN_AGE_UI;
+  return now.getFullYear() - birthYear < MIN_AGE;
 }
 export type FieldIssues = Partial<Record<FieldKey, FieldIssue>>;
 
