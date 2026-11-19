@@ -11,7 +11,8 @@ const label = z
   .string()
   .transform((s) => s.trim())
   .refine((s) => [...s].length >= 1 && [...s].length <= ADMIN_INVITE_LABEL_MAX)
-  .refine((s) => !/\p{Cc}/u.test(s));
+  // ห้ามอักขระควบคุม (Cc) อักขระจัดรูปแบบ (Cf เช่น bidi/zero-width/ZWJ) และตัวคั่นบรรทัด/ย่อหน้า (U+2028/2029)
+  .refine((s) => !/[\p{Cc}\p{Cf}\u2028\u2029]/u.test(s));
 
 export const adminInviteInputSchema = z
   .object({

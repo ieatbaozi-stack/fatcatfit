@@ -13,7 +13,19 @@ describe("adminInviteInputSchema", () => {
     [{ label: "a\tb", days: 7, maxUses: 1 }],
     [{ label: "a\u0085b", days: 7, maxUses: 1 }],
     [{ label: "a", days: 7, maxUses: 1, x: 1 }],
+    [{ label: "a\u202eb", days: 7, maxUses: 1 }],
+    [{ label: "\u200b", days: 7, maxUses: 1 }],
+    [{ label: "\u200b\u200b", days: 7, maxUses: 1 }],
+    [{ label: "a\u2066b", days: 7, maxUses: 1 }],
+    [{ label: "a\u2069b", days: 7, maxUses: 1 }],
+    [{ label: "a\u2028b", days: 7, maxUses: 1 }],
+    [{ label: "a\u2029b", days: 7, maxUses: 1 }],
+    // ZWJ (U+200D) เป็น Cf: ตัดสินใจไม่รองรับ emoji แบบ ZWJ sequence ในป้าย
+    [{ label: "👨\u200d👩\u200d👧", days: 7, maxUses: 1 }],
   ])("ปฏิเสธ %j", (input) => {
     expect(adminInviteInputSchema.safeParse(input).success).toBe(false);
+  });
+  it.each(["พี่แมว", "น้ำหนัก ก๊อก", "เพื่อน 🐱", "ทีม 💪 A", "❤️ ok"])("ยอมรับ %s", (label) => {
+    expect(adminInviteInputSchema.safeParse({ label, days: 7, maxUses: 1 }).success).toBe(true);
   });
 });
