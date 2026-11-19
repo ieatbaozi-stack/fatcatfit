@@ -401,11 +401,11 @@ cron `/api/cron/daily` (ตั้งใน `vercel.json` รันวันล�
 - PowerShell: วางทั้งบล็อกแล้วกด Enter — ค่าอยู่ในคลิปบอร์ด ไม่พิมพ์บนจอ
 
 ```powershell
-$c = [char[]](48..57 + 65..90 + 97..122)
--join (1..40 | ForEach-Object { $c | Get-Random }) | Set-Clipboard
+$b = [byte[]]::new(30); [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b)
+[Convert]::ToBase64String($b).Replace("+","A").Replace("/","B").TrimEnd("=") | Set-Clipboard
 ```
 
-`Get-Random` ไม่ใช่ตัวสุ่มระดับเข้ารหัส แต่ค่ายาว 40 ตัวและใช้แค่กันคนนอกเรียก endpoint ล้างข้อมูลหมดอายุ (ไม่มีข้อมูลผู้ใช้ให้อ่านผ่าน endpoint นี้) จึงเพียงพอ
+ใช้ตัวสุ่มระดับเข้ารหัสของ Windows ได้ค่าตัวอักษร/ตัวเลขยาว 40 ตัว
 
 **ใส่บน Vercel:** Settings → Environment Variables → **Add** → ชื่อ `CRON_SECRET` → วางค่า → environment **Production เท่านั้น** → ติ๊ก Sensitive → **Save** → **Redeploy** (Deployments → deployment ล่าสุด → เมนูจุดสามจุด → Redeploy) · **ห้าม** ลงใน repo หรือแชท · เปลี่ยนค่าภายหลังทำแบบเดียวกัน (ต้อง Redeploy ทุกครั้ง)
 
