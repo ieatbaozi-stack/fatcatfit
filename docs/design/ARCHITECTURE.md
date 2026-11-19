@@ -47,10 +47,10 @@ flowchart LR
 | `(public)` — kind `public` | `/welcome` (โค้ดเชิญ · Google · อีเมล → OTP เป็นขั้นในหน้าเดียว · ลิงก์เชิญ `/welcome#invite=…`) | ไม่ redirect · HTML เหมือนกันทุกสถานะ | ใช่ |
 | `(setup)` — kind `setup` | `/consent` · `/onboarding` | ไม่มี cookie session → 307 `/welcome` | ไม่ |
 | `(app)` — kind `app` (มีแถบล่าง) | `/` `/history` `/progress` `/me` | ไม่มี cookie session → 307 `/welcome` | ใช่ |
-| `(app)` — ข้อยกเว้น (ADR 0007) | `/admin/invites` (R1.5 · แอดมินเท่านั้น · ทางเข้าคือแถวในหน้า "ฉัน" ที่เห็นเมื่อ `/api/me` ตอบ `isAdmin: true`) | ไม่มี cookie → 307 `/welcome` · มี cookie → หน้าเรียก `requireAdmin()` (query DB) ไม่ผ่าน → 404 (`notFound()`) | **ไม่** · SW ไม่เก็บทุก path ใต้ `/admin` |
+| `(admin)` — kind `app` (ไม่มีแถบล่าง · ข้อยกเว้น ADR 0007) | `/admin/invites` (R1.5 · แอดมินเท่านั้น · ทางเข้าคือแถวในหน้า "ฉัน" ที่เห็นเมื่อ `/api/me` ตอบ `isAdmin: true`) | ไม่มี cookie → 307 `/welcome` · มี cookie → หน้าเรียก `requireAdmin()` (query DB) ไม่ผ่าน → 404 (`notFound()` · Next 16 ตอบ error shell แล้ววาด 404 ใน layout ของกลุ่ม จึงแยกกลุ่มไม่ให้มีแถบล่าง) | **ไม่** · SW ไม่เก็บทุก path ใต้ `/admin` |
 | ไม่มีด่าน (`open`) | `/privacy` · `/styleguide` · not-found · error | — | ไม่ |
 
-- เซิร์ฟเวอร์ตรวจแค่ "มี cookie session ไหม" ด้วย `hasSessionCookie()` (`src/lib/auth/session-cookie.ts` ห่อ `getSessionCookie` ของ `better-auth/cookies`) — ไม่ query DB ไม่อ่านข้อมูลจาก session · ห้ามมี `loading.tsx`/Suspense ครอบ layout ที่ redirect (ได้ 200 + meta refresh ที่ SW จะเก็บ)
+- เซิร์ฟเวอร์ตรวจแค่ "มี cookie session ไหม" ด้วย `hasSessionCookie()` (`src/lib/auth/session-cookie.ts` ห่อ `getSessionCookie` ของ `better-auth/cookies`) — ไม่ query DB ไม่อ่านข้อมูลจาก session · ห้ามมี `loading.tsx`/Suspense ครอบ layout ที่ redirect (ได้ 200 + meta refresh ที่ SW จะเก็บ) — root `(app)` `(setup)` `(admin)` · `(admin)` ห้าม `not-found.tsx` ด้วย
 - ไคลเอนต์ `AuthGate` (`src/components/auth/**`) รับ `kind` จาก layout เรียก `GET /api/me` แล้วพาไป `/welcome` · `/consent` · `/onboarding` · `/` ตามตาราง `decideRoute` ของ ADR 0006 ข้อ 3 · ออฟไลน์ไม่เปลี่ยนหน้า: hint `fcf:auth = ready` → แสดงหน้า · ไม่มี → จอยินดีต้อนรับแบบออฟไลน์ในที่เดิม (hint อ่าน/เขียนผ่าน `src/pwa/auth-hint.ts`)
 - ออกจากระบบ/ลบบัญชี: เรียกเซิร์ฟเวอร์สำเร็จ → `resetDeviceAfterSignOut()` (`src/pwa`) → `location.replace("/welcome")`
 
@@ -80,7 +80,8 @@ src/
     (public)/welcome/       R1 · จอยินดีต้อนรับ (ข้อ 1.1)
     (setup)/consent/ onboarding/   R1 · layout ตรวจ cookie session
     (app)/                  layout ตรวจ cookie session + แถบล่าง · page.tsx (หน้าหลัก), history/, progress/, me/ (ย้ายจาก R0 ใน R1 — URL ไม่เปลี่ยน)
-      admin/invites/        R1.5 · หน้าแอดมินออกโค้ดเชิญ (เรียก requireAdmin → notFound · ห้าม loading.tsx/not-found.tsx ใต้ (app)/admin)
+    (admin)/                R1.5 · layout ตรวจ cookie session + AuthGate kind app · ไม่มีแถบล่าง · ห้าม loading.tsx/Suspense/not-found.tsx
+      admin/invites/        R1.5 · หน้าแอดมินออกโค้ดเชิญ (เรียก requireAdmin → notFound · ADR 0007 ข้อ 4)
     privacy/ styleguide/    ไม่มีด่าน
     api/                    platform — route handlers
       health/               R0 · GET /api/health
@@ -125,7 +126,7 @@ unit/integration test วางคู่กับไฟล์ (`*.test.ts`) ใ�
 
 | โมดูล | import ได้ | ห้าม import |
 |---|---|---|
-| `src/app/**` (หน้าจอ), `src/components/**` | components, doodle, i18n, `lib/offline`, `lib/data/shared`, `lib/stats`, `lib/auth/client`, `src/pwa/register` (layout), `src/pwa/clear-caches` · `auth-hint` · `resetDeviceAfterSignOut` · `useOnline` (R1) · `lib/auth/session-cookie` (เฉพาะ layout ฝั่งเซิร์ฟเวอร์ของ `(app)`/`(setup)`) · `lib/auth/admin` (เฉพาะ `src/app/(app)/admin/**/page.tsx` — ข้อตกลง ESLint ไม่ได้บังคับเจาะจง · ADR 0007) | `src/db`, `lib/data/server`, `lib/auth/server`, `lib/email` |
+| `src/app/**` (หน้าจอ), `src/components/**` | components, doodle, i18n, `lib/offline`, `lib/data/shared`, `lib/stats`, `lib/auth/client`, `src/pwa/register` (layout), `src/pwa/clear-caches` · `auth-hint` · `resetDeviceAfterSignOut` · `useOnline` (R1) · `lib/auth/session-cookie` (เฉพาะ layout ฝั่งเซิร์ฟเวอร์ของ `(app)`/`(setup)`/`(admin)`) · `lib/auth/admin` (เฉพาะ `src/app/(admin)/admin/**/page.tsx` — ข้อตกลง ESLint ไม่ได้บังคับเจาะจง · ADR 0007) | `src/db`, `lib/data/server`, `lib/auth/server`, `lib/email` |
 | `src/lib/offline/**` | `lib/data/shared`, `lib/stats` · คุยกับเซิร์ฟเวอร์ด้วย `fetch` เท่านั้น | ทุกอย่างฝั่งเซิร์ฟเวอร์, React component |
 | `src/app/api/**` | `lib/auth/server`, `lib/data/server`, `lib/data/shared`, `lib/stats`, `lib/email` | `src/db` ตรงๆ (ผ่าน repository) |
 | `src/lib/data/server/**` | `src/db`, `lib/data/shared`, `lib/stats` | `src/app` |
@@ -147,7 +148,7 @@ unit/integration test วางคู่กับไฟล์ (`*.test.ts`) ใ�
 | `GET /api/me` | 401 = ไม่ล็อกอิน · 200 `{ state: "consent_required" \| "onboarding_required" \| "ready", user, …, isAdmin }` (`isAdmin` R1.5 — แสดงแถวทางเข้าหน้าแอดมินเท่านั้น) · `Cache-Control: no-store` · ไม่ต้อง consent · AuthGate ใช้ตัดสินจอ (ADR 0006) | — | R1 · R1.5 |
 | `POST /api/consent` | บันทึก consent ของ `PRIVACY_NOTICE_VERSION` | ✓ | R1 |
 | `POST /api/onboarding` | profile + place แรก + body_entry แรก ใน transaction เดียว | ✓ | R1 |
-| `DELETE /api/me` | ลบบัญชีและข้อมูลทั้งหมด: ใน transaction เดียว ลบ `verification` ด้วย identifier ตรงตัว `<type>-otp-<email>` (ไม่ใช้ `LIKE`) + `auth_throttle` `otp-email:` (+ `admin-invite:` ตั้งแต่ R1.5) → ลบ `user` (cascade รวม `app_admin`) · ล้าง cookie session (ADR 0002 ข้อ 7) | ✓ | R1 |
+| `DELETE /api/me` | ลบบัญชีและข้อมูลทั้งหมด: ใน transaction เดียว ลบ `verification` ด้วย identifier ตรงตัว `<type>-otp-<email>` (ไม่ใช้ `LIKE`) + `auth_throttle` `otp-email:` (+ `admin-invite:` ตั้งแต่ R1.5) → ตั้ง `label` ของโค้ดที่บัญชีใช้สมัครเป็น `—` (R1.5) → ลบ `user` (cascade รวม `app_admin`) · ล้าง cookie session (ADR 0002 ข้อ 7) | ✓ | R1 |
 | `GET /api/admin/invites` | แอดมิน: รายการโค้ด `{ invites: [{ id, label, status, usesCount, maxUses, expiresAt, createdAt }] }` ใหม่สุดก่อน ≤ 200 แถว · **ไม่มีโค้ด/hash** · ลำดับตรวจ: `requireAdmin` | ✓ | R1.5 |
 | `POST /api/admin/invites` | แอดมิน: ออกโค้ด body `{ label, days, maxUses }` (D3: 1/3/7/14 วัน · 1–10 ครั้ง · ป้าย 1–40 ตัว) → 201 `{ id, code, label, maxUses, expiresAt }` (โค้ดดิบครั้งเดียว) · ลำดับตรวจ: Origin แบบเข้ม → `requireAdmin` → throttle 20/24 ชม. (`admin-invite:`) → body → zod | ✓ | R1.5 |
 | `POST /api/admin/invites/:id/revoke` | แอดมิน: เพิกถอน → `{ result: "revoked" \| "unchanged" }` (ส่งซ้ำได้) · ไม่พบ 404 · ลำดับตรวจ: Origin แบบเข้ม → `requireAdmin` → id เป็น UUID | ✓ | R1.5 |
@@ -163,7 +164,7 @@ unit/integration test วางคู่กับไฟล์ (`*.test.ts`) ใ�
 
 ทุก endpoint ข้อมูล: ตอบ JSON · `Cache-Control: no-store` (`json()` ใน `src/lib/auth/http.ts`) · เวลาเป็น ISO-8601 UTC · ข้อผิดพลาดรูปแบบ `{ code, ...extra }` (`HttpError` ใน `src/lib/data/shared/http-error.ts` — ไม่มีข้อความภาษามนุษย์) · code คงที่ให้ UI แปลด้วย next-intl · มีเทสต์ "ผู้ใช้ A อ่าน/แก้ของ B ไม่ได้" (เกตสิทธิ์ข้อมูล) · คำขอที่เปลี่ยนข้อมูลผ่าน `assertSameOrigin()` (API แอดมินใช้แบบเข้ม: ต้องมี `Origin`)
 
-**API แอดมิน (`/api/admin/**` · ADR 0007)**: ไม่ผ่าน `requireAdmin()` ทุกกรณี (ไม่มี session / หมดอายุ / ไม่ใช่แอดมิน / method ที่ไม่มี) → 404 `{ code: "not_found" }` เหมือนกันทุกไบต์ · ตรวจสิทธิ์ก่อนอ่าน body เสมอ · ไม่เรียก `requireConsent()` · สิทธิ์อ่านจากตาราง `app_admin` ทุกคำขอ (ไม่ cache) · ไม่มี API ใดเขียน `app_admin`
+**API แอดมิน (`/api/admin/**` · ADR 0007)**: ไม่ผ่าน `requireAdmin()` ทุกกรณี (ไม่มี session / หมดอายุ / ไม่ใช่แอดมิน / method ที่ไม่มี รวม `OPTIONS` ที่ export ไว้ตอบ 404) → 404 `{ code: "not_found" }` เหมือนกันทุกไบต์ · `HEAD` ใช้ handler `GET` (body ว่าง) · ตรวจสิทธิ์ก่อนอ่าน body เสมอ · ไม่เรียก `requireConsent()` · สิทธิ์อ่านจากตาราง `app_admin` ทุกคำขอ (ไม่ cache) · ไม่มี API ใดเขียน `app_admin`
 
 R1 ยังไม่มีคิวเต็มรูป (คิวเป็นงาน R3): การเขียนของ R1–R2 เรียก `/api/sync/push` ผ่านฟังก์ชันใน `src/lib/offline` ที่ส่งทันทีและแจ้งข้อผิดพลาด แล้ว R3 เปลี่ยนไส้ในเป็น outbox โดยหน้าจอไม่ต้องแก้
 
@@ -226,4 +227,5 @@ R1 ยังไม่มีคิวเต็มรูป (คิวเป็น
 | 2026-11-17 | แผนภาพ SW · หลักการ render · โครงโฟลเดอร์จริง · ขอบเขตโมดูลของ `src/pwa` และ `src/db/testing` · `/serwist/sw.js` ในตาราง API · env (`DATABASE_URL_UNPOOLED` ใช้จริง, เพิ่ม `MIGRATE_ON_DEPLOY`, `S5_CHANNEL`, cookie `NEXT_LOCALE`) · รุ่นแพ็กเกจที่ติดตั้ง · ตารางสภาพแวดล้อม | ให้ตรงกับโค้ดหลัง R0 และผล spike S1 S2 S4 S5 S6 · ไม่เปลี่ยนการตัดสินใจนอกจากที่บันทึกใน ADR 0001, 0004, 0005 |
 | 2026-11-18 | เพิ่มข้อ 1.1 (จอ · route group `(public)` `(setup)` `(app)` · ใครตรวจอะไร · ไม่ใช้ `proxy.ts`) · แผนภาพ SW (ถอยไป `/welcome`) · โครงโฟลเดอร์ R1 (`(public)/welcome`, `(setup)`, `(app)`, `components/auth`, `lib/auth/session-cookie.ts`, ไฟล์ใหม่ใน `src/pwa`) · ขอบเขตโมดูลของหน้าจอ · ตาราง API (`/api/me` รูปคำตอบ, จุดกั้น OTP, `customRules`, `X-Retry-After`, `email_unavailable` 503, `POST /api/onboarding`, วิธีลบ `verification`, invite จำกัดด้วย `auth_throttle`) · env: ลบ `TRUSTED_IP_HEADER`, Gmail host/port ยืนยันแล้ว | ADR 0006 และ ADR 0002 แก้ไข 2026-11-18 · ไม่มีการตัดสินใจใหม่ในไฟล์นี้ |
 | 2026-11-20 | ข้อ 1.1 แถว `/admin/invites` · เพิ่มข้อ 1.2 ตารางที่มีจริง + ความสัมพันธ์ (รวม `app_admin`) · โครงโฟลเดอร์ (`admin/` ทั้งหน้าและ API, `lib/auth/admin.ts`, `data/shared/admin-invite.ts`, `schema/admin.ts`, migration `0001`/`0002`, route ของ R1 ที่ตกหล่น) · ขอบเขตโมดูล (`lib/auth/admin` ให้หน้าแอดมิน) · ตาราง API 3 เส้นทางแอดมิน + `isAdmin` + ลบ key `admin-invite:` · **แก้รูปข้อผิดพลาดให้ตรงโค้ด** `{ code, ...extra }` (เดิมเขียน `{ error: { code, message } }` ซึ่งไม่เคยตรงกับ `HttpError`) | ADR 0007 (R1.5 contract ที่ boss อนุมัติ 2026-11-20) · ตรวจกับโค้ด `src/lib/auth/http.ts` `src/lib/data/shared/http-error.ts` · ไม่มีการตัดสินใจใหม่ในไฟล์นี้ |
+| 2026-11-20 | ข้อ 1.1 + โครงโฟลเดอร์ + ขอบเขตโมดูล: หน้าแอดมินอยู่กลุ่ม `(admin)` (ไม่มีแถบล่าง) แทน `(app)/admin` · กลุ่มที่ห้าม loading/Suspense · API แอดมิน `OPTIONS`/`HEAD` · `DELETE /api/me` ล้างป้ายโค้ดที่ใช้สมัคร | ADR 0007 แก้ไข 2026-11-20 (commit 96449fa · boss ตัดสินเกณฑ์ 3 และ M1 ทาง ก.) · ไม่มีการตัดสินใจใหม่ในไฟล์นี้ |
 

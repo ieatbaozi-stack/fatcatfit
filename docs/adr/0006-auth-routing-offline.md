@@ -35,7 +35,7 @@
 | `/privacy` ประกาศความเป็นส่วนตัว | `open` (ไม่มีด่านทั้งสองทาง) | ไม่ | ไม่ |
 | `/consent` · `/onboarding` (2 ขั้นในหน้าเดียว) | `setup` | ใช่ | ไม่ (ต้องออนไลน์อยู่แล้ว) |
 | `/` `/history` `/progress` `/me` (+ หน้าใหม่ของแอปในอนาคต) | `app` | ใช่ | ใช่ (เดิม) |
-| `/admin/invites` (R1.5 · **ข้อยกเว้น** — ADR 0007 ข้อ 4–5) | `app` | ใช่ + หน้าเรียก `requireAdmin()` (query DB) → ไม่ผ่าน `notFound()` | **ไม่** และ SW ไม่เก็บทุก path ใต้ `/admin` |
+| `/admin/invites` (R1.5 · กลุ่ม `(admin)` ไม่มีแถบล่าง · **ข้อยกเว้น** — ADR 0007 ข้อ 4–5) | `app` | ใช่ + หน้าเรียก `requireAdmin()` (query DB) → ไม่ผ่าน `notFound()` | **ไม่** และ SW ไม่เก็บทุก path ใต้ `/admin` |
 | `/styleguide`, not-found, error | `open` | ไม่ | ไม่ |
 
 - **ลิงก์เชิญ = `/welcome#invite=XXXX-XXXX`** (fragment ไม่ถูกส่งถึงเซิร์ฟเวอร์ → ไม่ลง log ของ Vercel และไม่เป็น key ของ cache) · หน้าอ่าน hash ฝั่งไคลเอนต์ เติมช่อง แล้ว `history.replaceState` ลบออก · server component ห้ามรับโค้ดเชิญทาง URL · `scripts/invite.ts` พิมพ์ลิงก์รูปแบบนี้
@@ -45,14 +45,14 @@
 
 | ชั้น | ตรวจ | ผล | ไฟล์ |
 |---|---|---|---|
-| layout ของกลุ่ม `(app)` และ `(setup)` (server) | `hasSessionCookie(await headers())` — มี cookie หรือไม่ **ไม่ตรวจความถูกต้อง ไม่ query DB** | ไม่มี → `redirect("/welcome")` · มี → render ตามปกติ (ไม่อ่านอะไรจาก session) | `src/app/(app)/layout.tsx` `src/app/(setup)/layout.tsx` · helper `src/lib/auth/session-cookie.ts` |
+| layout ของกลุ่ม `(app)` `(setup)` และ `(admin)` (R1.5) (server) | `hasSessionCookie(await headers())` — มี cookie หรือไม่ **ไม่ตรวจความถูกต้อง ไม่ query DB** | ไม่มี → `redirect("/welcome")` · มี → render ตามปกติ (ไม่อ่านอะไรจาก session) | `src/app/(app)/layout.tsx` `src/app/(setup)/layout.tsx` `src/app/(admin)/layout.tsx` · helper `src/lib/auth/session-cookie.ts` |
 | `AuthGate` (client, ใน layout ของทุกกลุ่มยกเว้น `open`) รับ `kind` เป็น prop จาก layout — **ห้ามใช้ `usePathname()` ตัดสินว่าเป็นจออะไร** | `GET /api/me` ตอนเปิดหน้า (โหลดเต็มหน้า) และเมื่อกลับมาออนไลน์ | ตามตารางข้อ 3 | `src/components/auth/**` |
 | API | `requireUser()` / `requireConsent()` | ด่านจริงของข้อมูล (ADR 0002 ข้อ 6) | `src/lib/auth/**`, `src/app/api/**` |
 | SW | ไม่ตรวจสถานะ · เก็บ/ถอยตามข้อ 4 | — | `src/pwa/**` |
 
 ห้ามมี `loading.tsx` หรือ `<Suspense>` ครอบ layout ที่ redirect (เช่น `src/app/loading.tsx`) — จะทำให้ได้ 200 + meta refresh ซึ่ง SW เก็บ · เทสต์ข้อ 6 จับ
 
-**ข้อยกเว้นหน้า `/admin/**` (R1.5 · ADR 0007)**: หน้าแอดมินเป็นหน้าเดียวที่ query DB ตอน render (`requireAdmin()` → `notFound()`) และ HTML ต่างกันตามสิทธิ์ (หน้า vs 404) — ยอมได้เพราะ (1) SW ไม่เก็บ path ใต้ `/admin` เลย จึงไม่มี HTML ของสถานะหนึ่งค้างไปเสิร์ฟอีกสถานะ (2) HTML ไม่มีข้อมูลโค้ด/รายการ (โหลดจาก API) (3) ด่านจริงยังเป็น `requireAdmin()` ที่ API · ห้ามมี `loading.tsx`/`<Suspense>`/`not-found.tsx` ใต้ `(app)` หรือ `admin/` · หน้าอื่นทั้งหมดยังอยู่ใต้กติกาเดิม
+**ข้อยกเว้นหน้า `/admin/**` (R1.5 · ADR 0007)**: หน้าแอดมินเป็นหน้าเดียวที่ query DB ตอน render (`requireAdmin()` → `notFound()`) และ HTML ต่างกันตามสิทธิ์ (หน้า vs 404) — ยอมได้เพราะ (1) SW ไม่เก็บ path ใต้ `/admin` เลย จึงไม่มี HTML ของสถานะหนึ่งค้างไปเสิร์ฟอีกสถานะ (2) HTML ไม่มีข้อมูลโค้ด/รายการ (โหลดจาก API) (3) ด่านจริงยังเป็น `requireAdmin()` ที่ API · หน้าอยู่กลุ่มของตัวเอง `(admin)` (layout ตรวจ cookie แบบเดียวกับ `(app)` · `AuthGate kind="app"` · **ไม่มีแถบล่าง**) เพราะ Next 16.4.6 วาด 404 จาก `notFound()` ภายใน layout ของ segment — ใต้ `(app)` ผู้ใช้ทั่วไปจะเห็นแถบล่างในหน้า 404 (ADR 0007 ข้อ 4) · ห้ามมี `loading.tsx`/`<Suspense>`/`not-found.tsx` ใต้ `(admin)` หรือ `admin/` · หน้าอื่นทั้งหมดยังอยู่ใต้กติกาเดิม
 
 ### 3. ตารางตัดสินของ `AuthGate` (ฟังก์ชันบริสุทธิ์ `decideRoute(kind, net, me, hint)` + unit test ครบทุกช่อง)
 
@@ -112,7 +112,7 @@
 
 - ง่ายขึ้น: เกณฑ์ 13 ผ่านได้สองทาง (SW ถอยไป `/welcome` หรือ AuthGate แสดงในที่เดิม) · หน้าไม่ query DB ตอน render · โค้ดเชิญไม่ผ่าน URL ไปเซิร์ฟเวอร์
 - ยากขึ้น: สถานะอยู่ 3 ชั้น ต้องคุมด้วยตารางข้อ 3 · ผู้ใช้ที่มี cookie แต่ยังไม่ยินยอมเห็นหน้าหลักแวบก่อนไป `/consent` (ครั้งเดียวตอนสมัคร)
-- ต้องทำตาม: หน้าใหม่ของแอปอยู่ในกลุ่ม `(app)` · หน้าใหม่ที่ต้องเปิดก่อนล็อกอินอยู่ใน `(public)` และห้าม redirect ฝั่งเซิร์ฟเวอร์ · ห้ามเพิ่ม `loading.tsx` ที่ root
+- ต้องทำตาม: หน้าใหม่ของแอปอยู่ในกลุ่ม `(app)` (หน้าแอดมินอยู่ `(admin)` — ADR 0007) · หน้าใหม่ที่ต้องเปิดก่อนล็อกอินอยู่ใน `(public)` และห้าม redirect ฝั่งเซิร์ฟเวอร์ · ห้ามเพิ่ม `loading.tsx` ที่ root
 
 ## สิ่งที่ Lead ต้องรับทราบ
 
@@ -132,3 +132,4 @@
 |---|---|---|---|
 | 2026-11-19 | บรรทัดสถานะ: เสนอ → **ยอมรับ** · ไม่แก้เนื้อหา | boss อนุมัติ `R1_AUTH_CONTRACT.md` 2026-11-18 (D1–D4, D3 รับทราบการเปลี่ยน UX ของ "ฉัน / ตั้งค่า") และโค้ดใช้งานแล้วใน R1 · secretary ตรวจตามหน้าที่ 2 · ตาราง "สิ่งที่ยังไม่รู้" ยังไม่ปิดแถวใด (รอ Lead/architect) | ไม่ |
 | 2026-11-20 | ข้อ 1 แถว `/admin/invites` · ข้อ 2 ข้อยกเว้นหน้า `/admin/**` (query DB ตอน render + `notFound()`) · ข้อ 4 SW ไม่เก็บ `/admin/**` | R1.5 contract ที่ boss อนุมัติ 2026-11-20 · ADR 0007 | ใช่ บางส่วน — ข้อยกเว้นเฉพาะ `/admin/**` · กติกาเดิมของหน้าอื่นไม่เปลี่ยน |
+| 2026-11-20 | ข้อ 1 แถว `/admin/invites` + ข้อ 2 ตารางชั้น layout และข้อยกเว้น: หน้าแอดมินอยู่กลุ่ม `(admin)` (ไม่ใช่ `(app)`) ไม่มีแถบล่าง · ห้าม loading/Suspense/not-found ใต้ `(admin)` | qa-test รอบแรก: 404 ใต้ `(app)` เห็นแถบล่าง · source Next 16.4.6 (ADR 0007 ข้อ 4) · commit 96449fa | ไม่ — ด่าน cookie และ `kind` เดิม ที่อยู่ไฟล์เปลี่ยน |
