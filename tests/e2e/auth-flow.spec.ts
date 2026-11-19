@@ -117,6 +117,7 @@ test.describe("สมัครด้วยลิงก์เชิญ → OTP �
     await expect(page).toHaveURL(/\/consent$/, { timeout: 15_000 });
     const agree = page.getByRole("button", { name: msg("th", "consent.agree") });
     await expect(agree).toBeDisabled(); // ช่องติ๊กไม่ติ๊กไว้ให้
+    await page.getByText(msg("th", "consent.ageCheckbox")).click();
     await page.getByText(msg("th", "consent.checkbox")).click();
     await agree.click();
 
@@ -204,6 +205,7 @@ test.describe("สมัครด้วยลิงก์เชิญ → OTP �
     await page.getByLabel(msg("en", "otp.label")).fill(otp);
     await expect(page).toHaveURL(/\/consent$/, { timeout: 15_000 });
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(msg("en", "consent.title"));
+    await page.getByText(msg("en", "consent.ageCheckbox")).click();
     await page.getByText(msg("en", "consent.checkbox")).click();
     await page.getByRole("button", { name: msg("en", "consent.agree") }).click();
     await expect(page).toHaveURL(/\/onboarding$/);

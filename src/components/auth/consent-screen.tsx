@@ -24,6 +24,7 @@ export function ConsentScreen() {
   const { refresh } = useMe();
   const net = useNet();
   const [agreed, setAgreed] = useState(false);
+  const [ageOk, setAgeOk] = useState(false);
   const [saving, setSaving] = useState(false);
   const [failure, setFailure] = useState<Failure>(null);
   const [declining, setDeclining] = useState(false);
@@ -98,6 +99,9 @@ export function ConsentScreen() {
       </Link>
 
       <div className="mt-auto flex flex-col gap-3 pt-8">
+        <Checkbox checked={ageOk} onChange={(e) => setAgeOk(e.target.checked)}>
+          {t("ageCheckbox")}
+        </Checkbox>
         <Checkbox checked={agreed} onChange={(e) => setAgreed(e.target.checked)}>
           {t("checkbox")}
         </Checkbox>
@@ -110,7 +114,7 @@ export function ConsentScreen() {
         {failure === "version" ? (
           <Button onClick={() => window.location.reload()}>{t("reload")}</Button>
         ) : (
-          <Button disabled={!agreed || offline} loading={saving} onClick={() => void onAgree()}>
+          <Button disabled={!agreed || !ageOk || offline} loading={saving} onClick={() => void onAgree()}>
             {saving ? t("saving") : failure ? t("retry") : t("agree")}
           </Button>
         )}

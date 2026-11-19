@@ -59,12 +59,13 @@ describe("ประกาศความเป็นส่วนตัว", () =
     expect(all(en)).toMatch(/Singapore[\s\S]*United States[\s\S]*many countries/);
   });
 
-  it("R1 ขั้น 5: ไม่เขียนว่าลบถาวรทันที · ระบุไม่เก็บรูปโปรไฟล์ · ไม่มีข้อความเรื่องอายุ", () => {
+  it("R1 ขั้น 5: ไม่เขียนว่าลบถาวรทันที · ระบุไม่เก็บรูปโปรไฟล์ · ระบุอายุขั้นต่ำ 20 ปี", () => {
     expect(all(th)).not.toContain("ข้อมูลหายจากระบบทันที");
     expect(all(en)).not.toMatch(/permanent/i);
     expect(all(th)).toContain("ไม่เก็บรูปโปรไฟล์");
     expect(all(en)).toContain("profile picture");
-    expect(all(th)).not.toContain("อายุขั้นต่ำ");
+    expect(all(th)).toContain("ต่ำกว่า 20 ปี");
+    expect(all(en)).toContain("under 20");
   });
 
   it("ชื่อ/อีเมลผู้ควบคุมอ่านจาก env ไม่ฝังใน repo", () => {

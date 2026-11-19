@@ -3,6 +3,7 @@ import { onboardingSchema, validateOnboarding } from "@/lib/data/shared/onboardi
 import {
   EMPTY_DRAFT,
   ageFromBirthYear,
+  isTooYoung,
   buildPayload,
   localDateString,
   mapServerFields,
@@ -102,6 +103,12 @@ describe("buildPayload", () => {
 describe("ตัวช่วยอื่น", () => {
   it("localDateString ใช้วันที่ท้องถิ่น (เติมศูนย์)", () => {
     expect(localDateString(new Date(2026, 0, 5, 23, 59))).toBe("2026-01-05");
+  });
+  it("อายุไม่ถึง 20: ปีเกิดมากเกิน = ไม่ผ่าน (NOW ปี 2026)", () => {
+    expect(isTooYoung(2006, NOW)).toBe(false);
+    expect(isTooYoung(2007, NOW)).toBe(true);
+    expect(validateBody({ ...filled, birthYear: 2007 }, NOW).birthYear).toBe("out_of_range");
+    expect(validateBody({ ...filled, birthYear: 2006 }, NOW).birthYear).toBeUndefined();
   });
   it("อายุจากปีเกิด", () => {
     expect(ageFromBirthYear(1994, NOW)).toBe(32);

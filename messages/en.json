@@ -196,9 +196,10 @@
     "title": "Before we start",
     "bullet1": "We store your weight, height, birth year and workouts. That counts as <b>health data</b>.",
     "bullet2": "Only you can see it. Not even friends in the group.",
-    "bullet3": "Never sold, never used for ads, never shared.",
+    "bullet3": "Never sold, never used for ads, never shared with anyone except the providers named in the notice.",
     "bullet4": "Delete your account and all data yourself, any time.",
     "readFull": "Read the full notice (version {version})",
+    "ageCheckbox": "I am 20 or older",
     "checkbox": "I agree to the storage and use of my health data as described.",
     "withdraw": "You can withdraw consent any time by deleting your account. Your data is then erased and the app can no longer be used (Me › Delete account).",
     "agree": "Agree and continue",
@@ -269,6 +270,7 @@
       "required": "This field is required",
       "invalid": "This value doesn't work · take another look",
       "outOfRange": "That number looks off · take another look",
+      "tooYoung": "You need to be 20 or older to use the app",
       "clock": "Your device clock looks off · check the date and time, then try again"
     }
   },
@@ -327,13 +329,14 @@
           "Needed: email (to confirm who you are when you sign in)",
           "Needed: weight, height, birth year and your first workout place (for calculations and defaults)",
           "Optional: goals and experience",
+          "Minimum age: the app is not open to anyone under 20",
           "Without the needed data you can't sign up or use the app."
         ]
       },
       "collected": {
         "title": "3. What we store, and for how long",
         "items": [
-          "Account: email and name (only with Google sign-in, the name from your Google account) — kept until you delete your account · we do not store your profile picture, and we do not keep your IP address or browser details with your account",
+          "Account: email and name, plus your Google account ID (only with Google sign-in, the name and ID come from your Google account) — kept until you delete your account · we do not store your profile picture, and we do not keep your IP address or browser details with your account",
           "Health data (sensitive): weight, height and birth year from the questionnaire, workout places, goals, experience, and the workout history you'll log in later versions — kept until you delete your account",
           "Settings: units, language, theme, rest time — kept until you delete your account",
           "Consent record: time, notice version and language — kept until you delete your account",
@@ -348,7 +351,7 @@
           "Request limiting: IP address and the path requested, deleted automatically within about 2 days",
           "6-digit sign-in code: stored in a form that can't be reversed, expires in 10 minutes, deleted within about 1 day",
           "Code request counter: stored in a form that can't be reversed, deleted within about 3 days",
-          "Logs of the hosting provider Vercel: path, user agent and system messages, shown in the app's admin view for at most 1 hour; what Vercel keeps itself follows Vercel's own policy",
+          "Logs of the hosting provider Vercel: path, URL query string, IP address, user agent and system messages, shown in the app's admin view for at most 1 hour; what Vercel keeps itself follows Vercel's own policy",
           "The code email: sent from the app's Gmail account, and Gmail keeps a copy in its Sent folder until the admin deletes it (the admin clears it from time to time)"
         ]
       },

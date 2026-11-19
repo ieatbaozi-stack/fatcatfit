@@ -53,6 +53,8 @@ test("คีย์บอร์ดอย่างเดียว: โค้ดเ
   await page.keyboard.type(otp);
 
   await expect(page).toHaveURL(/\/consent$/, { timeout: 15_000 });
+  await tabTo(page, (e) => e.tag === "input" && e.label.includes(t("consent.ageCheckbox")), "age checkbox");
+  await page.keyboard.press("Space");
   await tabTo(page, (e) => e.tag === "input" && e.label.includes(t("consent.checkbox")), "consent checkbox");
   await page.keyboard.press("Space");
   await tabTo(page, (e) => e.text === t("consent.agree"), "agree");

@@ -33,6 +33,12 @@ export const EMPTY_DRAFT: Draft = {
 
 export type FieldKey = "weight" | "height" | "birthYear" | "placeName";
 export type FieldIssue = "required" | "invalid" | "out_of_range";
+/** อายุขั้นต่ำ 20 (boss 2026-11-19) — สลับไปใช้ MIN_AGE จาก shared/onboarding เมื่อ platform ส่งแล้ว */
+export const MIN_AGE_UI = 20;
+/** ปีเกิดที่อายุไม่ถึงขั้นต่ำ (ปีมากเกิน = อายุไม่ถึง) */
+export function isTooYoung(birthYear: number, now: Date): boolean {
+  return now.getFullYear() - birthYear < MIN_AGE_UI;
+}
 export type FieldIssues = Partial<Record<FieldKey, FieldIssue>>;
 
 export const UNITS = {
@@ -79,7 +85,7 @@ export function validateBody(draft: Draft, now: Date): FieldIssues {
   }
   if (draft.birthYear === null) issues.birthYear = "required";
   else if (!Number.isInteger(draft.birthYear)) issues.birthYear = "invalid";
-  else if (draft.birthYear < ONBOARDING_LIMITS.birthYearMin || draft.birthYear > now.getFullYear()) {
+  else if (draft.birthYear < ONBOARDING_LIMITS.birthYearMin || isTooYoung(draft.birthYear, now)) {
     issues.birthYear = "out_of_range";
   }
   return issues;

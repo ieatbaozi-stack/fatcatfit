@@ -84,6 +84,7 @@ const SCREENS: Screen[] = [
     open: async (page, l, baseURL) => {
       await asUser(page, baseURL, "signed_in", l);
       await page.goto("/consent");
+      await page.getByText(msg(l, "consent.ageCheckbox")).click();
       await page.getByText(msg(l, "consent.checkbox")).click();
       await expect(page.getByRole("button", { name: msg(l, "consent.agree") })).toBeEnabled();
     },

@@ -19,6 +19,7 @@ import {
   PLACE_KINDS,
   UNITS,
   ageFromBirthYear,
+  isTooYoung,
   buildPayload,
   mapServerFields,
   nextPlaceName,
@@ -96,7 +97,11 @@ export function OnboardingScreen() {
     const fromLocal: FieldIssue | undefined = touched[key] && local[key] !== "required" ? local[key] : undefined;
     const issue = serverIssues[key] ?? fromLocal;
     if (!issue) return null;
-    return t(issue === "required" ? "errors.required" : issue === "invalid" ? "errors.invalid" : "errors.outOfRange");
+    if (issue === "required") return t("errors.required");
+    if (issue === "invalid") return t("errors.invalid");
+    // ปีเกิด out_of_range: แยกทิศ — ปีมากเกิน = อายุไม่ถึง
+    if (key === "birthYear" && draft.birthYear !== null && isTooYoung(draft.birthYear, now)) return t("errors.tooYoung");
+    return t("errors.outOfRange");
   }
 
   function touch(key: keyof FieldIssues) {
