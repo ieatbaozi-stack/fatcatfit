@@ -35,7 +35,7 @@
 - `requireAdmin(headers): Promise<AuthedUser>` = `requireUser(headers)` → `SELECT 1 FROM app_admin WHERE user_id = $1 LIMIT 1` **ทุกคำขอ ไม่ cache สิทธิ์** (เกณฑ์ 4) → ไม่มี session / หมดอายุ / ไม่ใช่แอดมิน = `HttpError(404, "not_found")` ทุกกรณี (แปลง 401 ของ `requireUser` เป็น 404) · error อื่น (DB ล่ม) ปล่อยขึ้นไปเป็น 500 ตามเดิม
 - `isAdmin(db, userId): Promise<boolean>` — ตัวเดียวกับที่ `requireAdmin` และ `getMe` ใช้
 - **เหตุที่ไม่ใส่ใน `server.ts`**: หน้า `/admin/invites` ต้องเรียก แต่ ESLint `boundaries/screens` ห้ามหน้าจอ import `lib/auth/server` · `lib/auth/admin` ไม่ถูกห้าม และ `server-only` กันไม่ให้เข้า bundle ไคลเอนต์ · **ข้อตกลง**: หน้าจอที่ import `@/lib/auth/admin` ได้มีแค่ `src/app/(admin)/admin/**/page.tsx` (ไม่มีกฎ ESLint เจาะจง — security-privacy ตรวจด้วยการค้น)
-- API แอดมิน **ไม่เรียก `requireConsent()`** — ไม่อ่าน/เขียนข้อมูลสุขภาพของใคร · ข้อยกเว้นเพิ่มใน ADR 0002 ข้อ 6
+- API แอดมิน **ไม่เรียก `requireConsent()`** — **เหตุผล (security-privacy I1 · 2026-11-20)**: การยินยอมของ ADR 0002 ข้อ 6 ผูกกับการประมวลผลข้อมูลสุขภาพ · API แอดมินไม่อ่านหรือเขียนข้อมูลสุขภาพของใครเลย (ตารางที่แตะ = `app_admin` · `invite_code` ซึ่งไม่มีข้อมูลสุขภาพ · `user` เฉพาะ `isAdmin` ที่ `/api/me`) จึงไม่มีฐานให้ขอ consent · **เงื่อนไข**: ถ้าเส้นทางแอดมินใดเริ่มแตะข้อมูลสุขภาพ (เช่น ดูจำนวนเซสชันของผู้ใช้) ต้องเรียก `requireConsent()` และกลับมาทบทวนข้อนี้ · ข้อยกเว้นเพิ่มใน ADR 0002 ข้อ 6
 
 ### 3. API (route handler ใน `src/app/api/admin/**` · ทุกคำตอบผ่าน `json()`/`handle()` ของ `http.ts` → `Cache-Control: no-store`)
 
@@ -90,7 +90,7 @@
 | เรื่อง | ใคร | เมื่อไร |
 |---|---|---|
 | ~~`notFound()` ใต้ `(app)` ได้ HTML เดียวกับ path ที่ไม่มีอยู่~~ **ปิด 2026-11-20: ไม่ตรง** — Next วาด 404 ภายใน layout ของ segment (ข้อ 4) → ย้ายไป `(admin)` (96449fa) · เกณฑ์ 3 ส่วนหน้าแก้เป็นวัดสิ่งที่ผู้ใช้เห็น (boss อนุมัติ) | — | — |
-| หน้าแอดมินได้ `Cache-Control` ที่มี `no-store` จาก Next เองหรือไม่ | ops-release (เกณฑ์ 9) | R1.5 ขั้น 3 |
+| ~~หน้าแอดมินได้ `Cache-Control` ที่มี `no-store` จาก Next เองหรือไม่~~ **ปิด 2026-11-20** (qa-test วัดจริงบน `/admin/invites`): `private, no-cache, no-store, max-age=0, must-revalidate` · คำตอบ API แอดมินมี `no-store` ใน e2e (เกณฑ์ 9) | — | — |
 | ~~`HEAD`/`OPTIONS` บนเส้นทางแอดมิน~~ **ปิด 2026-11-20** (platform อ่าน source Next): `HEAD` ใช้ handler `GET` · `OPTIONS` ที่ไม่ export = 204 + `Allow` → export เป็น 404 (ตารางข้อ 3) | — | — |
 | ~~Google sign-in / `navigator.share` ในเบราว์เซอร์ของ LINE~~ **ปิด 2026-11-20**: [research](../research/2026-11-20-r1-5-share-line.md) · boss ตัดสินไม่ทำอะไรเฉพาะ LINE รอบนี้ นอกจากคำแนะนำบนจอยินดีต้อนรับ (บันทึกท้าย contract) | — | — |
 
@@ -103,3 +103,4 @@
 | 2026-11-20 | ข้อ 4: แชร์ `navigator.share({ text })` อย่างเดียว (เดิม contract เขียน `{ text, url }`) | Lead ตัดสินหลังคำถามของ ux-brand — ข้อความ D5 มีลิงก์แล้ว กันลิงก์ซ้ำ | ไม่ — รายละเอียดวิธีทำ |
 | 2026-11-20 | ข้อ 3: แถว `OPTIONS`/`HEAD` · ปิดข้อ "ยังไม่รู้" | platform ยืนยันจาก source Next | ไม่ — ยืนยันข้อที่เปิดไว้ |
 | 2026-11-20 | ข้อ 3: `deleteAccount()` ล้างป้ายของโค้ดที่บัญชีใช้สมัครเป็น `—` · ประกาศความเป็นส่วนตัวเพิ่มบรรทัด + เปลี่ยน `PRIVACY_NOTICE_VERSION` | security-privacy M1 · boss เลือกทาง ก. 2026-11-20 | ใช่ — เพิ่มขั้นในการลบบัญชี (ADR 0002 ข้อ 7) |
+| 2026-11-20 | ข้อ 2: เขียนเหตุผลที่ API แอดมินไม่เรียก `requireConsent()` (security-privacy I1) · ปิดแถว "no-store" ในข้อ "สิ่งที่ยังไม่รู้" ตามที่ qa-test วัดจริง | ตรวจเอกสารโดย secretary ตามคำสั่ง boss · ไม่มีการเปลี่ยนโค้ด | ไม่ — ยืนยันการตัดสินที่มีอยู่ |
