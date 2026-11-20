@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { PRIVACY_NOTICE_VERSION } from "@/lib/data/shared/privacy";
 import { resolveLocale } from "@/lib/i18n/config";
 import { resetDeviceAfterSignOut } from "@/pwa/reset-device";
-import { deleteAccountRequest, postConsent } from "./api";
+import { deleteAccountRequest, postConsent, signOutRequest } from "./api";
 import { useMe } from "./auth-gate";
 import { useNet } from "./use-net";
 
@@ -16,12 +16,15 @@ type Failure = "save" | "version" | null;
 
 /**
  * จอยินยอม (US-1.4): ปุ่มยินยอมแยกจากข้อความอื่น · ช่องติ๊กไม่ติ๊กไว้ให้ · บอกชัดว่าถอน = ลบบัญชี
- * ไม่ยินยอม → อธิบายว่าใช้แอปไม่ได้ แล้วออกจากระบบและลบบัญชีที่เพิ่งสร้าง
+ * ไม่ยินยอม → อธิบายว่าใช้แอปไม่ได้ · ผู้ใช้ใหม่: ลบบัญชีที่เพิ่งสร้าง · ผู้ใช้เดิม (มี profile แล้ว =
+ * เคยยินยอมและเคยผ่าน onboarding): ข้อมูลยังอยู่ เลือกออกจากระบบ (ไม่ลบ) หรือลบทั้งหมด (ยืนยันอีกขั้น)
  */
 export function ConsentScreen() {
   const t = useTranslations("consent");
   const locale = resolveLocale(useLocale());
-  const { refresh } = useMe();
+  const { me, refresh } = useMe();
+  // profile สร้างได้หลังยินยอมเท่านั้น (onboarding) → มี profile = ผู้ใช้เดิมที่ประกาศเปลี่ยนเวอร์ชัน
+  const existingUser = me?.profile != null;
   const net = useNet();
   const [agreed, setAgreed] = useState(false);
   const [ageOk, setAgeOk] = useState(false);
@@ -30,6 +33,9 @@ export function ConsentScreen() {
   const [declining, setDeclining] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteFailed, setDeleteFailed] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
+  const [signOutFailed, setSignOutFailed] = useState(false);
   const offline = net === "offline";
 
   async function onAgree() {
@@ -60,6 +66,81 @@ export function ConsentScreen() {
     }
     setDeleting(false);
     setDeleteFailed(true);
+  }
+
+  async function onKeepDataSignOut() {
+    if (signingOut) return;
+    setSigningOut(true);
+    setSignOutFailed(false);
+    const r = await signOutRequest();
+    if (r.ok) {
+      await resetDeviceAfterSignOut({ accountDeleted: false });
+      window.location.replace("/welcome");
+      return;
+    }
+    setSigningOut(false);
+    setSignOutFailed(true);
+  }
+
+  if (declining && existingUser) {
+    const busy = deleting || signingOut;
+    if (confirmingDelete) {
+      return (
+        <div className="flex flex-1 flex-col">
+          <h1 className="text-page">{t("existing.confirmTitle")}</h1>
+          <p className="mt-2 text-body text-ink-2">{t("existing.confirmBody")}</p>
+          {offline ? <p role="status" className="mt-4 text-caption text-ink-3">{t("offline")}</p> : null}
+          {deleteFailed ? (
+            <p role="alert" className="mt-4 text-caption text-warn">
+              {t("deleteFailed")}
+            </p>
+          ) : null}
+          <div className="mt-auto flex flex-col gap-2 pt-8">
+            <Button
+              className="border-warn text-warn"
+              loading={deleting}
+              disabled={offline}
+              onClick={() => void onDeleteAfterDecline()}
+            >
+              {deleting ? t("deleting") : t("existing.confirmDelete")}
+            </Button>
+            <TextButton
+              disabled={deleting}
+              onClick={() => {
+                setConfirmingDelete(false);
+                setDeleteFailed(false);
+              }}
+            >
+              {t("existing.confirmBack")}
+            </TextButton>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div className="flex flex-1 flex-col">
+        <h1 className="text-page">{t("existing.title")}</h1>
+        <p className="mt-2 text-body text-ink-2">{t("existing.body")}</p>
+        {offline ? <p role="status" className="mt-4 text-caption text-ink-3">{t("offline")}</p> : null}
+        {signOutFailed ? (
+          <p role="alert" className="mt-4 text-caption text-warn">
+            {t("existing.signOutFailed")}
+          </p>
+        ) : null}
+        <div className="mt-auto flex flex-col gap-2 pt-8">
+          <Button loading={signingOut} disabled={offline || busy} onClick={() => void onKeepDataSignOut()}>
+            {signingOut ? t("existing.signingOut") : t("existing.signOut")}
+          </Button>
+          <p className="text-center text-caption text-ink-3">{t("existing.signOutHint")}</p>
+          <Button className="mt-2 border-warn text-warn" disabled={offline || busy} onClick={() => setConfirmingDelete(true)}>
+            {t("existing.delete")}
+          </Button>
+          <TextButton disabled={busy} onClick={() => setDeclining(false)}>
+            {t("declineBack")}
+          </TextButton>
+        </div>
+      </div>
+    );
   }
 
   if (declining) {

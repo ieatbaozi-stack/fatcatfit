@@ -216,7 +216,20 @@
     "declineBack": "Go back and read again",
     "deleting": "Deleting…",
     "deleteFailed": "Couldn't delete · try again",
-    "offline": "Connect to the internet to continue"
+    "offline": "Connect to the internet to continue",
+    "existing": {
+      "title": "The privacy notice has changed",
+      "body": "All your data is still here, but you can't use the app until you agree to the new notice. You can sign out for now, or delete your account.",
+      "signOut": "Sign out (keep my data)",
+      "signOutHint": "Come back and agree later to keep using it",
+      "delete": "Delete account and all data",
+      "signingOut": "Signing out…",
+      "signOutFailed": "Couldn't sign out · try again",
+      "confirmTitle": "Delete your account for good?",
+      "confirmBody": "Your workout history, weight and everything else will be deleted permanently. This can't be undone.",
+      "confirmDelete": "Delete permanently",
+      "confirmBack": "Cancel, keep it"
+    }
   },
   "onboarding": {
     "progress": "{step}/{total}",
