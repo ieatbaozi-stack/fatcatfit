@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes } from "react";
+import type { ButtonHTMLAttributes, ComponentProps } from "react";
 import { cx } from "./cx";
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -35,7 +35,7 @@ export function Button({ className, loading = false, disabled, type = "button", 
 }
 
 /** ปุ่มรอง: ตัวหนังสือ + ขีดเส้นใต้วาดมือ ไม่มีกรอบ */
-export function TextButton({ className, type = "button", ...rest }: ButtonHTMLAttributes<HTMLButtonElement>) {
+export function TextButton({ className, type = "button", ...rest }: ComponentProps<"button">) {
   return (
     <button
       type={type}

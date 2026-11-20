@@ -107,13 +107,13 @@ export type TestUser = {
 };
 
 /** สมัครผ่าน API จริงจนถึงขั้นที่ขอ · คืน cookie session สำหรับใส่ใน browser context */
-export async function signUp(baseURL: string, opts: { stage?: Stage; locale?: "th" | "en"; email?: string } = {}): Promise<TestUser> {
+export async function signUp(baseURL: string, opts: { stage?: Stage; locale?: "th" | "en"; email?: string; code?: string } = {}): Promise<TestUser> {
   const stage = opts.stage ?? "ready";
   const locale = opts.locale ?? "th";
   const email = opts.email ?? uniqueEmail("user");
   const ip = randomIp();
   const api = await pwRequest.newContext({ baseURL, extraHTTPHeaders: { "x-forwarded-for": ip, origin: baseURL } });
-  const code = await newInvite();
+  const code = opts.code ?? (await newInvite());
   const check = await api.post("/api/invite/check", { data: { code } });
   expect(check.status(), "invite check").toBe(200);
   expect(await check.json()).toEqual({ result: "ok" });

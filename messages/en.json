@@ -171,7 +171,8 @@
       "sending": "Sending…",
       "noPassword": "6-digit code. No password.",
       "spamHint": "Didn't get it? Check your spam folder."
-    }
+    },
+    "lineHint": "If Google won't open, open the link in your browser (Safari/Chrome) or sign in with email."
   },
   "otp": {
     "back": "‹ Back",
@@ -215,7 +216,22 @@
     "declineBack": "Go back and read again",
     "deleting": "Deleting…",
     "deleteFailed": "Couldn't delete · try again",
-    "offline": "Connect to the internet to continue"
+    "offline": "Connect to the internet to continue",
+    "meLoading": "Checking your account…",
+    "meFailed": "Could not check your account · please try again",
+    "existing": {
+      "title": "The privacy notice has changed",
+      "body": "All your data is still here, but you can't use the app until you agree to the new notice. You can sign out for now, or delete your account.",
+      "signOut": "Sign out (keep my data)",
+      "signOutHint": "Come back and agree later to keep using it",
+      "delete": "Delete account and all data",
+      "signingOut": "Signing out…",
+      "signOutFailed": "Couldn't sign out · try again",
+      "confirmTitle": "Delete your account for good?",
+      "confirmBody": "Your workout history, weight and everything else will be deleted permanently. This can't be undone.",
+      "confirmDelete": "Delete permanently",
+      "confirmBack": "Cancel, keep it"
+    }
   },
   "onboarding": {
     "progress": "{step}/{total}",
@@ -304,7 +320,8 @@
       "doneTitle": "All deleted",
       "doneBody": "Thanks for coming along. Your data is gone from our system.",
       "doneButton": "Back to start"
-    }
+    },
+    "adminInvites": "Invite codes"
   },
   "privacy": {
     "back": "Back to home",
@@ -340,6 +357,7 @@
           "Health data (sensitive): weight, height and birth year from the questionnaire, workout places, goals, experience, and the workout history you'll log in later versions — kept until you delete your account",
           "Settings: units, language, theme, rest time — kept until you delete your account",
           "Consent record: time, notice version and language — kept until you delete your account",
+          "Invite code used to sign up, and the label an admin gave that code (a nickname, visible only to admins and never shown to other users) — kept until you delete your account; when you delete your account, that code's label is cleared",
           "Sign-in: the sign-in in your browser lasts 90 days",
           "On your own device: language, theme, and a mark that you've signed in before — stays in your browser, sent nowhere"
         ],
@@ -397,6 +415,87 @@
           "You can withdraw consent any time by deleting your account (Me › Delete account). After that your data is erased and the app can no longer be used, because it needs health data to work. There is no partial withdrawal. Withdrawing doesn't affect what was done before.",
           "If this notice changes, we'll ask you to agree again before you keep using the app."
         ]
+      }
+    }
+  },
+  "admin": {
+    "invites": {
+      "title": "Invite codes",
+      "back": "Back to Me",
+      "intro": "Your friend opens the link and signs up, within the limits you set.",
+      "needNet": "Making and revoking codes need a connection",
+      "form": {
+        "label": "Label (just for you)",
+        "labelPlaceholder": "e.g. office friend",
+        "labelHint": "Your friend won't see this. No real names needed.",
+        "labelCount": "{count}/40",
+        "days": "Valid for",
+        "daysOption": "{days, plural, one {# day} other {# days}}",
+        "uses": "How many people",
+        "submit": "Create code",
+        "submitting": "Creating…",
+        "failed": "Couldn't create the code. What you entered is still here. Try again.",
+        "retry": "Try again",
+        "rateLimited": "You've made 20 codes in 24 hours. Try again in {time}."
+      },
+      "time": {
+        "hoursMinutes": "{h} h {m} min",
+        "minutes": "{m} min",
+        "underMinute": "under a minute"
+      },
+      "result": {
+        "title": "Shown only once",
+        "warning": "Once you leave this page, you can't see this code again. Share or copy it first.",
+        "summary": "{label} · {uses, plural, one {# person} other {# people}} · until {date}",
+        "share": "Share link",
+        "copyMessage": "Copy invite message",
+        "copyLink": "Copy link",
+        "copyCode": "Copy code",
+        "another": "Make another",
+        "codeLabel": "Invite code"
+      },
+      "share": {
+        "text": "Join me on Fat Cat Fit. Open this link to sign up: {link} (or enter code {code}). Valid until {date}."
+      },
+      "toast": {
+        "messageCopied": "Message copied. Paste it in your chat.",
+        "linkCopied": "Link copied.",
+        "codeCopied": "Code copied.",
+        "copyFailed": "Couldn't copy. Press and hold the code to copy it.",
+        "revoked": "Revoked.",
+        "alreadyInactive": "This code was already inactive."
+      },
+      "list": {
+        "title": "Codes you made",
+        "meta": "{used}/{max} used · until {date}",
+        "empty": "No codes yet. The ones you make show up here.",
+        "loadFailed": "Couldn't load your codes",
+        "loadFailedHint": "You can still make new codes.",
+        "retry": "Try again",
+        "loading": "Loading your codes"
+      },
+      "status": {
+        "active": "Active",
+        "exhausted": "Used up",
+        "expired": "Expired",
+        "revoked": "Revoked"
+      },
+      "revoke": {
+        "button": "Revoke",
+        "buttonLabel": "Revoke {label}",
+        "title": "Revoke \"{label}\"?",
+        "body": "This link and code will stop working for sign-up. Friends who already joined aren't affected.",
+        "note": "This can't be undone. You can always make a new code.",
+        "confirm": "Revoke",
+        "revoking": "Revoking…",
+        "cancel": "Cancel",
+        "failed": "Couldn't revoke. Try again.",
+        "retry": "Try again"
+      },
+      "offline": {
+        "title": "Invite codes need a connection",
+        "body": "This page comes back once you're online.",
+        "back": "Back to Me"
       }
     }
   }

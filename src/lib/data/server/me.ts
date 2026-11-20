@@ -2,6 +2,7 @@ import "server-only";
 import { and, eq } from "drizzle-orm";
 import { consentRecord, profile } from "@/db/schema";
 import type { AppDb } from "@/db/types";
+import { isAdmin } from "@/lib/auth/admin";
 import { hasCurrentConsent } from "@/lib/auth/consent";
 import { PRIVACY_NOTICE_VERSION } from "@/lib/data/shared/privacy";
 
@@ -11,6 +12,7 @@ export type MeState = "consent_required" | "onboarding_required" | "ready";
 
 export type MeResponse = {
   state: MeState;
+  isAdmin: boolean;
   noticeVersion: string;
   user: { id: string; email: string; name: string };
   consent: { accepted: boolean; acceptedAt: string | null };
@@ -50,6 +52,7 @@ export async function getMe(db: AppDb, u: { userId: string; email: string; name:
   const state: MeState = !accepted ? "consent_required" : !p ? "onboarding_required" : "ready";
   return {
     state,
+    isAdmin: await isAdmin(db, u.userId),
     noticeVersion: PRIVACY_NOTICE_VERSION,
     user: { id: u.userId, email: u.email, name: u.name },
     consent: { accepted, acceptedAt: consentRow ? consentRow.acceptedAt.toISOString() : null },

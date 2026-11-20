@@ -19,6 +19,9 @@ export const OTP_EMAIL_RULES = {
 
 export const INVITE_IP_RULE: ThrottleRule = { windowS: 600, max: 10 };
 
+/** ออกโค้ดเชิญจากหน้าแอดมิน (ADR 0007 ข้อ 3): 20 ครั้ง/วัน ต่อแอดมิน */
+export const ADMIN_INVITE_RULE: ThrottleRule = { windowS: 86400, max: 20 };
+
 export const OTP_EMAIL_RULE_NAMES = Object.keys(OTP_EMAIL_RULES) as (keyof typeof OTP_EMAIL_RULES)[];
 
 /** ตัวระบุ OTP ของปลั๊กอิน email-otp: "<type>-otp-<email ตัวพิมพ์เล็ก>" (plugins/email-otp/utils.mjs) */
@@ -54,6 +57,10 @@ export function otpDayKey(now: Date): string {
 
 export function inviteIpKey(ip: string | null): string {
   return `invite-ip:${sha256Hex(ip ?? "unknown")}`;
+}
+
+export function adminInviteKey(userId: string): string {
+  return `admin-invite:${sha256Hex(userId)}`;
 }
 
 /**
