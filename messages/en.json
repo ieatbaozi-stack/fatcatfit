@@ -217,6 +217,8 @@
     "deleting": "Deleting…",
     "deleteFailed": "Couldn't delete · try again",
     "offline": "Connect to the internet to continue",
+    "meLoading": "Checking your account…",
+    "meFailed": "Could not check your account · please try again",
     "existing": {
       "title": "The privacy notice has changed",
       "body": "All your data is still here, but you can't use the app until you agree to the new notice. You can sign out for now, or delete your account.",

@@ -10,6 +10,12 @@ import { ConsentScreen } from "./consent-screen";
 
 const reset = vi.hoisted(() => vi.fn(async () => {}));
 vi.mock("@/pwa/reset-device", () => ({ resetDeviceAfterSignOut: reset }));
+// ผู้ใช้ใหม่ที่ยืนยันแล้ว (โหลด me สำเร็จ profile = null) — ไม่ใช่ "ยังไม่รู้"
+const gate = vi.hoisted(() => ({ me: null as unknown }));
+vi.mock("./auth-gate", async (orig) => ({
+  ...(await orig<typeof import("./auth-gate")>()),
+  useMe: () => ({ me: gate.me, refresh: async () => {} }),
+}));
 
 const json = (status: number, body: unknown = {}) => new Response(JSON.stringify(body), { status });
 let fetchMock: ReturnType<typeof vi.fn>;
@@ -23,12 +29,17 @@ beforeEach(() => {
   vi.stubGlobal("location", { ...window.location, replace });
 });
 afterEach(() => {
+  gate.me = null;
   cleanup();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 
 describe("ConsentScreen", () => {
+  beforeEach(() => {
+    gate.me = { state: "consent_required", profile: null };
+  });
+
   it("ช่องติ๊กไม่ติ๊กไว้ก่อน · ปุ่มปิดจนกว่าจะติ๊ก · บอกว่าถอน = ลบบัญชี · มีลิงก์ประกาศ", () => {
     renderWithIntl(<ConsentScreen />);
     const [ageBox, box] = screen.getAllByRole("checkbox") as HTMLInputElement[];

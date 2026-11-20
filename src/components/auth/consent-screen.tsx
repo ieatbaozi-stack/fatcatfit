@@ -22,9 +22,11 @@ type Failure = "save" | "version" | null;
 export function ConsentScreen() {
   const t = useTranslations("consent");
   const locale = resolveLocale(useLocale());
-  const { me, refresh } = useMe();
-  // profile สร้างได้หลังยินยอมเท่านั้น (onboarding) → มี profile = ผู้ใช้เดิมที่ประกาศเปลี่ยนเวอร์ชัน
-  const existingUser = me?.profile != null;
+  const { me, refresh, networkFailed = false } = useMe();
+  // ผู้ใช้ใหม่ = ยืนยันได้เฉพาะเมื่อโหลด me สำเร็จและ profile เป็น null (profile สร้างได้หลังยินยอมเท่านั้น)
+  // ที่เหลือ (มี profile หรือยังไม่รู้) ใช้ทางผู้ใช้เดิมที่มีขั้นยืนยัน — กันลบข้อมูลคลิกเดียวตอน me ยังไม่มา
+  const meKnown = me !== null;
+  const existingUser = !(me !== null && me.profile === null);
   const net = useNet();
   const [agreed, setAgreed] = useState(false);
   const [ageOk, setAgeOk] = useState(false);
@@ -36,7 +38,9 @@ export function ConsentScreen() {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const [signOutFailed, setSignOutFailed] = useState(false);
-  const offline = net === "offline";
+  const [retrying, setRetrying] = useState(false);
+  // ปุ่มที่เรียกเน็ตปิดทั้งตอนเบราว์เซอร์ออฟไลน์และตอน gate รายงานว่าถาม /api/me ไม่ได้
+  const offline = net === "offline" || networkFailed;
 
   async function onAgree() {
     if (saving) return;
@@ -52,6 +56,13 @@ export function ConsentScreen() {
     setSaving(false);
     if (r.reason === "unauthorized") await refresh();
     else setFailure(r.reason === "version_mismatch" ? "version" : "save");
+  }
+
+  async function onRetryMe() {
+    if (retrying) return;
+    setRetrying(true);
+    await refresh();
+    setRetrying(false);
   }
 
   async function onDeleteAfterDecline() {
@@ -109,6 +120,7 @@ export function ConsentScreen() {
               onClick={() => {
                 setConfirmingDelete(false);
                 setDeleteFailed(false);
+                setSignOutFailed(false);
               }}
             >
               {t("existing.confirmBack")}
@@ -132,10 +144,21 @@ export function ConsentScreen() {
             {signingOut ? t("existing.signingOut") : t("existing.signOut")}
           </Button>
           <p className="text-center text-caption text-ink-3">{t("existing.signOutHint")}</p>
-          <Button className="mt-2 border-warn text-warn" disabled={offline || busy} onClick={() => setConfirmingDelete(true)}>
+          <Button className="mt-2 border-warn text-warn" disabled={offline || busy} onClick={() => {
+              setSignOutFailed(false);
+              setDeleteFailed(false);
+              setConfirmingDelete(true);
+            }}>
             {t("existing.delete")}
           </Button>
-          <TextButton disabled={busy} onClick={() => setDeclining(false)}>
+          <TextButton
+            disabled={busy}
+            onClick={() => {
+              setSignOutFailed(false);
+              setDeleteFailed(false);
+              setDeclining(false);
+            }}
+          >
             {t("declineBack")}
           </TextButton>
         </div>
@@ -158,7 +181,13 @@ export function ConsentScreen() {
           <Button loading={deleting} disabled={offline} onClick={() => void onDeleteAfterDecline()}>
             {deleting ? t("deleting") : t("declineConfirm")}
           </Button>
-          <TextButton disabled={deleting} onClick={() => setDeclining(false)}>
+          <TextButton
+            disabled={deleting}
+            onClick={() => {
+              setDeleteFailed(false);
+              setDeclining(false);
+            }}
+          >
             {t("declineBack")}
           </TextButton>
         </div>
@@ -200,7 +229,31 @@ export function ConsentScreen() {
           </Button>
         )}
         {offline ? <p className="text-center text-caption text-ink-3">{t("offline")}</p> : null}
-        <TextButton disabled={saving} onClick={() => setDeclining(true)}>
+        {!meKnown ? (
+          networkFailed ? (
+            <>
+              <p role="alert" className="text-caption text-warn">
+                {t("meFailed")}
+              </p>
+              <Button loading={retrying} onClick={() => void onRetryMe()}>
+                {t("retry")}
+              </Button>
+            </>
+          ) : (
+            <p role="status" className="text-center text-caption text-ink-3">
+              {t("meLoading")}
+            </p>
+          )
+        ) : null}
+        <TextButton
+          disabled={saving || !meKnown}
+          onClick={() => {
+            setDeleteFailed(false);
+            setSignOutFailed(false);
+            setConfirmingDelete(false);
+            setDeclining(true);
+          }}
+        >
           {t("decline")}
         </TextButton>
       </div>
