@@ -246,11 +246,25 @@ for (const locale of LOCALES) {
       await expect(page.locator("p[role=alert]")).toHaveText(msg(locale, "consent.deleteFailed"));
       await expect(page.getByRole("heading", { level: 1 })).toHaveText(msg(locale, "consent.existing.confirmTitle"));
       await expect(btn(page, locale, "consent.existing.confirmDelete")).toBeEnabled();
-      // ยกเลิกหลังลบไม่สำเร็จ → ข้อความ "ลบไม่สำเร็จ" ไม่ตามกลับมาหน้าตัดสินใจ
-      // (ข้อความ "ออกจากระบบไม่สำเร็จ" จากครั้งก่อนยังค้างอยู่ — รายงาน Lead แล้ว ไม่ตรวจที่นี่)
+      // เปลี่ยนขั้น (กดลบ) แล้ว ข้อความ "ออกจากระบบไม่สำเร็จ" ต้องไม่ค้าง (แก้ใน 446b836)
+      await expect(page.getByText(msg(locale, "consent.existing.signOutFailed"))).toHaveCount(0);
+      // ยกเลิกหลังลบไม่สำเร็จ → ทั้ง "ลบไม่สำเร็จ" และ "ออกจากระบบไม่สำเร็จ" ไม่ตามกลับมาหน้าตัดสินใจ
       await btn(page, locale, "consent.existing.confirmBack").click();
       await expect(page.getByRole("heading", { level: 1 })).toHaveText(msg(locale, "consent.existing.title"));
       await expect(page.getByText(msg(locale, "consent.deleteFailed"))).toHaveCount(0);
+      await expect(page.getByText(msg(locale, "consent.existing.signOutFailed"))).toHaveCount(0);
+      await expect(page.locator("p[role=alert]")).toHaveCount(0);
+
+      // ออกจากระบบล้มอีกรอบ → กลับไปอ่านอีกที → ไม่ยินยอมใหม่ → ไม่มีข้อความค้าง
+      await page.route("**/api/auth/sign-out", (r) => r.abort("internetdisconnected"));
+      await btn(page, locale, "consent.existing.signOut").click();
+      await expect(page.locator("p[role=alert]")).toHaveText(msg(locale, "consent.existing.signOutFailed"));
+      await btn(page, locale, "consent.declineBack").click();
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(msg(locale, "consent.title"));
+      await btn(page, locale, "consent.decline").click();
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(msg(locale, "consent.existing.title"));
+      await expect(page.locator("p[role=alert]")).toHaveCount(0);
+      await page.unroute("**/api/auth/sign-out");
       await page.unroute("**/api/me");
       expect(await snapshot(id), "failed attempts change nothing").toEqual(before);
       expect((await u.api.get("/api/me")).status()).toBe(200);
@@ -258,6 +272,79 @@ for (const locale of LOCALES) {
       // ลองออกจากระบบอีกครั้งได้จริง
       await btn(page, locale, "consent.existing.signOut").click();
       await expect(page).toHaveURL(/\/welcome$/, { timeout: 15_000 });
+      expect(await snapshot(id)).toEqual(before);
+      await u.api.dispose();
+    });
+
+    // บั๊กที่ qa เจอ (แก้ใน 446b836): ตอน GET /api/me ล้มหรือยังไม่ตอบ me = null ถูกนับเป็น "ผู้ใช้ใหม่"
+    // → ผู้ใช้เดิมกด ไม่ยินยอม แล้วลบบัญชีพร้อมข้อมูลทั้งหมดได้ด้วยคลิกเดียว (ไม่มีขั้นยืนยัน)
+    test("me ล้ม (เน็ตหลุดเฉพาะ /api/me): ไม่ยินยอม ปิด + ข้อความ + ลองใหม่ · ไม่มีทางลบคลิกเดียว · DB ไม่เปลี่ยน", async ({ page, context, baseURL }) => {
+      const { u, id } = await existingUser(baseURL!, locale);
+      const before = await snapshot(id);
+      const residueBefore = await residue(id, u.email);
+      await applySession(context, u);
+      const deletes: string[] = [];
+      page.on("request", (r: Request) => {
+        if (new URL(r.url()).pathname === "/api/me" && r.method() === "DELETE") deletes.push(r.url());
+      });
+      await page.route("**/api/me", (r) => (r.request().method() === "GET" ? r.abort("failed") : r.continue()));
+      await page.goto("/consent");
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(msg(locale, "consent.title"));
+      await expect(page.getByRole("alert").filter({ hasText: msg(locale, "consent.meFailed") })).toBeVisible({ timeout: 15_000 });
+      await expect(btn(page, locale, "consent.decline")).toBeDisabled();
+      // กดแรงๆ ก็ไปต่อไม่ได้
+      await btn(page, locale, "consent.decline").click({ force: true });
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(msg(locale, "consent.title"));
+      await expect(btn(page, locale, "consent.declineConfirm")).toHaveCount(0);
+
+      // ลองใหม่ขณะยังล้ม → ยังปิด
+      await btn(page, locale, "consent.retry").click();
+      await expect(page.getByRole("alert").filter({ hasText: msg(locale, "consent.meFailed") })).toBeVisible();
+      await expect(btn(page, locale, "consent.decline")).toBeDisabled();
+
+      // เน็ตกลับ → ลองใหม่ → ไม่ยินยอม เปิด → ทางผู้ใช้เดิม (มีขั้นยืนยัน) ไม่ใช่ทางผู้ใช้ใหม่
+      await page.unroute("**/api/me");
+      await btn(page, locale, "consent.retry").click();
+      await expect(btn(page, locale, "consent.decline")).toBeEnabled({ timeout: 15_000 });
+      await expect(page.getByText(msg(locale, "consent.meFailed"))).toHaveCount(0);
+      await btn(page, locale, "consent.decline").click();
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(msg(locale, "consent.existing.title"));
+      await expect(btn(page, locale, "consent.declineConfirm")).toHaveCount(0);
+
+      expect(deletes, "no DELETE /api/me").toEqual([]);
+      expect(await snapshot(id)).toEqual(before);
+      expect(await residue(id, u.email)).toEqual(residueBefore);
+      expect((await u.api.get("/api/me")).status()).toBe(200);
+      await u.api.dispose();
+    });
+
+    test("me ช้า (4 วิ): ระหว่างรอ ไม่ยินยอม ปิด + \"กำลังตรวจสถานะบัญชี\" · โหลดเสร็จ → ทางผู้ใช้เดิม · DB ไม่เปลี่ยน", async ({ page, context, baseURL }) => {
+      const { u, id } = await existingUser(baseURL!, locale);
+      const before = await snapshot(id);
+      await applySession(context, u);
+      const deletes: string[] = [];
+      page.on("request", (r: Request) => {
+        if (new URL(r.url()).pathname === "/api/me" && r.method() === "DELETE") deletes.push(r.url());
+      });
+      await page.route("**/api/me", async (r) => {
+        if (r.request().method() === "GET") await new Promise((res) => setTimeout(res, 4000));
+        await r.continue();
+      });
+      await page.goto("/consent");
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(msg(locale, "consent.title"));
+      await expect(page.getByRole("status").filter({ hasText: msg(locale, "consent.meLoading") })).toBeVisible();
+      await expect(btn(page, locale, "consent.decline")).toBeDisabled();
+      await btn(page, locale, "consent.decline").click({ force: true });
+      await expect(btn(page, locale, "consent.declineConfirm")).toHaveCount(0);
+
+      await expect(btn(page, locale, "consent.decline")).toBeEnabled({ timeout: 15_000 });
+      await expect(page.getByText(msg(locale, "consent.meLoading"))).toHaveCount(0);
+      await btn(page, locale, "consent.decline").click();
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(msg(locale, "consent.existing.title"));
+      await expect(btn(page, locale, "consent.declineConfirm")).toHaveCount(0);
+      await page.unroute("**/api/me");
+
+      expect(deletes, "no DELETE /api/me").toEqual([]);
       expect(await snapshot(id)).toEqual(before);
       await u.api.dispose();
     });
