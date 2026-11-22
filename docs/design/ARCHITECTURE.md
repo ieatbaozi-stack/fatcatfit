@@ -176,7 +176,7 @@ R1 ยังไม่มีคิวเต็มรูป (คิวเป็น
 | `DATABASE_URL_UNPOOLED` | `npm run db:migrate` (ถ้าไม่มีถอยไป `DATABASE_URL`) · `scripts/release-migrate.ts` (ต้องมี ไม่ถอย) | direct (ไม่มี `-pooler`) — migration และ advisory lock ต้องใช้ session จริง |
 | `MIGRATE_ON_DEPLOY` | `scripts/release-migrate.ts` | ตั้ง `1` เฉพาะ Vercel Production เพื่อให้ build รัน migration · ไม่ตั้ง = ข้าม · ทำงานคู่กับ `VERCEL_ENV=production` ที่ Vercel ตั้งให้เอง |
 | `BETTER_AUTH_SECRET` | auth | สุ่มยาว ≥ 32 ตัว ต่างกันระหว่าง production กับ preview/dev |
-| `BETTER_AUTH_URL` | auth | URL เต็มของแต่ละสภาพแวดล้อม (ไม่ตั้ง = redirect_uri_mismatch) |
+| `BETTER_AUTH_URL` | auth | URL เต็มของ production (ไม่ตั้ง = redirect_uri_mismatch) · Preview ไม่ตั้ง — Better Auth ใช้ origin ของคำขอ (2026-11-22) |
 | `GOOGLE_CLIENT_ID` · `GOOGLE_CLIENT_SECRET` | auth | boss สร้าง OAuth client |
 | `EMAIL_TRANSPORT` | email | `smtp` \| `log` \| `http` |
 | `EMAIL_FROM` | email | ชื่อ + ที่อยู่ผู้ส่ง |
