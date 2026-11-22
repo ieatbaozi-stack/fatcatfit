@@ -305,7 +305,7 @@ migration บน production รันแล้วตอน deploy v0.2.0 (2026-1
 | `DATABASE_URL` | ชุด production | ชุด **dev** | ใช่ | ข้อ 1.3 (ใส่แล้วจาก R0) |
 | `DATABASE_URL_UNPOOLED` | ชุด production | ชุด **dev** | ใช่ | ข้อ 1.3 (ใส่แล้ว) |
 | `BETTER_AUTH_SECRET` | ค่า A | ค่า B (คนละค่า) | ใช่ | ข้อ 1.4 (ใส่แล้ว) |
-| `BETTER_AUTH_URL` | `https://<โดเมน production>` | URL ของ preview นั้น (หมายเหตุ 2) | ไม่ | URL เต็ม ไม่มี `/` ท้าย |
+| `BETTER_AUTH_URL` | `https://<โดเมน production>` | **ไม่ต้องใส่** (หมายเหตุ 2) | ไม่ | URL เต็ม ไม่มี `/` ท้าย |
 | `GOOGLE_CLIENT_ID` | ใส่ | ใส่ถ้าจะทดสอบ Google บน preview | ไม่ | ข้อ ข.7 |
 | `GOOGLE_CLIENT_SECRET` | ใส่ | ใส่ถ้าจะทดสอบ Google บน preview | **ใช่** | ข้อ ข.7 |
 | `EMAIL_TRANSPORT` | `smtp` | `log` (ไม่ส่งจริง) หรือ `smtp` เมื่อต้องทดสอบเมลจริง | ไม่ | `smtp` / `log` · **production ไม่ตั้ง = ส่งไม่ได้และ log ขึ้นว่าไม่ได้ตั้ง** |
@@ -322,7 +322,7 @@ migration บน production รันแล้วตอน deploy v0.2.0 (2026-1
 
 หมายเหตุ:
 1. **Preview ต้องใช้ฐานข้อมูล dev เท่านั้น** (กฎเหล็กข้อ 1.2) · Preview ใช้ `EMAIL_TRANSPORT=log` เป็นปกติ: Vercel รันโค้ดแบบ production จึง **ไม่แสดงรหัส** ใน log (เจตนา ไม่ให้ log ที่ใครอ่านได้มีรหัส) → ถ้าต้องล็อกอินด้วยรหัสบน preview ให้ตั้ง `smtp` (ส่งเมลจริงจาก Gmail ของแอป นับรวมเพดานรายวัน) หรือให้ Lead ทดสอบในเครื่อง
-2. `BETTER_AUTH_URL` ของ Preview ต่างกันตาม branch: ตอนกด **Add** ติ๊ก **Preview** แล้วเลือกผูกกับ branch ที่ต้องการ (ชื่อตัวเลือกตามหน้าจอ Vercel **[ยืนยันไม่ได้]**) · ถ้าตั้งผิดอาการคือ Google ขึ้น `redirect_uri_mismatch` หรือเด้งไปโดเมนอื่น · ถ้าเปลี่ยนโดเมน production ต้องแก้ตัวแปรนี้และ redirect URI ใน Google
+2. **ตัวแปรของ Preview ทุกตัวตั้งแบบ "All Preview Branches" ห้ามผูกกับ branch ใด branch หนึ่ง** — ตั้งครั้งเดียวแล้วทุก branch ใหม่ใช้ได้ทันที (บทเรียน 2026-11-22: เคยผูกตัวแปรส่งเมลไว้กับ `r1-auth` ทำให้ preview ของ `r1-5-admin-invites` ขึ้น "ส่งรหัสไม่สำเร็จ") · **Preview ไม่ใส่ `BETTER_AUTH_URL`**: Better Auth 1.7 ใช้ origin ของคำขอเองเมื่อไม่ได้ตั้ง (ตรวจจากโค้ดใน `node_modules/better-auth/dist/context/create-context.mjs` 2026-11-22) จึงใช้ได้ทุกโดเมน preview · ข้อจำกัด: ปุ่ม Google บน preview ต้องลงทะเบียน redirect URI ทีละโดเมน → preview ทดสอบด้วยรหัสทางอีเมล ส่วน Google ทดสอบบน production · ถ้าเปลี่ยนโดเมน production ต้องแก้ `BETTER_AUTH_URL` ของ Production และ redirect URI ใน Google
 3. หลังเพิ่ม/แก้ต้อง **Redeploy** (ข้อ 1.2)
 4. เครื่อง dev (`.env.local`): คัดลอกจาก `.env.example` ตั้ง `EMAIL_TRANSPORT=log` — รหัสพิมพ์ลงหน้าต่างที่รัน `npm run dev` (เฉพาะนอก production)
 
