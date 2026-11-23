@@ -6,6 +6,7 @@
 // 2. SMTP ปลอม: แอปส่งอีเมล OTP ด้วย EMAIL_TRANSPORT=smtp ตามจริง (nodemailer) แล้วเก็บเมลไว้ให้เทสต์อ่าน
 //    — ไม่ข้ามด่าน OTP: เทสต์ต้องอ่านรหัสจากเมลที่แอปส่งจริงเหมือนผู้ใช้
 // 3. HTTP ควบคุม (127.0.0.1 เท่านั้น): ออกโค้ดเชิญด้วยฟังก์ชันเดียวกับ scripts/invite.ts · อ่านเมล · query ตรวจผล
+// 4. คลังท่ากลาง (R2): seed จากไฟล์คลังจริงด้วยฟังก์ชันเดียวกับ release-migrate (seedExercises) ต่อจาก migration
 
 import { createServer as createHttpServer, type IncomingMessage } from "node:http";
 import { createServer as createTcpServer, type Socket } from "node:net";
@@ -18,6 +19,7 @@ import type { AppDb } from "../../../src/db/types";
 import { createInvite, revokeInvite } from "../../../src/lib/auth/invite-store";
 import { E2E_CTRL_PORT, E2E_PG_PORT, E2E_SMTP_PORT } from "./ports";
 import { otpEmailKeys, otpVerificationIdentifiers } from "../../../src/lib/auth/throttle";
+import { seedExercises } from "../../../scripts/seed-exercises";
 
 const PG_PORT = E2E_PG_PORT;
 const SMTP_PORT = E2E_SMTP_PORT;
@@ -27,6 +29,8 @@ const HOST = "127.0.0.1";
 const pg = new PGlite();
 const db = drizzle(pg, { schema });
 await migrate(db, { migrationsFolder: path.resolve(process.cwd(), "drizzle") });
+// คลังจริงทั้งก้อน (ไม่ใช่ข้อมูลจำลอง) — จอค้นท่าใน e2e ใช้ข้อมูลเดียวกับ production
+await seedExercises(db as unknown as Parameters<typeof seedExercises>[0]);
 
 // ---------------------------------------------------------------- Postgres wire
 let lockTail: Promise<void> = Promise.resolve();
@@ -313,18 +317,19 @@ createHttpServer(async (req, res) => {
       return send(200, mails.filter((m) => !to || m.to.includes(to)).map((m) => ({ to: m.to, subject: m.subject, text: m.text, at: m.at })));
     }
     if (req.method === "GET" && url.pathname === "/residue") {
-      // สิ่งที่เหลือของบัญชีหนึ่ง (เกณฑ์ 10): ทุกตารางที่มีคอลัมน์ user_id (หาเองจาก information_schema — ตารางใหม่ถูกนับอัตโนมัติ)
+      // สิ่งที่เหลือของบัญชีหนึ่ง (เกณฑ์ 10 ของ R1 · เกณฑ์ 7 ของ R2): ทุกตารางที่มีคอลัมน์ user_id หรือ owner_user_id
+      // (หาเองจาก information_schema — ตารางใหม่ถูกนับอัตโนมัติ · คอลัมน์ owner_user_id ใช้ key "<ตาราง>.owner_user_id")
       // + user + verification/auth_throttle ของอีเมลนั้น (key ตรงตัวจากฟังก์ชันเดียวกับแอป)
       const userId = url.searchParams.get("userId") ?? "";
       const email = url.searchParams.get("email") ?? "";
       const out = await withLock(async () => {
         const counts: Record<string, number> = {};
-        const tables = await pg.query<{ table_name: string }>(
-          "select table_name from information_schema.columns where table_schema='public' and column_name='user_id' order by table_name",
+        const cols = await pg.query<{ table_name: string; column_name: string }>(
+          "select table_name, column_name from information_schema.columns where table_schema='public' and column_name in ('user_id', 'owner_user_id') order by table_name, column_name",
         );
-        for (const { table_name } of tables.rows) {
-          const r = await pg.query<{ n: number }>(`select count(*)::int as n from "${table_name}" where user_id = $1`, [userId]);
-          counts[table_name] = r.rows[0].n;
+        for (const { table_name, column_name } of cols.rows) {
+          const r = await pg.query<{ n: number }>(`select count(*)::int as n from "${table_name}" where "${column_name}" = $1`, [userId]);
+          counts[column_name === "user_id" ? table_name : `${table_name}.${column_name}`] = r.rows[0].n;
         }
         counts["user"] = (await pg.query<{ n: number }>(`select count(*)::int as n from "user" where id = $1 or lower(email) = lower($2)`, [userId, email])).rows[0].n;
         counts["verification(email)"] = (
