@@ -227,15 +227,15 @@ export function ExercisesScreen() {
             </TextButton>
           ) : null}
           {hasQuery ? (
-            <div className="mt-4 flex flex-col items-start gap-1 border-t border-ink-3/40 pt-3">
+            <div className="mt-3 flex flex-col items-start gap-1">
               <p className="text-caption text-ink-3">{t("exercises.notWhat")}</p>
               {canCreate ? (
                 <Link href={createHref} className="inline-flex min-h-11 max-w-full items-center text-body text-ink underline-hand">
-                  <span className="truncate">+ {t("exercises.createFrom", { q: clampName(q) })}</span>
+                  <span className="truncate py-1.5">+ {t("exercises.createFrom", { q: clampName(q) })}</span>
                 </Link>
               ) : (
                 <span aria-disabled="true" className="inline-flex min-h-11 max-w-full items-center text-body text-ink-3">
-                  <span className="truncate">+ {t("exercises.createFrom", { q: clampName(q) })}</span>
+                  <span className="truncate py-1.5">+ {t("exercises.createFrom", { q: clampName(q) })}</span>
                 </span>
               )}
             </div>
@@ -265,7 +265,7 @@ export function ExercisesScreen() {
           ) : null}
           {noResults && hasQuery ? (
             <PrimaryLink href={createHref} disabled={!canCreate}>
-              <span className="truncate">+ {t("exercises.createFrom", { q: clampName(q) })}</span>
+              <span className="truncate py-1.5">+ {t("exercises.createFrom", { q: clampName(q) })}</span>
             </PrimaryLink>
           ) : canCreate ? (
             <Link href={createHref} className="inline-flex min-h-13 items-center justify-center text-body text-ink underline-hand">

@@ -261,16 +261,24 @@ function FormBody({ base, initial, mine, notice, onStale }: BodyProps) {
       {/* ชนิดการจด (บังคับ ไม่มีค่าเริ่ม: ล็อกเมื่อมีประวัติ จึงให้เลือกเอง) */}
       <section className="flex flex-col gap-2">
         <h2 className="text-caption text-ink-3">{t("exerciseForm.track")}</h2>
-        <ChoiceGroup variant="list" label={t("exerciseForm.track")} value={values.track} options={trackOptions} onChange={(v: TrackType) => {
+        <ChoiceGroup
+          variant="list"
+          label={t("exerciseForm.track")}
+          value={values.track}
+          options={trackOptions}
+          onChange={(v: TrackType) => {
             setError(null);
             setValues((cur) => withTrack(cur, v));
-          }} />
-        {showsLoadMode(values.track) ? (
-          <div className="ml-10 flex flex-col gap-2 pt-1">
-            <p className="text-caption text-ink-3">{t("exercise.load.label")}</p>
-            <ChoiceGroup variant="chips" label={t("exercise.load.label")} value={values.loadMode} options={loadOptions} onChange={(v: LoadMode) => set({ loadMode: v })} />
-          </div>
-        ) : null}
+          }}
+          after={{
+            weight_reps: showsLoadMode(values.track) ? (
+              <div className="ml-10 flex flex-col gap-2 border-b border-ink-3/40 py-3">
+                <p className="text-caption text-ink-3">{t("exercise.load.label")}</p>
+                <ChoiceGroup variant="chips" label={t("exercise.load.label")} value={values.loadMode} options={loadOptions} onChange={(v: LoadMode) => set({ loadMode: v })} />
+              </div>
+            ) : null,
+          }}
+        />
         <p className="text-caption text-ink-3">{t("exerciseForm.lockNote")}</p>
       </section>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, type KeyboardEvent, type ReactNode } from "react";
+import { Fragment, useRef, type KeyboardEvent, type ReactNode } from "react";
 import { cx } from "./cx";
 import { Icon } from "./icon";
 
@@ -13,13 +13,15 @@ type Props<V extends string> = {
   onChange: (v: V) => void;
   /** chips = ชิปตัดบรรทัด · list = แถวละตัวเลือก (วงกลมส้ม + ติ๊ก) พร้อมตัวอย่างจางชิดขวา */
   variant: "chips" | "list";
+  /** เนื้อหาย่อหน้าใต้ตัวเลือกที่ระบุ (เช่น ถามน้ำหนักตัวใต้ "น้ำหนัก × ครั้ง") — แสดงเฉพาะแบบ list */
+  after?: Partial<Record<V, ReactNode>>;
 };
 
 /**
  * กลุ่มตัวเลือกเดียว `role="radiogroup"` (UX 12.6): เลือกทีละอัน · ลูกศรเปลี่ยนตัวเลือก (roving tabindex) · Tab ออกจากกลุ่ม
  * ตัวเลือกที่เลือก = ชิปพื้นดำ / วงส้มมีเครื่องหมายถูก (ไม่สื่อด้วยสีอย่างเดียว)
  */
-export function ChoiceGroup<V extends string>({ label, value, options, onChange, variant }: Props<V>) {
+export function ChoiceGroup<V extends string>({ label, value, options, onChange, variant, after }: Props<V>) {
   const refs = useRef<Array<HTMLButtonElement | null>>([]);
   const tabIndexOf = (i: number) => (value === null ? (i === 0 ? 0 : -1) : options[i].value === value ? 0 : -1);
 
@@ -56,8 +58,8 @@ export function ChoiceGroup<V extends string>({ label, value, options, onChange,
             {o.label}
           </button>
         ) : (
+          <Fragment key={o.value}>
           <button
-            key={o.value}
             ref={(el) => {
               refs.current[i] = el;
             }}
@@ -74,6 +76,8 @@ export function ChoiceGroup<V extends string>({ label, value, options, onChange,
               {o.hint ? <span className="text-caption text-ink-3">{o.hint}</span> : null}
             </span>
           </button>
+          {after?.[o.value] ?? null}
+          </Fragment>
         );
       })}
     </div>
