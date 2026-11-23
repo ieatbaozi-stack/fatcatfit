@@ -1,5 +1,6 @@
 // ตรรกะร่วมของคลังท่า (R2 · contract D0–D3, D9 · ADR 0008) — แปลงชุดข้อมูลต้นทาง · ตรวจคลัง · seed ลงฐานข้อมูล
 // ไม่มี I/O ของเครือข่าย · อ่านไฟล์เฉพาะใน loadCatalogFiles · seed ทำผ่าน drizzle ที่ส่งเข้ามา (pg จริงหรือ PGlite ในเทสต์)
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { eq, inArray, isNull } from "drizzle-orm";
@@ -22,6 +23,24 @@ import {
   type LoadMode,
   type TrackType,
 } from "../src/lib/data/shared/exercise-meta";
+
+// ---------------------------------------------------------------- id ของคลัง (UUID v5)
+
+/** namespace คงที่ของ id คลังกลาง (UUID v4 ที่สุ่มครั้งเดียว) — ห้ามเปลี่ยนตลอดไป */
+export const CATALOG_NAMESPACE = "5d0f6c1e-8a3b-4e72-9c41-b7a2f6d3e815";
+
+/** UUID v5 (RFC 4122) ของ name ใน namespace */
+export function uuidV5(name: string, namespace: string = CATALOG_NAMESPACE): string {
+  const ns = Buffer.from(namespace.replace(/-/g, ""), "hex");
+  const h = createHash("sha1").update(ns).update(name, "utf8").digest();
+  h[6] = (h[6]! & 0x0f) | 0x50;
+  h[8] = (h[8]! & 0x3f) | 0x80;
+  const x = h.subarray(0, 16).toString("hex");
+  return `${x.slice(0, 8)}-${x.slice(8, 12)}-${x.slice(12, 16)}-${x.slice(16, 20)}-${x.slice(20)}`;
+}
+
+/** id ของแถวคลัง = v5("<source_dataset>:<source_ref>") — ไม่ชนกับ UUID v4 ที่ไคลเอนต์ส่งมา */
+export const catalogId = (sourceDataset: string, sourceRef: string): string => uuidV5(`${sourceDataset}:${sourceRef}`);
 
 // ---------------------------------------------------------------- ชนิด
 
@@ -224,7 +243,7 @@ export type CheckResult = {
   };
 };
 
-const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+const UUID_V5 = /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 const THAI = /[฀-๿]/;
 const FILE_KEYS = new Set(["source_dataset", "license", "attribution", "upstream_commit", "upstream_url", "exercises"]);
 const ROW_KEYS = new Set(["id", "source_ref", "name", "name_th", "search_terms", "track_type", "load_mode", "is_unilateral", "category", "equipment"]);
@@ -292,7 +311,8 @@ export function checkCatalog(rows: CatalogRow[], preErrors: string[] = []): Chec
     const who = `${r.source_dataset}/${r.source_ref} "${r.name}"`;
     const err = (m: string) => errors.push(`${who}: ${m}`);
 
-    if (typeof r.id !== "string" || !UUID_V4.test(r.id)) err(`id ไม่ใช่ UUID v4 (${String(r.id)})`);
+    if (typeof r.id !== "string" || !UUID_V5.test(r.id)) err(`id ไม่ใช่ UUID v5 (${String(r.id)})`);
+    else if (r.id !== catalogId(r.source_dataset, r.source_ref)) err(`id ไม่ตรงกับ v5("${r.source_dataset}:${r.source_ref}")`);
     else if (ids.has(r.id)) err(`id ซ้ำกับ ${ids.get(r.id)}`);
     else ids.set(r.id, who);
 
@@ -436,6 +456,13 @@ export async function syncCatalog(db: AnyPgDb, rows: CatalogRow[], now: Date = n
     const existing = await tx.select().from(exercise).where(isNull(exercise.ownerUserId));
     const byId = new Map(existing.map((e) => [e.id, e]));
     const fileIds = new Set(rows.map((r) => r.id));
+    // กันชน: id ของคลังต้องไม่เป็นแถวของผู้ใช้ (owner_user_id ไม่ว่าง)
+    const ids = rows.map((r) => r.id);
+    for (let i = 0; i < ids.length; i += 500) {
+      const hit = await tx.select({ id: exercise.id }).from(exercise).where(inArray(exercise.id, ids.slice(i, i + 500)));
+      const clash = hit.find((h) => !byId.has(h.id));
+      if (clash) throw new Error(`seed: id คลัง ${clash.id} ชนกับแถวของผู้ใช้ (owner_user_id ไม่ว่าง) — หยุด ไม่เขียนอะไร`);
+    }
 
     const toInsert: (ReturnType<typeof toValues> & { id: string })[] = [];
     for (const r of rows) {

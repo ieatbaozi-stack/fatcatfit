@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { eq, isNull } from "drizzle-orm";
 import { createTestDb, type TestDb } from "../src/db/testing/pglite";
-import { exercise } from "../src/db/schema";
-import { checkCatalog, flattenFiles, loadCatalog, loadCatalogFiles, mapRaw, syncCatalog, type CatalogRow, type RawExercise } from "./seed-lib";
+import { exercise, user } from "../src/db/schema";
+import { catalogId, checkCatalog, flattenFiles, uuidV5, loadCatalog, loadCatalogFiles, mapRaw, syncCatalog, type CatalogRow, type RawExercise } from "./seed-lib";
 import { runCheck } from "./seed-check";
 import { seedExercises } from "./seed-exercises";
 import { convertFreeExerciseDb, convertOwn, serializeFile } from "./seed-convert";
@@ -68,6 +68,10 @@ describe("ร่างชื่อไทย/คำค้น", () => {
   it("คำที่ไม่รู้จักถูกรายงานใน missing", () => {
     expect(composeNameTh("Flurbo Press").missing).toEqual(["flurbo"]);
   });
+  it("คำค้นสะกดอื่นมาจากชื่อไทยสำเร็จรูป (ไม่แปลคำใหม่)", () => {
+    expect(buildSearchTerms("Barbell Squat", "บาร์เบลสควอท")).toContain("บาร์เบลล์สควอต");
+    for (const t of buildSearchTerms("Linear Depth Jump", "ลิเนียร์เดปธ์จัมพ์")) expect(t).not.toMatch(/เส้นตรง/);
+  });
   it("คำค้นมีตัวย่ออังกฤษและไม่มีชื่อหลักซ้ำ", () => {
     const t = buildSearchTerms("Dumbbell Bench Press", "ดัมเบลเบนช์เพรส");
     expect(t).toContain("db bench press");
@@ -84,9 +88,9 @@ describe("แปลงชุดข้อมูล: id คงที่เมื�
     for (const r of first) expect(second.find((x) => x.source_ref === r.source_ref)).toEqual(r);
   });
   it("แถวของทีมเองคง id ตาม slug", () => {
-    const a = convertOwn([]);
-    const b = convertOwn(a);
-    expect(b).toEqual(a);
+    const a = convertOwn();
+    expect(convertOwn()).toEqual(a);
+    for (const r of a) expect(r.id).toBe(catalogId("fatcatfit", r.source_ref));
   });
   it("ไฟล์ที่เขียนไม่มีช่องต้องห้าม", () => {
     const file = serializeFile({
@@ -102,9 +106,23 @@ describe("แปลงชุดข้อมูล: id คงที่เมื�
   });
 });
 
+describe("UUID v5 ของคลัง", () => {
+  it("ตรงเวกเตอร์มาตรฐาน RFC (DNS namespace · python.org)", () => {
+    expect(uuidV5("python.org", "6ba7b810-9dad-11d1-80b4-00c04fd430c8")).toBe("886313e1-3b8a-5372-9b90-0c9aee199e5d");
+  });
+  it("id คงที่ต่อ dataset:ref และทุกแถวในไฟล์จริงเป็น v5 ที่คำนวณได้", () => {
+    expect(catalogId("free-exercise-db", "Plank")).toBe(catalogId("free-exercise-db", "Plank"));
+    expect(catalogId("free-exercise-db", "Plank")).not.toBe(catalogId("fatcatfit", "Plank"));
+    for (const r of loadCatalog().rows) {
+      expect(r.id[14]).toBe("5");
+      expect(r.id).toBe(catalogId(r.source_dataset, r.source_ref));
+    }
+  });
+});
+
 describe("ตรวจคลัง (checkCatalog)", () => {
   const good = (i: number, over: Partial<CatalogRow> = {}): CatalogRow => ({
-    id: `00000000-0000-4000-8000-${String(i).padStart(12, "0")}`,
+    id: catalogId("fatcatfit", `r${i}`),
     source_dataset: "fatcatfit",
     source_ref: `r${i}`,
     license: "original",
@@ -131,8 +149,10 @@ describe("ตรวจคลัง (checkCatalog)", () => {
   it("จับข้อผิดตามเกณฑ์", () => {
     const base = set(750);
     const bad = (over: Partial<CatalogRow>) => checkCatalog([{ ...base[0]!, ...over }, ...base.slice(1)]).errors.join("\n");
-    expect(bad({ id: "not-a-uuid" })).toMatch(/UUID v4/);
-    expect(bad({ id: base[1]!.id })).toMatch(/id ซ้ำ/);
+    expect(bad({ id: "not-a-uuid" })).toMatch(/UUID v5/);
+    expect(bad({ id: "00000000-0000-4000-8000-000000000001" })).toMatch(/UUID v5/);
+    expect(bad({ id: base[1]!.id })).toMatch(/ไม่ตรงกับ v5/);
+    expect(checkCatalog([...base, base[0]!]).errors.join(" ; ")).toMatch(/id ซ้ำ/);
     expect(bad({ name: base[1]!.name })).toMatch(/name ซ้ำ/);
     expect(bad({ name: "x".repeat(61) })).toMatch(/1–60/);
     expect(bad({ name_th: "" })).toMatch(/name_th/);
@@ -230,6 +250,24 @@ describe("seed ลงฐานข้อมูล (PGlite · migration จริ�
     expect(back).toMatchObject({ updated: 1, unarchived: 1 });
     const again = await syncCatalog(t.db, rows, new Date("2026-11-27T00:00:00Z"));
     expect(again.changed).toBe(0);
+  });
+
+  it("id คลังชนกับแถวของผู้ใช้ = ล้มพร้อมข้อความชัด ไม่เขียนอะไร", async () => {
+    const fresh = await createTestDb();
+    try {
+      const now = new Date("2026-11-23T00:00:00Z");
+      const uid = crypto.randomUUID();
+      await fresh.db.insert(user).values({ id: uid, name: "t", email: "t@example.com", createdAt: now, updatedAt: now });
+      const rows = loadCatalog().rows;
+      await fresh.db.insert(exercise).values({
+        id: rows[0]!.id, ownerUserId: uid, name: "Mine", trackType: "reps_only", loadMode: "external", isUnilateral: false, category: "core",
+        createdAt: now, updatedAt: now, clientUpdatedAt: now,
+      });
+      await expect(syncCatalog(fresh.db, rows, now)).rejects.toThrow(/ชนกับแถวของผู้ใช้/);
+      expect((await fresh.db.select().from(exercise)).length).toBe(1);
+    } finally {
+      await fresh.close();
+    }
   });
 
   it("ไฟล์ที่ไม่ผ่านการตรวจ = ไม่เขียนอะไรลงฐาน", async () => {

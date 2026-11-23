@@ -3,13 +3,13 @@
 // ใช้: npx tsx scripts/seed-convert.ts <path/to/exercises.json> --commit <sha40> [--content-dir DIR] [--docs-dir DIR]
 //   · อ่านเฉพาะ id name force equipment category primaryMuscles ของต้นทาง (ไม่อ่าน/ไม่เก็บ instructions, images)
 //   · ไฟล์ดิบอยู่นอก repo (ดาวน์โหลดจาก commit ที่ล็อก) · สคริปต์ไม่รันโค้ดในนั้น
-//   · แถวที่มีอยู่แล้ว (จับด้วย source_ref): คง id, name_th, search_terms เดิม (แก้มือในไฟล์คลังได้) · คำนวณหมวด/อุปกรณ์/track_type ใหม่ + overrides.json
-import { randomUUID } from "node:crypto";
+//   · แถวที่มีอยู่แล้ว (จับด้วย source_ref): id = UUID v5 จาก source_dataset:source_ref (คำนวณเสมอ) · คง name_th, search_terms เดิม (แก้มือในไฟล์คลังได้) · คำนวณหมวด/อุปกรณ์/track_type ใหม่ + overrides.json
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import {
   ALLOWED_SOURCES,
+  catalogId,
   KNOWN_RAW_CATEGORIES,
   KNOWN_RAW_EQUIPMENT,
   KNOWN_RAW_MUSCLES,
@@ -61,7 +61,7 @@ export function convertFreeExerciseDb(raw: RawExercise[], existing: FileRow[], o
       nameTh = c.text;
     }
     rows.push({
-      id: prev?.id ?? randomUUID(),
+      id: catalogId("free-exercise-db", r.id),
       source_ref: r.id,
       ...mapped,
       name_th: nameTh,
@@ -72,12 +72,10 @@ export function convertFreeExerciseDb(raw: RawExercise[], existing: FileRow[], o
   return { rows, missingTokens, tooLong };
 }
 
-export function convertOwn(existing: FileRow[]): FileRow[] {
-  const byRef = new Map(existing.map((r) => [r.source_ref, r]));
+export function convertOwn(): FileRow[] {
   const rows = OWN_ENTRIES.map<FileRow>((e) => {
-    const prev = byRef.get(e.slug);
     return {
-      id: prev?.id ?? randomUUID(),
+      id: catalogId("fatcatfit", e.slug),
       source_ref: e.slug,
       name: e.name,
       name_th: e.name_th,
@@ -163,10 +161,9 @@ export function runConvert(opts: Opts): { feCount: number; ownCount: number; too
   const raw = rawAll.map<RawExercise>((r) => ({ id: r.id, name: r.name, force: r.force ?? null, equipment: r.equipment ?? null, category: r.category, primaryMuscles: r.primaryMuscles }));
 
   const prevFe = readJson<CatalogFile | null>(feFile, null)?.exercises ?? [];
-  const prevOwn = readJson<CatalogFile | null>(ownFile, null)?.exercises ?? [];
   const fe = convertFreeExerciseDb(raw, prevFe, overrides);
   if (fe.tooLong.length || fe.missingTokens.size) return { feCount: 0, ownCount: 0, tooLong: fe.tooLong, missing: fe.missingTokens };
-  const own = convertOwn(prevOwn);
+  const own = convertOwn();
 
   const feMeta = ALLOWED_SOURCES["free-exercise-db"]!;
   const ownMeta = ALLOWED_SOURCES["fatcatfit"]!;
