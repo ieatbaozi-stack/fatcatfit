@@ -66,7 +66,7 @@ PRD ข้อ 5/7: เก็บหน่วยมาตรฐาน (kg/เม�
 | `place` | R1 | `name` · `last_used_at` · `archived_at` | → `user` |
 | `body_entry` | R1 (น้ำหนัก) · R4 (ที่เหลือ) | `measured_at` · `local_date` · `weight_kg/_input/_unit` ● · R4: `body_fat_pct` · `muscle_kg/_input` (ใช้ `weight_unit` เดียวกัน) | → `user` · วันละหลายแถวได้ กราฟใช้แถวล่าสุดของวัน |
 | `body_measurement` | R4 | `body_entry_id` · `site` (`waist` `chest` `hip` `arm` `thigh` `neck` — เพิ่มได้ด้วย CHECK) · `value_m/_input/_unit` | composite → `body_entry` CASCADE |
-| `exercise` | R2 | `owner_user_id` (null = คลังกลาง) · `name` (อังกฤษสำหรับคลัง / ที่ผู้ใช้พิมพ์สำหรับท่าเอง) · `name_th` · `search_terms` · `track_type` · `load_mode` · `is_unilateral` · `category` · `equipment` · `source_dataset` `source_ref` `license` `attribution` · `met` · `archived_at` | ท่าเอง → `user` CASCADE · คลังกลางไม่มีเจ้าของ |
+| `exercise` | R2 | `owner_user_id` (null = คลังกลาง · **ใช้แทน `user_id`**) · `name` · `name_th` · `search_terms` · `track_type` · `load_mode` · `is_unilateral` · `category` · `equipment` · `source_dataset` `source_ref` `license` `attribution` · `met` · `archived_at` — ชนิดและ CHECK ในข้อ 3.1 | ท่าเอง → `user` CASCADE · คลังกลางไม่มีเจ้าของ |
 | `workout_session` | R3 | `place_id` · `started_at` · `ended_at` (null = ยังเล่นอยู่) · `local_date` · `time_zone` · `template_id` (อ้างอิงเฉยๆ ไม่มี FK) | `place_id` composite → `place` |
 | `session_exercise` | R3 | `session_id` · `exercise_id` (เปลี่ยนไม่ได้) · `position` · **สำเนา ณ ตอนบันทึก**: `exercise_name` `exercise_name_th` `track_type` `load_mode` | composite → `workout_session` CASCADE · `exercise_id` → `exercise` (NO ACTION) |
 | `set_record` | R3 | `session_exercise_id` · `position` · `set_kind` · `completed_at` · `weight_kg/_input/_unit` · `reps` · `duration_s` · `distance_m/_input/_unit` · `speed_mps/_input/_unit` · `incline_pct` | composite → `session_exercise` CASCADE |
@@ -75,7 +75,29 @@ PRD ข้อ 5/7: เก็บหน่วยมาตรฐาน (kg/เม�
 
 \* R0 สร้างตาราง Better Auth เป็น migration แรกเพื่อพิสูจน์ pipeline + spike (ADR 0001) ถ้า Lead อยากให้ R0 เล็กลงย้ายไป R1 ได้ · `body_entry` ต้องมีใน R1 เพราะแบบสอบถามบังคับน้ำหนัก (PROCESS เดิมวางไว้ R4)
 
-Index หลัก: `(user_id, updated_at)` ทุกตาราง sync · `session_exercise(user_id, exercise_id)` · `workout_session(user_id, local_date)` · `set_record(session_exercise_id, position)` · `exercise(owner_user_id)`
+Index หลัก: `(user_id, updated_at)` ทุกตาราง sync · `session_exercise(user_id, exercise_id)` · `workout_session(user_id, local_date)` · `set_record(session_exercise_id, position)` · `exercise(owner_user_id, updated_at)` (ใช้ทั้งท่าของฉันและ `catalog_version` ของแถว `owner_user_id IS NULL`)
+
+### 3.1 ตาราง `exercise` (R2 · migration `0003` · การเลือกชุดข้อมูลและกติกาแมปอยู่ใน [ADR 0008](0008-exercise-catalog.md))
+
+| คอลัมน์ | ชนิด / กติกา |
+|---|---|
+| `id` | uuid v4 PK · คลัง = คงที่จากไฟล์ `content/exercises/**` · ท่าของฉัน = จากไคลเอนต์ |
+| `owner_user_id` | uuid null · null = คลังกลาง · FK → `user.id` ON DELETE CASCADE · ไม่มี composite FK จากลูก (คลังไม่มีเจ้าของ) — R3 ตรวจ "`exercise_id` เป็นคลังหรือของ `:me`" ในโค้ด (ADR 0004 ข้อ 4) |
+| `name` | text NOT NULL ยาว 1–60 (CHECK) · คลัง = อังกฤษ ไม่ซ้ำในคลัง (สคริปต์ตรวจคลังบังคับ ไม่ใช่ฐานข้อมูล) · ท่าของฉัน = ที่ผู้ใช้พิมพ์ ซ้ำได้ |
+| `name_th` | text null · CHECK `owner_user_id IS NOT NULL OR name_th IS NOT NULL` · ท่าของฉัน = null |
+| `search_terms` | text null คั่นด้วย `\|` (ไม่ใช่ JSON) · บนสายเป็น array |
+| `track_type` | text NOT NULL CHECK 6 ชนิดในข้อ 2 |
+| `load_mode` | text NOT NULL CHECK `external` `bodyweight_plus` `assisted` · CHECK `load_mode = 'external' OR track_type = 'weight_reps'` |
+| `is_unilateral` | boolean NOT NULL default false |
+| `category` | text NOT NULL CHECK `chest` `back` `shoulders` `arms` `legs` `core` `full_body` `cardio` `sport` `mobility` `other` |
+| `equipment` | text null (= ไม่ระบุ) CHECK `barbell` `dumbbell` `kettlebell` `machine` `cable` `band` `bodyweight` `other` |
+| `source_dataset` `source_ref` `license` `attribution` | text null · CHECK `owner_user_id IS NOT NULL OR (ทั้งสี่ช่อง IS NOT NULL)` · ท่าของฉัน = null ทั้งหมด (เซิร์ฟเวอร์ตั้ง ไม่รับจากไคลเอนต์) |
+| `met` | double precision null · R2 = null ทุกแถว (ADR 0008 ข้อ 1) |
+| `archived_at` | instant null |
+| คอลัมน์ร่วม | `created_at` `updated_at` `client_updated_at` (NOT NULL · แถวคลัง seed ตั้ง = `updated_at`) `deleted_at` · CHECK `owner_user_id IS NOT NULL OR deleted_at IS NULL` (คลังไม่ลบ) |
+
+- ค่าคงที่ของ CHECK อยู่ `src/lib/data/shared/exercise-meta.ts` + `track-types.ts` ที่เดียว · repository ของท่าของฉันกรอง `owner_user_id = :me AND deleted_at IS NULL` · คลังกรอง `owner_user_id IS NULL`
+- จำนวนสูงสุดต่อคน (นับแถวที่ `deleted_at IS NULL` รวมแถวในกรุ): ท่าของฉัน 300 · `place` 30 → เกิน = `limit_reached` (ADR 0004 ข้อ 4)
 
 **กติกาการเปลี่ยนแปลง**: ท่าเอง/สถานที่/เทมเพลตลบ = tombstone · ท่าเองที่มีประวัติลบไม่ได้ → `archived_at` · ท่าในคลังไม่เคยลบ (เลิกใช้ = `archived_at`) · ลบเซสชัน = tombstone เซสชัน + ลูกทั้งหมดใน transaction เดียว · ลำดับซ้ำกันได้ (สองเครื่อง) เรียงด้วย `position, completed_at, id`
 
@@ -124,3 +146,4 @@ RPE → `set_record.rpe` · drop set → เพิ่มค่าใน `set_kin
 | 2026-11-18 | `auth_throttle`: เพิ่มรูปแบบ key `invite-ip:<sha256(ip)>` | `/api/invite/check` ไม่ผ่าน limiter ของ Better Auth ต้องจำกัดต่อ IP เอง (ADR 0002 บันทึกการแก้ไข 2026-11-18) · ไม่เปลี่ยนคอลัมน์ | ไม่ |
 | 2026-11-20 | ข้อ 3: เพิ่มตาราง `app_admin` (R1.5) · `auth_throttle` เพิ่มรูปแบบ key `admin-invite:<sha256(userId)>` · ไม่เพิ่ม `invite_code.created_by` | R1.5 contract D1 ที่ boss อนุมัติ · ADR 0007 · `app_admin` มี `user_id` จึงถูกเกตเทสต์ลบบัญชี (ข้อ 5) ตรวจเอง | ไม่ — ตารางเพิ่มแบบ migration ใหม่ กติกาข้อ 1 คงเดิม |
 | 2026-11-20 | ข้อ 3 แถว `invite_code` + ข้อ 5: ลบบัญชีล้าง `label` ของโค้ดที่บัญชีใช้สมัครเป็น `—` | security-privacy M1 · boss เลือกทาง ก. 2026-11-20 · ไม่มี migration (`label` ยัง NOT NULL) | ใช่ บางส่วน — เพิ่มขั้นในการลบบัญชี โครงตารางไม่เปลี่ยน |
+| 2026-11-23 | ข้อ 3: แถว `exercise` ชี้ไปข้อ 3.1 ใหม่ (ชนิด, CHECK หมวด 11 ค่า/อุปกรณ์ 8 ค่า, CHECK แถวคลัง, `client_updated_at` ของคลัง, คลังไม่ลบ) · index เป็น `(owner_user_id, updated_at)` · จำนวนสูงสุดต่อคน (ท่า 300 · สถานที่ 30) | R2 contract ที่ boss อนุมัติ 2026-11-23 (D7 D8 D9) · ADR 0008 | ไม่ — รายละเอียดของตารางที่วางไว้แล้ว กติกาข้อ 1–2 คงเดิม |
