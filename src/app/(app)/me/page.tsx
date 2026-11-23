@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { AccountSection } from "@/components/auth/account-section";
+import { AboutSection, TrainingSection } from "@/components/catalog/me-sections";
 import { Cat } from "@/components/doodle";
 import { LocaleSwitch } from "@/components/theme/locale-switch";
 import { ThemeSwitch } from "@/components/theme/theme-switch";
@@ -22,7 +23,11 @@ export default async function MePage() {
         <LocaleSwitch />
       </section>
       <Squiggle variant={2} className="my-8" />
+      <TrainingSection />
+      <Squiggle variant={0} className="my-8" />
       <AccountSection />
+      <Squiggle variant={1} className="my-8" />
+      <AboutSection />
       <div className="mt-12 flex justify-center">
         <Cat pose="standing" size={120} motion className="text-ink" />
       </div>

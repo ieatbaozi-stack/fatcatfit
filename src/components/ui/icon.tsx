@@ -9,6 +9,10 @@ const PATHS = {
   check: "M5 13 L10 18 L19 6",
   plus: "M12 5 L12.2 19 M5 12 L19 11.8",
   minus: "M5 12 L19 11.8",
+  back: "M15 5 L8 12 L14.8 19",
+  close: "M6 6 L18 18 M18 6 L6 18.2",
+  down: "M5 9 L12 16 L19 9.2",
+  pin: "M12 21 Q5 13.5 5.5 9.5 A6.5 6.5 0 0 1 18.5 9.5 Q19 13.5 12 21 Z M12 7.6 A2 2 0 1 0 12.1 7.6 Z",
 } as const;
 
 export type IconName = keyof typeof PATHS;

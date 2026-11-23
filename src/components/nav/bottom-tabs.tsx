@@ -20,10 +20,16 @@ export function isTabActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+/** ฟอร์มท่าของฉัน (สร้าง/แก้) ไม่มีแถบล่าง ใช้ ✕ กลับรายการ (UX 12.1) */
+export function hidesTabs(pathname: string): boolean {
+  return /^\/me\/exercises\/[^/]+$/.test(pathname);
+}
+
 /** แถบนำทางล่าง 4 แท็บ — ติดขอบล่าง เคารพ safe-area · ป้าย 14px · แท็บที่เลือก = ขีดเส้นใต้วาดมือ + aria-current */
 export function BottomTabs() {
   const t = useTranslations("nav");
   const pathname = usePathname();
+  if (hidesTabs(pathname)) return null;
 
   return (
     <nav aria-label={t("label")} className="pb-safe fixed inset-x-0 bottom-0 z-10 bg-paper">
