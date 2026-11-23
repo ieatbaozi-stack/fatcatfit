@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import en from "../../../messages/en.json";
 import th from "../../../messages/th.json";
@@ -96,13 +96,15 @@ describe("ConsentScreen", () => {
 });
 
 describe("AccountSection", () => {
-  it("แถวส่งออกปิด · ลิงก์ประกาศ · ออกจากระบบไม่ถามยืนยัน → POST sign-out → /welcome", async () => {
+  it("แถวส่งออกปิด · ลิงก์ประกาศ · ออกจากระบบต้องยืนยันก่อน → POST sign-out → /welcome", async () => {
     fetchMock.mockResolvedValue(json(200, { success: true }));
     renderWithIntl(<AccountSection />);
     expect(screen.getByRole("link", { name: th.account.privacy }).getAttribute("href")).toBe("/privacy");
     expect(document.body.textContent).toContain(th.account.exportSoon);
     expect(screen.queryByRole("button", { name: th.account.export })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: th.account.signOut }));
+    expect(fetchMock).not.toHaveBeenCalled();
+    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: th.account.signOutSheet.confirm }));
     await waitFor(() => expect(replace).toHaveBeenCalledWith("/welcome"));
     expect(fetchMock.mock.calls[0][0]).toBe("/api/auth/sign-out");
     expect(reset).toHaveBeenCalledWith({ accountDeleted: false });
@@ -112,6 +114,7 @@ describe("AccountSection", () => {
     fetchMock.mockResolvedValue(json(500));
     renderWithIntl(<AccountSection />);
     fireEvent.click(screen.getByRole("button", { name: th.account.signOut }));
+    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: th.account.signOutSheet.confirm }));
     expect((await screen.findByRole("alert")).textContent).toBe(th.account.signOutFailed);
     expect(replace).not.toHaveBeenCalled();
     expect(reset).not.toHaveBeenCalled(); // ล้มแล้วหยุด ไม่ล้างอะไร

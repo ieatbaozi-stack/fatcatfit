@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Cat } from "@/components/doodle";
@@ -41,6 +41,23 @@ export function AccountSection() {
   const [signingOut, setSigningOut] = useState(false);
   const [signOutFailed, setSignOutFailed] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [signOutOpen, setSignOutOpen] = useState(false);
+  const signOutRow = useRef<HTMLButtonElement>(null);
+
+  const wasOpen = useRef(false);
+  function closeSignOut() {
+    setSignOutOpen(false);
+  }
+  // คืน focus ให้แถวหลังแผ่นปิด (หลังแถวกลับมากดได้แล้ว)
+  useEffect(() => {
+    if (wasOpen.current && !signOutOpen) {
+      // แถวอาจปิดอยู่ (ออฟไลน์ระหว่างเปิดแผ่น) → โฟกัสหัวข้อส่วนบัญชีแทน
+      const row = signOutRow.current;
+      if (row && !row.disabled) row.focus();
+      else document.getElementById("account-heading")?.focus();
+    }
+    wasOpen.current = signOutOpen;
+  }, [signOutOpen, signingOut]);
 
   async function onSignOut() {
     if (signingOut || offline) return;
@@ -50,6 +67,7 @@ export function AccountSection() {
     if (!r.ok) {
       setSigningOut(false);
       setSignOutFailed(true); // ล้มแล้วหยุด ไม่ล้างอะไร (ADR 0006 ข้อ 5)
+      setSignOutOpen(false);
       return;
     }
     // ADR 0006 ข้อ 5 ขั้น 2: ล้างแคชหน้าผู้ใช้ + hint ก่อนโหลดเต็มหน้า
@@ -59,7 +77,7 @@ export function AccountSection() {
 
   return (
     <section aria-labelledby="account-heading" className="flex flex-col gap-1">
-      <h2 id="account-heading" className="text-section">
+      <h2 id="account-heading" tabIndex={-1} className="text-section outline-none">
         {t("title")}
       </h2>
       {me ? (
@@ -97,10 +115,12 @@ export function AccountSection() {
         </Row>
         <Row>
           <button
+            ref={signOutRow}
             type="button"
             disabled={offline || signingOut}
             aria-disabled={offline || signingOut}
-            onClick={() => void onSignOut()}
+            aria-haspopup="dialog"
+            onClick={() => setSignOutOpen(true)}
             className="flex min-h-13 w-full cursor-pointer items-center text-left text-body text-ink disabled:cursor-not-allowed disabled:text-ink-3"
           >
             {signingOut ? t("signingOut") : t("signOut")}
@@ -130,8 +150,65 @@ export function AccountSection() {
         </p>
       ) : null}
 
+      {signOutOpen ? <SignOutSheet busy={signingOut} offline={offline} onConfirm={() => void onSignOut()} onClose={closeSignOut} /> : null}
       {deleteOpen ? <DeleteAccountScreen onCancel={() => setDeleteOpen(false)} /> : null}
     </section>
+  );
+}
+
+/** แผ่นล่างยืนยันออกจากระบบ: แพทเทิร์นเดียวกับ RevokeSheet · focus เริ่มที่ "ยกเลิก" ถูกขังในแผ่น · Esc/แตะพื้นมืด = ปิด */
+function SignOutSheet({ busy, offline, onConfirm, onClose }: { busy: boolean; offline: boolean; onConfirm: () => void; onClose: () => void }) {
+  const t = useTranslations("account.signOutSheet");
+  const tAccount = useTranslations("account");
+  const dialog = useRef<HTMLDivElement>(null);
+  const cancel = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    cancel.current?.focus();
+  }, []);
+
+  function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (e.key === "Escape") {
+      e.stopPropagation();
+      if (!busy) onClose();
+      return;
+    }
+    if (e.key !== "Tab") return;
+    const items = [...(dialog.current?.querySelectorAll<HTMLElement>("button:not(:disabled)") ?? [])];
+    if (items.length === 0) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-40" onKeyDown={onKeyDown}>
+      <div className="absolute inset-0 bg-scrim" onClick={() => (busy ? undefined : onClose())} aria-hidden="true" />
+      <div
+        ref={dialog}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="signout-title"
+        className="pb-safe absolute inset-x-3 bottom-3 mx-auto flex max-w-114 flex-col gap-3 rounded-hand border-draw border-ink bg-paper p-5"
+      >
+        <h2 id="signout-title" className="text-section">
+          {t("title")}
+        </h2>
+        <p className="text-body text-ink-2">{t("body")}</p>
+        <Button loading={busy} disabled={offline} onClick={onConfirm}>
+          {busy ? tAccount("signingOut") : t("confirm")}
+        </Button>
+        <TextButton ref={cancel} disabled={busy} onClick={onClose}>
+          {t("cancel")}
+        </TextButton>
+      </div>
+    </div>
   );
 }
 
