@@ -1,5 +1,5 @@
 // ตรวจคลังท่า (R2 · contract เกณฑ์ผ่านข้อ 3) — รัน: npx tsx scripts/seed-check.ts [content-dir]
-// ล้มเมื่อ: ท่าเวท < 750 · คาร์ดิโอ+กีฬานอก 60–100 · id ไม่ใช่ UUID v4/ซ้ำ · name ซ้ำ · ขาด name_th/source/license/attribution
+// ล้มเมื่อ: ท่าเวท < 750 · คาร์ดิโอ+กีฬานอก 60–100 · id ไม่ใช่ UUID v5 ที่คำนวณได้/ซ้ำ · name ซ้ำ · ขาด name_th/source/license/attribution
 //         · หมวด/อุปกรณ์/track_type นอกรายการ · มีช่อง instructions/รูป · distance/incline ที่เป็นทีละข้าง
 import path from "node:path";
 import { pathToFileURL } from "node:url";
