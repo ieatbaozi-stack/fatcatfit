@@ -73,7 +73,11 @@ export const exerciseDataSchema = z
     equipment: z.enum(EQUIPMENT).nullable().optional(),
     archived_at: iso.nullable().optional(),
   })
-  .refine((d) => loadModeAllowed(d.track_type, d.load_mode), { path: ["load_mode"] });
+  .refine((d) => loadModeAllowed(d.track_type, d.load_mode), { path: ["load_mode"] })
+  // ฟอร์มแสดงสวิตช์ "ข้างละ" เฉพาะ 4 ชนิดที่เหลือ — วิ่ง/ปั่น (distance_duration) และลู่วิ่ง (incline_speed_duration) ตั้งไม่ได้
+  .refine((d) => !d.is_unilateral || (d.track_type !== "distance_duration" && d.track_type !== "incline_speed_duration"), {
+    path: ["is_unilateral"],
+  });
 export type ExerciseData = z.infer<typeof exerciseDataSchema>;
 
 // ---- รูปแถวบนสายของ GET /api/bootstrap และ GET /api/catalog ----

@@ -305,6 +305,30 @@ describe("POST /api/sync/push — place", () => {
     expect(rows).toHaveLength(EXERCISE_LIMITS.maxPlaces);
   });
 
+  it("ขีดจำกัดสถานที่นับเฉพาะที่ใช้งานอยู่: เต็ม 30 แล้วเก็บกรุหนึ่งแห่งก็เพิ่มใหม่ได้ · เอาออกจากกรุตอนเต็ม = limit_reached", async () => {
+    const { c, placeId } = await readyUser("pl-limit-active@example.com");
+    const ids = [placeId];
+    for (let i = 1; i < EXERCISE_LIMITS.maxPlaces; i++) {
+      const pid = uuid();
+      ids.push(pid);
+      await one(c, op("place", pid, "upsert", plData({ name: `P${i}` }), ts(-9000)));
+    }
+    expect((await one(c, op("place", uuid(), "upsert", plData({ name: "x" })))).code).toBe("limit_reached");
+    // สร้างแถวที่เก็บกรุอยู่แล้ว ไม่โดนจำกัด
+    const born = uuid();
+    expect((await one(c, op("place", born, "upsert", plData({ name: "born archived", archived_at: ts(-100) }), ts(-100)))).status).toBe("applied");
+    // เก็บเข้ากรุไม่โดนจำกัด (ว่างหนึ่งที่)
+    expect((await one(c, op("place", ids[1], "upsert", plData({ name: "P1", archived_at: ts(-90) }), ts(-90)))).status).toBe("applied");
+    // เอาแถวที่เก็บกรุออกตอนยังมีที่ว่าง = ได้ แล้วเต็มอีก
+    expect((await one(c, op("place", ids[1], "upsert", plData({ name: "P1", archived_at: null }), ts(-80)))).status).toBe("applied");
+    // เต็ม: เอา born ออกจากกรุ = limit_reached · เพิ่มใหม่ = limit_reached
+    expect((await one(c, op("place", born, "upsert", plData({ name: "born archived", archived_at: null }), ts(-70)))).code).toBe("limit_reached");
+    expect((await one(c, op("place", uuid(), "upsert", plData({ name: "y" })))).code).toBe("limit_reached");
+    // เก็บกรุแห่งหนึ่ง → เพิ่มใหม่ได้
+    await one(c, op("place", ids[2], "upsert", plData({ name: "P2", archived_at: ts(-60) }), ts(-60)));
+    expect((await one(c, op("place", uuid(), "upsert", plData({ name: "z" })))).status).toBe("applied");
+  });
+
   it("ส่งช่องที่ห้ามตั้ง (user_id) = invalid · id ของ B ที่ A ส่ง = id_conflict แถวไม่เปลี่ยน", async () => {
     const a = await readyUser("pl-a@example.com");
     const b = await readyUser("pl-b@example.com");
@@ -350,10 +374,10 @@ describe("POST /api/sync/push — exercise", () => {
     const eid = uuid();
     await one(c, op("exercise", eid, "upsert", exData(), ts(-9000)));
     expect((await one(c, op("exercise", eid, "upsert", exData({ name: "Old" }), ts(-90_000)))).status).toBe("stale");
-    const edited = exData({ name: "Run", track_type: "distance_duration", category: "cardio", equipment: null, is_unilateral: true });
+    const edited = exData({ name: "Run", track_type: "distance_duration", category: "cardio", equipment: null, is_unilateral: false });
     expect((await one(c, op("exercise", eid, "upsert", edited, ts(-8000)))).status).toBe("applied");
     let [row] = await t.db.select().from(exercise).where(eq(exercise.id, eid));
-    expect(row).toMatchObject({ name: "Run", trackType: "distance_duration", category: "cardio", equipment: null, isUnilateral: true });
+    expect(row).toMatchObject({ name: "Run", trackType: "distance_duration", category: "cardio", equipment: null, isUnilateral: false });
     const archived = { ...edited, archived_at: ts(-7000) };
     expect((await one(c, op("exercise", eid, "upsert", archived, ts(-7000)))).status).toBe("applied");
     [row] = await t.db.select().from(exercise).where(eq(exercise.id, eid));
@@ -439,6 +463,53 @@ describe("POST /api/sync/push — exercise", () => {
       deleted_at: null,
     };
     expect((await one(c, op("exercise", eid, "upsert", { ...echoed, name: "Edited" }, ts(-2000)))).status).toBe("applied");
+  });
+
+  it("is_unilateral ตั้งได้เฉพาะ 4 ชนิดแรก: distance_duration / incline_speed_duration + true = invalid", async () => {
+    const { c } = await readyUser("ex-uni@example.com");
+    for (const tt of ["distance_duration", "incline_speed_duration"]) {
+      expect(await one(c, op("exercise", uuid(), "upsert", exData({ track_type: tt, is_unilateral: true, category: "cardio" })))).toMatchObject({
+        status: "rejected",
+        code: "invalid",
+      });
+      expect((await one(c, op("exercise", uuid(), "upsert", exData({ track_type: tt, is_unilateral: false, category: "cardio" })))).status).toBe("applied");
+    }
+    for (const tt of ["weight_reps", "reps_only", "duration", "weight_duration"]) {
+      expect((await one(c, op("exercise", uuid(), "upsert", exData({ track_type: tt, is_unilateral: true })))).status).toBe("applied");
+    }
+  });
+
+  it("ขีดจำกัดนับเฉพาะท่าที่ใช้งานอยู่: สร้างแถวเก็บกรุ/เก็บเข้ากรุไม่โดน · เอาออกจากกรุตอนเต็ม = limit_reached", async () => {
+    const { c, id } = await readyUser("ex-limit-active@example.com");
+    const now = new Date();
+    const mk = (i: number, archived: boolean) => ({
+      id: uuid(),
+      ownerUserId: id,
+      name: `A ${i}`,
+      trackType: "reps_only",
+      loadMode: "external",
+      isUnilateral: false,
+      category: "core",
+      archivedAt: archived ? now : null,
+      createdAt: now,
+      updatedAt: now,
+      clientUpdatedAt: new Date(now.getTime() - 60_000),
+    });
+    const active = Array.from({ length: EXERCISE_LIMITS.maxMyExercises }, (_, i) => mk(i, false));
+    const archivedRow = mk(999, true);
+    await t.db.insert(exercise).values([...active, archivedRow]); // 300 ใช้งาน + 1 เก็บกรุ (รวม 301 แถว)
+    const edit = (over: Record<string, unknown> = {}) => exData({ name: "E", track_type: "reps_only", category: "core", ...over });
+
+    // เต็มแล้ว: สร้างใหม่แบบใช้งาน = limit_reached · เอาออกจากกรุ = limit_reached
+    expect((await one(c, op("exercise", uuid(), "upsert", edit()))).code).toBe("limit_reached");
+    expect((await one(c, op("exercise", archivedRow.id, "upsert", edit({ archived_at: null }), ts(-100)))).code).toBe("limit_reached");
+    // สร้างแถวที่เก็บกรุอยู่แล้ว ไม่โดน · เก็บเข้ากรุไม่โดน
+    expect((await one(c, op("exercise", uuid(), "upsert", edit({ archived_at: ts(-50) })))).status).toBe("applied");
+    expect((await one(c, op("exercise", active[0].id, "upsert", edit({ archived_at: ts(-50) }), ts(-50)))).status).toBe("applied");
+    // ว่างหนึ่งที่แล้ว: เอาออกจากกรุได้
+    expect((await one(c, op("exercise", archivedRow.id, "upsert", edit({ archived_at: null }), ts(-10)))).status).toBe("applied");
+    // เต็มอีกครั้ง
+    expect((await one(c, op("exercise", uuid(), "upsert", edit()))).code).toBe("limit_reached");
   });
 
   it("เกิน 300 ท่า = limit_reached · ท่าที่ลบแล้วไม่นับ · แก้ท่าเดิมตอนเต็มได้", async () => {

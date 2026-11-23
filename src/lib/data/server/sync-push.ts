@@ -84,11 +84,6 @@ async function applyPlace(tx: Tx, me: string, o: PushOp, ts: Date, now: Date): P
   if (ex && ex.userId !== me) return reject("id_conflict");
   if (ex && (ex.deletedAt || ex.clientUpdatedAt.getTime() > ts.getTime())) return stale;
 
-  if (!ex) {
-    const [{ n }] = await tx.select({ n: count() }).from(place).where(and(eq(place.userId, me), isNull(place.deletedAt)));
-    if (n >= EXERCISE_LIMITS.maxPlaces) return reject("limit_reached");
-  }
-
   // เก็บเข้ากรุได้ต่อเมื่อยังมีสถานที่อื่นที่ใช้งานอยู่อย่างน้อย 1 แห่ง
   const resultingArchived = data.archived_at !== undefined ? toDate(data.archived_at) : (ex?.archivedAt ?? null);
   if (resultingArchived) {
@@ -97,6 +92,15 @@ async function applyPlace(tx: Tx, me: string, o: PushOp, ts: Date, now: Date): P
       .from(place)
       .where(and(eq(place.userId, me), isNull(place.deletedAt), isNull(place.archivedAt), ne(place.id, o.id)));
     if (n === 0) return reject("invalid");
+  }
+
+  // ขีดจำกัดนับเฉพาะแถวที่ใช้งานอยู่ (ไม่ลบ ไม่เก็บเข้ากรุ) · สร้างแถวใช้งานใหม่ หรือเอาออกจากกรุ ตอนเต็ม = limit_reached
+  if (!resultingArchived && (!ex || ex.archivedAt)) {
+    const [{ n }] = await tx
+      .select({ n: count() })
+      .from(place)
+      .where(and(eq(place.userId, me), isNull(place.deletedAt), isNull(place.archivedAt)));
+    if (n >= EXERCISE_LIMITS.maxPlaces) return reject("limit_reached");
   }
 
   const rows = await tx
@@ -132,7 +136,7 @@ async function applyPlace(tx: Tx, me: string, o: PushOp, ts: Date, now: Date): P
 
 async function applyExercise(tx: Tx, me: string, o: PushOp, ts: Date, now: Date): Promise<Outcome> {
   const [ex] = await tx
-    .select({ owner: exercise.ownerUserId, deletedAt: exercise.deletedAt, clientUpdatedAt: exercise.clientUpdatedAt })
+    .select({ owner: exercise.ownerUserId, deletedAt: exercise.deletedAt, archivedAt: exercise.archivedAt, clientUpdatedAt: exercise.clientUpdatedAt })
     .from(exercise)
     .where(eq(exercise.id, o.id));
   // ท่าคลังกลาง (owner null) และท่าของคนอื่น = id_conflict เหมือนกัน (ไม่บอกว่าเป็นของใคร)
@@ -157,11 +161,13 @@ async function applyExercise(tx: Tx, me: string, o: PushOp, ts: Date, now: Date)
   if (ex && (ex.deletedAt || ex.clientUpdatedAt.getTime() > ts.getTime())) return stale;
   // R3: ท่าที่มีเซ็ตแล้ว เปลี่ยน track_type/load_mode ไม่ได้ (exercise_has_history)
 
-  if (!ex) {
+  // ขีดจำกัดนับเฉพาะท่าที่ใช้งานอยู่ (ไม่ลบ ไม่เก็บเข้ากรุ) · สร้างท่าใช้งานใหม่ หรือเอาออกจากกรุ ตอนเต็ม = limit_reached
+  const resultingArchived = data.archived_at !== undefined ? toDate(data.archived_at) : (ex?.archivedAt ?? null);
+  if (!resultingArchived && (!ex || ex.archivedAt)) {
     const [{ n }] = await tx
       .select({ n: count() })
       .from(exercise)
-      .where(and(eq(exercise.ownerUserId, me), isNull(exercise.deletedAt)));
+      .where(and(eq(exercise.ownerUserId, me), isNull(exercise.deletedAt), isNull(exercise.archivedAt)));
     if (n >= EXERCISE_LIMITS.maxMyExercises) return reject("limit_reached");
   }
 
