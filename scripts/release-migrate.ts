@@ -4,12 +4,15 @@
 //   1. MIGRATE_ON_DEPLOY=1                (boss ตั้งเองใน Vercel เฉพาะสภาพแวดล้อม Production)
 //   2. VERCEL_ENV=production              (Vercel ตั้งให้เอง · preview/development ไม่มีทางรัน)
 // ใช้ DATABASE_URL_UNPOOLED เท่านั้น (ไม่ถอยไปใช้ pooled เพราะ advisory lock และ migration ต้องการ session จริง)
-// migration ล้ม = exit 1 = build ล้ม = Vercel ไม่สลับไปรุ่นใหม่ (รุ่นเดิมยังให้บริการอยู่)
+// หลัง migration สำเร็จ seed คลังท่ากลาง (seedExercises · ตรวจไฟล์ก่อนเขียน · รันซ้ำได้ผลเท่าเดิม) ภายใต้สวิตช์เดียวกัน
+// migration หรือ seed ล้ม = exit 1 = build ล้ม = Vercel ไม่สลับไปรุ่นใหม่ (รุ่นเดิมยังให้บริการอยู่)
 // ไม่พิมพ์ connection string หรือ error object (log ของ Vercel ของ repo สาธารณะอาจถูกแชร์ได้)
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { pathToFileURL } from "node:url";
 import { Pool } from "pg";
+import { seedExercises } from "./seed-exercises";
+import { formatSeedResult } from "./seed-lib";
 
 export type Decision = { run: false; reason: string } | { run: true; url: string } | { run: false; error: string };
 
@@ -22,6 +25,23 @@ export function decide(env: Record<string, string | undefined>): Decision {
 
 // เลขคงที่ของ advisory lock กัน build สองตัวรัน migration พร้อมกัน
 const LOCK_KEY = 482_031_17;
+
+type Db = ReturnType<typeof drizzle>;
+
+/** migrate แล้วค่อย seed (ตามลำดับ) · ขั้นใดล้ม = throw ทันที ขั้นถัดไปไม่รัน · แยกออกมาให้เทสต์ฉีดของปลอมได้ */
+export async function migrateAndSeed(
+  db: Db,
+  steps: {
+    migrate: (db: Db) => Promise<void>;
+    seed: (db: Db) => Promise<string>;
+    log?: (msg: string) => void;
+  },
+): Promise<void> {
+  const log = steps.log ?? console.log;
+  await steps.migrate(db);
+  log("release-migrate: migration เสร็จ");
+  log(`release-migrate: ${await steps.seed(db)}`);
+}
 
 async function main(): Promise<void> {
   const decision = decide(process.env);
@@ -37,8 +57,10 @@ async function main(): Promise<void> {
   try {
     await pool.query("select pg_advisory_lock($1)", [LOCK_KEY]);
     try {
-      await migrate(drizzle(pool), { migrationsFolder: "drizzle" });
-      console.log("release-migrate: migration เสร็จ");
+      await migrateAndSeed(drizzle(pool), {
+        migrate: (db) => migrate(db, { migrationsFolder: "drizzle" }),
+        seed: async (db) => formatSeedResult(await seedExercises(db)),
+      });
     } finally {
       await pool.query("select pg_advisory_unlock($1)", [LOCK_KEY]).catch(() => undefined);
     }
@@ -50,7 +72,7 @@ async function main(): Promise<void> {
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((err: unknown) => {
     const code = (err as { code?: string }).code;
-    console.error(`release-migrate: migration ล้ม${code ? ` (${code})` : ""}: ${(err as Error).name}`);
+    console.error(`release-migrate: ล้ม${code ? ` (${code})` : ""}: ${(err as Error).name}`);
     process.exit(1);
   });
 }
