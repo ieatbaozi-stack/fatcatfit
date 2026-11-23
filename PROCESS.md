@@ -11,9 +11,9 @@
 | 1 Requirements | PRD: user story, ขอบเขต, เกณฑ์รับงาน | Lead | **อนุมัติ PRD** | ✅ อนุมัติ 2026-11-15 |
 | 2 Design | ADR + โมเดลข้อมูล · flow/wireframe · แบรนด์ | Architect, UX & Brand | **อนุมัติ wireframe และ ADR หลัก** | ✅ อนุมัติ 2026-11-16 |
 | 3 Foundation (R0) | โครงโปรเจกต์, CI, migration, release, ธีม, TH/EN, PWA skeleton | ดูตารางรอบ | — | ✅ ปิดแล้ว v0.1.0 (2026-11-18) |
-| 4 Build (R1–R5, CR1–CR2) | ตาม contract ของแต่ละรอบ | ดูตารางรอบ | อนุมัติ contract ก่อนเริ่มแต่ละรอบ | R1 ✅ ปิดแล้ว (pull request #10 merged 2026-11-19 · v0.2.0) · v0.2.1 ✅ (pull request #11 merged · release 2026-11-20) · **R1.5 ✅ ปิดแล้ว** (pull request #12 merged 2026-11-23 · **v0.3.0 ออกแล้ว** · boss ทดสอบ production ผ่านเกณฑ์ 17 วันที่ 2026-11-23) · **CR2 กำลังทำ** (ยืนยันก่อนออกจากระบบ + คำวันหมดอายุโค้ดเชิญ · boss ขอ 2026-11-23 · เสนอรุ่น v0.3.1 · [CR2_SIGNOUT_CONFIRM_CONTRACT.md](CR2_SIGNOUT_CONFIRM_CONTRACT.md)) · R2–R5 ยังไม่เริ่ม · CR1 (แมวขยับ) ✅ |
+| 4 Build (R1–R5, CR1–CR2) | ตาม contract ของแต่ละรอบ | ดูตารางรอบ | อนุมัติ contract ก่อนเริ่มแต่ละรอบ | R1 ✅ ปิดแล้ว (pull request #10 merged 2026-11-19 · v0.2.0) · v0.2.1 ✅ (pull request #11 merged · release 2026-11-20) · **R1.5 ✅ ปิดแล้ว** (pull request #12 merged 2026-11-23 · **v0.3.0 ออกแล้ว** · boss ทดสอบ production ผ่านเกณฑ์ 17 วันที่ 2026-11-23) · **CR2 merged แล้ว** (ยืนยันก่อนออกจากระบบ + คำวันหมดอายุโค้ดเชิญ · boss ขอ 2026-11-23 · pull request #13 merged 2026-11-23 · **v0.3.1 ออกแล้ว** · รอ boss ทดสอบ production · [CR2_SIGNOUT_CONFIRM_CONTRACT.md](CR2_SIGNOUT_CONFIRM_CONTRACT.md)) · R2–R5 ยังไม่เริ่ม · CR1 (แมวขยับ) ✅ |
 | 5 Review | ตรวจอิสระทุกรอบ | QA & Test, Security & Privacy | — | R0 ✅ · CR1 ✅ · R1 ✅ (qa-test และ security-privacy ตรวจแล้ว ข้อ high/medium แก้แล้ว) · v0.2.1 qa-test ✅ (2026-11-20 · ย้อนการแก้แล้วเทสต์ล้ม) · R1.5 qa-test ผ่านเกณฑ์ 1–16 และ 18 (e2e 492/492 · unit 732/732 ตามรายงาน Lead) · R1.5 security-privacy ผ่าน 2 รอบ (ไม่มี high/medium ค้าง) · 2026-11-22: qa-test ตรวจ bug จาก R1 (จอยินดีต้อนรับบนเครื่องที่เคยเข้าสู่ระบบ) ผ่าน 10 เทสต์ที่ล้มกับโค้ดเก่า และผ่าน 120/120 ในสามสเปก (auth, admin, known-device) · **เกณฑ์ 17 ของ R1.5 ผ่านโดย boss บน production 2026-11-23** · CR2: qa-test รอบแรกผ่าน (พบข้อ low 3 ข้อ Lead แก้ในรอบเดียวกัน) · security-privacy ไม่ต้องตรวจ (เฉพาะ UI ไม่แตะบัญชีหรือข้อมูลฝั่งเซิร์ฟเวอร์) |
-| 6 Integrate | Lead รวม ทดสอบซ้ำ push และเปิด pull request เสนอเลขเวอร์ชัน | Lead | **กด merge เมื่อ CI เขียว** | R1 ✅ pull request #10 merged 2026-11-19 (v0.2.0) · v0.2.1 ✅ pull request #11 merged + release (2026-11-20) · R1.5 ✅ pull request #12 merged 2026-11-23 (v0.3.0) · ทดสอบ R1.5 บน production ✅ (boss 2026-11-23) · CR2: รอ Lead รันเกตเต็ม push และเปิด pull request v0.3.1 · ทดสอบ Google บนมือถือจริงหลัง merge (boss) |
+| 6 Integrate | Lead รวม ทดสอบซ้ำ push และเปิด pull request เสนอเลขเวอร์ชัน | Lead | **กด merge เมื่อ CI เขียว** | R1 ✅ pull request #10 merged 2026-11-19 (v0.2.0) · v0.2.1 ✅ pull request #11 merged + release (2026-11-20) · R1.5 ✅ pull request #12 merged 2026-11-23 (v0.3.0) · ทดสอบ R1.5 บน production ✅ (boss 2026-11-23) · CR2 ✅ pull request #13 merged 2026-11-23 (v0.3.1) · รอ boss ทดสอบ CR2 บน production · ทดสอบ Google บนมือถือจริงหลัง merge (boss) |
 | 7 Report | รายงานประจำวัน | Secretary | — | ทำทุกวันที่มี commit · ดู [docs/reports/](docs/reports/) |
 
 หลังเปิดใช้: ความต้องการใหม่ = change request สั้นๆ → contract รอบใหม่ → วนเฟส 4–7
@@ -31,6 +31,28 @@ Lead เขียน <รอบ>_CONTRACT.md  →  boss อนุมัติ
    →  Secretary เขียนรายงาน
 ```
 
+### ใครส่งงานให้ใคร
+
+| จาก → ถึง | ส่งอะไร | ต้องพร้อมก่อนส่ง |
+|---|---|---|
+| boss → Lead | โจทย์ / change request | — |
+| Lead → boss | contract ขออนุมัติ | ครบทุกหัวข้อตามแม่แบบท้ายไฟล์ |
+| Lead → Researcher / Architect / UX & Brand | คำถามที่ต้องตอบ + ขอบเขต | เฉพาะเมื่อต้องตัดสินใจเชิงโครงสร้าง หรือต้องใช้ข้อมูลภายนอก |
+| Lead → คนเขียนโค้ด (Platform, Front-end, PWA, Catalog, OPS) | งานตาม contract: ข้อไหน ไฟล์ที่แตะได้ อะไรต้องเสร็จก่อน เกณฑ์ผ่าน | boss อนุมัติ contract แล้ว · งานที่ต้องมาก่อนเสร็จแล้ว |
+| คนเขียนโค้ด → Lead | รายงาน + รายการ commit | เกต lint / typecheck / unit ของตัวเองผ่านจริง |
+| Lead → QA & Test (∥ Security & Privacy) | ขอให้ตรวจรอบนี้ | Lead รันเกตเองผ่านแล้ว |
+| QA / Security → Lead | ผลตรวจทีละเกณฑ์ + คำตัดสิน | ตรวจครบทุกข้อ หรือบอกชัดว่าข้อไหนตรวจไม่ได้ |
+| Lead → คนเขียนโค้ด | รายการที่ต้องแก้ | แยก "ต้องแก้" ออกจาก "ข้อเสนอแนะ" |
+| Lead → boss | pull request + สรุป + ขั้นตอนทดสอบ | QA ผ่าน · Lead ลองใช้จริงแล้ว · ตรวจ diff แล้ว |
+| Lead → Secretary | ขอรายงาน + ตรวจเอกสาร | หลังงานทุกชิ้น |
+
+### งานที่ไม่ผ่านรอบปกติ
+
+- **งานเล็กที่ไม่ใช่ฟีเจอร์** (แก้เอกสาร ตอบคำถาม แก้คำผิด): ทำได้เลยโดยไม่ต้องมี contract
+- **บั๊กด่วน (hotfix)**: ใช้ contract สั้น (เป้าหมาย + เกณฑ์ผ่าน 1–3 ข้อ) ข้ามเฟสออกแบบได้ แต่ยังต้องผ่าน QA
+- **agent ติดหรือต้องแก้ไฟล์นอกขอบเขต**: หยุดและรายงาน Lead ห้ามแก้เอง
+- **agent เห็นไม่ตรงกัน**: Lead ตัดสิน ถ้าเป็นการตัดสินใจสำคัญให้บันทึกเป็น ADR
+
 ## กติกา
 
 1. **ไม่มี contract ไม่มีโค้ด** — contract ระบุ: เป้าหมาย, user story ที่ครอบคลุม, API/ชนิดข้อมูล, ใครดูแลไฟล์ไหน, เกณฑ์ผ่านที่ตรวจได้ด้วยคำสั่ง/เทสต์
@@ -45,10 +67,13 @@ Lead เขียน <รอบ>_CONTRACT.md  →  boss อนุมัติ
 10. **ผู้ตรวจอิสระตรวจจากเกณฑ์ใน contract + ใช้งานจริงบนจอมือถือ** ไม่ใช่แค่อ่านโค้ด
 11. **รายงานตามจริง** — เทสต์ไม่ผ่านให้บอกว่าไม่ผ่านพร้อมผลลัพธ์ · ข้ามขั้นไหนให้บอก · ห้ามปิดเทสต์หรือลดเกณฑ์เพื่อให้ผ่าน
 12. **ข้อมูลภายนอกต้องยืนยันก่อนผูกมัด** — ราคา ลิมิต และพฤติกรรมของไลบรารี ให้ Researcher เช็กกับเอกสารทางการ ไม่ใช้ความจำของ agent
+13. **เอกสารต้องเป็นปัจจุบันเสมอ** (boss สั่ง 2026-11-19) — หลังงานทุกชิ้น Lead เรียก Secretary ตรวจเอกสารล้าสมัย แล้วดู diff ก่อน push
 
 ## เกต (Definition of Done)
 
 เกตเริ่มบังคับตั้งแต่รอบที่ระบุ และบังคับทุกรอบหลังจากนั้น
+
+ใครรัน: คนเขียนโค้ดรัน lint / typecheck / unit ก่อนส่งงาน · QA & Test รัน e2e และเกตเฉพาะของรอบ · Lead รันทุกเกตซ้ำเองก่อน push
 
 | เกต | วิธีตรวจ | บังคับตั้งแต่ |
 |---|---|---|
@@ -74,7 +99,7 @@ Lead เขียน <รอบ>_CONTRACT.md  →  boss อนุมัติ
 | R0 Foundation | P0 | โครงโปรเจกต์ · CI · migration แรก (ตารางของ Better Auth) · release · design token + ฟอนต์ + โหมดสว่าง/มืด · TH/EN · PWA skeleton · component ภาพแมว · **spike ทางเทคนิคตาม ADR 0001/0004 (ผลของ service worker เขียนเป็น ADR 0005 ก่อนปิดรอบ)** | เฟส 2 | **platform** (โครง + db) → frontend ∥ ops-release ∥ pwa-offline ∥ ux-brand → qa-test |
 | R1 บัญชี | P0 | โค้ดเชิญ · Google + อีเมล OTP · session · consent · แบบสอบถาม (รวมตาราง `place` และ `body_entry` เฉพาะน้ำหนัก · ต้องออนไลน์ เพราะคิวออฟไลน์มาใน R3) · ลบบัญชี · ทดสอบ Google/OTP บน iPhone จริง | R0 | **platform** → frontend ∥ ops-release (ส่งอีเมล) → qa-test ∥ security-privacy · ✅ ปิดแล้ว v0.2.0 (2026-11-19) |
 | R1.5 หน้าแอดมินออกโค้ดเชิญ (แทรกหลัง R1) | P0 | `/admin/invites` บนมือถือ: ออก/แชร์/ดู/เพิกถอนโค้ด · ตาราง `app_admin` (migration `0002`) · `requireAdmin()` · ดู [R1_5_ADMIN_INVITES_CONTRACT.md](R1_5_ADMIN_INVITES_CONTRACT.md) (**boss อนุมัติ D0–D6 2026-11-20** · **ปิดแล้ว 2026-11-23** · v0.3.0 ออกแล้ว · pull request #12 merged · boss ทดสอบ production ผ่านเกณฑ์ 17) | R1 merged + production มี `0001` | architect ∥ ux-brand ∥ researcher → platform ∥ pwa-offline → frontend ∥ ops-release → qa-test ∥ security-privacy |
-| CR2 ยืนยันก่อนออกจากระบบ + คำวันหมดอายุโค้ดเชิญ (แทรกหลัง R1.5) | P0 | หน้า "ฉัน" กดออกจากระบบต้องมีหน้าต่างยืนยันก่อน · หน้าออกโค้ดเชิญใช้คำ "ต้องสมัครภายใน" / "สมัครได้ถึง" แทน "ใช้ได้กี่วัน" (boss ขอ 2026-11-23 · รุ่น v0.3.1 แบบ patch · **กำลังทำ** · ดู [CR2_SIGNOUT_CONFIRM_CONTRACT.md](CR2_SIGNOUT_CONFIRM_CONTRACT.md)) | R1.5 ✅ | frontend → qa-test (ไม่ต้อง security-privacy: เฉพาะ UI) |
+| CR2 ยืนยันก่อนออกจากระบบ + คำวันหมดอายุโค้ดเชิญ (แทรกหลัง R1.5) | P0 | หน้า "ฉัน" กดออกจากระบบต้องมีหน้าต่างยืนยันก่อน · หน้าออกโค้ดเชิญใช้คำ "ต้องสมัครภายใน" / "สมัครได้ถึง" แทน "ใช้ได้กี่วัน" (boss ขอ 2026-11-23 · รุ่น v0.3.1 แบบ patch · **merged แล้ว** pull request #13 · รอ boss ทดสอบ production · ดู [CR2_SIGNOUT_CONFIRM_CONTRACT.md](CR2_SIGNOUT_CONFIRM_CONTRACT.md)) | R1.5 ✅ | frontend → qa-test (ไม่ต้อง security-privacy: เฉพาะ UI) |
 | Backlog ท้ายสุดของแผน (boss ตัดสิน 2026-11-20) | P2 | ฟีเจอร์ LINE: LINE OA ประชาสัมพันธ์ · วิธีใช้ · แจ้งเตือน · สรุป progress (ยังไม่มี contract · ไม่อยู่ใน R1.5) | R6 | ยังไม่กำหนด |
 | R2 คลังท่า | P0 | คลังท่า TH/EN · ค้นหา · ท่า custom · สถานที่ของผู้ใช้ | R1 | **catalog** ∥ **platform** → frontend → qa-test |
 | R3 จดการออกกำลังกาย | P0 | เซสชัน · ฟอร์มตาม track_type · ออฟไลน์ + sync · ตัวจับเวลาพัก · สถิติ (PR) | R2 | **platform** (API แบบส่งซ้ำได้) → frontend ∥ pwa-offline → qa-test ∥ security-privacy |
@@ -113,4 +138,5 @@ content/exercises/ · messages/ · drizzle/ · scripts/ · tests/ · .github/
 ## ลำดับ/ความขึ้นต่อกัน (อะไรต้องมาก่อน อะไรขนานได้)
 ## เกณฑ์ผ่าน (คำสั่ง + ผลที่คาดหวัง)
 ## ความเสี่ยง / สิ่งที่ boss ต้องตัดสินใจ
+## สถานะ (Lead อัปเดตระหว่างรอบ): draft → boss อนุมัติ → กำลังทำ → ตรวจ → รอ merge → ปิด
 ```
