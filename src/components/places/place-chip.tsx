@@ -94,6 +94,7 @@ function PlacePickerSheet({ places, currentId, onPick, onClose }: { places: read
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState<"failed" | "limit" | null>(null);
+  const [newId] = useState(() => crypto.randomUUID());
   const list = sortActive(places);
   const full = atPlaceLimit(places) || failure === "limit";
   const canAdd = placeNameValid(name) && !busy;
@@ -103,7 +104,7 @@ function PlacePickerSheet({ places, currentId, onPick, onClose }: { places: read
     if (!canAdd) return;
     setBusy(true);
     setFailure(null);
-    const r = await addPlace(name, { select: true });
+    const r = await addPlace(newId, name, { select: true });
     setBusy(false);
     if (r.ok) onClose();
     else setFailure(r.reason === "limit" ? "limit" : "failed");

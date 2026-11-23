@@ -33,8 +33,9 @@ export async function writePlace(id: string, base: WirePlace | null, patch: Patc
   return { ok: false, reason: "failed" };
 }
 
-export const addPlace = (name: string, opts: { select: boolean }): Promise<PlaceResult> =>
-  writePlace(crypto.randomUUID(), null, { name, ...(opts.select ? { lastUsedAt: new Date().toISOString() } : {}) });
+/** id คงที่ต่อแผ่นเพิ่ม (ผู้เรียกสร้างครั้งเดียว) — ลองใหม่หลังคำตอบหาย = upsert แถวเดิม ไม่เกิดสถานที่ซ้ำ */
+export const addPlace = (id: string, name: string, opts: { select: boolean }): Promise<PlaceResult> =>
+  writePlace(id, null, { name, ...(opts.select ? { lastUsedAt: new Date().toISOString() } : {}) });
 
 /** เลือกที่เล่น: ชิปเปลี่ยนทันที (แก้ในแท็บก่อน) แล้วส่ง · ล้ม = คืนค่าเดิม */
 export async function selectPlace(place: WirePlace): Promise<boolean> {

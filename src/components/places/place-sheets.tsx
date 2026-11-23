@@ -103,6 +103,7 @@ export function PlaceAddSheet({ places, online, onClose, onDone }: { places: rea
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState<Failure>(null);
+  const [newId] = useState(() => crypto.randomUUID());
   const full = atPlaceLimit(places) || failure === "limit";
   const canAdd = placeNameValid(name) && online && !busy && !full;
 
@@ -111,7 +112,7 @@ export function PlaceAddSheet({ places, online, onClose, onDone }: { places: rea
     if (!canAdd) return;
     setBusy(true);
     setFailure(null);
-    const r = await addPlace(name, { select: false });
+    const r = await addPlace(newId, name, { select: false });
     setBusy(false);
     if (r.ok) {
       onDone("added");
