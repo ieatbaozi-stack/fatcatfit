@@ -65,7 +65,9 @@ export function PlacesScreen() {
 
   async function unarchive(p: WirePlace) {
     const r = await writePlace(p.id, p, { archivedAt: null });
-    show({ key: r.ok ? "unarchived" : "actionFailed" });
+    if (r.ok) show({ key: "unarchived" });
+    else if (r.reason === "limit") show({ key: "actionFailed", text: t("limit") });
+    else show({ key: "actionFailed" });
   }
 
   return (

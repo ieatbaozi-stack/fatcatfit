@@ -160,6 +160,15 @@ describe("PlacesScreen", () => {
     expect(pushed()[0].data).toMatchObject({ name: "Old gym", archived_at: null });
     expect(await screen.findByText("เอาออกจากกรุแล้ว")).toBeTruthy();
   });
+  it("เอาออกจากกรุตอนครบ 30 แห่ง = ข้อความเพดาน ไม่ใช่ข้อความทั่วไป", async () => {
+    pushStatus = "limit";
+    places.push(place("cccccccc-cccc-4ccc-8ccc-cccccccccccc", "Old gym", { archived_at: "2026-02-02T00:00:00.000Z" }));
+    renderWithIntl(<PlacesScreen />);
+    fireEvent.click(await screen.findByRole("button", { name: "ในกรุ · 1" }));
+    fireEvent.click(screen.getByRole("button", { name: "เอาออกจากกรุ" }));
+    expect(await screen.findByText("ครบ 30 แห่งแล้ว")).toBeTruthy();
+    expect(screen.queryByText("ทำไม่สำเร็จ · ลองอีกที")).toBeNull();
+  });
   it("แก้ชื่อ: บันทึกปิดจนเปลี่ยน · มีหมายเหตุประวัติเก่า · ส่ง name ใหม่", async () => {
     renderWithIntl(<PlacesScreen />);
     fireEvent.click(await screen.findByText("Office gym"));

@@ -8,7 +8,6 @@ import { renderWithIntl } from "../test-utils";
 import { TrainingSection } from "./me-sections";
 import { ExerciseName } from "./exercise-name";
 import { resetStore } from "./store";
-import { hidesTabs } from "../nav/bottom-tabs";
 
 vi.mock("@/pwa/use-online", () => ({ useOnline: () => false }));
 vi.mock("next/link", () => ({
@@ -72,15 +71,5 @@ describe("ข้อความ R2 ครบสองภาษา", () => {
       expect(Object.keys(m.exercise.track)).toHaveLength(6);
       expect(Object.keys(m.exercise.trackExample)).toHaveLength(6);
     }
-  });
-});
-
-describe("hidesTabs", () => {
-  it("ฟอร์มท่าไม่มีแถบล่าง · จอรายการ/หน้าอื่นมี", () => {
-    expect(hidesTabs("/me/exercises/new")).toBe(true);
-    expect(hidesTabs("/me/exercises/aaaa-bbbb")).toBe(true);
-    expect(hidesTabs("/me/exercises")).toBe(false);
-    expect(hidesTabs("/me/places")).toBe(false);
-    expect(hidesTabs("/me")).toBe(false);
   });
 });

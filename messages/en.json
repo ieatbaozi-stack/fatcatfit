@@ -665,7 +665,6 @@
     "needNet": "Adding and editing places need a connection",
     "loadFailed": "Couldn't load places",
     "offlineTitle": "Places need a connection",
-    "close": "Close",
     "retry": "Try again"
   },
   "placePicker": {
@@ -676,8 +675,7 @@
     "manage": "Manage places",
     "changeFailed": "Couldn't change place. Try again.",
     "needNet": "Changing place needs a connection",
-    "loadFailed": "Couldn't load places",
-    "close": "Close"
+    "loadFailed": "Couldn't load places"
   },
   "credits": {
     "title": "Exercise data credits",

@@ -7,7 +7,8 @@ import { useTranslations } from "next-intl";
 
 export type FlashKey = "saved" | "archived" | "unarchived" | "deleted" | "added" | "actionFailed";
 /** undo รับ show ของหน้าที่แสดงข้อความอยู่ (ฟอร์มปิดไปแล้ว) ไว้แจ้งผลตอนเลิกทำไม่สำเร็จ */
-export type Flash = { key: FlashKey; undo?: (show: (f: Flash) => void) => void };
+/** text = ข้อความเฉพาะกรณี (แทนข้อความตาม key) */
+export type Flash = { key: FlashKey; text?: string; undo?: (show: (f: Flash) => void) => void };
 
 const SHORT_MS = 3000;
 const UNDO_MS = 5000;
@@ -54,7 +55,7 @@ export function useFlash(consume = false): [React.ReactNode, (f: Flash) => void]
     <div role="status" className="pointer-events-none fixed inset-x-0 bottom-44 z-30 flex justify-center px-5">
       {flash ? (
         <div className="pointer-events-auto flex max-w-100 items-center gap-1 rounded-hand border-draw border-ink bg-paper py-1 pr-2 pl-4">
-          <p className="py-1 text-body text-ink">{t(flash.key)}</p>
+          <p className="py-1 text-body text-ink">{flash.text ?? t(flash.key)}</p>
           {flash.undo ? (
             <button
               type="button"

@@ -134,14 +134,14 @@ describe("ExercisesScreen · ค้นหา", () => {
     fireEvent.change(screen.getByRole("searchbox"), { target: { value: "plank" } });
     expect(screen.queryByRole("group", { name: "หมวด" })).toBeNull();
     const create = screen.getByRole("link", { name: /สร้าง "plank" เป็นท่าของฉัน/ });
-    expect(create.getAttribute("href")).toBe("/me/exercises/new?name=plank");
+    expect(create.getAttribute("href")).toBe("/me/exercises/new#name=plank");
   });
   it("ค้นไม่เจอ = ข้อความ + ปุ่มหลักสร้าง (ตัดคำค้นไม่เกิน 60 ตัว)", async () => {
     await loaded();
     fireEvent.change(screen.getByRole("searchbox"), { target: { value: `  ${"z".repeat(70)}  ` } });
     expect(screen.getByText(/^ไม่เจอ/)).toBeTruthy();
     const link = screen.getByRole("link", { name: /^\+ สร้าง "z+" เป็นท่าของฉัน$/ });
-    expect(link.getAttribute("href")).toBe(`/me/exercises/new?name=${"z".repeat(60)}`);
+    expect(link.getAttribute("href")).toBe(`/me/exercises/new#name=${"z".repeat(60)}`);
   });
   it("ล้างคำค้นด้วยปุ่ม ✕", async () => {
     await loaded();
@@ -160,7 +160,7 @@ describe("ExercisesScreen · ชิปหมวด", () => {
     expect(screen.getByRole("heading", { name: "กีฬา · 1 ท่า" })).toBeTruthy();
     expect(screen.getByText("แบดมินตัน")).toBeTruthy();
     expect(screen.queryByText("บาร์เบลเบนช์เพรส")).toBeNull();
-    expect(screen.getByRole("link", { name: /สร้างท่าของฉัน/ }).getAttribute("href")).toBe("/me/exercises/new?category=sport");
+    expect(screen.getByRole("link", { name: /สร้างท่าของฉัน/ }).getAttribute("href")).toBe("/me/exercises/new#category=sport");
     fireEvent.click(chip);
     expect(chip.getAttribute("aria-pressed")).toBe("false");
     expect(screen.getByRole("heading", { name: "ท่าของฉัน · 1" })).toBeTruthy();

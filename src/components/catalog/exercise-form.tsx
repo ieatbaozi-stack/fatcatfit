@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useMe } from "@/components/auth/auth-gate";
@@ -11,12 +11,14 @@ import { cx } from "@/components/ui/cx";
 import { Icon } from "@/components/ui/icon";
 import { Sheet } from "@/components/ui/sheet";
 import { ButtonLink } from "@/components/ui/status-screen";
-import { CATEGORIES, EQUIPMENT, EXERCISE_LIMITS, LOAD_MODES, TRACK_TYPES, type Category, type LoadMode, type TrackType } from "@/lib/data/shared/exercise-meta";
+import { CATEGORIES, EQUIPMENT, EXERCISE_LIMITS, LOAD_MODES, TRACK_TYPES, isCategory, type Category, type LoadMode, type TrackType } from "@/lib/data/shared/exercise-meta";
 import type { WireExercise } from "@/lib/data/shared/sync";
+import { useHideTabs } from "@/components/nav/tabs-visibility";
 import { useOnline } from "@/pwa/use-online";
 import { pushOne } from "./api";
 import {
   EMPTY_FORM,
+  clampName,
   buildExerciseRow,
   hasDuplicateName,
   isDirty,
@@ -29,8 +31,16 @@ import {
   type FormValues,
 } from "./exercise-logic";
 import { queueFlash } from "./flash";
+import { cameFromApp } from "./in-app-nav";
 import { BottomBar, CatState, Skeleton } from "./shared";
 import { loadBootstrap, removeMyExercise, upsertMyExercise, useCatalogStore } from "./store";
+
+/** ค่าเติมจาก hash ของจอค้น (ตัดช่องว่าง/60 ตัว · หมวดต้องอยู่ในรายการ) */
+export function readPrefill(hash: string): { name: string; category: Category | null } {
+  const p = new URLSearchParams(hash.replace(/^#/, ""));
+  const c = p.get("category");
+  return { name: clampName(p.get("name") ?? ""), category: c && isCategory(c) ? c : null };
+}
 
 type SaveError = "save" | "limit" | "delete" | null;
 
@@ -38,16 +48,24 @@ type SaveError = "save" | "limit" | "delete" | null;
 function useGoBack() {
   const router = useRouter();
   return () => {
-    if (window.history.length > 1) router.back();
+    if (cameFromApp()) router.back();
     else router.replace("/me/exercises");
   };
 }
 
 /** สร้างท่าของฉัน (จอ 73–74) — ชื่อ/หมวดเติมจากจอค้น */
-export function NewExerciseForm({ initialName, initialCategory }: { initialName: string; initialCategory: Category | null }) {
+export function NewExerciseForm() {
   const online = useOnline();
   const { bootstrap } = useCatalogStore({ catalog: false, bootstrap: true }, online);
-  return <FormBody key="new" base={null} initial={{ ...EMPTY_FORM, name: initialName, category: initialCategory }} mine={bootstrap.data?.my_exercises ?? []} notice={null} onStale={() => {}} />;
+  const [prefill, setPrefill] = useState<{ name: string; category: Category | null } | null>(null);
+  // ชื่อ/หมวดจากจอค้นมาใน hash (#name=&category=) — hash ไม่ถูกส่งไปเซิร์ฟเวอร์ ไม่เข้า log
+  useEffect(() => {
+    // อ่านจาก URL ภายนอกครั้งเดียวตอนเปิดหน้า
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPrefill(readPrefill(window.location.hash));
+  }, []);
+  if (!prefill) return null;
+  return <FormBody key="new" base={null} initial={{ ...EMPTY_FORM, name: prefill.name, category: prefill.category }} mine={bootstrap.data?.my_exercises ?? []} notice={null} onStale={() => {}} />;
 }
 
 /** แก้ท่าของฉัน (จอ 75–76) */
@@ -110,6 +128,7 @@ export function EditExerciseForm({ id }: { id: string }) {
 type BodyProps = { base: WireExercise | null; initial: FormValues; mine: readonly WireExercise[]; notice: "stale" | null; onStale: () => void };
 
 function FormBody({ base, initial, mine, notice, onStale }: BodyProps) {
+  useHideTabs();
   const t = useTranslations();
   const online = useOnline();
   const goBack = useGoBack();

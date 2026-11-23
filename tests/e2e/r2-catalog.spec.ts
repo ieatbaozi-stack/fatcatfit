@@ -704,8 +704,7 @@ test.describe("R2 ออฟไลน์: เปิดหน้าใหม่ข
   // BUG R2-QA-1 (ยังไม่แก้ · รายงาน Lead): URL ของฟอร์มท่า (/me/exercises/new, /me/exercises/<id>) ไม่อยู่ใน cache
   // → SW ถอยไป app shell (เนื้อหาหน้าหลัก) แต่ hidesTabs() ซ่อนแถบล่างตาม URL → จอหน้าหลักที่ไม่มีทางไปไหน (แอปที่ติดตั้งไม่มีปุ่มย้อน)
   // test.fail = พฤติกรรมที่ถูกคือมีทางออก · แก้แล้วเทสต์นี้จะแดงให้เอา test.fail ออก
-  test("BUG R2-QA-1: เปิดฟอร์มท่าตอนออฟไลน์ ต้องมีทางออก (แถบล่าง หรือจอบอกต้องต่อเน็ต)", async ({ page, context, baseURL }) => {
-    test.fail();
+  test("R2-QA-1: เปิดฟอร์มท่าตอนออฟไลน์ ต้องมีทางออก (แถบล่าง หรือจอบอกต้องต่อเน็ต)", async ({ page, context, baseURL }) => {
     const u = await offlineAt(page, context, baseURL!);
     for (const p of ["/me/exercises/new", `/me/exercises/${randomUUID()}`]) {
       const res = await page.goto(p);

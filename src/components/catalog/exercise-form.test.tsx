@@ -2,7 +2,8 @@
 import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderWithIntl } from "../test-utils";
-import { EditExerciseForm, NewExerciseForm } from "./exercise-form";
+import { EditExerciseForm, NewExerciseForm, readPrefill } from "./exercise-form";
+import { markInApp, resetInApp } from "./in-app-nav";
 import { takeFlash } from "./flash";
 import { getStoreState, resetStore } from "./store";
 
@@ -51,6 +52,7 @@ const pushBodies = () =>
 
 beforeEach(() => {
   resetStore();
+  resetInApp();
   online.value = true;
   nav.back.mockReset();
   nav.replace.mockReset();
@@ -69,18 +71,27 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+/** จอค้นส่งชื่อ/หมวดมาใน hash (ไม่ใช่ query string) */
+function renderNew(name: string, category: string | null) {
+  const p = new URLSearchParams();
+  if (name) p.set("name", name);
+  if (category) p.set("category", category);
+  window.history.replaceState(null, "", `/me/exercises/new${p.toString() ? `#${p.toString()}` : ""}`);
+  return renderWithIntl(<NewExerciseForm />);
+}
+
 const saveBtn = () => screen.getByRole("button", { name: /^(บันทึก|กำลังบันทึก…|ลองใหม่)$/ });
 
 describe("NewExerciseForm", () => {
   it("เติมชื่อและหมวดจากจอค้น · บันทึกปิดจนเลือกชนิดการจด", () => {
-    renderWithIntl(<NewExerciseForm initialName="Cable fly" initialCategory="chest" />);
+    renderNew("Cable fly", "chest");
     expect((screen.getByLabelText("ชื่อ") as HTMLInputElement).value).toBe("Cable fly");
     expect(screen.getByRole("radio", { name: "อก" }).getAttribute("aria-checked")).toBe("true");
     expect(screen.getAllByRole("radio", { checked: true })).toHaveLength(1);
     expect((saveBtn() as HTMLButtonElement).disabled).toBe(true);
   });
   it("เลือกชนิดการจดแล้วบันทึก = push exercise ตามสัญญา + ฝากข้อความ + กลับจอค้น", async () => {
-    renderWithIntl(<NewExerciseForm initialName="Cable fly" initialCategory="chest" />);
+    renderNew("Cable fly", "chest");
     fireEvent.click(screen.getByRole("radio", { name: /^ครั้งอย่างเดียว/ }));
     fireEvent.click(screen.getByRole("switch", { name: /จดข้างละ/ }));
     fireEvent.click(screen.getByRole("button", { name: "ยางยืด" }));
@@ -98,7 +109,7 @@ describe("NewExerciseForm", () => {
     expect(getStoreState().bootstrap.data?.my_exercises.some((e) => e.id === op.id)).toBe(true);
   });
   it("ชนิดน้ำหนัก × ครั้ง ถามเรื่องน้ำหนักตัว · ชนิดอื่นไม่ถาม · ลู่วิ่งซ่อนสวิตช์ข้างละ", () => {
-    renderWithIntl(<NewExerciseForm initialName="x" initialCategory="back" />);
+    renderNew("x", "back");
     expect(screen.queryByRole("radiogroup", { name: "ใช้น้ำหนักตัวไหม" })).toBeNull();
     fireEvent.click(screen.getByRole("radio", { name: /^น้ำหนัก × ครั้ง/ }));
     expect(screen.getByRole("radiogroup", { name: "ใช้น้ำหนักตัวไหม" })).toBeTruthy();
@@ -108,7 +119,7 @@ describe("NewExerciseForm", () => {
     expect(screen.queryByRole("switch")).toBeNull();
   });
   it("ลูกศรเปลี่ยนตัวเลือกในกลุ่มชนิดการจด", () => {
-    renderWithIntl(<NewExerciseForm initialName="x" initialCategory="back" />);
+    renderNew("x", "back");
     const group = screen.getByRole("radiogroup", { name: "จดอะไร" });
     const first = within(group).getAllByRole("radio")[0];
     fireEvent.click(first);
@@ -117,7 +128,7 @@ describe("NewExerciseForm", () => {
     expect(within(group).getAllByRole("radio")[1].getAttribute("aria-checked")).toBe("true");
   });
   it("ชื่อซ้ำกับท่าของฉัน = เตือน ไม่บล็อก · นับตัวอักษรเมื่อถึง 50", async () => {
-    renderWithIntl(<NewExerciseForm initialName="" initialCategory={null} />);
+    renderNew("", null);
     await screen.findByLabelText("ชื่อ");
     fireEvent.change(screen.getByLabelText("ชื่อ"), { target: { value: "curl" } });
     expect(await screen.findByText(/มีท่าของฉันชื่อนี้แล้ว/)).toBeTruthy();
@@ -127,7 +138,7 @@ describe("NewExerciseForm", () => {
   });
   it("บันทึกล้ม = ค่ายังอยู่ + ข้อความ + ปุ่มเป็นลองใหม่ · ลองใหม่ส่ง id เดิม", async () => {
     pushResult = () => json({}, 500);
-    renderWithIntl(<NewExerciseForm initialName="Row" initialCategory="back" />);
+    renderNew("Row", "back");
     fireEvent.click(screen.getByRole("radio", { name: /^เวลา/ }));
     fireEvent.click(saveBtn());
     expect(await screen.findByRole("alert")).toBeTruthy();
@@ -143,19 +154,19 @@ describe("NewExerciseForm", () => {
   });
   it("เกินจำนวน (limit_reached) = ข้อความเฉพาะ ปุ่มปิด", async () => {
     pushResult = () => json({ results: [{ status: "rejected", code: "limit_reached" }] });
-    renderWithIntl(<NewExerciseForm initialName="Row" initialCategory="back" />);
+    renderNew("Row", "back");
     fireEvent.click(screen.getByRole("radio", { name: /^เวลา/ }));
     fireEvent.click(saveBtn());
     expect(await screen.findByText(/ท่าของฉันครบ 300 ท่าแล้ว/)).toBeTruthy();
     expect((saveBtn() as HTMLButtonElement).disabled).toBe(true);
   });
   it("✕ ตอนมีที่กรอก = ถามทิ้งไหม · ไม่มีอะไรเปลี่ยน = กลับเลย", () => {
-    renderWithIntl(<NewExerciseForm initialName="" initialCategory={null} />);
+    renderNew("", null);
     fireEvent.click(screen.getByRole("button", { name: "ปิด" }));
     expect(nav.replace).toHaveBeenCalledTimes(1);
     cleanup();
     nav.replace.mockReset();
-    renderWithIntl(<NewExerciseForm initialName="" initialCategory={null} />);
+    renderNew("", null);
     fireEvent.change(screen.getByLabelText("ชื่อ"), { target: { value: "x" } });
     fireEvent.click(screen.getByRole("button", { name: "ปิด" }));
     expect(screen.getByRole("dialog", { name: "ทิ้งที่กรอกไว้ไหม" })).toBeTruthy();
@@ -164,17 +175,58 @@ describe("NewExerciseForm", () => {
     expect(nav.replace).toHaveBeenCalledTimes(1);
   });
   it("Enter ในช่องชื่อไม่ส่งฟอร์ม", () => {
-    renderWithIntl(<NewExerciseForm initialName="Row" initialCategory="back" />);
+    renderNew("Row", "back");
     fireEvent.click(screen.getByRole("radio", { name: /^เวลา/ }));
     fireEvent.keyDown(screen.getByLabelText("ชื่อ"), { key: "Enter" });
     expect(pushBodies()).toHaveLength(0);
   });
   it("ออฟไลน์ = บันทึกปิด + บรรทัดเตือน", () => {
     online.value = false;
-    renderWithIntl(<NewExerciseForm initialName="Row" initialCategory="back" />);
+    renderNew("Row", "back");
     fireEvent.click(screen.getByRole("radio", { name: /^เวลา/ }));
     expect((saveBtn() as HTMLButtonElement).disabled).toBe(true);
     expect(screen.getByText("สร้างและแก้ท่าต้องต่อเน็ต")).toBeTruthy();
+  });
+});
+
+describe("เติมค่าและทางกลับ", () => {
+  it("readPrefill: ตัดช่องว่าง 60 ตัว · หมวดนอกรายการ = ไม่เลือก", () => {
+    expect(readPrefill("#name=%20bench%20&category=chest")).toEqual({ name: "bench", category: "chest" });
+    expect(readPrefill("#category=nope")).toEqual({ name: "", category: null });
+    expect(Array.from(readPrefill(`#name=${"z".repeat(80)}`).name)).toHaveLength(60);
+    expect(readPrefill("")).toEqual({ name: "", category: null });
+  });
+  it("มาจากในแอป = router.back · เปิดตรงๆ = replace ไปจอค้น (ไม่ออกนอกแอป)", async () => {
+    markInApp();
+    renderNew("Row", "back");
+    fireEvent.click(screen.getByRole("button", { name: "ปิด" }));
+    expect(nav.back).toHaveBeenCalledTimes(1); // ไม่มีอะไรเปลี่ยน = กลับเลย
+    expect(nav.replace).not.toHaveBeenCalled();
+    cleanup();
+    nav.back.mockReset();
+    resetInApp();
+    renderNew("Row", "back");
+    fireEvent.click(screen.getByRole("button", { name: "ปิด" }));
+    expect(nav.back).not.toHaveBeenCalled();
+    expect(nav.replace).toHaveBeenCalledWith("/me/exercises");
+  });
+  it("ฟอร์มซ่อนแถบล่างตอนแสดงอยู่ และคืนเมื่อปิด", async () => {
+    const { useTabsHidden } = await import("../nav/tabs-visibility");
+    const seen: boolean[] = [];
+    function Probe() {
+      seen.push(useTabsHidden());
+      return null;
+    }
+    renderWithIntl(
+      <>
+        <Probe />
+        <NewExerciseForm />
+      </>,
+    );
+    expect(seen.at(-1)).toBe(true);
+    cleanup();
+    renderWithIntl(<Probe />);
+    expect(seen.at(-1)).toBe(false);
   });
 });
 

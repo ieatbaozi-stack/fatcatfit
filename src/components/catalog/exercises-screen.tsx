@@ -16,6 +16,7 @@ import { ButtonLink } from "@/components/ui/status-screen";
 import { clampName, compareByDisplay, isMine, PAGE_SIZE, sortForBrowse, type ExerciseRow, type Locale } from "./exercise-logic";
 import { ExerciseName } from "./exercise-name";
 import { useFlash } from "./flash";
+import { markInApp } from "./in-app-nav";
 import { BottomBar, CatState, PrimaryLink, Skeleton, SubPageHeader } from "./shared";
 import { useCatalogStore } from "./store";
 
@@ -59,6 +60,7 @@ export function ExercisesScreen() {
 
   // เปิดหน้า: คืนคำค้น/ชิปจาก URL · คอมพิวเตอร์ (เมาส์) focus ช่องค้นเลย · มือถือไม่เปิดแป้นพิมพ์เอง
   useEffect(() => {
+    markInApp();
     const u = readUrl();
     // อ่านจาก URL ภายนอก (history) ครั้งเดียวตอนเปิดหน้า
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -109,7 +111,7 @@ export function ExercisesScreen() {
     if (name) p.set("name", name);
     if (category) p.set("category", category);
     const s = p.toString();
-    return s ? `?${s}` : "";
+    return s ? `#${s}` : "";
   })()}`;
   const catLabel = (c: Category) => t(`exercise.category.${c}`);
 
