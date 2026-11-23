@@ -39,6 +39,9 @@ export function WelcomeScreen() {
   const [googleError, setGoogleError] = useState(false);
   const [showGoogle, setShowGoogle] = useState(true);
   const [knownDevice, setKnownDevice] = useState(false);
+  // เครื่องที่เคยเข้าซ่อนช่องโค้ดไว้ · แต่ถ้ามีโค้ดจากลิงก์ / error ของโค้ด / ผู้ใช้กดแก้-ใส่โค้ด ต้องเปิดช่องและค้างไว้
+  const [revealInvite, setRevealInvite] = useState(false);
+  const [inLineApp, setInLineApp] = useState(false);
   const inviteWait = useCountdown(inviteWaitUntil);
   const emailWait = useCountdown(emailWaitUntil);
 
@@ -47,9 +50,14 @@ export function WelcomeScreen() {
     /* eslint-disable react-hooks/set-state-in-effect -- อ่านค่าจากเบราว์เซอร์ได้เฉพาะหลัง hydrate */
     const fromHash = readInviteFromHash(window.location.hash);
     const callbackError = classifyCallbackError(new URLSearchParams(window.location.search).get("error"));
-    if (fromHash) setInvite(fromHash);
-    if (callbackError === "invite_required") setInviteError("required");
-    else if (callbackError === "generic") setGoogleError(true);
+    if (fromHash) {
+      setInvite(fromHash);
+      setRevealInvite(true);
+    }
+    if (callbackError === "invite_required") {
+      setInviteError("required");
+      setRevealInvite(true);
+    } else if (callbackError === "generic") setGoogleError(true);
     if (fromHash || window.location.search) {
       // ADR 0006: ไม่ให้โค้ดเชิญค้างใน URL/ประวัติ · query ของ error ไม่ต้องค้าง (รีเฟรชแล้วไม่ขึ้นซ้ำ)
       window.history.replaceState(window.history.state, "", window.location.pathname);
@@ -57,16 +65,19 @@ export function WelcomeScreen() {
     const env = detectIosStandalone();
     setShowGoogle(shouldShowGoogle(HIDE_GOOGLE_ON_IOS_STANDALONE, env.isIos, env.standalone));
     setKnownDevice(isKnownDevice());
+    // เบราว์เซอร์ในแอป LINE: Google ไม่ให้ sign-in ในนั้น → แสดงคำแนะนำสั้นๆ (ตรวจหลัง mount กัน hydration mismatch)
+    setInLineApp(navigator.userAgent.includes("Line/"));
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
   if (net === "offline") return <OfflineSignIn />;
 
-  const inviteVisible = !knownDevice;
+  const inviteVisible = !knownDevice || revealInvite || inviteError !== null;
 
   /** ตรวจโค้ดก่อนไปต่อ · ช่องว่าง = ข้าม (บัญชีเดิมไม่ต้องใส่) */
   async function ensureInvite(): Promise<boolean> {
     if (invite.trim() === "") return true;
+    setRevealInvite(true); // มีโค้ดให้ตรวจ → ช่องต้องค้างอยู่แม้ error ถูกล้างตอนพิมพ์
     if (!isInviteShapeValid(invite)) {
       setInviteError("invalid");
       return false;
@@ -217,7 +228,14 @@ export function WelcomeScreen() {
           ) : (
             <>{t("email.noInvite")} · </>
           )}
-          <button type="button" className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center text-ink underline-hand" onClick={() => setStep("start")}>
+          <button
+            type="button"
+            className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center text-ink underline-hand"
+            onClick={() => {
+              setRevealInvite(true);
+              setStep("start");
+            }}
+          >
             {invite ? t("email.edit") : t("email.addInvite")}
           </button>
         </p>
@@ -255,6 +273,11 @@ export function WelcomeScreen() {
               <GoogleMark />
               {busy === "google" ? t("google.loading") : t("google.label")}
             </Button>
+            {inLineApp ? (
+              <p role="note" className="text-center text-caption text-ink-3">
+                {t("lineHint")}
+              </p>
+            ) : null}
             {googleError ? (
               <p role="alert" className="text-center text-caption text-warn">
                 {t("google.failed")}

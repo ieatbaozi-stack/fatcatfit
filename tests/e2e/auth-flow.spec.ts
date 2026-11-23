@@ -608,3 +608,57 @@ test.describe("สิทธิ์ข้อมูลข้ามผู้ใช�
     await u.api.dispose();
   });
 });
+
+// R1.5 M1 ทาง ก. (boss 2026-11-20): เปลี่ยน PRIVACY_NOTICE_VERSION → ผู้ใช้เดิมต้องยินยอมใหม่ 1 ครั้ง
+// เวอร์ชันปัจจุบันอ่านจาก /api/me (แหล่งเดียว = PRIVACY_NOTICE_VERSION) · "เวอร์ชันเก่า" = ค่าใดๆ ที่ไม่ใช่เวอร์ชันปัจจุบัน
+test.describe("ผู้ใช้เดิมที่ยินยอมประกาศเวอร์ชันเก่า", () => {
+  for (const locale of ["th", "en"] as const) {
+    test(`${locale}: เปิดแอป → ถูกพาไปหน้ายินยอม (เห็นเวอร์ชันใหม่) → ยินยอม → กลับหน้าหลัก ข้อมูลเดิมครบ ไม่ต้องกรอกแบบสอบถามใหม่`, async ({ browser, baseURL }) => {
+      const u = await signUp(baseURL!, { stage: "ready", locale });
+      const id = (await userIdOf(u.email))!;
+      const current = ((await (await u.api.get("/api/me")).json()) as { noticeVersion: string }).noticeVersion;
+      expect(current).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      const before = await residue(id, u.email);
+      // จำลองว่ายินยอมไว้ตอนประกาศฉบับก่อน: แถวยินยอมที่มีอยู่เป็นของเวอร์ชันอื่น
+      await sql(`update consent_record set notice_version = '2000-01-01' where user_id = $1`, [id]);
+      const me = (await (await u.api.get("/api/me")).json()) as { state: string; noticeVersion: string };
+      expect(me).toMatchObject({ state: "consent_required", noticeVersion: current });
+      // API ข้อมูลถูกกันจนกว่าจะยินยอม
+      const blocked = await u.api.post("/api/onboarding", { data: {} });
+      expect(blocked.status()).toBe(403);
+      expect(await blocked.json()).toMatchObject({ code: "consent_required" });
+      // ยินยอมด้วยเวอร์ชันเก่า (เช่นหน้าที่เปิดค้างไว้) → ไม่ผ่าน
+      expect((await u.api.post("/api/consent", { data: { noticeVersion: "2000-01-01", locale } })).status()).not.toBe(200);
+
+      const ctx = await browser.newContext({ baseURL, viewport: { width: 375, height: 812 }, locale: locale === "en" ? "en-US" : "th-TH", colorScheme: locale === "en" ? "dark" : "light" });
+      if (locale === "en") await ctx.addCookies([{ name: "NEXT_LOCALE", value: "en", url: baseURL! }]);
+      await applySession(ctx, u);
+      const page = await ctx.newPage();
+      await page.goto("/");
+      await expect(page).toHaveURL(/\/consent$/, { timeout: 15_000 });
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(msg(locale, "consent.title"));
+      await expect(page.getByRole("link", { name: msg(locale, "consent.readFull").replace("{version}", current) })).toHaveAttribute("href", "/privacy");
+      // แท็บอื่นก็พากลับมาหน้ายินยอม
+      await page.goto("/me");
+      await expect(page).toHaveURL(/\/consent$/, { timeout: 15_000 });
+      await page.getByText(msg(locale, "consent.ageCheckbox")).click();
+      await page.getByText(msg(locale, "consent.checkbox")).click();
+      await page.getByRole("button", { name: msg(locale, "consent.agree") }).click();
+      // มีโปรไฟล์อยู่แล้ว → ไปหน้าหลัก ไม่ใช่แบบสอบถาม
+      await expect(page).toHaveURL(/\/$/, { timeout: 15_000 });
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(msg(locale, "nav.home"));
+      await expect(page.getByRole("navigation", { name: msg(locale, "nav.label") }).getByRole("link")).toHaveCount(4);
+      await page.goto("/me");
+      await expect(page.getByText(u.email)).toBeVisible();
+
+      expect(((await (await u.api.get("/api/me")).json()) as { state: string }).state).toBe("ready");
+      const rows = await sql<{ notice_version: string; locale: string }>(`select notice_version, locale from consent_record where user_id = $1 order by accepted_at`, [id]);
+      expect(rows.filter((r) => r.notice_version === current), "exactly one consent row for the current version").toHaveLength(1);
+      expect(rows.find((r) => r.notice_version === current)!.locale).toBe(locale);
+      const after = await residue(id, u.email);
+      for (const t of ["profile", "place", "body_entry"]) expect(after[t], `${t} kept`).toBe(before[t]);
+      await ctx.close();
+      await u.api.dispose();
+    });
+  }
+});

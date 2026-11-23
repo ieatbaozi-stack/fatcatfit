@@ -14,6 +14,8 @@ import { useNet } from "./use-net";
 type GateValue = {
   /** ข้อมูลผู้ใช้จาก /api/me (null จนกว่าจะโหลดเสร็จ · มาจากไคลเอนต์เท่านั้น ไม่อยู่ใน HTML) */
   me: MeData | null;
+  /** ถาม /api/me ไม่สำเร็จเพราะเครือข่าย (fetch ล้ม) — ต่างจาก "ยังไม่ตอบ" (me เป็น null ทั้งคู่) */
+  networkFailed?: boolean;
   /** ถาม /api/me ใหม่ (เช่นหลังบันทึกยินยอม) แล้วให้ตารางตัดสินพาไปจอถัดไปเอง */
   refresh: () => Promise<void>;
 };
@@ -80,8 +82,8 @@ export function AuthGate({ kind, children }: { kind: ScreenKind; children: React
   }, [decision, router]);
 
   const value = useMemo<GateValue>(
-    () => ({ me: result?.status === "ok" ? result.me : null, refresh: load }),
-    [result, load],
+    () => ({ me: result?.status === "ok" ? result.me : null, networkFailed, refresh: load }),
+    [result, networkFailed, load],
   );
 
   if (decision.action === "offline-welcome") return <OfflineSignIn />;

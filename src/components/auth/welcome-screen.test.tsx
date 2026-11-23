@@ -190,3 +190,20 @@ describe("WelcomeScreen · ออฟไลน์", () => {
     expect(screen.getByRole("button", { name: th.offline.signInClosed })).toBeTruthy();
   });
 });
+
+describe("WelcomeScreen · คำแนะนำเมื่อเปิดในแอป LINE", () => {
+  const ua = (s: string) => vi.spyOn(window.navigator, "userAgent", "get").mockReturnValue(s);
+
+  it("UA มี Line/ = แสดงคำแนะนำหลัง mount", async () => {
+    ua("Mozilla/5.0 (iPhone) AppleWebKit Safari Line/14.2.0");
+    renderWithIntl(<WelcomeScreen />);
+    expect(await screen.findByText(th.welcome.lineHint)).toBeTruthy();
+  });
+
+  it("เบราว์เซอร์อื่น = ไม่มีอะไรเปลี่ยน", async () => {
+    ua("Mozilla/5.0 (iPhone) AppleWebKit Safari");
+    renderWithIntl(<WelcomeScreen />);
+    await screen.findByLabelText(th.welcome.invite.label);
+    expect(screen.queryByText(th.welcome.lineHint)).toBeNull();
+  });
+});

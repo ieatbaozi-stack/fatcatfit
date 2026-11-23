@@ -61,14 +61,29 @@ export function pageCacheKey(url: string): string {
 }
 
 /**
- * URL ของหน้าที่เก็บลง cache หน้าได้: origin เดียวกัน · ไม่ใช่ /api · **ไม่มี query** (ADR 0006 ข้อ 4)
+ * `/admin` และทุกอย่างใต้ `/admin/` (R1.5 เกณฑ์ 9) — หน้าแอดมินแสดงโค้ดเชิญ/ข้อมูลสมาชิก ห้ามลงเครื่อง
+ * ไม่จับ `/administrator` `/adminx` · เทียบแบบไม่สนตัวพิมพ์ และถอด percent-encoding ก่อน (กันไว้ก่อน)
+ */
+export function isAdminPath(pathname: string): boolean {
+  let p = pathname;
+  try {
+    p = decodeURIComponent(pathname);
+  } catch {
+    // percent-encoding เสีย → เทียบจากค่าดิบ
+  }
+  p = p.toLowerCase();
+  return p === "/admin" || p.startsWith("/admin/");
+}
+
+/**
+ * URL ของหน้าที่เก็บลง cache หน้าได้: origin เดียวกัน · ไม่ใช่ /api · ไม่ใช่ /admin/** · **ไม่มี query** (ADR 0006 ข้อ 4)
  * (เช่น `/welcome?error=…` จาก Better Auth ไม่ถูกเก็บ — URL เดียวกันที่ไม่มี query ถูกเก็บแทนเมื่อเปิดครั้งถัดไป)
  * fragment ไม่นับ เพราะถูกตัดออกจาก key ด้วย pageCacheKey
  */
 export function isStorablePageUrl(url: string, origin: string): boolean {
   try {
     const u = new URL(url);
-    return u.origin === origin && !isApiPath(u.pathname) && u.search === "";
+    return u.origin === origin && !isApiPath(u.pathname) && !isAdminPath(u.pathname) && u.search === "";
   } catch {
     return false;
   }
@@ -190,7 +205,11 @@ export function planPageSync(
   const have = new Set(entries.filter((e) => e.lang === lang).map((e) => e.url));
   have.add(justCachedUrl);
   const missing = offlinePageUrls(origin).filter((u) => !have.has(u));
-  return { remove, fetch: unique([...remove, ...missing]).filter((u) => u !== justCachedUrl) };
+  // remove รวมทุกอย่างที่ค้าง (รวมหน้าที่เก็บไม่ได้ เช่น /admin จากรุ่นก่อน) · fetch เฉพาะหน้าที่เก็บได้
+  return {
+    remove,
+    fetch: unique([...remove, ...missing]).filter((u) => u !== justCachedUrl && isStorablePageUrl(u, origin)),
+  };
 }
 
 /** ภาษาของชุดหน้า: ใช้ภาษาของ app shell ก่อน ไม่มีก็ใช้หน้าแรกที่รู้ภาษา */
@@ -213,7 +232,9 @@ export function planActivation(
   origin: string,
 ): { lang: string | null; promote: string[]; refetch: string[] } {
   const lang = langOfPages(current, origin) ?? langOfPages(staged, origin);
-  const promote = lang ? unique(staged.filter((e) => e.lang === lang).map((e) => e.url)) : [];
+  const promote = lang
+    ? unique(staged.filter((e) => e.lang === lang && isStorablePageUrl(e.url, origin)).map((e) => e.url))
+    : [];
   const done = new Set(promote);
   const refetch = unique([...current.map((e) => e.url), ...staged.map((e) => e.url), ...offlinePageUrls(origin)]).filter(
     (u) => !done.has(u) && isStorablePageUrl(u, origin),

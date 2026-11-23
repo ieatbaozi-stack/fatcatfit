@@ -14,6 +14,7 @@ import {
   pagesToStage,
   planActivation,
   planPageSync,
+  isAdminPath,
   isApiPath,
   isCacheableResponse,
   isOutdatedRuntimeCache,
@@ -361,5 +362,62 @@ describe("ADR 0006 เทสต์ 6 — ถอยตอนออฟไลน์
   it("หลังออกจากระบบ (cache มีแค่ /welcome) → ลองเติมแท็บที่ขาด (เซิร์ฟเวอร์ redirect จึงไม่ถูกเก็บ — ดู page-fetch.test)", () => {
     const plan = planPageSync([{ url: u("/welcome"), lang: "th" }], "th", u("/welcome"), ORIGIN);
     expect(plan).toEqual({ remove: [], fetch: [u("/"), u("/history"), u("/progress"), u("/me")] });
+  });
+});
+
+describe("R1.5 เกณฑ์ 9 — หน้าแอดมิน (/admin/**) ไม่ลงเครื่อง", () => {
+  it.each([
+    ["/admin", false],
+    ["/admin/", false],
+    ["/admin/invites", false],
+    ["/admin/invites/new", false],
+    ["/admin#top", false],
+    ["/Admin", false], // ตัดสิน: ไม่สนตัวพิมพ์ — กันไว้ก่อน แม้ route ของ Next.js จะแยกตัวพิมพ์
+    ["/ADMIN/invites", false],
+    ["/%61dmin", false], // ตัดสิน: ถอด percent-encoding ก่อนเทียบ
+    ["/admin%2Finvites", false],
+    ["/administrator", true], // คนละ path — ไม่ใช่ /admin
+    ["/adminx", true],
+    ["/admins/x", true],
+    ["/me/admin", true], // /admin ต้องอยู่ต้น path เท่านั้น
+    ["/admin/../me", true], // URL ถูกทำให้เป็น /me ก่อน
+  ])("isStorablePageUrl(%s) = %s", (path, expected) => {
+    expect(isStorablePageUrl(u(path), ORIGIN)).toBe(expected);
+  });
+
+  it("isAdminPath: /admin และทุกอย่างใต้ /admin/ เท่านั้น", () => {
+    expect(isAdminPath("/admin")).toBe(true);
+    expect(isAdminPath("/admin/invites")).toBe(true);
+    expect(isAdminPath("/administrator")).toBe(false);
+    expect(isAdminPath("/adminx")).toBe(false);
+    expect(isAdminPath("/")).toBe(false);
+    expect(isAdminPath("/%E0%A4%A")).toBe(false); // percent-encoding เสีย → ไม่ throw
+  });
+
+  it("SW อัปเดต: หน้าแอดมินที่ค้างใน cache ไม่ถูกดึงซ้ำ (pagesToStage)", () => {
+    const staged = pagesToStage([u("/admin"), u("/admin/invites"), u("/administrator")], ORIGIN);
+    expect(staged).toEqual([...ALL_TABS, u("/administrator")]);
+  });
+
+  it("activate: key แอดมินที่ค้างจากรุ่นก่อนถูกลบ และไม่ถูกย้าย/ดึงซ้ำ", () => {
+    const keys = [u("/"), u("/admin"), u("/admin/invites"), u("/me")];
+    expect(unstorablePageKeys(keys, ORIGIN)).toEqual([u("/admin"), u("/admin/invites")]);
+    const plan = planActivation(
+      [u("/admin"), ...ALL_TABS].map((url) => ({ url, lang: "th" })),
+      [u("/admin/invites"), ...ALL_TABS].map((url) => ({ url, lang: "th" })),
+      ORIGIN,
+    );
+    expect([...plan.promote, ...plan.refetch].filter((x) => new URL(x).pathname.startsWith("/admin"))).toEqual([]);
+  });
+
+  it("เปลี่ยนภาษา: หน้าแอดมินที่ค้างถูกลบ และไม่อยู่ในรายการดึงใหม่", () => {
+    const entries = [u("/admin"), ...ALL_TABS].map((url) => ({ url, lang: "th" }));
+    const plan = planPageSync(entries, "en", "", ORIGIN);
+    expect(plan.remove).toContain(u("/admin"));
+    expect(plan.fetch).not.toContain(u("/admin"));
+  });
+
+  it("หน้าที่ดึงตั้งแต่ติดตั้งและหน้าถอยตอนออฟไลน์ไม่มีหน้าแอดมิน", () => {
+    for (const p of [...OFFLINE_PAGES, ...OFFLINE_FALLBACK_PATHS]) expect(isAdminPath(p)).toBe(false);
   });
 });

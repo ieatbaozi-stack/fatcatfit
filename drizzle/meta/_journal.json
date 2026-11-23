@@ -15,6 +15,13 @@
       "when": 1795015401037,
       "tag": "0001_r1_invite_consent_profile",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795110329483,
+      "tag": "0002_r1_5_app_admin",
+      "breakpoints": true
     }
   ]
 }

@@ -2,7 +2,7 @@ import path from "node:path";
 import type { Page, TestInfo } from "@playwright/test";
 import { expect, test } from "./fixtures";
 import { expectNoHorizontalOverflow, msg, presetTheme, setLocale, TOKENS, waitForAuthReady } from "./helpers";
-import { signUp, applySession } from "./support/auth";
+import { signUp, applySession, sql, userIdOf } from "./support/auth";
 
 // จอใหม่ของ R1 เทียบ DESIGN.md / UX.md (contract เกณฑ์ 1 แถว "ปุ่ม ≥ 44px + คอนทราสต์ทั้งสองโหมด" · เกณฑ์ 14)
 // ทุกจอ × สว่าง/มืด × TH/EN: คอนทราสต์ ≥ 4.5 · ฟอนต์ ≥ 14px · ปุ่ม/ลิงก์/ช่อง ≥ 44px · ไม่ล้นจอ · ส้มไม่เกินหนึ่งที่นอกแมว
@@ -23,6 +23,13 @@ type Screen = {
 async function asUser(page: Page, baseURL: string, stage: "signed_in" | "consented" | "ready", l: L) {
   const u = await signUp(baseURL, { stage, locale: l });
   await applySession(page.context(), u);
+  return u;
+}
+
+/** ผู้ใช้ที่ใช้งานอยู่แล้ว แต่ยินยอมไว้กับประกาศฉบับก่อน (R1.5) */
+async function asExistingUser(page: Page, baseURL: string, l: L) {
+  const u = await asUser(page, baseURL, "ready", l);
+  await sql(`update consent_record set notice_version = '2000-01-01' where user_id = $1`, [await userIdOf(u.email)]);
   return u;
 }
 
@@ -96,6 +103,26 @@ const SCREENS: Screen[] = [
       await page.goto("/consent");
       await page.getByRole("button", { name: msg(l, "consent.decline") }).click();
       await expect(page.getByRole("heading", { level: 1 })).toHaveText(msg(l, "consent.declineTitle"));
+    },
+  },
+  {
+    // R1.5 (boss 2026-11-20): ผู้ใช้เดิมที่ประกาศเปลี่ยนเวอร์ชันกด "ไม่ยินยอม" → หน้า 3 ทางเลือก
+    name: "consent-existing-decline",
+    open: async (page, l, baseURL) => {
+      await asExistingUser(page, baseURL, l);
+      await page.goto("/consent");
+      await page.getByRole("button", { name: msg(l, "consent.decline") }).click();
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(msg(l, "consent.existing.title"));
+    },
+  },
+  {
+    name: "consent-existing-confirm",
+    open: async (page, l, baseURL) => {
+      await asExistingUser(page, baseURL, l);
+      await page.goto("/consent");
+      await page.getByRole("button", { name: msg(l, "consent.decline") }).click();
+      await page.getByRole("button", { name: msg(l, "consent.existing.delete") }).click();
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(msg(l, "consent.existing.confirmTitle"));
     },
   },
   {
