@@ -29,7 +29,7 @@
 | 9 | คลังท่า & ภาษา / Catalog | `catalog` | Sonnet | นำเข้า/จัดรูปชุดข้อมูลท่า, ใบอนุญาต/เครดิต, ชื่อไทย, ค่า MET | `content/exercises/**`, `scripts/seed*.ts`, `docs/content/**` | เฉพาะทาง: R2 |
 | 10 | ระบบดูแล & ออกรุ่น / OPS & Release | `ops-release` | Sonnet | CI, health check, security headers, อีเมล OTP, backup, SemVer + CHANGELOG + สคริปต์ release | `.github/**`, `next.config.ts`, `docs/OPERATIONS.md`, `docs/VERSIONING.md`, `CHANGELOG.md`, `scripts/release*.ts` | เฉพาะทาง: R0, R1, R6 และเมื่อออกรุ่น |
 | 11 | นักค้นคว้า / Researcher | `researcher` | Sonnet | ค้นข้อมูลภายนอก: ลิมิต/ราคาผู้ให้บริการ, เอกสารไลบรารี, ใบอนุญาต | `docs/research/**` | สนับสนุน: ก่อนตัดสินใจที่ต้องพึ่งข้อมูลภายนอก |
-| 12 | เลขา / Secretary | `secretary` | Haiku | รายงานประจำวัน · ตรวจเอกสารทั้งหมดให้ตรงกับงานปัจจุบัน · **ไม่เขียนโค้ด** | `docs/reports/**` และเอกสาร `*.md` / `docs/**` ที่ไม่ใช่โค้ด (ไม่แตะ `Pre-start/`, `.claude/worktrees/`) | สนับสนุน: หลังงานใหญ่ และวันละครั้งที่มี commit · ทุกครั้งที่ถูกเรียก ตรวจเอกสารล้าสมัยด้วย |
+| 12 | เลขา / Secretary | `secretary` | Haiku | รายงานประจำวัน · ตรวจเอกสารที่เกี่ยวกับงานให้ตรงกับงานปัจจุบัน (ปิดรอบ: ตรวจทุกไฟล์) · **ไม่เขียนโค้ด** | `docs/reports/**` และเอกสาร `*.md` / `docs/**` ที่ไม่ใช่โค้ด (ไม่แตะ `Pre-start/`, `.claude/worktrees/`) | สนับสนุน: หลังงานใหญ่ และวันละครั้งที่มี commit · ทุกครั้งที่ถูกเรียก ตรวจเอกสารล้าสมัยด้วย |
 
 ## หลักการเลือก model
 
