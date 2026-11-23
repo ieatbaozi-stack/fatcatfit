@@ -12,7 +12,9 @@ import { audit, contrast } from "./support/design-audit";
 
 test.use({ auth: "none" });
 
-const BENCH = { id: "2e2bea3a-04fb-4f1f-a1e1-1cd91fae1b97", name: "Barbell Bench Press - Medium Grip", th: "บาร์เบลเบนช์เพรส กริปกลาง" };
+// id คลังเป็น UUID v5 (ADR 0008) — หาจากฐานด้วย source_ref ไม่ฝังค่าในเทสต์
+const BENCH = { sourceRef: "Barbell_Bench_Press_-_Medium_Grip", name: "Barbell Bench Press - Medium Grip", th: "บาร์เบลเบนช์เพรส กริปกลาง" };
+const UUID_V5 = /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 const BADMINTON = { name: "Badminton", th: "แบดมินตัน" };
 
 type Op = { entity: string; id: string; action: "upsert" | "delete"; data?: unknown; client_updated_at?: string; op_id?: string };
@@ -79,15 +81,20 @@ test.describe("R2 API · สิทธิ์ (เกณฑ์ 6)", () => {
     const [plRow] = await sql<{ name: string; user_id: string; archived_at: string | null }>(`select name, user_id, archived_at from place where id = $1`, [plA]);
     expect(plRow).toEqual({ name: "QA ที่ของ A", user_id: aId, archived_at: null });
 
-    // ท่าคลังกลาง: ใครก็ upsert/delete ไม่ได้
-    const before = await sql(`select * from exercise where id = $1`, [BENCH.id]);
-    expect(before).toHaveLength(1);
+    // ท่าคลังกลาง: id เป็น v5 · push รับเฉพาะ v4 → ใครก็ upsert/delete ไม่ได้ (invalid ก่อนถึงฐาน)
+    const bench = await sql<{ id: string; name: string }>(`select id, name from exercise where owner_user_id is null and source_ref = $1`, [BENCH.sourceRef]);
+    expect(bench).toHaveLength(1);
+    expect(bench[0].name).toBe(BENCH.name);
+    const benchId = bench[0].id;
+    expect(benchId).toMatch(UUID_V5);
+    expect(await sql(`select count(*)::int as n from exercise where owner_user_id is null and id::text !~ '^[0-9a-f]{8}-[0-9a-f]{4}-5'`)).toEqual([{ n: 0 }]);
+    const before = await sql(`select * from exercise where id = $1`, [benchId]);
     expect((await push(a, [
-      { entity: "exercise", id: BENCH.id, action: "upsert", data: exData("Hijacked") },
-      { entity: "exercise", id: BENCH.id, action: "delete" },
-      { entity: "exercise", id: BENCH.id, action: "upsert", data: exData("Hijacked", { archived_at: new Date().toISOString() }) },
-    ])).map(status)).toEqual(["rejected:id_conflict", "rejected:id_conflict", "rejected:id_conflict"]);
-    expect(await sql(`select * from exercise where id = $1`, [BENCH.id])).toEqual(before);
+      { entity: "exercise", id: benchId, action: "upsert", data: exData("Hijacked") },
+      { entity: "exercise", id: benchId, action: "delete" },
+      { entity: "exercise", id: benchId, action: "upsert", data: exData("Hijacked", { archived_at: new Date().toISOString() }) },
+    ])).map(status)).toEqual(["rejected:invalid", "rejected:invalid", "rejected:invalid"]);
+    expect(await sql(`select * from exercise where id = $1`, [benchId])).toEqual(before);
 
     // ช่องที่เซิร์ฟเวอร์ตั้งเอง: ส่งมา = invalid ทั้งรายการ ไม่มีแถวเกิด
     const forbidden: Array<[string, Record<string, unknown>]> = [
