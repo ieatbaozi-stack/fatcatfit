@@ -14,6 +14,9 @@ const idle = <T,>(): Slice<T> => ({ status: "idle", data: null, reason: null });
 
 let state: StoreState = { catalog: idle(), bootstrap: idle() };
 const listeners = new Set<() => void>();
+/** นับการเขียนในเครื่อง (patch) — ใช้ทิ้งคำตอบ bootstrap ที่ถามก่อนการเขียนล่าสุด */
+let writeSeq = 0;
+const MAX_RETRY = 3;
 const inflight: { catalog: Promise<void> | null; bootstrap: Promise<void> | null } = { catalog: null, bootstrap: null };
 
 function set(next: StoreState) {
@@ -29,6 +32,7 @@ export function getStoreState(): StoreState {
 export function resetStore(): void {
   inflight.catalog = null;
   inflight.bootstrap = null;
+  writeSeq += 1;
   set({ catalog: idle(), bootstrap: idle() });
 }
 
@@ -59,11 +63,19 @@ export function loadBootstrap(): Promise<void> {
   if (inflight.bootstrap) return inflight.bootstrap;
   const keep = state.bootstrap.data;
   set({ ...state, bootstrap: { status: keep ? "ready" : "loading", data: keep, reason: null } });
-  const p = fetchBootstrap().then((r) => {
+  // คำตอบที่ส่งไปก่อนการเขียนในเครื่องล่าสุดอาจเป็นข้อมูลก่อนเขียน (เช่น ถามค้างจากขั้นก่อนหน้าแล้วตอบมาหลังเก็บเข้ากรุ)
+  // → ทิ้งแล้วถามใหม่ ไม่เอาไปทับ (ไม่งั้นท่าที่เพิ่งเก็บ/ลบกลับมาโผล่) · จำกัดรอบกันวนไม่จบ
+  const p = (async () => {
+    let seq = writeSeq;
+    let r = await fetchBootstrap();
+    for (let i = 0; i < MAX_RETRY && r.ok && seq !== writeSeq; i++) {
+      seq = writeSeq;
+      r = await fetchBootstrap();
+    }
     inflight.bootstrap = null;
     if (r.ok) set({ ...state, bootstrap: { status: "ready", data: r.data, reason: null } });
     else set({ ...state, bootstrap: { status: keep ? "ready" : "error", data: keep, reason: keep ? null : r.reason } });
-  });
+  })();
   inflight.bootstrap = p;
   return p;
 }
@@ -73,6 +85,7 @@ export function loadBootstrap(): Promise<void> {
 function patchBootstrap(fn: (b: BootstrapResponse) => BootstrapResponse): void {
   const cur = state.bootstrap.data;
   if (!cur) return;
+  writeSeq += 1;
   set({ ...state, bootstrap: { ...state.bootstrap, data: fn(cur) } });
 }
 
