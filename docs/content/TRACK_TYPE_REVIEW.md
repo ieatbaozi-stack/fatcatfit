@@ -4,7 +4,7 @@
 
 แก้หลังมีประวัติใน R3 ไม่ได้ — ตรวจให้ถูกก่อน merge
 
-## รายการยกเว้นจากกติกา (72 แถว · แก้ใน `content/exercises/overrides.json`)
+## รายการยกเว้นจากกติกา (91 แถว · แก้ใน `content/exercises/overrides.json`)
 
 | source_ref | ช่องที่แก้ | เหตุผล |
 |---|---|---|
@@ -58,7 +58,6 @@
 | Platform_Hamstring_Slides | {"track_type":"reps_only","load_mode":"external"} | ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง |
 | Ab_Roller | {"track_type":"reps_only","load_mode":"external"} | ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง |
 | Single-Cone_Sprint_Drill | {"track_type":"reps_only","load_mode":"external"} | ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง |
-| Power_Stairs | {"track_type":"reps_only","load_mode":"external"} | ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง |
 | Dips_-_Chest_Version | {"track_type":"weight_reps","load_mode":"bodyweight_plus"} | ท่าดึงข้อ/ดิปที่ต้นทางระบุอุปกรณ์เป็น other จึงไม่ตกกติกาข้อ 7 — นิยมถ่วงเพิ่ม = น้ำหนักตัว+เพิ่ม |
 | Gironda_Sternum_Chins | {"track_type":"weight_reps","load_mode":"bodyweight_plus"} | ท่าดึงข้อ/ดิปที่ต้นทางระบุอุปกรณ์เป็น other จึงไม่ตกกติกาข้อ 7 — นิยมถ่วงเพิ่ม = น้ำหนักตัว+เพิ่ม |
 | Mixed_Grip_Chin | {"track_type":"weight_reps","load_mode":"bodyweight_plus"} | ท่าดึงข้อ/ดิปที่ต้นทางระบุอุปกรณ์เป็น other จึงไม่ตกกติกาข้อ 7 — นิยมถ่วงเพิ่ม = น้ำหนักตัว+เพิ่ม |
@@ -80,8 +79,28 @@
 | Isometric_Wipers | {"track_type":"duration","load_mode":"external"} | ท่าค้าง/วิ่งเร็วจดเป็นเวลา (ข้อ 5/6 ตามเจตนา) |
 | Wind_Sprints | {"track_type":"duration","load_mode":"external"} | ท่าค้าง/วิ่งเร็วจดเป็นเวลา (ข้อ 5/6 ตามเจตนา) |
 | Push_Up_to_Side_Plank | {"track_type":"reps_only","load_mode":"external"} | ชื่อมี plank แต่เป็นท่าเคลื่อนไหวนับครั้ง ไม่ใช่ท่าค้าง |
+| Toe_Touchers | {"track_type":"reps_only","load_mode":"external"} | ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา |
+| Crossover_Reverse_Lunge | {"track_type":"reps_only","load_mode":"external"} | ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา |
+| Frog_Hops | {"track_type":"reps_only","load_mode":"external"} | ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา |
+| Sit_Squats | {"track_type":"reps_only","load_mode":"external"} | ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา |
+| Split_Squats | {"track_type":"reps_only","load_mode":"external"} | ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา |
+| Front_Leg_Raises | {"track_type":"reps_only","load_mode":"external"} | ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา |
+| Rear_Leg_Raises | {"track_type":"reps_only","load_mode":"external"} | ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา |
+| Side_Leg_Raises | {"track_type":"reps_only","load_mode":"external"} | ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา |
+| Scissor_Kick | {"track_type":"reps_only","load_mode":"external"} | ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา |
+| Groiners | {"track_type":"reps_only","load_mode":"external"} | ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา |
+| Inchworm | {"track_type":"reps_only","load_mode":"external"} | ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา |
+| Windmills | {"track_type":"reps_only","load_mode":"external"} | ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา |
+| Shoulder_Raise | {"track_type":"reps_only","load_mode":"external"} | ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา |
+| Heavy_Bag_Thrust | {"track_type":"reps_only","load_mode":"external"} | พลัยโอเมตริกผลักกระสอบทราย ไม่มีน้ำหนักให้จด (อุปกรณ์ other ตกข้อ 9) — รอบสอง: นับครั้ง |
+| Drop_Push | {"track_type":"reps_only","load_mode":"external"} | พลัยโอเมตริกวิดพื้นน้ำหนักตัวระหว่างกล่อง (อุปกรณ์ other ตกข้อ 9) — รอบสอง: นับครั้ง |
+| Bench_Sprint | {"track_type":"reps_only","load_mode":"external"} | พลัยโอเมตริกน้ำหนักตัวบนม้านั่ง (อุปกรณ์ other ตกข้อ 9) — รอบสอง: นับครั้ง |
+| Ball_Leg_Curl | {"track_type":"reps_only","load_mode":"external"} | ท่าน้ำหนักตัวบนบอล ไม่มีน้ำหนักให้จด (อุปกรณ์ exercise ball แมปเป็น other ตกข้อ 9) — รอบสอง: นับครั้ง |
+| Balance_Board | {"track_type":"duration","load_mode":"external"} | ท่าทรงตัวบนบอร์ด ต้นทางให้ค้างตามต้องการ จดเป็นเวลา ไม่ใช่น้ำหนัก×ครั้ง — รอบสอง |
+| Plate_Pinch | {"track_type":"weight_duration","load_mode":"external"} | ค้างหนีบเพลท น้ำหนักเพลทคือตัวแปรหลัก + เวลา (force=static ตกข้อ 5 เป็น duration ซึ่งทิ้งน้ำหนัก) — รอบสอง |
+| Crucifix | {"track_type":"weight_duration","load_mode":"external"} | ถือน้ำหนักกางแขนค้างตามเวลา น้ำหนักคือตัวแปรหลัก (force=static ตกข้อ 5 เป็น duration ซึ่งทิ้งน้ำหนัก) — รอบสอง |
 
-## ท่า free-exercise-db ที่ไม่ใช่ weight_reps/external (302 แถว)
+## ท่า free-exercise-db ที่ไม่ใช่ weight_reps/external (306 แถว)
 
 | ชื่อ | track_type | load_mode | ข้างเดียว |
 |---|---|---|---|
@@ -99,12 +118,15 @@
 | Anterior Tibialis-SMR | duration | external |  |
 | Arm Circles | duration | external |  |
 | Backward Drag | weight_duration | external |  |
+| Balance Board | duration | external |  |
+| Ball Leg Curl | reps_only | external |  |
 | Band Assisted Pull-Up | weight_reps | assisted |  |
 | Battling Ropes | duration | external |  |
 | Bear Crawl Sled Drags | weight_duration | external |  |
 | Behind Head Chest Stretch | duration | external |  |
 | Bench Dips | weight_reps | bodyweight_plus |  |
 | Bench Jump | reps_only | external |  |
+| Bench Sprint | reps_only | external |  |
 | Bent-Knee Hip Raise | reps_only | external |  |
 | Bicycling | distance_duration | external |  |
 | Bicycling, Stationary | distance_duration | external |  |
@@ -136,8 +158,8 @@
 | Close-Grip Push-Up off of a Dumbbell | reps_only | external |  |
 | Cocoons | reps_only | external |  |
 | Cross-Body Crunch | reps_only | external |  |
-| Crossover Reverse Lunge | duration | external |  |
-| Crucifix | duration | external |  |
+| Crossover Reverse Lunge | reps_only | external |  |
+| Crucifix | weight_duration | external |  |
 | Crunch - Hands Overhead | reps_only | external |  |
 | Crunch - Legs On Exercise Ball | reps_only | external |  |
 | Crunches | reps_only | external |  |
@@ -152,6 +174,7 @@
 | Dips - Triceps Version | weight_reps | bodyweight_plus |  |
 | Double Leg Butt Kick | reps_only | external |  |
 | Downward Facing Balance | duration | external |  |
+| Drop Push | reps_only | external |  |
 | Dynamic Back Stretch | duration | external |  |
 | Dynamic Chest Stretch | duration | external |  |
 | Elbow Circles | duration | external |  |
@@ -169,28 +192,29 @@
 | Foot-SMR | duration | external |  |
 | Forward Drag with Press | weight_duration | external |  |
 | Freehand Jump Squat | reps_only | external |  |
-| Frog Hops | duration | external |  |
+| Frog Hops | reps_only | external |  |
 | Frog Sit-Ups | reps_only | external |  |
 | Front Box Jump | reps_only | external |  |
 | Front Cone Hops (or hurdle hops) | reps_only | external |  |
-| Front Leg Raises | duration | external |  |
+| Front Leg Raises | reps_only | external |  |
 | Gironda Sternum Chins | weight_reps | bodyweight_plus |  |
 | Glute Kickback | reps_only | external |  |
 | Gorilla Chin/Crunch | weight_reps | bodyweight_plus |  |
 | Groin and Back Stretch | duration | external |  |
-| Groiners | duration | external |  |
+| Groiners | reps_only | external |  |
 | Hamstring Stretch | duration | external |  |
 | Hamstring-SMR | duration | external |  |
 | Handstand Push-Ups | reps_only | external |  |
 | Hanging Leg Raise | reps_only | external |  |
 | Hanging Pike | reps_only | external |  |
+| Heavy Bag Thrust | reps_only | external |  |
 | Hip Circles (prone) | duration | external |  |
 | Hug A Ball | duration | external |  |
 | Hug Knees To Chest | duration | external |  |
 | Hurdle Hops | reps_only | external |  |
 | Hyperextensions With No Hyperextension Bench | reps_only | external |  |
 | Iliotibial Tract-SMR | duration | external |  |
-| Inchworm | duration | external |  |
+| Inchworm | reps_only | external |  |
 | Incline Push-Up | reps_only | external |  |
 | Incline Push-Up Close-Grip | reps_only | external |  |
 | Incline Push-Up Depth Jump | reps_only | external |  |
@@ -262,11 +286,10 @@
 | Physioball Hip Bridge | reps_only | external |  |
 | Piriformis-SMR | duration | external |  |
 | Plank | duration | external |  |
-| Plate Pinch | duration | external |  |
+| Plate Pinch | weight_duration | external |  |
 | Platform Hamstring Slides | reps_only | external |  |
 | Plyo Push-up | reps_only | external |  |
 | Posterior Tibialis Stretch | duration | external |  |
-| Power Stairs | reps_only | external |  |
 | Prone Manual Hamstring | duration | external |  |
 | Prowler Sprint | weight_duration | external |  |
 | Pullups | weight_reps | bodyweight_plus |  |
@@ -281,7 +304,7 @@
 | Quad Stretch | duration | external |  |
 | Quadriceps-SMR | duration | external |  |
 | Quick Leap | reps_only | external |  |
-| Rear Leg Raises | duration | external |  |
+| Rear Leg Raises | reps_only | external |  |
 | Recumbent Bike | distance_duration | external |  |
 | Reverse Crunch | reps_only | external |  |
 | Rhomboids-SMR | duration | external |  |
@@ -297,7 +320,7 @@
 | Running, Treadmill | incline_speed_duration | external |  |
 | Russian Twist | reps_only | external |  |
 | Scapular Pull-Up | reps_only | external |  |
-| Scissor Kick | duration | external |  |
+| Scissor Kick | reps_only | external |  |
 | Scissors Jump | reps_only | external |  |
 | Seated Biceps | duration | external |  |
 | Seated Calf Stretch | duration | external |  |
@@ -310,12 +333,12 @@
 | Seated Leg Tucks | reps_only | external |  |
 | Seated Overhead Stretch | duration | external |  |
 | Shoulder Circles | duration | external |  |
-| Shoulder Raise | duration | external |  |
+| Shoulder Raise | reps_only | external |  |
 | Shoulder Stretch | duration | external |  |
 | Side Bridge | duration | external |  |
 | Side Hop-Sprint | reps_only | external |  |
 | Side Jackknife | reps_only | external |  |
-| Side Leg Raises | duration | external |  |
+| Side Leg Raises | reps_only | external |  |
 | Side Lying Groin Stretch | duration | external |  |
 | Side Neck Stretch | duration | external |  |
 | Side Standing Long Jump | reps_only | external |  |
@@ -332,7 +355,7 @@
 | Single-Leg Hop Progression | reps_only | external | ใช่ |
 | Single-Leg Lateral Hop | reps_only | external | ใช่ |
 | Single-Leg Stride Jump | reps_only | external | ใช่ |
-| Sit Squats | duration | external |  |
+| Sit Squats | reps_only | external |  |
 | Sit-Up | reps_only | external |  |
 | Skating | duration | external |  |
 | Sled Drag - Harness | weight_duration | external |  |
@@ -341,7 +364,7 @@
 | Spider Crawl | reps_only | external |  |
 | Spinal Stretch | duration | external |  |
 | Split Jump | reps_only | external |  |
-| Split Squats | duration | external |  |
+| Split Squats | reps_only | external |  |
 | Stairmaster | duration | external |  |
 | Standing Biceps Stretch | duration | external |  |
 | Standing Elevated Quad Stretch | duration | external |  |
@@ -368,7 +391,7 @@
 | Suspended Row | reps_only | external |  |
 | Suspended Split Squat | reps_only | external |  |
 | The Straddle | duration | external |  |
-| Toe Touchers | duration | external |  |
+| Toe Touchers | reps_only | external |  |
 | Torso Rotation | duration | external |  |
 | Trail Running/Walking | distance_duration | external |  |
 | Tricep Side Stretch | duration | external |  |
@@ -383,7 +406,7 @@
 | Weighted Pull Ups | weight_reps | bodyweight_plus |  |
 | Wide-Grip Rear Pull-Up | weight_reps | bodyweight_plus |  |
 | Wind Sprints | duration | external |  |
-| Windmills | duration | external |  |
+| Windmills | reps_only | external |  |
 | World's Greatest Stretch | duration | external |  |
 | Wrist Circles | duration | external |  |
 | Yoke Walk | weight_duration | external |  |

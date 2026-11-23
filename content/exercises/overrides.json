@@ -249,11 +249,6 @@
   "track_type": "reps_only",
   "load_mode": "external"
  },
- "Power_Stairs": {
-  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
-  "track_type": "reps_only",
-  "load_mode": "external"
- },
  "Dips_-_Chest_Version": {
   "reason": "ท่าดึงข้อ/ดิปที่ต้นทางระบุอุปกรณ์เป็น other จึงไม่ตกกติกาข้อ 7 — นิยมถ่วงเพิ่ม = น้ำหนักตัว+เพิ่ม",
   "track_type": "weight_reps",
@@ -357,6 +352,106 @@
  "Push_Up_to_Side_Plank": {
   "reason": "ชื่อมี plank แต่เป็นท่าเคลื่อนไหวนับครั้ง ไม่ใช่ท่าค้าง",
   "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Toe_Touchers": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Crossover_Reverse_Lunge": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Frog_Hops": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Sit_Squats": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Split_Squats": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Front_Leg_Raises": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Rear_Leg_Raises": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Side_Leg_Raises": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Scissor_Kick": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Groiners": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Inchworm": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Windmills": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Shoulder_Raise": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Heavy_Bag_Thrust": {
+  "reason": "พลัยโอเมตริกผลักกระสอบทราย ไม่มีน้ำหนักให้จด (อุปกรณ์ other ตกข้อ 9) — รอบสอง: นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Drop_Push": {
+  "reason": "พลัยโอเมตริกวิดพื้นน้ำหนักตัวระหว่างกล่อง (อุปกรณ์ other ตกข้อ 9) — รอบสอง: นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Bench_Sprint": {
+  "reason": "พลัยโอเมตริกน้ำหนักตัวบนม้านั่ง (อุปกรณ์ other ตกข้อ 9) — รอบสอง: นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Ball_Leg_Curl": {
+  "reason": "ท่าน้ำหนักตัวบนบอล ไม่มีน้ำหนักให้จด (อุปกรณ์ exercise ball แมปเป็น other ตกข้อ 9) — รอบสอง: นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Balance_Board": {
+  "reason": "ท่าทรงตัวบนบอร์ด ต้นทางให้ค้างตามต้องการ จดเป็นเวลา ไม่ใช่น้ำหนัก×ครั้ง — รอบสอง",
+  "track_type": "duration",
+  "load_mode": "external"
+ },
+ "Plate_Pinch": {
+  "reason": "ค้างหนีบเพลท น้ำหนักเพลทคือตัวแปรหลัก + เวลา (force=static ตกข้อ 5 เป็น duration ซึ่งทิ้งน้ำหนัก) — รอบสอง",
+  "track_type": "weight_duration",
+  "load_mode": "external"
+ },
+ "Crucifix": {
+  "reason": "ถือน้ำหนักกางแขนค้างตามเวลา น้ำหนักคือตัวแปรหลัก (force=static ตกข้อ 5 เป็น duration ซึ่งทิ้งน้ำหนัก) — รอบสอง",
+  "track_type": "weight_duration",
   "load_mode": "external"
  }
 }

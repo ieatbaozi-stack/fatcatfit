@@ -15,9 +15,9 @@
 |  | Ab Roller | แอบโรลเลอร์ (ลูกล้อ) |  |
 |  | Adductor | ยืดแอดดักเตอร์ |  |
 |  | Adductor/Groin | แอดดักเตอร์/กรอยน์ |  |
-|  | Advanced Kettlebell Windmill | ระดับสูงเคทเทิลเบลวินด์มิลล์ | ระดับสูงเคตเทิลเบลวินมิลล์, ระดับสูงเคทเทิลเบลล์วินด์มิลล์, advanced kb windmill |
+|  | Advanced Kettlebell Windmill | เคทเทิลเบลวินด์มิลล์ ระดับสูง | ระดับสูงเคตเทิลเบลวินมิลล์, ระดับสูงเคทเทิลเบลล์วินด์มิลล์, advanced kb windmill, ระดับสูงเคทเทิลเบลวินด์มิลล์ |
 |  | Aerobics | แอโรบิก | แอโร, แอโรบิค, aerobic |
-|  | Air Bike | แอร์ไบค์ |  |
+|  | Air Bike | แอร์ไบค์ (ครันช์ปั่นจักรยานกลางอากาศ) | ครันช์ปั่นจักรยาน, bicycle crunch, ปั่นจักรยานอากาศ, แอร์ไบค์ |
 |  | All Fours Quad Stretch | สี่จุดควอดสเตรทช์ | สี่จุดควอดริเซปส์สเตรช, สี่จุดควอดยืด |
 |  | Alternate Hammer Curl | สลับแฮมเมอร์เคิร์ล | อัลเทอร์เนตค้อนเคิล |
 |  | Alternate Heel Touchers | สลับแตะส้นเท้า |  |
@@ -33,7 +33,7 @@
 |  | American Football | อเมริกันฟุตบอล | ฟุตบอลอเมริกัน |
 |  | Ankle Circles | หมุนข้อเท้า |  |
 |  | Ankle On The Knee | ยืดสะโพก ข้อเท้าพาดเข่า |  |
-|  | Anterior Tibialis-SMR | ด้านหน้าทิเบียลิสโฟมโรล | แอนทีเรียร์ทิเบียลิสโฟมโรลเลอร์ |
+|  | Anterior Tibialis-SMR | โฟมโรลหน้าแข้ง (ทิเบียลิส) | แอนทีเรียร์ทิเบียลิสโฟมโรลเลอร์, โฟมโรลหน้าแข้ง, tibialis foam roll, ด้านหน้าทิเบียลิสโฟมโรล |
 |  | Anti-Gravity Press | แอนตี้กราวิตี้เพรส | แอนตี้กราวิตี้เพลส, แอนตี้กราวิตี้เพรสส์ |
 |  | Archery | ยิงธนู | ธนู |
 |  | Arm Circles | หมุนแขน |  |
@@ -95,12 +95,12 @@
 |  | Bench Sprint | เบนช์สปรินต์ | เบ็นช์วิ่งเร็ว, เบนซ์สปรินต์ |
 |  | Bent Over Barbell Row | โน้มตัวบาร์เบลโรว์ | โน้มตัวบาร์เบลล์โรว, bent over bb row |
 |  | Bent Over Dumbbell Rear Delt Raise With Head On Bench | โน้มตัวดัมเบลเรียร์เดลต์เรส ใช้ศีรษะ บนเบนช์ | โน้มตัวดัมเบลล์หลังเดลท์เรซ ใช้เฮด บนเบ็นช์, โน้มตัวดัมเบ็ลเรียร์เดลต์เรส ใช้ศีรษะ บนเบนซ์, bent over db rear delt raise with head on bench |
-|  | Bent Over Low-Pulley Side Lateral | โน้มตัวพูลเลย์ต่ำไซด์แลทเทอรัล | โน้มตัวพูลเลย์ต่ำข้างลาเทอรัล |
+|  | Bent Over Low-Pulley Side Lateral | โน้มตัวเคเบิลต่ำไซด์แลทเทอรัลเรส | โน้มตัวพูลเลย์ต่ำข้างลาเทอรัล, โน้มตัวพูลเลย์ต่ำไซด์แลทเทอรัล |
 |  | Bent Over One-Arm Long Bar Row | โน้มตัวแขนเดียวลองบาร์โรว์ | โน้มตัวแขนเดียวยาวบาร์โรว |
 |  | Bent Over Two-Arm Long Bar Row | โน้มตัวสองแขนลองบาร์โรว์ | โน้มตัวสองแขนยาวบาร์โรว |
 |  | Bent Over Two-Dumbbell Row | โน้มตัวสองดัมเบลโรว์ | โน้มตัวสองดัมเบลโรว, bent over two-db row |
 |  | Bent Over Two-Dumbbell Row With Palms In | โน้มตัวสองดัมเบลโรว์ ใช้ฝ่ามือเข้าใน | โน้มตัวสองดัมเบลโรว ใช้ฝ่ามือเข้าใน, bent over two-db row with palms in |
-|  | Bent Press | โน้มตัวเพรส | โน้มตัวเพลส, โน้มตัวเพรสส์ |
+|  | Bent Press | เบนต์เพรส (เคทเทิลเบล) | โน้มตัวเพลส, โน้มตัวเพรสส์, เบนท์เพรส, โน้มตัวเพรส |
 |  | Bent-Arm Barbell Pullover | แขนงอบาร์เบลพูลโอเวอร์ | แขนงอบาร์เบลล์พูลโอเวอร์, bent-arm bb pullover |
 |  | Bent-Arm Dumbbell Pullover | แขนงอดัมเบลพูลโอเวอร์ | แขนงอดัมเบลล์พูลโอเวอร์, แขนงอดัมเบ็ลพูลโอเวอร์, bent-arm db pullover |
 |  | Bent-Knee Hip Raise | เข่างอฮิปเรส |  |
@@ -110,7 +110,7 @@
 |  | Body Tricep Press | บอดี้ไตรเซปส์เพรส | น้ำหนักตัวไตรเซปเพลส, บอดี้ไตรเซปส์เพรสส์ |
 |  | Body-Up | บอดี้อัพ | น้ำหนักตัวอัพ |
 |  | Bodyweight Flyes | บอดี้เวทฟลาย | น้ำหนักตัวฟลาย |
-|  | Bodyweight Mid Row | บอดี้เวทมิดโรว์ | น้ำหนักตัวกลางโรว |
+|  | Bodyweight Mid Row | บอดี้เวทมิดโรว์ | น้ำหนักตัวกลางโรว, อินเวิร์ตโรว์, ดึงตัวขึ้นใต้บาร์ |
 |  | Bodyweight Squat | บอดี้เวทสควอท | น้ำหนักตัวสควอต, บอดี้เวทสแควท |
 |  | Bodyweight Walking Lunge | บอดี้เวทเดินลันจ์ | น้ำหนักตัวเดินลังจ์ |
 |  | Bosu Ball Cable Crunch With Side Bends | เคเบิลครันช์บนโบซูบอล พร้อมเอนข้าง |  |
@@ -124,14 +124,14 @@
 |  | Box Squat with Bands | บ็อกซ์สควอท ใช้ยางยืด | บอกซ์สควอต ใช้แบนด์, บ็อกซ์สแควท ใช้ยางยืด |
 |  | Box Squat with Chains | บ็อกซ์สควอท ใช้โซ่ | บอกซ์สควอต ใช้โซ่, บ็อกซ์สแควท ใช้โซ่ |
 |  | Boxing | มวยสากล | ชกมวย, บ็อกซิ่ง, บ๊อกซิ่ง |
-|  | Brachialis-SMR | แบรเคียลิสโฟมโรล | แบรเคียลิสโฟมโรลเลอร์ |
+|  | Brachialis-SMR | โฟมโรลต้นแขนส่วนล่าง (แบรเคียลิส) | แบรเคียลิสโฟมโรลเลอร์, โฟมโรลต้นแขน, แบรเคียลิสโฟมโรล |
 |  | Bradford/Rocky Presses | แบรดฟอร์ด/ร็อกกี้เพรส |  |
 |  | Brazilian Jiu-Jitsu | บราซิลเลียนยิวยิตสู | bjj, ยิวยิตสู, จูจิตสึ, jiu jitsu |
 |  | Brisk Walking | เดินเร็ว | power walk, เพาเวอร์วอล์ก |
 |  | Burpees | เบอร์ปี | เบอร์ปี้, burpee |
 |  | Butt Lift (Bridge) | กลูตบริดจ์ (ยกก้น) |  |
 |  | Butt-Ups | บัทอัพ | ก้นอัพ |
-|  | Butterfly | บัตเตอร์ฟลาย |  |
+|  | Butterfly | เครื่องบัตเตอร์ฟลาย (เพคเด็ค) | เพคเด็ค, pec deck, เพคฟลาย, ฟลายเครื่อง, บัตเตอร์ฟลาย |
 |  | Cable Chest Press | เคเบิลเชสต์เพรส | เคเบิ้ลเชสต์เพรส |
 |  | Cable Crossover | เคเบิลครอสโอเวอร์ | ครอสโอเวอร์, เคเบิลฟลาย |
 |  | Cable Crunch | เคเบิลครันช์ |  |
@@ -162,11 +162,11 @@
 |  | Calf Raises - With Bands | คาล์ฟเรส ใช้ยางยืด | คาล์ฟเรส ใช้แบนด์ |
 |  | Calf Stretch Elbows Against Wall | คาล์ฟสเตรทช์ศอก พิงกำแพง | คาล์ฟสเตรชเอลโบว์ พิงกำแพง, คาล์ฟยืดศอก พิงกำแพง |
 |  | Calf Stretch Hands Against Wall | คาล์ฟสเตรทช์มือ พิงกำแพง | คาล์ฟสเตรชมือ พิงกำแพง, คาล์ฟยืดมือ พิงกำแพง |
-|  | Calf-Machine Shoulder Shrug | คาล์ฟเครื่องโชลเดอร์ชรัก | คาล์ฟแมชชีนช็อลเดอร์ชรัค, คาล์ฟเครื่องโชว์เดอร์ชรัก |
+|  | Calf-Machine Shoulder Shrug | ชรักด้วยเครื่องคาล์ฟ | คาล์ฟแมชชีนช็อลเดอร์ชรัค, คาล์ฟเครื่องโชว์เดอร์ชรัก, ชรักไหล่ เครื่องคาล์ฟ, คาล์ฟเครื่องโชลเดอร์ชรัก |
 |  | Calisthenics Session | คาลิสเธนิกส์ | คาลิสเทนิค, สตรีทเวิร์คเอาท์, street workout |
-|  | Calves-SMR | คาล์ฟโฟมโรล | คาล์ฟโฟมโรลเลอร์ |
+|  | Calves-SMR | โฟมโรลน่อง (คาล์ฟ) | คาล์ฟโฟมโรลเลอร์, โฟมโรลน่อง, calf foam roll, คาล์ฟโฟมโรล |
 |  | Car Deadlift | รถยนต์เดดลิฟต์ | คาร์เดดลิฟท์, รถยนต์เดทลิฟ |
-|  | Car Drivers | รถยนต์ไดรเวอร์ | คาร์ไดรเวอร์ |
+|  | Car Drivers | ถือเพลทหมุนพวงมาลัย (คาร์ไดรเวอร์) | คาร์ไดรเวอร์, แผ่นน้ำหนักหมุนพวงมาลัย, plate steering wheel, รถยนต์ไดรเวอร์ |
 |  | Cardio Kickboxing | คาร์ดิโอคิกบ็อกซิ่ง | แอโรบิกมวย, บ็อกซ์ซิ่ง, cardio kickboxing |
 |  | Carioca Quick Step | คาริโอกาควิกสเต็ป | คาริโอกาเร็วสเตป |
 |  | Cat Stretch | แคทสเตรทช์ (ยืดหลังแบบแมว) |  |
@@ -178,10 +178,10 @@
 |  | Chair Squat | เก้าอี้สควอท | แชร์สควอต, เก้าอี้สแควท |
 |  | Chair Upper Body Stretch | ยืดลำตัวส่วนบนบนเก้าอี้ |  |
 |  | Chest And Front Of Shoulder Stretch | ยืดอกและไหล่ด้านหน้า |  |
-|  | Chest Push (multiple response) | เชสต์พุชต่อเนื่อง |  |
-|  | Chest Push (single response) | เชสต์พุชครั้งเดียว |  |
-|  | Chest Push from 3 point stance | เชสต์พุชจากท่าสามจุด |  |
-|  | Chest Push with Run Release | เชสต์พุชแล้ววิ่งออก |  |
+|  | Chest Push (multiple response) | เมดิซินบอลเชสต์พุช ต่อเนื่อง | เชสต์พุช, เชสต์พุชต่อเนื่อง |
+|  | Chest Push (single response) | เมดิซินบอลเชสต์พุช ครั้งเดียว | เชสต์พุช, เชสต์พุชครั้งเดียว |
+|  | Chest Push from 3 point stance | เมดิซินบอลเชสต์พุช จากท่าสามจุด | เชสต์พุช, เชสต์พุชจากท่าสามจุด |
+|  | Chest Push with Run Release | เมดิซินบอลเชสต์พุช แล้ววิ่งออก | เชสต์พุช, เชสต์พุชแล้ววิ่งออก |
 |  | Chest Stretch on Stability Ball | เชสต์สเตรทช์ บนสเตบิลิตี้บอล | เชสสเตรช บนสเตบิลิตี้บอล, เชสท์ยืด บนสเตบิลิตี้บอล |
 |  | Child's Pose | ท่าเด็ก (ไชลด์โพส) |  |
 |  | Chin To Chest Stretch | ยืดคอก้มชิดอก |  |
@@ -204,7 +204,7 @@
 |  | Close-Grip Front Lat Pulldown | แลตพูลดาวน์กริปแคบ |  |
 |  | Close-Grip Push-Up off of a Dumbbell | กริปแคบวิดพื้น จากดัมเบล | พุชอัพ, กริปแคบวิดพื้น จากดัมเบลล์, กริปแคบวิดพื้น จากดัมเบ็ล, close-grip push-up off of a db |
 |  | Close-Grip Standing Barbell Curl | กริปแคบยืนบาร์เบลเคิร์ล | กริปแคบยืนบาร์เบลล์เคิล, close-grip standing bb curl |
-|  | Cocoons | โคคูน |  |
+|  | Cocoons | โคคูนส์ (ม้วนเข่าเข้าอก) | โคคูน, cocoon, ม้วนตัว |
 |  | Conan's Wheel | โคนันวีล |  |
 |  | Concentration Curls | คอนเซนเทรชันเคิร์ล | คอนเซนเทรทเคิล |
 |  | Cricket | คริกเก็ต | คริคเก็ต |
@@ -213,14 +213,14 @@
 |  | Cross-Body Crunch | ครอสบอดี้ครันช์ | ครอสบอดี้ครั้นช์ |
 |  | CrossFit Workout | ครอสฟิต | ครอสฟิท, wod, crossfit |
 |  | Crossover Reverse Lunge | ครอสโอเวอร์รีเวิร์สลันจ์ | ครอสโอเวอร์ย้อนกลับลังจ์ |
-|  | Crucifix | ครูซิฟิกซ์ |  |
+|  | Crucifix | ครูซิฟิกซ์ (ถือน้ำหนักกางแขนค้าง) | กางแขนถือน้ำหนัก, crucifix hold, ครูซิฟิกซ์ |
 |  | Crunch - Hands Overhead | ครันช์ มือโอเวอร์เฮด | ครั้นช์ มือเหนือศีรษะ |
 |  | Crunch - Legs On Exercise Ball | ครันช์ เลก บนเอ็กเซอร์ไซส์บอล | ครั้นช์ ขา บนเอ็กเซอร์ไซส์บอล |
 |  | Crunches | ครันช์ | ครั้นช์ |
 |  | Cuban Press | คิวบันเพรส | คิวบันเพลส, คิวบันเพรสส์ |
 |  | Dance Cardio | เต้นแอโรบิก | แดนซ์คาร์ดิโอ, เต้น, dance workout |
 |  | Dancer's Stretch | แดนเซอร์สเตรทช์ | แดนเซอร์สเตรช, แดนเซอร์ยืด |
-|  | Dead Bug | เดดบั๊ก |  |
+|  | Dead Bug | เดดบั๊ก | เดดบัค, dead bug |
 |  | Deadlift with Bands | เดดลิฟต์ ใช้ยางยืด | เดดลิฟท์ ใช้แบนด์, เดทลิฟ ใช้ยางยืด |
 |  | Deadlift with Chains | เดดลิฟต์ ใช้โซ่ | เดดลิฟท์ ใช้โซ่, เดทลิฟ ใช้โซ่ |
 |  | Decline Barbell Bench Press | ดีไคลน์บาร์เบลเบนช์เพรส | ดีคลายบาร์เบลล์เบนช์เพรส, decline bb bench press |
@@ -246,16 +246,16 @@
 |  | Double Kettlebell Snatch | ดับเบิลเคทเทิลเบลสแนตช์ | สองเคตเทิลเบลสแนช, ดับเบิลเคทเทิลเบลล์สแนตช์, double kb snatch |
 |  | Double Kettlebell Windmill | ดับเบิลเคทเทิลเบลวินด์มิลล์ | สองเคตเทิลเบลวินมิลล์, ดับเบิลเคทเทิลเบลล์วินด์มิลล์, double kb windmill |
 |  | Double Leg Butt Kick | ดับเบิลเลกบัทคิก | สองขาก้นคิก |
-|  | Downward Facing Balance | ท่าทรงตัวคว่ำหน้า |  |
+|  | Downward Facing Balance | ทรงตัวนอนคว่ำบนเอ็กเซอร์ไซส์บอล | ทรงตัวคว่ำหน้า, ท่าทรงตัวคว่ำหน้า |
 |  | Drag Curl | ลากเคิร์ล | ลากเคิล |
-|  | Drop Push | ดรอปพุช |  |
+|  | Drop Push | ดรอปพุช (วิดพื้นหย่อนลงระหว่างกล่อง) | วิดพื้นกล่อง, plyo pushup box, ดรอปพุช |
 |  | Dumbbell Alternate Bicep Curl | ดัมเบลสลับไบเซปส์เคิร์ล | ดัมเบลล์อัลเทอร์เนตไบเซปเคิล, ดัมเบ็ลสลับไบเซปส์เคิร์ล, db alternate bicep curl |
 |  | Dumbbell Bench Press | ดัมเบลเบนช์เพรส | ดัมเบลเพรสอก, db bench, ดัมเบลล์เบนช์เพรส, ดัมเบ็ลเบนช์เพรส, db bench press |
 |  | Dumbbell Bench Press with Neutral Grip | ดัมเบลเบนช์เพรส ใช้นิวทรัลกริป | ดัมเบลล์เบนช์เพรส ใช้นิวทรัลกริป, ดัมเบ็ลเบนช์เพรส ใช้นิวทรัลกริป, db bench press with neutral grip |
 |  | Dumbbell Bicep Curl | ดัมเบลไบเซปส์เคิร์ล | ดัมเบลล์ไบเซปเคิล, ดัมเบ็ลไบเซปส์เคิร์ล, db bicep curl |
 |  | Dumbbell Clean | ดัมเบลคลีน | ดัมเบลล์คลีน, ดัมเบ็ลคลีน, db clean |
 |  | Dumbbell Floor Press | ดัมเบลฟลอร์เพรส | ดัมเบลล์พื้นเพลส, ดัมเบ็ลฟลอร์เพรสส์, db floor press |
-|  | Dumbbell Flyes | ดัมเบลฟลาย | ดัมเบลล์ฟลาย, ดัมเบ็ลฟลาย, db flyes |
+|  | Dumbbell Flyes | ดัมเบลฟลาย | ดัมเบลล์ฟลาย, ดัมเบ็ลฟลาย, db flyes, เพคฟลาย, pec fly |
 |  | Dumbbell Incline Row | ดัมเบลอินไคลน์โรว์ | ดัมเบลล์อินคลายโรว, ดัมเบ็ลอินไคลน์โรว์, db incline row |
 |  | Dumbbell Incline Shoulder Raise | ดัมเบลอินไคลน์โชลเดอร์เรส | ดัมเบลล์อินคลายช็อลเดอร์เรซ, ดัมเบ็ลอินไคลน์โชว์เดอร์เรส, db incline shoulder raise |
 |  | Dumbbell Lunges | ดัมเบลลันจ์ | ดัมเบลล์ลังจ์, ดัมเบ็ลลันจ์, db lunges |
@@ -283,19 +283,19 @@
 |  | Dynamic Chest Stretch | ไดนามิกเชสต์สเตรทช์ | ไดนามิกเชสสเตรช, ไดนามิกเชสท์ยืด |
 |  | Elbow Circles | หมุนศอก |  |
 |  | Elbow to Knee | ศอกแตะเข่า |  |
-|  | Elbows Back | ดึงศอกไปด้านหลัง |  |
+|  | Elbows Back | ยืดอก ดึงศอกไปด้านหลัง | ดึงศอกไปด้านหลัง |
 |  | Elevated Back Lunge | ยกสูงแบ็กลันจ์ | เอเลเวตหลังลังจ์ |
 |  | Elevated Cable Rows | ยกสูงเคเบิลโรว์ | เอเลเวตเคเบิ้ลโรว |
 |  | Elliptical Trainer | เครื่องเอลลิปติคอล | เอลิปติคอล, ครอสเทรนเนอร์, cross trainer |
 |  | Exercise Ball Crunch | เอ็กเซอร์ไซส์บอลครันช์ | เอ็กเซอร์ไซส์บอลครั้นช์ |
 |  | Exercise Ball Pull-In | เอ็กเซอร์ไซส์บอลพูลอิน |  |
-|  | Extended Range One-Arm Kettlebell Floor Press | เอ็กซ์เทนด์ช่วงแขนเดียวเคทเทิลเบลฟลอร์เพรส | เหยียดเรนจ์แขนเดียวเคตเทิลเบลพื้นเพลส, เอ็กซ์เทนด์ช่วงแขนเดียวเคทเทิลเบลล์ฟลอร์เพรสส์, extended range one-arm kb floor press |
+|  | Extended Range One-Arm Kettlebell Floor Press | เคทเทิลเบลฟลอร์เพรสแขนเดียว ช่วงกว้าง | เหยียดเรนจ์แขนเดียวเคตเทิลเบลพื้นเพลส, เอ็กซ์เทนด์ช่วงแขนเดียวเคทเทิลเบลล์ฟลอร์เพรสส์, extended range one-arm kb floor press, เอ็กซ์เทนด์ช่วงแขนเดียวเคทเทิลเบลฟลอร์เพรส |
 |  | External Rotation | หมุนไหล่ออก (เอ็กซ์เทอร์นัลโรเตชัน) |  |
 |  | External Rotation with Band | หมุนไหล่ออกใช้ยางยืด |  |
 |  | External Rotation with Cable | หมุนไหล่ออกใช้เคเบิล |  |
 |  | EZ-Bar Curl | อีแซดบาร์เคิร์ล | อีแซดบาร์เคิล |
-|  | EZ-Bar Skullcrusher | อีแซดบาร์สกัลล์ครัชเชอร์ |  |
-|  | Face Pull | เฟซพูล | ดึงเชือกหน้า |
+|  | EZ-Bar Skullcrusher | อีแซดบาร์สกัลล์ครัชเชอร์ | สกัลครัชเชอร์, skull crusher, french press |
+|  | Face Pull | เฟซพูล | ดึงเชือกหน้า, เฟสพูล, face pull |
 |  | Farmer's Walk | ฟาร์เมอร์สวอล์ก | ฟาร์มเมอร์วอล์ก, farmer walk, ถือน้ำหนักเดิน |
 |  | Fast Skipping | สคิปปิงเร็ว |  |
 |  | Fencing | ฟันดาบ | เฟนซิ่ง, ฟันดาบสากล |
@@ -308,7 +308,7 @@
 |  | Floor Press | ฟลอร์เพรส | พื้นเพลส, ฟลอร์เพรสส์ |
 |  | Floor Press with Chains | ฟลอร์เพรส ใช้โซ่ | พื้นเพลส ใช้โซ่, ฟลอร์เพรสส์ ใช้โซ่ |
 |  | Flutter Kicks | ฟลัตเตอร์คิก |  |
-|  | Foot-SMR | เท้าโฟมโรล | ฟุตโฟมโรลเลอร์ |
+|  | Foot-SMR | โฟมโรลฝ่าเท้า | ฟุตโฟมโรลเลอร์, นวดเท้า, foot roll, เท้าโฟมโรล |
 |  | Football (Soccer) | ฟุตบอล | เตะบอล, soccer, เตะฟุตบอล |
 |  | Forward Drag with Press | ลากไปข้างหน้าพร้อมเพรส |  |
 |  | Frankenstein Squat | แฟรงเกนสไตน์สควอท | แฟรงเกนสไตน์สควอต, แฟรงเกนสไตน์สแควท |
@@ -323,7 +323,7 @@
 |  | Front Dumbbell Raise | ฟรอนต์ดัมเบลเรส | หน้าดัมเบลล์เรซ, ฟรอนต์ดัมเบ็ลเรส, front db raise |
 |  | Front Incline Dumbbell Raise | ฟรอนต์อินไคลน์ดัมเบลเรส | หน้าอินคลายดัมเบลล์เรซ, ฟรอนต์อินไคลน์ดัมเบ็ลเรส, front incline db raise |
 |  | Front Leg Raises | ฟรอนต์เลกเรส | หน้าเลกเรส |
-|  | Front Plate Raise | ฟรอนต์แผ่นน้ำหนักเรส | หน้าเพลทเรซ |
+|  | Front Plate Raise | ฟรอนต์เพลทเรส | หน้าเพลทเรซ, ฟรอนต์แผ่นน้ำหนักเรส |
 |  | Front Raise And Pullover | ฟรอนต์เรสและพูลโอเวอร์ | ฟรอนต์เรสแอนด์พูลโอเวอร์ |
 |  | Front Squat (Clean Grip) | ฟรอนต์สควอท คลีนกริป | ฟรอนต์สควอท คลีนกริบ |
 |  | Front Squats With Two Kettlebells | ฟรอนต์สควอท ใช้สองเคทเทิลเบล | front squats with two kb |
@@ -345,7 +345,7 @@
 |  | Hammer Curls | แฮมเมอร์เคิร์ล | เคิร์ลค้อน, hammer curl |
 |  | Hammer Grip Incline DB Bench Press | แฮมเมอร์กริปอินไคลน์ดัมเบลเบนช์เพรส | แฮมเมอร์กริปอินคลายดัมเบลเบนช์เพรส |
 |  | Hamstring Stretch | แฮมสตริงสเตรทช์ | แฮมสตริงสเตรช, แฮมสตริงยืด |
-|  | Hamstring-SMR | แฮมสตริงโฟมโรล | แฮมสตริงโฟมโรลเลอร์ |
+|  | Hamstring-SMR | โฟมโรลแฮมสตริง | แฮมสตริงโฟมโรลเลอร์, โฟมโรลต้นขาหลัง, แฮมสตริงโฟมโรล |
 |  | Handball | แฮนด์บอล |  |
 |  | Handstand Push-Ups | แฮนด์สแตนด์วิดพื้น |  |
 |  | Hang Clean | แฮงคลีน |  |
@@ -356,7 +356,7 @@
 |  | Hanging Leg Raise | แฮงกิ้งเลกเรส (ห้อยตัวยกขา) | ห้อยยกขา |
 |  | Hanging Pike | แฮงกิ้งไพค์ | ห้อยไพค์ |
 |  | Heaving Snatch Balance | ฮีฟวิ่งสแนตช์บาลานซ์ | ฮีฟวิ่งสแนชบาลานซ์ |
-|  | Heavy Bag Thrust | เฮฟวี่แบ็กทรัสต์ | เฮฟวี่กระสอบทรัสต์ |
+|  | Heavy Bag Thrust | ผลักกระสอบทราย (เฮฟวี่แบ็กทรัสต์) | เฮฟวี่กระสอบทรัสต์, เฮฟวี่แบ็กทรัสต์, ผลักกระสอบ |
 |  | Heavy Bag Work | ชกกระสอบทราย | ต่อยกระสอบ, ต่อยกระสอบทราย, heavy bag |
 |  | High Cable Curls | ไฮเคเบิลเคิร์ล | สูงเคเบิ้ลเคิล |
 |  | High Knees | วิ่งยกเข่าสูง | ไฮนี, ยกเข่าสูง |
@@ -369,13 +369,13 @@
 |  | Hoop Takraw | ตะกร้อลอดห่วง | ตะกร้อห่วง |
 |  | Horseback Riding | ขี่ม้า | ม้า, horse riding |
 |  | Hot Yoga | โยคะร้อน | ฮอตโยคะ, บิกรัม, bikram |
-|  | Hug A Ball | กอดบอล |  |
+|  | Hug A Ball | ยืดหลังกอดเอ็กเซอร์ไซส์บอล | กอดบอล, hug a ball |
 |  | Hug Knees To Chest | กอดเข่า ไปเชสต์ | ฮักเข่า ไปเชส, กอดเข่า ไปเชสท์ |
 |  | Hurdle Hops | เฮิร์ดเดิลฮอป |  |
 |  | Hyperextensions (Back Extensions) | แบ็กเอ็กซ์เทนชัน (ไฮเปอร์เอ็กซ์เทนชัน) |  |
 |  | Hyperextensions With No Hyperextension Bench | แบ็กเอ็กซ์เทนชันไม่ใช้ม้าไฮเปอร์ |  |
 |  | Ice Skating | สเก็ตน้ำแข็ง | สเก็ตลานน้ำแข็ง, ice skate |
-|  | Iliotibial Tract-SMR | อิลิโอทิเบียลแทรกต์โฟมโรล | อิลิโอทิเบียลแทรกต์โฟมโรลเลอร์ |
+|  | Iliotibial Tract-SMR | โฟมโรลไอทีแบนด์ (ข้างต้นขา) | อิลิโอทิเบียลแทรกต์โฟมโรลเลอร์, โฟมโรลข้างต้นขา, it band foam roll, อิลิโอทิเบียลแทรกต์โฟมโรล |
 |  | Inchworm | อินช์เวิร์ม |  |
 |  | Incline Barbell Triceps Extension | อินไคลน์บาร์เบลไตรเซปส์เอ็กซ์เทนชัน | อินคลายบาร์เบลล์ไตรเซปส์เอ็กซ์เทนชัน, incline bb triceps extension |
 |  | Incline Bench Pull | อินไคลน์เบนช์พูล | อินคลายเบ็นช์พูล, อินไคลน์เบนซ์พูล |
@@ -400,8 +400,8 @@
 |  | Intermediate Hip Flexor and Quad Stretch | ระดับกลางฮิปเฟล็กเซอร์และควอดสเตรทช์ | ระดับกลางฮิปเฟล็กเซอร์แอนด์ควอดริเซปส์สเตรช, ระดับกลางฮิปเฟล็กเซอร์และควอดยืด |
 |  | Internal Rotation with Band | หมุนไหล่เข้าใช้ยางยืด |  |
 |  | Interval Training | ออกกำลังแบบสลับหนักเบา | อินเทอร์วัล, interval |
-|  | Inverted Row | กลับหัวโรว์ | อินเวิร์ตโรว |
-|  | Inverted Row with Straps | กลับหัวโรว์ ใช้สายห้อย | อินเวิร์ตโรว ใช้สแตรป |
+|  | Inverted Row | อินเวิร์ตโรว์ | อินเวิร์ตโรว, ดึงตัวใต้บาร์, australian pull-up, กลับหัวโรว์ |
+|  | Inverted Row with Straps | อินเวิร์ตโรว์ ใช้สายห้อย | อินเวิร์ตโรว ใช้สแตรป, trx row, ทีอาร์เอ็กซ์โรว์, กลับหัวโรว์ ใช้สายห้อย |
 |  | Iron Cross | ไอรอนครอส |  |
 |  | Iron Crosses (stretch) | ไอรอนครอส สเตรทช์ | ไอรอนครอส สเตรช, ไอรอนครอส ยืด |
 |  | Isometric Chest Squeezes | ไอโซเมตริกเชสต์บีบ | ไอโซเมตริกเชสบีบ, ไอโซเมตริกเชสท์บีบ |
@@ -443,8 +443,8 @@
 |  | Kipping Muscle Up | คิปปิงมัสเซิลอัพ |  |
 |  | Knee Across The Body | ไขว้เข่าข้ามลำตัว |  |
 |  | Knee Circles | หมุนเข่า |  |
-|  | Knee Tuck Jump | เข่าตักจัมพ์ | นีตักจั๊มพ์ |
-|  | Knee/Hip Raise On Parallel Bars | เข่า/ฮิปเรสบนบาร์คู่ |  |
+|  | Knee Tuck Jump | ทัคจัมพ์ ยกเข่า | นีตักจั๊มพ์, กระโดดยกเข่า, tuck jump, เข่าตักจัมพ์ |
+|  | Knee/Hip Raise On Parallel Bars | ยกเข่าบนบาร์คู่ (แคปเทนส์แชร์) | captain chair, ยกเข่าห้อย, เข่า/ฮิปเรสบนบาร์คู่ |
 |  | Kneeling Arm Drill | ดริลแขนท่าคุกเข่า |  |
 |  | Kneeling Cable Crunch With Alternating Oblique Twists | คุกเข่าเคเบิลครันช์ ใช้สลับออบลิกทวิสต์ | คุกเข่าเคเบิ้ลครั้นช์ ใช้อัลเทอร์เนตข้างลำตัวทวิส |
 |  | Kneeling Cable Triceps Extension | คุกเข่าเคเบิลไตรเซปส์เอ็กซ์เทนชัน | คุกเข่าเคเบิ้ลไตรเซปส์เอ็กซ์เทนชัน |
@@ -461,7 +461,7 @@
 |  | Lateral Box Jump | แลทเทอรัลบ็อกซ์จัมพ์ | ลาเทอรัลบ็อกซ์จัมพ์ |
 |  | Lateral Cone Hops | แลทเทอรัลโคนฮอป | ลาเทอรัลโคนฮอป |
 |  | Lateral Raise - With Bands | แลทเทอรัลเรส ใช้ยางยืด | แลทเทอรัลเรส ใช้แบนด์ |
-|  | Latissimus Dorsi-SMR | แลติสซิมัสดอร์ซิโฟมโรล | แลติสซิมัสดอร์ซิโฟมโรลเลอร์ |
+|  | Latissimus Dorsi-SMR | โฟมโรลหลังปีก (แลต) | แลติสซิมัสดอร์ซิโฟมโรลเลอร์, โฟมโรลหลัง, lat foam roll, แลติสซิมัสดอร์ซิโฟมโรล |
 |  | Leg Extensions | เลกเอ็กซ์เทนชัน | เลกเอกซ์เทนชั่น, เตะขา, เหยียดขา |
 |  | Leg Lift | เลกลิฟต์ | ขาลิฟท์ |
 |  | Leg Press | เลกเพรส | เลกเพรสเครื่อง, ถีบขา |
@@ -486,7 +486,7 @@
 |  | Low Cable Triceps Extension | โลว์เคเบิลไตรเซปส์เอ็กซ์เทนชัน | ต่ำเคเบิ้ลไตรเซปส์เอ็กซ์เทนชัน |
 |  | Low Pulley Row To Neck | พูลเลย์ต่ำโรว์ ไปเน็ก | พูลเลย์ต่ำโรว ไปคอ |
 |  | Lower Back Curl | โลเวอร์แบ็กเคิร์ล | ส่วนล่างหลังเคิล |
-|  | Lower Back-SMR | โลเวอร์แบ็กโฟมโรล | ส่วนล่างหลังโฟมโรลเลอร์ |
+|  | Lower Back-SMR | โฟมโรลหลังล่าง | ส่วนล่างหลังโฟมโรลเลอร์, โลเวอร์แบ็กโฟมโรล |
 |  | Lunge Pass Through | ลันจ์ส่งของผ่าน |  |
 |  | Lunge Sprint | ลันจ์สปรินต์ | ลังจ์วิ่งเร็ว |
 |  | Lying Bent Leg Groin | ยืดขาหนีบท่านอนงอขา |  |
@@ -497,9 +497,9 @@
 |  | Lying Close-Grip Barbell Triceps Press To Chin | นอนกริปแคบบาร์เบลไตรเซปส์เพรสถึงคาง | lying close-grip bb triceps press to chin |
 |  | Lying Crossover | นอนครอสโอเวอร์ |  |
 |  | Lying Dumbbell Tricep Extension | นอนดัมเบลไตรเซปส์เอ็กซ์เทนชัน | นอนดัมเบลล์ไตรเซปส์เอ็กซ์เทนชัน, นอนดัมเบ็ลไตรเซปส์เอ็กซ์เทนชัน, lying db tricep extension |
-|  | Lying Face Down Plate Neck Resistance | ต้านคอด้วยแผ่นน้ำหนักท่านอนคว่ำ |  |
-|  | Lying Face Up Plate Neck Resistance | ต้านคอด้วยแผ่นน้ำหนักท่านอนหงาย |  |
-|  | Lying Glute | ยืดกลูตท่านอน |  |
+|  | Lying Face Down Plate Neck Resistance | ต้านคอด้วยเพลท ท่านอนคว่ำ | ต้านคอด้วยแผ่นน้ำหนัก, ต้านคอด้วยแผ่นน้ำหนักท่านอนคว่ำ |
+|  | Lying Face Up Plate Neck Resistance | ต้านคอด้วยเพลท ท่านอนหงาย | ต้านคอด้วยแผ่นน้ำหนัก, ต้านคอด้วยแผ่นน้ำหนักท่านอนหงาย |
+|  | Lying Glute | ยืดกลูตท่านอน | ยืดก้น, ยืดสะโพกท่านอน |
 |  | Lying Hamstring | ยืดแฮมสตริงท่านอน |  |
 |  | Lying High Bench Barbell Curl | นอนไฮเบนช์บาร์เบลเคิร์ล | นอนสูงเบ็นช์บาร์เบลล์เคิล, นอนไฮเบนซ์บาร์เบลเคิร์ล, lying high bench bb curl |
 |  | Lying Leg Curls | นอนเลกเคิร์ล | เลกเคิร์ลนอน, hamstring curl |
@@ -515,7 +515,7 @@
 |  | Machine Preacher Curls | เครื่องพรีชเชอร์เคิร์ล | แมชชีนพรีเชอร์เคิล |
 |  | Machine Shoulder (Military) Press | เครื่องโชลเดอร์เพรส (มิลิทารี) |  |
 |  | Machine Triceps Extension | เครื่องไตรเซปส์เอ็กซ์เทนชัน | แมชชีนไตรเซปส์เอ็กซ์เทนชัน |
-|  | Medicine Ball Chest Pass | เมดิซินบอลเชสต์ส่ง | เมดิซินบอลเชสพาส, เมดิซินบอลเชสท์ส่ง |
+|  | Medicine Ball Chest Pass | เมดิซินบอลเชสต์พาส | เมดิซินบอลเชสพาส, เมดิซินบอลเชสท์ส่ง, เมดิซินบอลเชสต์ส่ง |
 |  | Medicine Ball Full Twist | เมดิซินบอลฟูลทวิสต์ | เมดิซินบอลเต็มทวิส |
 |  | Medicine Ball Scoop Throw | เมดิซินบอลสกูปโยน | เมดิซินบอลสกูปโธรว์ |
 |  | Middle Back Shrug | มิดเดิลแบ็กชรัก | กลางหลังชรัค |
@@ -524,7 +524,7 @@
 |  | Mixed Martial Arts (MMA) | เอ็มเอ็มเอ | mma, ศิลปะการต่อสู้ผสม |
 |  | Monster Walk | มอนสเตอร์วอล์ก | มอนสเตอร์วอก |
 |  | Mountain Biking | ปั่นจักรยานเสือภูเขา | เสือภูเขา, mtb |
-|  | Mountain Climbers | เมาน์เทนไคลเมอร์ | ปีนเขา |
+|  | Mountain Climbers | เมาน์เทนไคลเมอร์ | ปีนเขา, mountain climber, เมาน์เทนไคลเบอร์ |
 |  | Moving Claw Series | มูฟวิ่งคลอว์ซีรีส์ |  |
 |  | Muay Thai | มวยไทย | ซ้อมมวย, นักมวยไทย, thai boxing |
 |  | Muay Thai Pad Work | ซ้อมเป้ามวยไทย | ตีเป้า, เตะเป้า, pad work |
@@ -535,7 +535,7 @@
 |  | Narrow Stance Squats | ยืนแคบสควอท | ยืนแคบสควอต, ยืนแคบสแควท |
 |  | Natural Glute Ham Raise | เนเชอรัลกลูตแฮมเรส |  |
 |  | Neck Press | เน็กเพรส | คอเพลส, เน็กเพรสส์ |
-|  | Neck-SMR | เน็กโฟมโรล | คอโฟมโรลเลอร์ |
+|  | Neck-SMR | โฟมโรลคอ | คอโฟมโรลเลอร์, เน็กโฟมโรล |
 |  | Oblique Crunches | ออบลิกครันช์ | ข้างลำตัวครั้นช์ |
 |  | Oblique Crunches - On The Floor | ออบลิกครันช์ บนฟลอร์ | ข้างลำตัวครั้นช์ บนพื้น |
 |  | Olympic Squat | โอลิมปิกสควอท | โอลิมปิกสควอต, โอลิมปิกสแควท |
@@ -577,7 +577,7 @@
 |  | One-Arm Side Laterals | แขนเดียวไซด์แลทเทอรัล | แขนเดียวข้างลาเทอรัล |
 |  | One-Legged Cable Kickback | ขาเดียวเคเบิลคิกแบ็ก | ขาเดียวเคเบิ้ลคิกแบ็ก |
 |  | Open Palm Kettlebell Clean | เปิดฝ่ามือเคทเทิลเบลคลีน | เปิดปาล์มเคตเทิลเบลคลีน, เปิดฝ่ามือเคทเทิลเบลล์คลีน, open palm kb clean |
-|  | Otis-Up | โอติสอัพ |  |
+|  | Otis-Up | โอติสอัพ (ซิทอัพถือน้ำหนักดันขึ้น) | โอติสอัพ |
 |  | Overhead Cable Curl | โอเวอร์เฮดเคเบิลเคิร์ล | เหนือศีรษะเคเบิ้ลเคิล |
 |  | Overhead Lat | ยืดแลตเหนือศีรษะ |  |
 |  | Overhead Slam | โอเวอร์เฮดสแลม | เหนือศีรษะสแลม |
@@ -585,7 +585,7 @@
 |  | Overhead Stretch | ยืดเหนือศีรษะ |  |
 |  | Overhead Triceps | ยืดไตรเซปส์เหนือศีรษะ |  |
 |  | Padel | พาเดล | ปาเดล, padel tennis |
-|  | Pallof Press | พัลลอฟเพรส |  |
+|  | Pallof Press | พัลลอฟเพรส | ปาลอฟ, พาลอฟเพรส, pallof |
 |  | Pallof Press With Rotation | พัลลอฟเพรสหมุนตัว |  |
 |  | Palms-Down Dumbbell Wrist Curl Over A Bench | คว่ำมือดัมเบลริสต์เคิร์ล บนม้านั่ง | คว่ำมือดัมเบลล์ริสต์เคิร์ล บนม้านั่ง, คว่ำมือดัมเบ็ลริสต์เคิร์ล บนม้านั่ง, palms-down db wrist curl over a bench |
 |  | Palms-Down Wrist Curl Over A Bench | คว่ำมือริสต์เคิร์ล บนม้านั่ง |  |
@@ -593,16 +593,16 @@
 |  | Palms-Up Dumbbell Wrist Curl Over A Bench | หงายมือดัมเบลริสต์เคิร์ล บนม้านั่ง | หงายมือดัมเบลล์ริสต์เคิร์ล บนม้านั่ง, หงายมือดัมเบ็ลริสต์เคิร์ล บนม้านั่ง, palms-up db wrist curl over a bench |
 |  | Parallel Bar Dip | พาราเลลบาร์ดิป | ขนานบาร์ดิปส์ |
 |  | Pelvic Tilt Into Bridge | เชิงกรานทิลต์เข้าบริดจ์ | เพลวิกเอียงเชิงกรานเข้าบริดจ์ |
-|  | Peroneals Stretch | เพอโรเนียลสเตรทช์ | เพอโรเนียลสเตรช, เพอโรเนียลยืด |
-|  | Peroneals-SMR | เพอโรเนียลโฟมโรล | เพอโรเนียลโฟมโรลเลอร์ |
+|  | Peroneals Stretch | ยืดน่องด้านนอก (เพอโรเนียล) | เพอโรเนียลสเตรช, เพอโรเนียลยืด, เพอโรเนียลสเตรทช์ |
+|  | Peroneals-SMR | โฟมโรลน่องด้านนอก (เพอโรเนียล) | เพอโรเนียลโฟมโรลเลอร์, โฟมโรลน่องข้าง, เพอโรเนียลโฟมโรล |
 |  | Physioball Hip Bridge | ฟิสิโอบอลฮิปบริดจ์ |  |
 |  | Pickleball | พิกเคิลบอล | พิคเคิลบอล, พิกเกิลบอล |
 |  | Pilates | พิลาทิส | พิลาทีส, พีลาทิส, พิลาเทส |
 |  | Pin Presses | พินเพรส |  |
-|  | Piriformis-SMR | พิริฟอร์มิสโฟมโรล | พิริฟอร์มิสโฟมโรลเลอร์ |
+|  | Piriformis-SMR | โฟมโรลก้น (พิริฟอร์มิส) | พิริฟอร์มิสโฟมโรลเลอร์, โฟมโรลสะโพก, piriformis foam roll, พิริฟอร์มิสโฟมโรล |
 |  | Plank | แพลงก์ | แพลงค์, แพลง, พลังค์ |
-|  | Plate Pinch | แผ่นน้ำหนักหนีบ | เพลทพินช์ |
-|  | Plate Twist | แผ่นน้ำหนักทวิสต์ | เพลททวิส |
+|  | Plate Pinch | เพลทพินช์ (หนีบแผ่นน้ำหนัก) | เพลทพินช์, plate pinch hold, แผ่นน้ำหนักหนีบ |
+|  | Plate Twist | เพลททวิสต์ | เพลททวิส, แผ่นน้ำหนักทวิสต์ |
 |  | Platform Hamstring Slides | แฮมสตริงสไลด์บนแพลตฟอร์ม |  |
 |  | Plie Dumbbell Squat | พลีเอดัมเบลสควอท | พลีเอดัมเบลล์สควอต, พลีเอดัมเบ็ลสแควท, plie db squat |
 |  | Plyo Kettlebell Pushups | พลายโอเคทเทิลเบลวิดพื้น | พลัยโอเคตเทิลเบลพุชอัพ, พลายโอเคทเทิลเบลล์วิดพื้น, plyo kb pushups |
@@ -631,16 +631,16 @@
 |  | Push-Ups With Feet On An Exercise Ball | วิดพื้นเท้าบนเอ็กเซอร์ไซส์บอล |  |
 |  | Pushups | วิดพื้น | พุชอัพ, ดันพื้น, push up |
 |  | Pushups (Close and Wide Hand Positions) | วิดพื้นมือแคบและกว้าง |  |
-|  | Pyramid | พีระมิด |  |
+|  | Pyramid | พีระมิดบนบอล (ยืดหลัง) | พีระมิด |
 |  | Quad Stretch | ควอดสเตรทช์ | ควอดริเซปส์สเตรช, ควอดยืด |
-|  | Quadriceps-SMR | ควอดริเซปส์โฟมโรล | ควอดโฟมโรลเลอร์ |
+|  | Quadriceps-SMR | โฟมโรลต้นขาหน้า (ควอด) | ควอดโฟมโรลเลอร์, โฟมโรลควอดริเซปส์, quad foam roll, ควอดริเซปส์โฟมโรล |
 |  | Quick Leap | ควิกลีป | เร็วลีป |
-|  | Rack Delivery | แร็คดิลิเวอรี | แร็กดิลิเวอรี |
+|  | Rack Delivery | แร็คดิลิเวอรี (ดริลส่งบาร์เข้าท่าแร็ค) | แร็กดิลิเวอรี, แร็คดิลิเวอรี |
 |  | Rack Pull with Bands | แร็คพูล ใช้ยางยืด | แร็กพูล ใช้แบนด์ |
 |  | Rack Pulls | แร็คพูล | แร็กพูล |
 |  | Rear Leg Raises | เรียร์เลกเรส | หลังเลกเรส |
 |  | Recumbent Bike | จักรยานเอนหลัง |  |
-|  | Return Push from Stance | รีเทิร์นพุช จากท่ายืน | รีเทิร์นพุช จากสแตนซ์ |
+|  | Return Push from Stance | เมดิซินบอลรีเทิร์นพุช จากท่ายืน | รีเทิร์นพุช จากสแตนซ์, รีเทิร์นพุช จากท่ายืน |
 |  | Reverse Band Bench Press | รีเวิร์สยางยืดเบนช์เพรส | ย้อนกลับแบนด์เบนช์เพรส |
 |  | Reverse Band Box Squat | รีเวิร์สยางยืดบ็อกซ์สควอท | ย้อนกลับแบนด์บอกซ์สควอต, รีเวิร์สยางยืดบ็อกซ์สแควท |
 |  | Reverse Band Deadlift | รีเวิร์สยางยืดเดดลิฟต์ | ย้อนกลับแบนด์เดดลิฟท์, รีเวิร์สยางยืดเดทลิฟ |
@@ -656,25 +656,25 @@
 |  | Reverse Grip Triceps Pushdown | รีเวิร์สกริปไตรเซปส์พุชดาวน์ | รีเวิร์สกริปไตรเซปพุชดาว |
 |  | Reverse Hyperextension | รีเวิร์สไฮเปอร์เอ็กซ์เทนชัน | ย้อนกลับแบ็กเอ็กซ์เทนชัน |
 |  | Reverse Machine Flyes | รีเวิร์สเครื่องฟลาย | ย้อนกลับแมชชีนฟลาย |
-|  | Reverse Plate Curls | รีเวิร์สแผ่นน้ำหนักเคิร์ล | ย้อนกลับเพลทเคิล |
+|  | Reverse Plate Curls | รีเวิร์สเพลทเคิร์ล | ย้อนกลับเพลทเคิล, รีเวิร์สแผ่นน้ำหนักเคิร์ล |
 |  | Reverse Triceps Bench Press | รีเวิร์สไตรเซปส์เบนช์เพรส | ย้อนกลับไตรเซปเบนช์เพรส |
-|  | Rhomboids-SMR | รอมบอยด์โฟมโรล | รอมบอยด์โฟมโรลเลอร์ |
+|  | Rhomboids-SMR | โฟมโรลกลางสะบัก (รอมบอยด์) | รอมบอยด์โฟมโรลเลอร์, โฟมโรลสะบัก, rhomboid foam roll, รอมบอยด์โฟมโรล |
 |  | Rickshaw Carry | ริกชอว์แครี | ริกซอว์แคร์รี่ |
 |  | Rickshaw Deadlift | ริกชอว์เดดลิฟต์ | ริกซอว์เดดลิฟท์, ริกชอว์เดทลิฟ |
-|  | Ring Dips | ห่วงดิป | ริงดิปส์ |
+|  | Ring Dips | ริงดิป | ริงดิปส์, ห่วงดิป, ดิปห่วง |
 |  | Road Cycling | ปั่นจักรยานเสือหมอบ | จักรยานถนน, ปั่นจักรยาน, cycling |
 |  | Rock Climbing | ปีนผา | ปีนหน้าผา, ไต่ผา, climbing |
-|  | Rocket Jump | ร็อกเก็ตจัมพ์ | ร็อกเก็ตจั๊มพ์ |
+|  | Rocket Jump | ร็อกเก็ตจัมพ์ | ร็อกเก็ตจั๊มพ์, กระโดดสุดตัว |
 |  | Rocking Standing Calf Raise | ร็อกกิ้งยืนคาล์ฟเรส |  |
 |  | Rocky Pull-Ups/Pulldowns | ร็อกกี้พูลอัพ/พูลดาวน์ |  |
 |  | Roller Skating | สเก็ตรองเท้าสี่ล้อ | โรลเลอร์สเก็ต, โรลเลอร์เบลด |
 |  | Romanian Deadlift | โรมาเนียนเดดลิฟต์ | อาร์ดีแอล, rdl |
 |  | Romanian Deadlift from Deficit | โรมาเนียนเดดลิฟต์ยืนบนแท่นสูง |  |
-|  | Rope Climb | เชือกปีน | โรปปีน |
-|  | Rope Crunch | เชือกครันช์ | โรปครั้นช์ |
+|  | Rope Climb | ปีนเชือก | โรปปีน, เชือกปีน |
+|  | Rope Crunch | เคเบิลโรปครันช์ | โรปครั้นช์, เชือกครันช์ |
 |  | Rope Jumping | กระโดดเชือก | skipping rope, jump rope, โดดเชือก |
 |  | Rope Straight-Arm Pulldown | เชือกแขนตรงพูลดาวน์ | โรปแขนตรงพูลดาว |
-|  | Round The World Shoulder Stretch | รอบเวิลด์โชลเดอร์สเตรทช์ | รอบเวิลด์ช็อลเดอร์สเตรช, รอบเวิลด์โชว์เดอร์ยืด |
+|  | Round The World Shoulder Stretch | ราวด์เดอะเวิลด์โชลเดอร์สเตรทช์ | รอบเวิลด์ช็อลเดอร์สเตรช, รอบเวิลด์โชว์เดอร์ยืด, ยืดไหล่หมุนรอบ, รอบเวิลด์โชลเดอร์สเตรทช์ |
 |  | Rowing, Stationary | พายเรืออยู่กับที่ (เครื่องพาย) | เครื่องพายเรือ, rowing machine, rower |
 |  | Rugby | รักบี้ | รักบี้ฟุตบอล |
 |  | Runner's Stretch | รันเนอร์สเตรทช์ | รันเนอร์สเตรช, รันเนอร์ยืด |
@@ -712,7 +712,7 @@
 |  | Seated Hamstring and Calf Stretch | นั่งแฮมสตริงและคาล์ฟสเตรทช์ | นั่งแฮมสตริงแอนด์คาล์ฟสเตรช, นั่งแฮมสตริงและคาล์ฟยืด |
 |  | Seated Head Harness Neck Resistance | นั่งสายรัดศีรษะเน็กต้านแรง | นั่งสายรัดศีรษะคอเรซิสแทนซ์ |
 |  | Seated Leg Curl | นั่งเลกเคิร์ล | เลกเคิร์ลนั่ง, hamstring curl |
-|  | Seated Leg Tucks | นั่งเลกตัก | นั่งขาตัก |
+|  | Seated Leg Tucks | นั่งทัคขา | นั่งขาตัก, ทัคขา, นั่งเลกตัก |
 |  | Seated One-arm Cable Pulley Rows | นั่งแขนเดียวเคเบิลพูลเลย์โรว์ | นั่งแขนเดียวเคเบิ้ลพูลเลย์โรว |
 |  | Seated One-Arm Dumbbell Palms-Down Wrist Curl | นั่งแขนเดียวดัมเบลคว่ำมือริสต์เคิร์ล | นั่งแขนเดียวดัมเบลล์คว่ำมือริสต์เคิร์ล, นั่งแขนเดียวดัมเบ็ลคว่ำมือริสต์เคิร์ล, seated one-arm db palms-down wrist curl |
 |  | Seated One-Arm Dumbbell Palms-Up Wrist Curl | นั่งแขนเดียวดัมเบลหงายมือริสต์เคิร์ล | นั่งแขนเดียวดัมเบลล์หงายมือริสต์เคิร์ล, นั่งแขนเดียวดัมเบ็ลหงายมือริสต์เคิร์ล, seated one-arm db palms-up wrist curl |
@@ -759,7 +759,7 @@
 |  | Sit Squats | ซิทสควอท | ซิตสควอต, ซิทสแควท |
 |  | Sit-Up | ซิทอัพ | ลุกนั่ง, sit up |
 |  | Skateboarding | เล่นสเก็ตบอร์ด | สเก็ตบอร์ด, สเกตบอร์ด, skateboard |
-|  | Skating | สเก็ตอินไลน์ |  |
+|  | Skating | สเก็ตอินไลน์ | สเก็ต, อินไลน์สเก็ต |
 |  | Ski Erg | เครื่องสกีเออร์ก | skierg, สกีเออร์ก |
 |  | Sled Drag - Harness | ลากสเลดด้วยสายรัด |  |
 |  | Sled Overhead Backward Walk | สเลดโอเวอร์เฮดถอยหลังวอล์ก | เลื่อนเหนือศีรษะแบ็กเวิร์ดวอก |
@@ -767,7 +767,7 @@
 |  | Sled Push | ดันสเลด |  |
 |  | Sled Reverse Flye | สเลดรีเวิร์สฟลาย | เลื่อนย้อนกลับฟลาย |
 |  | Sled Row | สเลดโรว์ |  |
-|  | Sledgehammer Swings | ค้อนยักษ์สวิง | สเลดจ์แฮมเมอร์สวิง |
+|  | Sledgehammer Swings | ตีค้อนสเลดจ์แฮมเมอร์ | สเลดจ์แฮมเมอร์สวิง, ค้อนยักษ์สวิง, sledgehammer |
 |  | Smith Incline Shoulder Raise | สมิธอินไคลน์โชลเดอร์เรส | สมิทอินคลายช็อลเดอร์เรซ, สมิธอินไคลน์โชว์เดอร์เรส |
 |  | Smith Machine Behind the Back Shrug | สมิธแมชชีน ด้านหลังลำตัวชรัก | สมิธแมชชีน ด้านหลังลำตัวชรัค |
 |  | Smith Machine Bench Press | สมิธแมชชีนเบนช์เพรส |  |
@@ -798,7 +798,7 @@
 |  | Speed Band Overhead Triceps | สปีดยางยืดโอเวอร์เฮดไตรเซปส์ | สปีดแบนด์เหนือศีรษะไตรเซป |
 |  | Speed Box Squat | สปีดบ็อกซ์สควอท | สปีดบอกซ์สควอต, สปีดบ็อกซ์สแควท |
 |  | Speed Squats | สปีดสควอท | สปีดสควอต, สปีดสแควท |
-|  | Spell Caster | สเปลล์แคสเตอร์ |  |
+|  | Spell Caster | สเปลล์แคสเตอร์ (ดัมเบลสองข้างหมุนลำตัว) | สเปลล์แคสเตอร์ |
 |  | Spider Crawl | สไปเดอร์ครอว์ล | สไปเดอร์คลาน |
 |  | Spider Curl | สไปเดอร์เคิร์ล | สไปเดอร์เคิล |
 |  | Spin Class | คลาสสปินไบค์ | สปินนิ่ง, สปินไบค์, spinning |
@@ -813,7 +813,7 @@
 |  | Squat Jerk | สควอทเจิร์ก | สควอตเจิร์ก, สแควทเจิร์ก |
 |  | Squat with Bands | สควอท ใช้ยางยืด | สควอต ใช้แบนด์, สแควท ใช้ยางยืด |
 |  | Squat with Chains | สควอท ใช้โซ่ | สควอต ใช้โซ่, สแควท ใช้โซ่ |
-|  | Squat with Plate Movers | สควอท ใช้แผ่นน้ำหนักมูฟเวอร์ | สควอต ใช้เพลทมูฟเวอร์, สแควท ใช้แผ่นน้ำหนักมูฟเวอร์ |
+|  | Squat with Plate Movers | สควอท ใช้เพลทมูฟเวอร์ | สควอต ใช้เพลทมูฟเวอร์, สแควท ใช้แผ่นน้ำหนักมูฟเวอร์, แผ่นน้ำหนักมูฟเวอร์, สควอท ใช้แผ่นน้ำหนักมูฟเวอร์ |
 |  | Squats - With Bands | สควอทต้านยางยืด |  |
 |  | Stair Climbing | ขึ้นบันได | วิ่งบันได, เดินขึ้นบันได, stairs |
 |  | Stairmaster | เครื่องเดินขึ้นบันได (สเตอร์มาสเตอร์) |  |
@@ -850,7 +850,7 @@
 |  | Standing Low-Pulley Deltoid Raise | ยืนพูลเลย์ต่ำเดลทอยด์เรส | ยืนพูลเลย์ต่ำเดลทอยด์เรซ |
 |  | Standing Low-Pulley One-Arm Triceps Extension | ยืนพูลเลย์ต่ำแขนเดียวไตรเซปส์เอ็กซ์เทนชัน |  |
 |  | Standing Military Press | ยืนมิลิทารีเพรส | ยืนมิลิตารีเพลส, ยืนมิลิทารีเพรสส์ |
-|  | Standing Olympic Plate Hand Squeeze | ยืนบีบแผ่นน้ำหนักด้วยมือ |  |
+|  | Standing Olympic Plate Hand Squeeze | ยืนบีบเพลทโอลิมปิกด้วยมือ | บีบแผ่นน้ำหนัก, ยืนบีบแผ่นน้ำหนักด้วยมือ |
 |  | Standing One-Arm Cable Curl | ยืนแขนเดียวเคเบิลเคิร์ล | ยืนแขนเดียวเคเบิ้ลเคิล |
 |  | Standing One-Arm Dumbbell Curl Over Incline Bench | ยืนดัมเบลเคิร์ลแขนเดียวพิงม้าอินไคลน์ | standing one-arm db curl over incline bench |
 |  | Standing One-Arm Dumbbell Triceps Extension | ยืนแขนเดียวดัมเบลไตรเซปส์เอ็กซ์เทนชัน | ยืนแขนเดียวดัมเบลล์ไตรเซปส์เอ็กซ์เทนชัน, ยืนแขนเดียวดัมเบ็ลไตรเซปส์เอ็กซ์เทนชัน, standing one-arm db triceps extension |
@@ -859,11 +859,11 @@
 |  | Standing Palms-In Dumbbell Press | ยืนฝ่ามือเข้าในดัมเบลเพรส | ยืนฝ่ามือเข้าในดัมเบลล์เพลส, ยืนฝ่ามือเข้าในดัมเบ็ลเพรสส์, standing palms-in db press |
 |  | Standing Palms-Up Barbell Behind The Back Wrist Curl | ยืนหงายมือบาร์เบล ด้านหลังลำตัวริสต์เคิร์ล | ยืนหงายมือบาร์เบลล์ ด้านหลังลำตัวริสต์เคิร์ล, standing palms-up bb behind the back wrist curl |
 |  | Standing Pelvic Tilt | ยืนเชิงกรานทิลต์ | ยืนเพลวิกเอียงเชิงกราน |
-|  | Standing Rope Crunch | ยืนเชือกครันช์ | ยืนโรปครั้นช์ |
+|  | Standing Rope Crunch | ยืนเคเบิลโรปครันช์ | ยืนโรปครั้นช์, ยืนเชือกครันช์ |
 |  | Standing Soleus And Achilles Stretch | ยืนโซเลียสและเอคิลลิสสเตรทช์ | ยืนโซเลียสแอนด์เอ็นร้อยหวายสเตรช, ยืนโซเลียสและเอคิลลิสยืด |
 |  | Standing Toe Touches | ยืนก้มแตะปลายเท้า |  |
 |  | Standing Towel Triceps Extension | ยืนผ้าเช็ดตัวไตรเซปส์เอ็กซ์เทนชัน | ยืนทาวเวลไตรเซปส์เอ็กซ์เทนชัน |
-|  | Standing Two-Arm Overhead Throw | ยืนสองแขนโอเวอร์เฮดโยน | ยืนสองแขนเหนือศีรษะโธรว์ |
+|  | Standing Two-Arm Overhead Throw | โยนบอลเหนือศีรษะสองแขน ท่ายืน | ยืนสองแขนเหนือศีรษะโธรว์, ยืนสองแขนโอเวอร์เฮดโยน |
 |  | Star Jump | สตาร์จัมพ์ | สตาร์จั๊มพ์ |
 |  | Step Aerobics | สเต็ปแอโรบิก | สเต็ปแอโร, step class |
 |  | Step Mill | สเต็ปมิลล์ |  |
@@ -880,16 +880,16 @@
 |  | Sumo Deadlift | ซูโม่เดดลิฟต์ | ซูโมเดดลิฟท์, ซูโม่เดทลิฟ |
 |  | Sumo Deadlift with Bands | ซูโม่เดดลิฟต์ ใช้ยางยืด | ซูโมเดดลิฟท์ ใช้แบนด์, ซูโม่เดทลิฟ ใช้ยางยืด |
 |  | Sumo Deadlift with Chains | ซูโม่เดดลิฟต์ ใช้โซ่ | ซูโมเดดลิฟท์ ใช้โซ่, ซูโม่เดทลิฟ ใช้โซ่ |
-|  | Superman | ซูเปอร์แมน |  |
-|  | Supine Chest Throw | หงายเชสต์โยน | ซูพายเชสโธรว์, หงายเชสท์โยน |
-|  | Supine One-Arm Overhead Throw | หงายแขนเดียวโอเวอร์เฮดโยน | ซูพายแขนเดียวเหนือศีรษะโธรว์ |
-|  | Supine Two-Arm Overhead Throw | หงายสองแขนโอเวอร์เฮดโยน | ซูพายสองแขนเหนือศีรษะโธรว์ |
+|  | Superman | ซูเปอร์แมน | ซุปเปอร์แมน, ซูเปอร์แมนหลัง |
+|  | Supine Chest Throw | นอนหงายโยนบอลจากอก | ซูพายเชสโธรว์, หงายเชสท์โยน, หงายเชสต์โยน |
+|  | Supine One-Arm Overhead Throw | นอนหงายโยนบอลเหนือศีรษะแขนเดียว | ซูพายแขนเดียวเหนือศีรษะโธรว์, หงายแขนเดียวโอเวอร์เฮดโยน |
+|  | Supine Two-Arm Overhead Throw | นอนหงายโยนบอลเหนือศีรษะสองแขน | ซูพายสองแขนเหนือศีรษะโธรว์, หงายสองแขนโอเวอร์เฮดโยน |
 |  | Surfing | เล่นเซิร์ฟ | โต้คลื่น, เซิร์ฟบอร์ด, surf |
-|  | Suspended Fallout | แขวนฟอลล์เอาต์ | ซัสเพนด์ฟอลล์เอาต์ |
-|  | Suspended Push-Up | แขวนวิดพื้น | ซัสเพนด์วิดพื้น |
-|  | Suspended Reverse Crunch | แขวนรีเวิร์สครันช์ | ซัสเพนด์ย้อนกลับครั้นช์ |
-|  | Suspended Row | แขวนโรว์ | ซัสเพนด์โรว |
-|  | Suspended Split Squat | แขวนสปลิตสควอท | ซัสเพนด์สพลิทสควอต, แขวนสปลิตสแควท |
+|  | Suspended Fallout | แขวนฟอลล์เอาต์ | ซัสเพนด์ฟอลล์เอาต์, trx, ทีอาร์เอ็กซ์ |
+|  | Suspended Push-Up | แขวนวิดพื้น | ซัสเพนด์วิดพื้น, trx, ทีอาร์เอ็กซ์ |
+|  | Suspended Reverse Crunch | แขวนรีเวิร์สครันช์ | ซัสเพนด์ย้อนกลับครั้นช์, trx, ทีอาร์เอ็กซ์ |
+|  | Suspended Row | แขวนโรว์ | ซัสเพนด์โรว, trx, ทีอาร์เอ็กซ์ |
+|  | Suspended Split Squat | แขวนสปลิตสควอท | ซัสเพนด์สพลิทสควอต, แขวนสปลิตสแควท, trx, ทีอาร์เอ็กซ์ |
 |  | Svend Press | สเวนด์เพรส | สเวนด์เพลส, สเวนด์เพรสส์ |
 |  | Swimming | ว่ายน้ำ | swim |
 |  | Swimming - Backstroke | ว่ายน้ำท่ากรรเชียง | ท่ากรรเชียง, backstroke |
@@ -903,11 +903,11 @@
 |  | Tai Chi | ไทเก๊ก | ไทเก็ก, ไทชิ, taichi |
 |  | Tate Press | เทตเพรส | เทตเพลส, เทตเพรสส์ |
 |  | Tennis | เทนนิส | ตีเทนนิส |
-|  | The Straddle | สแตรดเดิล |  |
-|  | Thigh Abductor | เครื่องแอบดักเตอร์ (ต้นขาด้านนอก) |  |
-|  | Thigh Adductor | เครื่องแอดดักเตอร์ (ต้นขาด้านใน) |  |
+|  | The Straddle | ยืดขาถ่างนั่งก้มตัว (สแตรดเดิล) | สแตรดเดิล, straddle stretch |
+|  | Thigh Abductor | เครื่องแอบดักเตอร์ (ต้นขาด้านนอก) | ถ่างขา, hip abduction machine |
+|  | Thigh Adductor | เครื่องแอดดักเตอร์ (ต้นขาด้านใน) | หนีบขา, hip adduction machine |
 |  | Tire Flip | พลิกยางรถ (ไทร์ฟลิป) |  |
-|  | Toe Touchers | นอนยกขาแตะปลายเท้า |  |
+|  | Toe Touchers | นอนยกขาแตะปลายเท้า | ยกขาแตะปลายเท้า, toe touch crunch |
 |  | Torso Rotation | ลำตัวโรเตชัน | ทอร์โซหมุน |
 |  | Trail Running/Walking | วิ่ง/เดินเทรล |  |
 |  | Trampoline Workout | กระโดดแทรมโพลีน | แทรมโพลีน, trampoline, rebounder |
@@ -919,7 +919,7 @@
 |  | Triceps Pushdown - Rope Attachment | ไตรเซปส์พุชดาวน์ เชือกแอตแทชเมนต์ | ไตรเซปส์เชือก, tricep rope pushdown, ไตรเซปพุชดาว โรปแอตแทชเมนต์ |
 |  | Triceps Pushdown - V-Bar Attachment | ไตรเซปส์พุชดาวน์ วีบาร์แอตแทชเมนต์ | ไตรเซปพุชดาว วีบาร์แอตแทชเมนต์ |
 |  | Triceps Stretch | ไตรเซปส์สเตรทช์ | ไตรเซปสเตรช, ไตรเซปส์ยืด |
-|  | Tuck Crunch | ตักครันช์ | ตักครั้นช์ |
+|  | Tuck Crunch | ทัคครันช์ | ตักครั้นช์, ครันช์งอเข่า, ตักครันช์ |
 |  | Two-Arm Dumbbell Preacher Curl | สองแขนดัมเบลพรีชเชอร์เคิร์ล | สองแขนดัมเบลล์พรีเชอร์เคิล, สองแขนดัมเบ็ลพรีชเชอร์เคิร์ล, two-arm db preacher curl |
 |  | Two-Arm Kettlebell Clean | สองแขนเคทเทิลเบลคลีน | สองแขนเคตเทิลเบลคลีน, สองแขนเคทเทิลเบลล์คลีน, two-arm kb clean |
 |  | Two-Arm Kettlebell Jerk | สองแขนเคทเทิลเบลเจิร์ก | สองแขนเคตเทิลเบลเจิร์ก, สองแขนเคทเทิลเบลล์เจิร์ก, two-arm kb jerk |
@@ -965,7 +965,7 @@
 |  | Wrist Roller | ริสต์โรลเลอร์ |  |
 |  | Wrist Rotations with Straight Bar | หมุนข้อมือด้วยบาร์ตรง |  |
 |  | Yoga | โยคะ | โยคา, โยกะ |
-|  | Yoke Walk | โยกวอล์ก (แบกโยกเดิน) |  |
+|  | Yoke Walk | โยคแบกเดิน (โยควอล์ก) | โยกวอล์ก, yoke carry, โยกวอล์ก (แบกโยกเดิน) |
 |  | Zercher Squats | เซอร์เชอร์สควอท | เซิร์ชเชอร์สควอต, เซอร์เชอร์สแควท |
 |  | Zottman Curl | ซอตต์แมนเคิร์ล | ซอตแมนเคิล |
 |  | Zottman Preacher Curl | ซอตต์แมนพรีชเชอร์เคิร์ล | ซอตแมนพรีเชอร์เคิล |
