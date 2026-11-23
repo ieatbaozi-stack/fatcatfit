@@ -28,6 +28,14 @@ async function fillOnboarding(page: Page, opts: { weight?: string; unit?: "metri
   await expect(page.getByLabel(msg("th", "onboarding.place.name"))).toHaveValue(msg("th", "onboarding.place.kinds.home"));
 }
 
+/** กดแถว "ออกจากระบบ" แล้วยืนยันในแผ่น (CR2) */
+async function confirmSignOut(page: Page) {
+  await page.getByRole("button", { name: msg("th", "account.signOut") }).click();
+  const dialog = page.getByRole("dialog", { name: msg("th", "account.signOutSheet.title") });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("button", { name: msg("th", "account.signOutSheet.confirm") }).click();
+}
+
 async function cachedPages(page: Page) {
   return page.evaluate(async () => {
     const out: { url: string; body: string }[] = [];
@@ -345,7 +353,7 @@ test.describe("ไม่ยินยอม / ออกจากระบบ / �
     );
     await expectCleanPageCache(page, [u.email]);
 
-    await page.getByRole("button", { name: msg("th", "account.signOut") }).click();
+    await confirmSignOut(page);
     await expect(page).toHaveURL(/\/welcome$/, { timeout: 15_000 });
     // cookie เดิมใช้ไม่ได้แล้ว (session ถูกเพิกถอนที่เซิร์ฟเวอร์ ไม่ใช่แค่ลบ cookie ในเบราว์เซอร์)
     expect((await u.api.get("/api/me")).status()).toBe(401);
@@ -358,6 +366,64 @@ test.describe("ไม่ยินยอม / ออกจากระบบ / �
     expect(after.map((p) => new URL(p.url).pathname)).toContain("/welcome");
     await page.goto("/me");
     await expect(page).toHaveURL(/\/welcome$/);
+    await u.api.dispose();
+  });
+
+  test("CR2: ออกจากระบบต้องยืนยัน · ยกเลิก/Esc/แตะพื้นหลัง = ยังอยู่ในระบบ โฟกัสกลับแถว · ยืนยัน = /welcome", async ({ page, context, baseURL }) => {
+    const u = await signUp(baseURL!, { stage: "ready" });
+    await applySession(context, u);
+    await page.goto("/me");
+    await waitForAuthReady(page);
+    const row = page.getByRole("button", { name: msg("th", "account.signOut") });
+    const dialog = page.getByRole("dialog", { name: msg("th", "account.signOutSheet.title") });
+    const signOuts: string[] = [];
+    page.on("request", (r) => r.url().includes("/api/auth/sign-out") && signOuts.push(r.method()));
+
+    await row.click();
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText(msg("th", "account.signOutSheet.body"))).toBeVisible();
+    await dialog.getByRole("button", { name: msg("th", "account.signOutSheet.cancel") }).click();
+    await expect(dialog).toHaveCount(0);
+    await expect(row).toBeFocused();
+
+    await row.click();
+    await expect(dialog).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
+    await expect(row).toBeFocused();
+
+    await row.click();
+    await page.mouse.click(10, 10); // พื้นมืดเหนือแผ่น
+    await expect(dialog).toHaveCount(0);
+    await expect(row).toBeFocused();
+
+    expect(signOuts).toEqual([]);
+    expect((await u.api.get("/api/me")).status()).toBe(200);
+    await expect(page).toHaveURL(/\/me$/);
+
+    await confirmSignOut(page);
+    await expect(page).toHaveURL(/\/welcome$/, { timeout: 15_000 });
+    expect((await u.api.get("/api/me")).status()).toBe(401);
+    await u.api.dispose();
+  });
+
+  test("CR2: กดยืนยันซ้ำระหว่างรอ = ส่งคำขอเดียว · ปุ่มขึ้น 'กำลังออก…'", async ({ page, context, baseURL }) => {
+    const u = await signUp(baseURL!, { stage: "ready" });
+    await applySession(context, u);
+    await page.goto("/me");
+    await waitForAuthReady(page);
+    let count = 0;
+    await page.route("**/api/auth/sign-out", async (r) => {
+      count++;
+      await new Promise((res) => setTimeout(res, 1500));
+      await r.continue();
+    });
+    await page.getByRole("button", { name: msg("th", "account.signOut") }).click();
+    const dialog = page.getByRole("dialog", { name: msg("th", "account.signOutSheet.title") });
+    await dialog.getByRole("button", { name: msg("th", "account.signOutSheet.confirm") }).dblclick();
+    await expect(dialog.getByRole("button", { name: msg("th", "account.signingOut") })).toBeVisible();
+    await expect(page).toHaveURL(/\/welcome$/, { timeout: 15_000 });
+    expect(count).toBe(1);
     await u.api.dispose();
   });
 
@@ -516,7 +582,7 @@ test.describe("ออฟไลน์ก่อนล็อกอิน (เกณ
     await page.goto("/me");
     await waitForServiceWorker(page);
     await waitForAuthReady(page);
-    await page.getByRole("button", { name: msg("th", "account.signOut") }).click();
+    await confirmSignOut(page);
     await expect(page).toHaveURL(/\/welcome$/, { timeout: 15_000 });
     await expect.poll(async () => (await cachedPages(page)).map((p) => new URL(p.url).pathname), { timeout: 20_000 }).toContain("/welcome");
     await page.close();

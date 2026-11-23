@@ -1177,9 +1177,9 @@
     ${fld(T('ป้าย (ไว้จำเองว่าให้ใคร)', 'Label (just for you)'),
       o.label ? `${o.label}${o.caret ? '<span class="caret"></span>' : ''}` : T('เช่น เพื่อนที่ออฟฟิศ', 'e.g. office friend'),
       { ph: !o.label, hint: T('เพื่อนไม่เห็นป้ายนี้ · ไม่ต้องใส่ชื่อจริง', "Your friend won't see this. No real names needed.") })}
-    <div class="fld"><div class="fl">${T('ใช้ได้กี่วัน', 'Valid for')}</div>
+    <div class="fld"><div class="fl">${T('ต้องสมัครภายใน', 'Sign up within')}</div>
       <div class="chips g4 mt8" role="radiogroup">${DAYS.map(([n, th, en]) => `<span class="chip ${n === (o.days || 3) ? 'on' : ''} ${o.focus && n === 3 ? 'kfoc' : ''}">${n} ${T(th, en)}</span>`).join('')}</div></div>
-    <div class="fld"><div class="fl">${T('ใช้ได้กี่คน', 'How many people')}</div>${step(o.uses || '1', T('คน', o.uses > 1 ? 'people' : 'person'))}</div>
+    <div class="fld"><div class="fl">${T('สมัครได้กี่คน', 'How many can sign up')}</div>${step(o.uses || '1', T('คน', o.uses > 1 ? 'people' : 'person'))}</div>
     ${o.err ? `<p class="fe mt16" style="margin-bottom:0">${o.err}</p>` : ''}
     <span class="btn big ${o.err ? 'mt8' : 'mt24'} ${o.dis || !o.label ? 'dis' : ''}"${o.t || ''}>${o.btn || T('ออกโค้ด', 'Create code')}</span>`;
   const invListHead = () => `${wob('gap')}<div class="sec"><b>${T('โค้ดที่ออกแล้ว', 'Codes you made')}</b></div>`;

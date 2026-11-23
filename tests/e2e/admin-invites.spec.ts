@@ -495,7 +495,13 @@ test("เกณฑ์ 8: เพิกถอนต้องยืนยัน · 
   ];
   for (const c of cases) {
     await expect(row(c.label)).toContainText(A(`status.${c.status}`));
-    await expect(row(c.label)).toContainText(fill(A("list.meta"), { used: c.used, max: c.max, date: expectedDate(expOf(c.id), "th") }));
+    if (c.status === "active") {
+      await expect(row(c.label)).toContainText(fill(A("list.meta"), { used: c.used, max: c.max, date: expectedDate(expOf(c.id), "th") }));
+    } else {
+      // โค้ดที่ใช้ไม่ได้แล้ว ไม่แสดง "สมัครได้ถึง"
+      await expect(row(c.label)).toContainText(fill(A("list.metaInactive"), { used: c.used, max: c.max }));
+      await expect(row(c.label)).not.toContainText("สมัครได้ถึง");
+    }
     await expect(row(c.label).getByRole("button", { name: fill(A("revoke.buttonLabel"), { label: c.label }) })).toHaveCount(c.revoke ? 1 : 0);
   }
   // ใหม่สุดก่อน
@@ -834,7 +840,7 @@ test.describe("เกณฑ์ 15: TH/EN · ปุ่ม ≥ 44px · โหม�
     const enLabel = `english-${info.project.name}-${Date.now().toString(36)}`;
     await createViaUi(page, enLabel, { locale: "en", days: 1 });
     await expect(page.getByText(A("result.warning", "en"))).toBeVisible();
-    await expect(page.getByText(/· 1 person · until /)).toBeVisible();
+    await expect(page.getByText(/· 1 person · sign up by /)).toBeVisible();
     await page.getByRole("button", { name: A("result.share", "en") }).click();
     const [p] = (await shares(page)) as { text: string }[];
     expect(p.text.startsWith("Join me on Fat Cat Fit. Open this link to sign up: ")).toBe(true);

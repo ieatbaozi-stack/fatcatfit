@@ -276,7 +276,7 @@ boss ตัดสิน (R1 D1): **ยึดแบบ R0** (ข้อ 9) แล�
 | อีเมล | `nok@example.com` (บรรทัดรอง `--ink-3`) | จาก `GET /api/me` ฝั่งไคลเอนต์เท่านั้น ไม่อยู่ใน HTML · ระหว่างรอ = แถบเทาจาง · ไม่แสดงชื่อและวิธีเข้า (API ไม่มีข้อมูลวิธีเข้า) |
 | แถว | ประกาศความเป็นส่วนตัว / Privacy notice › | ไป `/privacy` |
 | แถว | ส่งออกข้อมูล / Export my data — "เร็วๆ นี้" / "Coming soon" | **ปิด** แตะไม่ได้ (มาใน R6) |
-| แถว | ออกจากระบบ / Sign out | ไม่ถามยืนยันใน R1 · "กำลังออก…" → ADR 0006 ข้อ 5 · ล้มเหลว: toast "ออกจากระบบไม่ได้ · ลองใหม่อีกที" ไม่ล้างอะไร · R3 (มีคิว) ต้องถามก่อนถ้ามีรายการค้างส่ง |
+| แถว | ออกจากระบบ / Sign out | ถามยืนยันก่อนออก (CR2 · boss ขอ 2026-11-23): หัว "ออกจากระบบไหม" · ปุ่ม "ออกจากระบบ" / "ยกเลิก" · ยกเลิก / Esc / แตะพื้นหลัง = ไม่ออก · "กำลังออก…" → ADR 0006 ข้อ 5 · ล้มเหลว: toast "ออกจากระบบไม่ได้ · ลองใหม่อีกที" ไม่ล้างอะไร · R3 (มีคิว) ต้องถามก่อนถ้ามีรายการค้างส่ง |
 | แถว | ลบบัญชี / Delete account › (`--warn`) | จอยืนยัน (43) → ลบเรียบร้อย (44) → "กลับหน้าแรก" = `location.replace("/welcome")` |
 
 - แถวสูง 52px แตะได้ทั้งแถว ป้ายน้ำหนัก 400 · ไม่มีส้มในจอนี้
@@ -319,8 +319,8 @@ boss ตัดสิน (R1 D1): **ยึดแบบ R0** (ข้อ 9) แล�
 | ช่อง | รูป | กติกา |
 |---|---|---|
 | ป้าย (บังคับ) | ช่องเส้นใต้แบบทั้งแอป · placeholder "เช่น เพื่อนที่ออฟฟิศ" · **คำแนะนำใต้ช่องเสมอ** "เพื่อนไม่เห็นป้ายนี้ · ไม่ต้องใส่ชื่อจริง" | 1–40 ตัว (`maxlength=40` · ตัดช่องว่างหัวท้าย · ว่างล้วน = ว่าง) · ตัวนับ `32/40` ขึ้นเมื่อพิมพ์ถึง 30 · ป้ายว่าง = ปุ่มออกโค้ดปิด (แบบเดียวกับแบบสอบถาม) · Enter = ออกโค้ด |
-| ใช้ได้กี่วัน | ชิป 4 อันเต็มแถว `1 วัน · 3 วัน · 7 วัน · 14 วัน` | เลือกได้อันเดียว ค่าเริ่ม **3** · ชิปที่เลือก = พื้นดำ · `role="radiogroup"` |
-| ใช้ได้กี่คน | −/+ วงกลม + ตัวเลขใหญ่ หน่วย "คน" | 1–10 ค่าเริ่ม **1** · ถึงขอบแล้วปุ่มนั้นปิด · แตะตัวเลขพิมพ์เองได้ (แป้นตัวเลข) ค่านอกช่วงถูกดึงกลับเข้าช่วงตอนออกจากช่อง |
+| ต้องสมัครภายใน (CR2 · เดิม "ใช้ได้กี่วัน") | ชิป 4 อันเต็มแถว `1 วัน · 3 วัน · 7 วัน · 14 วัน` | เลือกได้อันเดียว ค่าเริ่ม **3** · ชิปที่เลือก = พื้นดำ · `role="radiogroup"` |
+| สมัครได้กี่คน (CR2 · เดิม "ใช้ได้กี่คน") | −/+ วงกลม + ตัวเลขใหญ่ หน่วย "คน" | 1–10 ค่าเริ่ม **1** · ถึงขอบแล้วปุ่มนั้นปิด · แตะตัวเลขพิมพ์เองได้ (แป้นตัวเลข) ค่านอกช่วงถูกดึงกลับเข้าช่วงตอนออกจากช่อง |
 
 - กด **ออกโค้ด** → ปุ่ม "กำลังออกโค้ด…" กดซ้ำไม่ได้ → `POST /api/admin/invites` → 201 → จอ 50
 - ตรวจในเครื่องด้วยกติกาเดียวกับ API (D3) ก่อนส่ง — 400 จึงไม่ควรเกิด ถ้าเกิดใช้ข้อความ "ยังออกโค้ดไม่ได้" ทั่วไป
@@ -406,9 +406,9 @@ boss ตัดสิน (R1 D1): **ยึดแบบ R0** (ข้อ 9) แล�
 | `admin.invites.form.labelPlaceholder` | เช่น เพื่อนที่ออฟฟิศ | e.g. office friend |
 | `admin.invites.form.labelHint` | เพื่อนไม่เห็นป้ายนี้ · ไม่ต้องใส่ชื่อจริง | Your friend won't see this. No real names needed. |
 | `admin.invites.form.labelCount` | {count}/40 | {count}/40 |
-| `admin.invites.form.days` | ใช้ได้กี่วัน | Valid for |
+| `admin.invites.form.days` | ต้องสมัครภายใน | Sign up within |
 | `admin.invites.form.daysOption` | {days} วัน | {days, plural, one {# day} other {# days}} |
-| `admin.invites.form.uses` | ใช้ได้กี่คน | How many people |
+| `admin.invites.form.uses` | สมัครได้กี่คน | How many can sign up |
 | `admin.invites.form.usesUnit` | คน | {count, plural, one {person} other {people}} |
 | `admin.invites.form.submit` | ออกโค้ด | Create code |
 | `admin.invites.form.submitting` | กำลังออกโค้ด… | Creating… |
@@ -427,7 +427,7 @@ boss ตัดสิน (R1 D1): **ยึดแบบ R0** (ข้อ 9) แล�
 | `admin.invites.result.copyLink` | คัดลอกลิงก์ | Copy link |
 | `admin.invites.result.copyCode` | คัดลอกโค้ด | Copy code |
 | `admin.invites.result.another` | ออกอีกอัน | Make another |
-| `admin.invites.share.text` (D5) | มาจดการออกกำลังกายด้วยกันใน แมวอ้วนจะผอม เปิดลิงก์นี้เพื่อสมัคร {link} (หรือใส่โค้ด {code}) ใช้ได้ถึง {date} | Join me on Fat Cat Fit. Open this link to sign up: {link} (or enter code {code}). Valid until {date}. |
+| `admin.invites.share.text` (D5) | มาจดการออกกำลังกายด้วยกันใน แมวอ้วนจะผอม เปิดลิงก์นี้เพื่อสมัคร {link} (หรือใส่โค้ด {code}) สมัครได้ถึง {date} | Join me on Fat Cat Fit. Open this link to sign up: {link} (or enter code {code}). Valid until {date}. |
 | `admin.invites.toast.messageCopied` | คัดลอกข้อความแล้ว · ไปวางในแชตได้เลย | Message copied. Paste it in your chat. |
 | `admin.invites.toast.linkCopied` | คัดลอกลิงก์แล้ว | Link copied. |
 | `admin.invites.toast.codeCopied` | คัดลอกโค้ดแล้ว | Code copied. |

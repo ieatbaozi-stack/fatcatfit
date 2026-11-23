@@ -300,6 +300,12 @@
     "delete": "Delete account",
     "needNet": "Signing out and deleting your account need a connection",
     "signOutFailed": "Couldn't sign out · try again",
+    "signOutSheet": {
+      "title": "Sign out?",
+      "body": "Your data stays safe. Sign back in with the same email anytime.",
+      "confirm": "Sign out",
+      "cancel": "Cancel"
+    },
     "deleteScreen": {
       "title": "This deletes everything",
       "body": "Removed from the app right away. You can't undo it yourself.",
@@ -429,9 +435,9 @@
         "labelPlaceholder": "e.g. office friend",
         "labelHint": "Your friend won't see this. No real names needed.",
         "labelCount": "{count}/40",
-        "days": "Valid for",
+        "days": "Sign up within",
         "daysOption": "{days, plural, one {# day} other {# days}}",
-        "uses": "How many people",
+        "uses": "How many can sign up",
         "submit": "Create code",
         "submitting": "Creating…",
         "failed": "Couldn't create the code. What you entered is still here. Try again.",
@@ -446,7 +452,7 @@
       "result": {
         "title": "Shown only once",
         "warning": "Once you leave this page, you can't see this code again. Share or copy it first.",
-        "summary": "{label} · {uses, plural, one {# person} other {# people}} · until {date}",
+        "summary": "{label} · {uses, plural, one {# person} other {# people}} · sign up by {date}",
         "share": "Share link",
         "copyMessage": "Copy invite message",
         "copyLink": "Copy link",
@@ -455,7 +461,7 @@
         "codeLabel": "Invite code"
       },
       "share": {
-        "text": "Join me on Fat Cat Fit. Open this link to sign up: {link} (or enter code {code}). Valid until {date}."
+        "text": "Join me on Fat Cat Fit. Open this link to sign up: {link} (or enter code {code}). Sign up by {date}."
       },
       "toast": {
         "messageCopied": "Message copied. Paste it in your chat.",
@@ -467,7 +473,8 @@
       },
       "list": {
         "title": "Codes you made",
-        "meta": "{used}/{max} used · until {date}",
+        "meta": "{used}/{max} signed up · sign up by {date}",
+        "metaInactive": "{used}/{max} signed up",
         "empty": "No codes yet. The ones you make show up here.",
         "loadFailed": "Couldn't load your codes",
         "loadFailedHint": "You can still make new codes.",

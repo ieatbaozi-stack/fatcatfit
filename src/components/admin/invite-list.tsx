@@ -101,11 +101,13 @@ export function InviteList({
                     <span>{t(`status.${row.status}`)}</span>
                   </p>
                   <p className="text-caption text-ink-3 tabular-nums">
-                    {t("list.meta", {
-                      used: row.usesCount,
-                      max: row.maxUses,
-                      date: formatInviteDate(row.expiresAt, locale),
-                    })}
+                    {active
+                      ? t("list.meta", {
+                          used: row.usesCount,
+                          max: row.maxUses,
+                          date: formatInviteDate(row.expiresAt, locale),
+                        })
+                      : t("list.metaInactive", { used: row.usesCount, max: row.maxUses })}
                   </p>
                 </div>
                 {active ? (
