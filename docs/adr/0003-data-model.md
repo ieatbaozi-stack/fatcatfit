@@ -97,7 +97,7 @@ Index หลัก: `(user_id, updated_at)` ทุกตาราง sync · `se
 | คอลัมน์ร่วม | `created_at` `updated_at` `client_updated_at` (NOT NULL · แถวคลัง seed ตั้ง = `updated_at`) `deleted_at` · CHECK `owner_user_id IS NOT NULL OR deleted_at IS NULL` (คลังไม่ลบ) |
 
 - ค่าคงที่ของ CHECK อยู่ `src/lib/data/shared/exercise-meta.ts` + `track-types.ts` ที่เดียว · repository ของท่าของฉันกรอง `owner_user_id = :me AND deleted_at IS NULL` · คลังกรอง `owner_user_id IS NULL`
-- จำนวนสูงสุดต่อคน (นับแถวที่ `deleted_at IS NULL` รวมแถวในกรุ): ท่าของฉัน 300 · `place` 30 → เกิน = `limit_reached` (ADR 0004 ข้อ 4)
+- จำนวนสูงสุดต่อคน (นับเฉพาะแถวที่ใช้งาน: `deleted_at IS NULL AND archived_at IS NULL` · Lead ตัดสิน 2026-11-23 เพราะสถานที่ลบไม่ได้): ท่าของฉัน 300 · `place` 30 → เกิน = `limit_reached` (ADR 0004 ข้อ 4)
 
 **กติกาการเปลี่ยนแปลง**: ท่าเอง/สถานที่/เทมเพลตลบ = tombstone · ท่าเองที่มีประวัติลบไม่ได้ → `archived_at` · ท่าในคลังไม่เคยลบ (เลิกใช้ = `archived_at`) · ลบเซสชัน = tombstone เซสชัน + ลูกทั้งหมดใน transaction เดียว · ลำดับซ้ำกันได้ (สองเครื่อง) เรียงด้วย `position, completed_at, id`
 
