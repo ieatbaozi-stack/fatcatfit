@@ -22,6 +22,13 @@
       "when": 1795110329483,
       "tag": "0002_r1_5_app_admin",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795434014359,
+      "tag": "0003_r2_exercise",
+      "breakpoints": true
     }
   ]
 }
