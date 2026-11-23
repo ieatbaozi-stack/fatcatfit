@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CATEGORIES, EQUIPMENT, EXERCISE_LIMITS, LOAD_MODES, TRACK_TYPES, loadModeAllowed } from "./exercise-meta";
+import { CATEGORIES, EQUIPMENT, EXERCISE_LIMITS, LOAD_MODES, TRACK_TYPES, loadModeAllowed, stripControlChars } from "./exercise-meta";
 
 // รูปแบบบนสายของ POST /api/sync/push (ADR 0004 ข้อ 3–4) — ใช้ร่วมไคลเอนต์ (คิว/ฟอร์ม) กับเซิร์ฟเวอร์ (ตัดสินจริง)
 // R2 รับ entity `place` และ `exercise` เท่านั้น (R3 เพิ่ม) · ชื่อช่องบนสายเป็น snake_case · data = ทั้งแถว (ที่ไคลเอนต์ตั้งได้)
@@ -27,7 +27,11 @@ export type PushResponse = { results: PushResult[]; server_time: string };
 export const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 const uuid = z.string().regex(UUID_V4);
 const iso = z.iso.datetime();
-const name = z.string().trim().min(1).max(EXERCISE_LIMITS.nameMax);
+// ตัดอักขระควบคุม/bidi ก่อนตรวจความยาว
+const name = z
+  .string()
+  .transform(stripControlChars)
+  .pipe(z.string().trim().min(1).max(EXERCISE_LIMITS.nameMax));
 
 export const pushBodySchema = z.object({
   v: z.number().int().min(1),

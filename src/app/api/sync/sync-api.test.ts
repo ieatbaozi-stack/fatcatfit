@@ -4,7 +4,7 @@ import { createTestDb, type TestDb } from "@/db/testing/pglite";
 import { exercise, place, user } from "@/db/schema";
 import { inviteCookie, makeAuth, newInvite, otpSignIn, TEST_SECRET } from "@/lib/auth/testing";
 import { PRIVACY_NOTICE_VERSION } from "@/lib/data/shared/privacy";
-import { EXERCISE_LIMITS } from "@/lib/data/shared/exercise-meta";
+import { EXERCISE_LIMITS, isCatalogId } from "@/lib/data/shared/exercise-meta";
 
 let t: TestDb;
 vi.mock("@/db/client", () => ({ getDb: () => t.db }));
@@ -648,6 +648,106 @@ describe("รูปคำขอและนาฬิกา", () => {
       code: "bad_clock",
     });
     expect(await t.db.select().from(exercise).where(eq(exercise.id, far))).toHaveLength(0);
+  });
+});
+
+describe("เพดานรวม · ชื่อ · last_used_at · id คลัง v5", () => {
+  const ch = (n: number) => String.fromCharCode(n);
+
+  it("เพดานรวมทุกแถวที่เป็นเจ้าของ (รวมเก็บกรุ/tombstone): ท่า 2,000 · สถานที่ 200 → limit_reached", async () => {
+    const { c, id } = await readyUser("total-cap@example.com");
+    const now = new Date();
+    const old = new Date(now.getTime() - 60_000);
+    // ท่า: 2,000 แถวแต่ไม่มีที่ใช้งานอยู่เลย (เก็บกรุครึ่ง tombstone ครึ่ง) → เพดานใช้งานไม่โดน แต่เพดานรวมโดน
+    await t.db.insert(exercise).values(
+      Array.from({ length: EXERCISE_LIMITS.maxMyExercisesTotal }, (_, i) => ({
+        id: uuid(),
+        ownerUserId: id,
+        name: `T ${i}`,
+        trackType: "reps_only",
+        loadMode: "external",
+        isUnilateral: false,
+        category: "core",
+        archivedAt: i % 2 === 0 ? now : null,
+        deletedAt: i % 2 === 0 ? null : now,
+        createdAt: now,
+        updatedAt: now,
+        clientUpdatedAt: old,
+      })),
+    );
+    expect(await one(c, op("exercise", uuid(), "upsert", exData({ name: "new" })))).toMatchObject({ status: "rejected", code: "limit_reached" });
+    expect(
+      await one(c, op("exercise", uuid(), "upsert", exData({ name: "new archived", archived_at: ts(-10) }), ts(-10))),
+    ).toMatchObject({ code: "limit_reached" });
+
+    await t.db.insert(place).values(
+      Array.from({ length: EXERCISE_LIMITS.maxPlacesTotal - 1 }, (_, i) => ({
+        id: uuid(),
+        userId: id,
+        name: `Pl ${i}`,
+        archivedAt: i % 2 === 0 ? now : null,
+        deletedAt: i % 2 === 0 ? null : now,
+        createdAt: now,
+        updatedAt: now,
+        clientUpdatedAt: old,
+      })),
+    ); // + สถานที่จาก onboarding = 200 แถว มีใช้งานอยู่ 1
+    expect(await one(c, op("place", uuid(), "upsert", plData({ name: "p201" })))).toMatchObject({ status: "rejected", code: "limit_reached" });
+  });
+
+  it("ตัดอักขระควบคุมและ bidi ออกจากชื่อก่อนตรวจความยาว (ท่าและสถานที่)", async () => {
+    const { c } = await readyUser("ctrl@example.com");
+    const dirty = `a${ch(0)}b${ch(10)}c${ch(0x202e)}d${ch(0x202a)}${ch(0x2066)}e${ch(0x2069)}${ch(0x202c)}`;
+    const eid = uuid();
+    const pid = uuid();
+    expect((await one(c, op("exercise", eid, "upsert", exData({ name: dirty })))).status).toBe("applied");
+    expect((await one(c, op("place", pid, "upsert", plData({ name: dirty })))).status).toBe("applied");
+    expect((await t.db.select().from(exercise).where(eq(exercise.id, eid)))[0].name).toBe("abcde");
+    expect((await t.db.select().from(place).where(eq(place.id, pid)))[0].name).toBe("abcde");
+    // ชื่อที่เหลือว่างหลังตัด = invalid · ตัดก่อนนับ: 60 ตัวจริง + ตัวควบคุมอีก 20 ยังผ่าน
+    expect((await one(c, op("exercise", uuid(), "upsert", exData({ name: ch(0x202e) + ch(7) })))).code).toBe("invalid");
+    expect((await one(c, op("place", uuid(), "upsert", plData({ name: "x".repeat(60) + ch(0x202e).repeat(20) })))).status).toBe("applied");
+    expect((await one(c, op("place", uuid(), "upsert", plData({ name: "x".repeat(61) + ch(0) })))).code).toBe("invalid");
+    // ภาษาไทยไม่โดนตัด
+    const th = uuid();
+    await one(c, op("exercise", th, "upsert", exData({ name: "วิดพื้น เบ็นช์" })));
+    expect((await t.db.select().from(exercise).where(eq(exercise.id, th)))[0].name).toBe("วิดพื้น เบ็นช์");
+  });
+
+  it("place.last_used_at ล้ำอนาคต = ใช้เวลาเซิร์ฟเวอร์ · อดีตคงเดิม", async () => {
+    const { c } = await readyUser("lastused@example.com");
+    const pid = uuid();
+    const t0 = Date.now();
+    await one(c, op("place", pid, "upsert", plData({ name: "Future", last_used_at: ts(7 * 24 * 3600 * 1000) }), ts(-5000)));
+    let [row] = await t.db.select().from(place).where(eq(place.id, pid));
+    expect(row.lastUsedAt!.getTime()).toBeLessThan(t0 + 60_000);
+    expect(row.lastUsedAt!.getTime()).toBeGreaterThanOrEqual(t0 - 1000);
+    // ตอน update ก็ clamp
+    await one(c, op("place", pid, "upsert", plData({ name: "Future", last_used_at: ts(3600 * 1000) }), ts(-4000)));
+    [row] = await t.db.select().from(place).where(eq(place.id, pid));
+    expect(row.lastUsedAt!.getTime()).toBeLessThan(Date.now() + 1000);
+    const past = ts(-86_400_000);
+    await one(c, op("place", pid, "upsert", plData({ name: "Past", last_used_at: past }), ts(-3000)));
+    [row] = await t.db.select().from(place).where(eq(place.id, pid));
+    expect(row.lastUsedAt!.toISOString()).toBe(past);
+  });
+
+  it("id ท่าคลังเป็น UUID v5: catalog/bootstrap ส่งผ่านตามเดิม · push ด้วย v5 ไม่รับ (invalid) · isCatalogId แยก v4/v5", async () => {
+    const V5 = "886313e1-3b8a-5372-9b90-0c9aee199e5d";
+    const { c } = await readyUser("v5@example.com");
+    await t.db.insert(exercise).values(centralRow(V5, "V5 Move", { updatedAt: new Date("2026-03-01T00:00:00Z") }));
+    try {
+      const cat = await (await catalogGet(req("GET", "/api/catalog", c))).json();
+      expect(cat.exercises.map((e: { id: string }) => e.id)).toContain(V5);
+      expect(await one(c, op("exercise", V5, "upsert", exData(), ts(-10)))).toMatchObject({ status: "rejected", code: "invalid" });
+      expect(await one(c, op("exercise", V5, "delete", null))).toMatchObject({ status: "rejected", code: "invalid" });
+      expect((await t.db.select().from(exercise).where(eq(exercise.id, V5)))[0].name).toBe("V5 Move");
+    } finally {
+      await t.db.delete(exercise).where(eq(exercise.id, V5));
+    }
+    expect(isCatalogId(V5)).toBe(true);
+    expect(isCatalogId(uuid())).toBe(false);
+    expect(isCatalogId(undefined)).toBe(false);
   });
 });
 

@@ -31,6 +31,11 @@ const applied: Outcome = { status: "applied" };
 const stale: Outcome = { status: "stale" };
 const reject = (code: PushRejectCode): Outcome => ({ status: "rejected", code });
 const toDate = (s: string | null | undefined) => (s ? new Date(s) : null);
+/** เวลาที่ไคลเอนต์ส่งมา (last_used_at) ห้ามล้ำเวลาเซิร์ฟเวอร์ — ใช้เวลาเซิร์ฟเวอร์แทน */
+const toDateClamped = (s: string | null | undefined, now: Date) => {
+  const d = toDate(s);
+  return d && d.getTime() > now.getTime() ? now : d;
+};
 
 export async function pushOps(db: AppDb, userId: string, body: unknown, now: Date): Promise<PushResponse> {
   const parsed = pushBodySchema.safeParse(body);
@@ -84,6 +89,12 @@ async function applyPlace(tx: Tx, me: string, o: PushOp, ts: Date, now: Date): P
   if (ex && ex.userId !== me) return reject("id_conflict");
   if (ex && (ex.deletedAt || ex.clientUpdatedAt.getTime() > ts.getTime())) return stale;
 
+  // เพดานรวมทุกแถวที่เป็นเจ้าของ (รวมเก็บกรุ/tombstone) กันสแปมแถว
+  if (!ex) {
+    const [{ n }] = await tx.select({ n: count() }).from(place).where(eq(place.userId, me));
+    if (n >= EXERCISE_LIMITS.maxPlacesTotal) return reject("limit_reached");
+  }
+
   // เก็บเข้ากรุได้ต่อเมื่อยังมีสถานที่อื่นที่ใช้งานอยู่อย่างน้อย 1 แห่ง
   const resultingArchived = data.archived_at !== undefined ? toDate(data.archived_at) : (ex?.archivedAt ?? null);
   if (resultingArchived) {
@@ -109,7 +120,7 @@ async function applyPlace(tx: Tx, me: string, o: PushOp, ts: Date, now: Date): P
       id: o.id,
       userId: me,
       name: data.name,
-      lastUsedAt: toDate(data.last_used_at),
+      lastUsedAt: toDateClamped(data.last_used_at, now),
       archivedAt: toDate(data.archived_at),
       createdAt: now,
       updatedAt: now,
@@ -120,7 +131,7 @@ async function applyPlace(tx: Tx, me: string, o: PushOp, ts: Date, now: Date): P
       // ช่องที่ไม่ได้ส่ง = คงค่าเดิม
       set: {
         name: data.name,
-        ...(data.last_used_at !== undefined ? { lastUsedAt: toDate(data.last_used_at) } : {}),
+        ...(data.last_used_at !== undefined ? { lastUsedAt: toDateClamped(data.last_used_at, now) } : {}),
         ...(data.archived_at !== undefined ? { archivedAt: toDate(data.archived_at) } : {}),
         updatedAt: now,
         clientUpdatedAt: ts,
@@ -160,6 +171,12 @@ async function applyExercise(tx: Tx, me: string, o: PushOp, ts: Date, now: Date)
 
   if (ex && (ex.deletedAt || ex.clientUpdatedAt.getTime() > ts.getTime())) return stale;
   // R3: ท่าที่มีเซ็ตแล้ว เปลี่ยน track_type/load_mode ไม่ได้ (exercise_has_history)
+
+  // เพดานรวมทุกแถวที่เป็นเจ้าของ (รวมเก็บกรุ/tombstone) กันสแปมแถว
+  if (!ex) {
+    const [{ n }] = await tx.select({ n: count() }).from(exercise).where(eq(exercise.ownerUserId, me));
+    if (n >= EXERCISE_LIMITS.maxMyExercisesTotal) return reject("limit_reached");
+  }
 
   // ขีดจำกัดนับเฉพาะท่าที่ใช้งานอยู่ (ไม่ลบ ไม่เก็บเข้ากรุ) · สร้างท่าใช้งานใหม่ หรือเอาออกจากกรุ ตอนเต็ม = limit_reached
   const resultingArchived = data.archived_at !== undefined ? toDate(data.archived_at) : (ex?.archivedAt ?? null);

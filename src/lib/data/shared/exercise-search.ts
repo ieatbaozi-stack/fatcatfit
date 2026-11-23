@@ -34,26 +34,32 @@ export function normalizeQuery(text: string): string {
   return prepare(text).s;
 }
 
-/** อันดับของข้อความหนึ่งกับคำค้น: 0 ขึ้นต้น · 1 ขึ้นต้นคำ · 2 กลางคำ · null ไม่เจอ */
+/**
+ * อันดับของข้อความหนึ่งกับคำค้น (น้อย = ดี): 1 คำค้นคือคำท้ายของชื่อ (หัวนาม เช่น "Barbell Squat" ← squat) ·
+ * 2 ขึ้นต้นข้อความ · 3 ขึ้นต้นคำ · 4 กลางคำ · null ไม่เจอ (0 = ตรงทั้งชื่อ ตัดสินแยกใน rankExercise)
+ */
 function rankText(text: string | null | undefined, q: string): number | null {
   if (!text) return null;
   const { s, starts } = prepare(text);
+  if (s.length > q.length && s.endsWith(q) && starts.has(s.length - q.length)) return 1;
   let best: number | null = null;
   for (let i = s.indexOf(q); i !== -1; i = s.indexOf(q, i + 1)) {
-    const r = i === 0 ? 0 : starts.has(i) ? 1 : 2;
+    const r = i === 0 ? 2 : starts.has(i) ? 3 : 4;
     if (best === null || r < best) best = r;
-    if (r === 0) break;
+    if (r === 2) break;
   }
   return best;
 }
 
 export function rankExercise(e: SearchableExercise, q: string): number | null {
+  // ตรงทั้งชื่อ (อังกฤษหรือไทย) = อันดับ 0
+  if (prepare(e.name).s === q || (e.name_th && prepare(e.name_th).s === q)) return 0;
   const fields: Array<string | null | undefined> = [e.name, e.name_th, ...(e.search_terms ? e.search_terms.split(SEARCH_TERMS_SEPARATOR) : [])];
   let best: number | null = null;
   for (const f of fields) {
     const r = rankText(f, q);
     if (r !== null && (best === null || r < best)) best = r;
-    if (best === 0) break;
+    if (best === 1) break;
   }
   return best;
 }
@@ -82,6 +88,7 @@ export function searchExercises<T extends SearchableExercise>(items: readonly T[
     (a, b) =>
       a.rank - b.rank ||
       Number(b.e.owner_user_id !== null) - Number(a.e.owner_user_id !== null) ||
+      a.e.name.length - b.e.name.length ||
       collator.compare(a.e.name, b.e.name) ||
       (a.e.id < b.e.id ? -1 : a.e.id > b.e.id ? 1 : 0),
   );

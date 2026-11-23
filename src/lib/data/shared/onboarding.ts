@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { stripControlChars } from "./exercise-meta";
 import { heightToMeters, weightToKg } from "./units";
 
 // แบบสอบถามเริ่มต้น (R1 · UX E1 ข้อ 3) — schema + ช่วงค่าที่ใช้ร่วมไคลเอนต์ (แสดงข้อความใต้ช่อง) และเซิร์ฟเวอร์ (ตัดสินจริง)
@@ -43,7 +44,10 @@ export const onboardingSchema = z.object({
     goals: z.array(z.enum(GOALS)).max(ONBOARDING_LIMITS.maxGoals),
     experience: z.enum(EXPERIENCES).nullable().optional(),
   }),
-  place: z.object({ id: uuid, name: z.string().trim().min(1).max(ONBOARDING_LIMITS.placeNameMax) }),
+  place: z.object({
+    id: uuid,
+    name: z.string().transform(stripControlChars).pipe(z.string().trim().min(1).max(ONBOARDING_LIMITS.placeNameMax)),
+  }),
   bodyEntry: z.object({
     id: uuid,
     weight: z.object({ value: finite, unit: z.enum(["kg", "lb"]) }),

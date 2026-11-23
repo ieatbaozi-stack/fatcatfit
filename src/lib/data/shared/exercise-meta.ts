@@ -43,7 +43,19 @@ export const EXERCISE_LIMITS = {
   maxMyExercises: 300,
   /** สถานที่ต่อคน (D7) — นับเฉพาะแถวที่ใช้งานอยู่ (ไม่ลบ ไม่เก็บเข้ากรุ) */
   maxPlaces: 30,
+  /** เพดานที่สองกันสแปมแถว: นับทุกแถวที่ผู้ใช้เป็นเจ้าของ รวมเก็บเข้ากรุและ tombstone (security M2) */
+  maxMyExercisesTotal: 2000,
+  maxPlacesTotal: 200,
 } as const;
+
+/** id ของท่าคลังกลางเป็น UUID v5 จาก namespace ตายตัว (ไคลเอนต์ push ไม่ได้ — push รับเฉพาะ v4) · R3: exercise_id ที่อ้างคลังใช้ตัวนี้ตรวจ */
+export const CATALOG_ID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+export const isCatalogId = (v: unknown): v is string => typeof v === "string" && CATALOG_ID_REGEX.test(v);
+
+/** ตัดอักขระควบคุม (\p{Cc}) และตัวควบคุมทิศทางข้อความ U+202A–202E, U+2066–2069 ออกจากชื่อที่ผู้ใช้พิมพ์ (security L2) */
+const ch = (code: number) => String.fromCharCode(code);
+const CONTROL_CHARS = new RegExp(`[\\p{Cc}${ch(0x202a)}-${ch(0x202e)}${ch(0x2066)}-${ch(0x2069)}]`, "gu");
+export const stripControlChars = (s: string): string => s.replace(CONTROL_CHARS, "");
 
 /** คำค้นของแถวคลังคั่นด้วยตัวนี้ในคอลัมน์ `search_terms` (ADR 0003: ไม่ใช้ JSON) */
 export const SEARCH_TERMS_SEPARATOR = "|";

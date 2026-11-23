@@ -58,9 +58,26 @@ describe("searchExercises", () => {
   it('"แบด" → แบดมินตัน', () => {
     expect(names(searchExercises(catalog, "แบด"))).toEqual(["Badminton"]);
   });
-  it("ขึ้นต้นชื่อ > ขึ้นต้นคำ > กลางคำ", () => {
+  it("คำท้ายชื่อ > ขึ้นต้นชื่อ > ขึ้นต้นคำ > กลางคำ", () => {
     const list = [ex("Cable Row", null, null, { name_th: "เคเบิลโรว์" }), ex("Rowing", "พาย", null), ex("Arrow", "y", null)];
-    expect(names(searchExercises(list, "row"))).toEqual(["Rowing", "Cable Row", "Arrow"]);
+    expect(names(searchExercises(list, "row"))).toEqual(["Cable Row", "Rowing", "Arrow"]);
+  });
+  it("ตรงทั้งชื่อ (อังกฤษ/ไทย) ขึ้นก่อน · แล้วชื่อสั้นกว่า · แล้วตัวอักษร (ชื่อจริงในคลัง)", () => {
+    const real = [
+      ex("Drop Push", "ดรอปพุช (วิดพื้นหย่อนลงระหว่างกล่อง)", "วิดพื้นกล่อง|plyo pushup box"),
+      ex("Pushups", "วิดพื้น", "พุชอัพ|ดันพื้น|push up"),
+      ex("Squat Jerk", "สควอทเจิร์ก", "สควอตเจิร์ก"),
+      ex("Barbell Squat", "บาร์เบลสควอท", "สควอทหลัง|back squat"),
+      ex("Deadlift with Bands", "เดดลิฟต์ ใช้ยางยืด", "เดดลิฟท์ ใช้แบนด์"),
+      ex("Barbell Deadlift", "บาร์เบลเดดลิฟต์", "เดดลิฟ|ยกเดดลิฟ"),
+    ];
+    expect(names(searchExercises(real, "วิดพื้น"))[0]).toBe("Pushups");
+    expect(names(searchExercises(real, "pushups"))[0]).toBe("Pushups");
+    expect(names(searchExercises(real, "squat"))).toEqual(["Barbell Squat", "Squat Jerk"]);
+    expect(names(searchExercises(real, "deadlift"))[0]).toBe("Barbell Deadlift");
+    // เสมอกัน: สั้นกว่าก่อน แล้วตัวอักษร
+    const tie = [ex("Zzz Press", null, null), ex("Aaa Press", null, null), ex("Press Up Long Name", null, null), ex("Press Up", null, null)];
+    expect(names(searchExercises(tie, "press"))).toEqual(["Aaa Press", "Zzz Press", "Press Up", "Press Up Long Name"]);
   });
   it("ท่าของฉันที่ตรงเท่ากันขึ้นก่อนคลัง", () => {
     const mine = ex("Bench Press Custom", "ของฉัน", null, { owner_user_id: "11111111-1111-4111-8111-111111111111" });
