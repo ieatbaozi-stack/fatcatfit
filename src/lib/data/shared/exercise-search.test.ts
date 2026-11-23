@@ -58,7 +58,7 @@ describe("searchExercises", () => {
   it('"แบด" → แบดมินตัน', () => {
     expect(names(searchExercises(catalog, "แบด"))).toEqual(["Badminton"]);
   });
-  it("คำท้ายชื่อ > ขึ้นต้นชื่อ > ขึ้นต้นคำ > กลางคำ", () => {
+  it("คำที่ 0 > คำถัดไป > กลางคำ (ตัดคำอุปกรณ์หน้าชื่อก่อนนับ)", () => {
     const list = [ex("Cable Row", null, null, { name_th: "เคเบิลโรว์" }), ex("Rowing", "พาย", null), ex("Arrow", "y", null)];
     expect(names(searchExercises(list, "row"))).toEqual(["Cable Row", "Rowing", "Arrow"]);
   });
@@ -74,10 +74,11 @@ describe("searchExercises", () => {
     expect(names(searchExercises(real, "วิดพื้น"))[0]).toBe("Pushups");
     expect(names(searchExercises(real, "pushups"))[0]).toBe("Pushups");
     expect(names(searchExercises(real, "squat"))).toEqual(["Barbell Squat", "Squat Jerk"]);
+    expect(names(searchExercises(real, "deadlift"))).toEqual(["Barbell Deadlift", "Deadlift with Bands"]);
     expect(names(searchExercises(real, "deadlift"))[0]).toBe("Barbell Deadlift");
     // เสมอกัน: สั้นกว่าก่อน แล้วตัวอักษร
     const tie = [ex("Zzz Press", null, null), ex("Aaa Press", null, null), ex("Press Up Long Name", null, null), ex("Press Up", null, null)];
-    expect(names(searchExercises(tie, "press"))).toEqual(["Aaa Press", "Zzz Press", "Press Up", "Press Up Long Name"]);
+    expect(names(searchExercises(tie, "press"))).toEqual(["Press Up", "Press Up Long Name", "Aaa Press", "Zzz Press"]);
   });
   it("ท่าของฉันที่ตรงเท่ากันขึ้นก่อนคลัง", () => {
     const mine = ex("Bench Press Custom", "ของฉัน", null, { owner_user_id: "11111111-1111-4111-8111-111111111111" });
