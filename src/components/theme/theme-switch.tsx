@@ -27,7 +27,7 @@ function getSnapshot(): ThemePref {
   }
 }
 
-/** ตัวสลับโหมด: ตามระบบ / สว่าง / มืด · จำใน localStorage */
+/** ตัวสลับโหมด: ตามระบบ / สว่าง / มืด · จำใน localStorage (CR4 Studio Minimal: แถบ segmented สะอาด) */
 export function ThemeSwitch() {
   const t = useTranslations("me.theme");
   const current = useSyncExternalStore(subscribe, getSnapshot, () => "system" as ThemePref);

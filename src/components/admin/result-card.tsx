@@ -59,7 +59,7 @@ export function ResultCard({
 
   return (
     <section aria-labelledby="invite-result-title" className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3 rounded-hand border-draw border-ink p-4">
+      <div className="flex flex-col gap-3 rounded-card border border-line-strong bg-paper-2 p-5">
         <h2 id="invite-result-title" ref={heading} tabIndex={-1} className="text-section">
           {t("result.title")}
         </h2>
@@ -83,14 +83,14 @@ export function ResultCard({
           <Button onClick={() => void copy(message, t("toast.messageCopied"))}>{t("result.copyMessage")}</Button>
         )}
         <div className="grid grid-cols-2 gap-3">
-          <Button className="font-normal" onClick={() => void copy(link, t("toast.linkCopied"))}>
+          <Button variant="tonal" onClick={() => void copy(link, t("toast.linkCopied"))}>
             {t("result.copyLink")}
           </Button>
-          <Button className="font-normal" onClick={() => void copy(invite.code, t("toast.codeCopied"))}>
+          <Button variant="tonal" onClick={() => void copy(invite.code, t("toast.codeCopied"))}>
             {t("result.copyCode")}
           </Button>
         </div>
-        <TextButton className="self-center" disabled={!online} onClick={onAnother}>
+        <TextButton className="w-full" disabled={!online} onClick={onAnother}>
           {t("result.another")}
         </TextButton>
       </div>

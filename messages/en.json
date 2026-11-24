@@ -79,7 +79,7 @@
       "title": "Typography",
       "page": "Page title 28px",
       "section": "Section title 20px",
-      "body": "Body text 16px, weight 300, with generous line height for Thai tone marks",
+      "body": "Body text 16px, weight 400, with generous line height for Thai tone marks",
       "caption": "Secondary text 14px",
       "numeral": "Numbers 62.5 kg use equal-width digits",
       "handSample": "new record · rest day",
@@ -107,7 +107,7 @@
       "notSelected": "Not selected"
     },
     "divider": {
-      "title": "Hand-drawn dividers"
+      "title": "Dividers"
     },
     "tick": {
       "title": "Set tick button",

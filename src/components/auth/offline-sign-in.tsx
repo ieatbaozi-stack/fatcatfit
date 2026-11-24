@@ -32,7 +32,7 @@ export function OfflineSignIn() {
 export function OfflineBar() {
   const t = useTranslations("offline");
   return (
-    <div role="status" className="mb-4 rounded-box border-draw-thin border-ink px-3 py-1.5 text-caption text-ink">
+    <div role="status" className="mb-4 rounded-hand border border-line-strong bg-paper-2 px-3.5 py-2 text-caption font-medium text-ink">
       {t("bar")}
     </div>
   );

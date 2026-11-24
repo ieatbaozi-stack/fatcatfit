@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button, TextButton } from "@/components/ui/button";
+import { LoadingDots } from "@/components/ui/loading-dots";
 import { sendOtp, verifyOtp } from "./api";
 import { formatMmSs, useCountdown } from "./countdown";
 import { useNet } from "./use-net";
@@ -100,14 +101,14 @@ export function OtpPanel({ email, onChangeEmail, hasGoogle }: { email: string; o
 
   return (
     <div className="flex flex-1 flex-col">
-      <TextButton className="-ml-3 self-start" disabled={verifying} onClick={onChangeEmail}>
+      <TextButton className="self-start" disabled={verifying} onClick={onChangeEmail}>
         {t("back")}
       </TextButton>
-      <h1 className="mt-2 text-page">{t("title")}</h1>
+      <h1 className="mt-4 text-page">{t("title")}</h1>
       <p className="mt-1 text-body text-ink-2">{t("sentTo", { email })}</p>
 
       <div className="mt-8">
-        <label htmlFor="otp-input" className="block text-caption text-ink-3">
+        <label htmlFor="otp-input" className="block text-caption font-medium text-ink-2">
           {t("label")}
         </label>
         <input
@@ -126,19 +127,20 @@ export function OtpPanel({ email, onChangeEmail, hasGoogle }: { email: string; o
           aria-invalid={error && error.kind !== "rate_limited" ? true : undefined}
           aria-describedby={message ? "otp-message" : undefined}
           placeholder="••••••"
-          className="num mt-1 min-h-16 w-full rounded-underline border-0 border-b-2 border-ink bg-transparent text-center text-numeral-lg tracking-[0.4em] placeholder:font-light placeholder:text-ink-3 disabled:opacity-50"
+          className="num mt-2 min-h-16 w-full rounded-hand border border-line-strong bg-paper-2 px-4 text-center text-numeral-lg tracking-[0.4em] placeholder:font-normal placeholder:text-ink-3 transition-colors duration-150 focus:border-ink focus:bg-paper disabled:opacity-50"
         />
         <p id="otp-message" role="alert" className="mt-2 min-h-6 text-caption text-warn">
           {message}
         </p>
         {verifying ? (
-          <p role="status" className="text-caption text-ink-3">
-            {t("verifying")}
+          <p role="status" className="inline-flex items-center gap-2 text-caption text-ink-2">
+            <span>{t("verifying")}</span>
+            <LoadingDots size="sm" />
           </p>
         ) : null}
       </div>
 
-      <div className="mt-auto flex flex-col items-stretch gap-1 pt-8">
+      <div className="mt-auto flex flex-col items-stretch gap-2 pt-8">
         <Button disabled={!canResend} loading={resending} onClick={() => void resend()}>
           {resending ? w("email.sending") : wait > 0 ? t("resendIn", { time: formatMmSs(wait) }) : t("resend")}
         </Button>

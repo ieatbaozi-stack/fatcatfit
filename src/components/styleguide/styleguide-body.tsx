@@ -6,9 +6,9 @@ import { Cat } from "@/components/doodle";
 import { Button, TextButton } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { cx } from "@/components/ui/cx";
+import { Divider } from "@/components/ui/divider";
 import { HandWord } from "@/components/ui/hand-word";
 import { NumberInput } from "@/components/ui/number-input";
-import { Squiggle } from "@/components/ui/squiggle";
 import { TickButton } from "@/components/ui/tick-button";
 
 // class เขียนตรงๆ ทั้งหมด เพื่อให้ Tailwind สแกนเจอ
@@ -98,7 +98,7 @@ export function StyleguideBody() {
         <ul className="m-0 grid list-none grid-cols-1 gap-3 p-0">
           {COLORS.map((c, i) => (
             <li key={c.token} className="flex items-center gap-4">
-              <span className={cx("size-12 flex-none rounded-blob border-draw-thin border-ink", c.swatch)} />
+              <span className={cx("size-12 flex-none rounded-box border border-line-strong", c.swatch)} />
               <span className="flex min-w-0 flex-col">
                 <span className="text-body font-medium text-ink">
                   --{c.token} <span className="num text-caption font-normal text-ink-3">{values[i] ?? ""}</span>
@@ -111,10 +111,10 @@ export function StyleguideBody() {
       </Section>
 
       <Section title={t("type.title")}>
-        <p className="text-page font-medium text-ink">{t("type.page")}</p>
-        <p className="text-section font-medium text-ink">{t("type.section")}</p>
-        <p className="text-body font-light text-ink-2">{t("type.body")}</p>
-        <p className="text-caption font-light text-ink-3">{t("type.caption")}</p>
+        <p className="text-page font-semibold text-ink">{t("type.page")}</p>
+        <p className="text-section font-semibold text-ink">{t("type.section")}</p>
+        <p className="text-body font-normal text-ink-2">{t("type.body")}</p>
+        <p className="text-caption font-normal text-ink-3">{t("type.caption")}</p>
         <p className="num text-numeral">{t("type.numeral")}</p>
         <div className="flex flex-col gap-1">
           <HandWord className="text-hand">{t("type.handSample")}</HandWord>
@@ -173,10 +173,7 @@ export function StyleguideBody() {
       </Section>
 
       <Section title={t("divider.title")}>
-        {[0, 1, 2, 3].map((v) => (
-          <Squiggle key={v} variant={v} />
-        ))}
-        <Squiggle variant={2} tone="muted" />
+        <Divider className="my-2" />
       </Section>
 
       <Section title={t("tick.title")}>
