@@ -9,7 +9,7 @@ import "./globals.css";
 // ฟอนต์ self-host ตอน build (next/font) — ไม่เรียก CDN ตอนใช้งาน ใช้ออฟไลน์ได้
 const notoSansThai = Noto_Sans_Thai({
   subsets: ["thai", "latin"],
-  weight: ["300", "400", "500"],
+  weight: ["400", "500", "600"],
   variable: "--font-noto-sans-thai",
   display: "swap",
 });
@@ -53,12 +53,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <NextIntlClientProvider>
           <a
             href="#main"
-            className="sr-only rounded-hand border-draw border-ink bg-paper px-4 py-2 text-ink focus:not-sr-only focus:fixed focus:top-3 focus:left-5 focus:z-20"
+            className="sr-only rounded-hand border border-line-strong bg-surface-3 px-4 py-2 text-ink shadow-elevated focus:not-sr-only focus:fixed focus:top-3 focus:left-5 focus:z-20"
           >
             {t("skipToContent")}
           </a>
           <div className="mx-auto flex min-h-dvh w-full max-w-120 flex-col px-5">
-            <main id="main" className="flex flex-1 flex-col pt-8 pb-8">
+            <main id="main" className="flex flex-1 flex-col pt-7 pb-8">
               {children}
             </main>
           </div>

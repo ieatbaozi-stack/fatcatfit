@@ -8,9 +8,8 @@ const FOCUSABLE = "button:not(:disabled), a[href], input:not(:disabled), select:
 const DRAG_CLOSE_PX = 80;
 
 /**
- * แผ่นล่างแบบ modal (UX 12.3/12.7): พื้นมืด · focus ถูกขังในแผ่น · Esc/แตะพื้นมืด/ลากลง = ปิด · ปิดแล้ว focus กลับที่เดิม
- * focus เริ่มที่ปุ่ม/ช่องแรกที่มี `data-autofocus` (ไม่มี = ตัวแผ่นเอง) · busy = ปิดไม่ได้ระหว่างส่ง
- * ให้ผู้เรียก render แผ่นเฉพาะตอนเปิด (mount = เปิด · unmount = ปิด)
+ * แผ่นล่างแบบ modal (CR4 Studio Minimal · UX 12.3/12.7):
+ * พื้น surface-3 ยกชั้นชัด · ขอบบาง 1px · เงาอ่อน · focus ถูกขังในแผ่น · Esc/แตะพื้นมืด/ลากลง = ปิด
  */
 export function Sheet({ titleId, onClose, busy = false, children, className }: { titleId: string; onClose: () => void; busy?: boolean; children: ReactNode; className?: string }) {
   const dialog = useRef<HTMLDivElement>(null);
@@ -63,7 +62,7 @@ export function Sheet({ titleId, onClose, busy = false, children, className }: {
         tabIndex={-1}
         style={kb > 0 ? { bottom: kb } : undefined}
         className={cx(
-          "pb-safe absolute inset-x-3 mx-auto flex max-h-9/10 max-w-114 flex-col gap-3 overflow-y-auto rounded-hand border-draw border-ink bg-paper p-5 outline-none",
+          "pb-safe absolute inset-x-3 mx-auto flex max-h-9/10 max-w-114 flex-col gap-3.5 overflow-y-auto rounded-sheet border border-line-strong bg-surface-3 p-5 shadow-elevated outline-none",
           kb > 0 ? "bottom-0" : "bottom-3",
           className,
         )}
@@ -82,7 +81,7 @@ export function Sheet({ titleId, onClose, busy = false, children, className }: {
             if (from !== null && e.clientY - from > DRAG_CLOSE_PX && !busy) onClose();
           }}
         >
-          <span className="mt-1 h-1 w-10 rounded-hand bg-ink-3" />
+          <span className="mt-1 h-1 w-9 rounded-full bg-line-strong" />
         </div>
         {children}
       </div>
