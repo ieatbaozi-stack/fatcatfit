@@ -296,19 +296,29 @@ export type WireSession = {
   exercises: WireSessionExercise[];
 };
 
-/** ตัววัดสถิติต่อท่า (contract D3 · ไม่รวมวอร์มอัพ/ที่ลบ) — ตัววัดที่ไม่เกี่ยวกับชนิดของท่า = null หรือ [] */
+/**
+ * ตัววัดสถิติต่อท่า (contract D3 · ADR 0003 ข้อ 4) จากเซ็ต normal ที่ไม่ลบของเซสชันที่จบแล้ว — ตัววัดที่ไม่เกี่ยวกับชนิดของท่า = null หรือ []
+ * รายการ `*_at_*` เป็น Pareto frontier (จุดที่ไม่ถูกข่ม) ไม่ใช่เลขเดียว
+ */
 export type ExerciseBests = {
+  /** weight_reps external · weight_duration */
   max_weight_kg: number | null;
+  /** reps_only */
   max_reps: number | null;
-  /** weight_reps: ครั้งมากสุดต่อน้ำหนัก (ไว้เทียบ "ครั้งมากสุดที่น้ำหนักเท่าเดิมหรือมากกว่า") */
+  /** weight_reps: ครั้งมากสุดที่น้ำหนัก ≥ เดิม (external/bodyweight_plus: weight_kg = น้ำหนักถ่วง null นับ 0 · assisted: weight_kg = น้ำหนักช่วย ทิศทาง ≤) */
   reps_at_weight: { weight_kg: number; reps: number }[];
+  /** bodyweight_plus */
   max_extra_weight_kg: number | null;
+  /** assisted */
   min_assist_kg: number | null;
+  /** duration · weight_duration · distance_duration */
   max_duration_s: number | null;
+  /** weight_duration: เวลามากสุดที่น้ำหนัก ≥ เดิม */
+  duration_at_weight: { weight_kg: number; duration_s: number }[];
   max_distance_m: number | null;
-  /** วินาทีต่อเมตร ต่ำสุด · เฉพาะเซ็ตระยะ ≥ 1 km */
-  best_pace_s_per_m: number | null;
-  /** ลู่วิ่ง: เวลานานสุดต่อความชัน */
+  /** วินาทีต่อ km ต่ำสุด · เฉพาะเซ็ตระยะ ≥ 1,000 m */
+  best_pace_s_per_km: number | null;
+  /** incline_speed_duration: เวลามากสุดที่ความชัน ≥ เดิม */
   duration_at_incline: { incline_pct: number; duration_s: number }[];
 };
 
