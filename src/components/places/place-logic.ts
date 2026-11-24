@@ -54,6 +54,7 @@ export function buildPlaceRow(args: { id: string; base: WirePlace | null; name: 
     id: args.id,
     name: args.name.trim(),
     map_url: args.mapUrl !== undefined ? args.mapUrl : (args.base?.map_url ?? null),
+    has_sessions: args.base?.has_sessions ?? false,
     last_used_at: args.lastUsedAt !== undefined ? args.lastUsedAt : (args.base?.last_used_at ?? null),
     archived_at: args.archivedAt !== undefined ? args.archivedAt : (args.base?.archived_at ?? null),
     created_at: args.base?.created_at ?? args.now,

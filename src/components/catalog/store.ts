@@ -90,10 +90,12 @@ function patchBootstrap(fn: (b: BootstrapResponse) => BootstrapResponse): void {
 }
 
 export function upsertMyExercise(row: WireExercise): void {
-  patchBootstrap((b) => ({
-    ...b,
-    my_exercises: b.my_exercises.some((e) => e.id === row.id) ? b.my_exercises.map((e) => (e.id === row.id ? row : e)) : [...b.my_exercises, row],
-  }));
+  patchBootstrap((b) => {
+    // has_history (R3) มาจากเซิร์ฟเวอร์: แถวที่ประกอบในเครื่องคงค่าเดิมของแถวนั้น · แถวใหม่ = false
+    const prev = b.my_exercises.find((e) => e.id === row.id);
+    const next = { has_history: prev?.has_history ?? false, ...row };
+    return { ...b, my_exercises: prev ? b.my_exercises.map((e) => (e.id === row.id ? next : e)) : [...b.my_exercises, next] };
+  });
 }
 
 export function removeMyExercise(id: string): void {
