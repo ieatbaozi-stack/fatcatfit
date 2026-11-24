@@ -59,9 +59,18 @@ describe("Chip", () => {
   it("สะท้อนสถานะด้วย aria-pressed (ไม่ใช้สีอย่างเดียว)", () => {
     const { rerender } = render(<Chip pressed={false}>ฟิตเนส</Chip>);
     expect(screen.getByRole("button").getAttribute("aria-pressed")).toBe("false");
+    expect(screen.getByRole("button").className).toContain("bg-paper-2");
     rerender(<Chip pressed>ฟิตเนส</Chip>);
     expect(screen.getByRole("button").getAttribute("aria-pressed")).toBe("true");
     expect(screen.getByRole("button").className).toContain("bg-ink");
+  });
+  it("surface=card ยกชั้นพื้นชิปที่ไม่ได้เลือกเป็น bg-surface-2", () => {
+    render(
+      <Chip pressed={false} surface="card">
+        มืด
+      </Chip>,
+    );
+    expect(screen.getByRole("button").className).toContain("bg-surface-2");
   });
 });
 

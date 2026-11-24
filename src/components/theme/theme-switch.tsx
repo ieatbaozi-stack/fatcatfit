@@ -47,7 +47,7 @@ export function ThemeSwitch() {
   return (
     <div role="group" aria-label={t("label")} className="flex flex-wrap gap-2">
       {THEME_PREFS.map((pref) => (
-        <Chip key={pref} pressed={current === pref} onClick={() => choose(pref)}>
+        <Chip key={pref} pressed={current === pref} surface="card" onClick={() => choose(pref)}>
           {t(pref)}
         </Chip>
       ))}
