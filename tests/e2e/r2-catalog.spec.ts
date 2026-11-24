@@ -421,10 +421,14 @@ test.describe("R2 UI · จอ 360 px", () => {
     await save.dblclick();
     await expect(page.getByRole("status").filter({ hasText: msg(l, "toast.saved") })).toBeVisible();
     await expect(page).toHaveURL(/\/me\/exercises\?q=/);
-    const rows = await sql<{ id: string; track_type: string; load_mode: string; is_unilateral: boolean; category: string }>(
-      `select id, track_type, load_mode, is_unilateral, category from exercise where owner_user_id = $1 and deleted_at is null`,
-      [uid],
-    );
+    // R3a: หน้าจอเขียนผ่านคิวในเครื่อง (ส่งหลัง ~1.5 วิ) → รอให้ขึ้นเซิร์ฟเวอร์
+    const mine = () =>
+      sql<{ id: string; track_type: string; load_mode: string; is_unilateral: boolean; category: string }>(
+        `select id, track_type, load_mode, is_unilateral, category from exercise where owner_user_id = $1 and deleted_at is null`,
+        [uid],
+      );
+    await expect.poll(async () => (await mine()).length).toBe(1);
+    const rows = await mine();
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ track_type: "weight_reps", load_mode: "bodyweight_plus", is_unilateral: true, category: "legs" });
     const myId = rows[0].id;
@@ -445,7 +449,7 @@ test.describe("R2 UI · จอ 360 px", () => {
     await page.getByLabel(msg(l, "exerciseForm.name")).fill(renamed);
     await page.getByRole("button", { name: msg(l, "exerciseForm.save") }).click();
     await expect(page.getByRole("status").filter({ hasText: msg(l, "toast.saved") })).toBeVisible();
-    expect((await sql<{ name: string }>(`select name from exercise where id = $1`, [myId]))[0].name).toBe(renamed);
+    await expect.poll(async () => (await sql<{ name: string }>(`select name from exercise where id = $1`, [myId]))[0].name).toBe(renamed);
 
     // เก็บเข้ากรุ → ค้นไม่เจอ → เลิกทำจาก toast → เจออีก
     await results(page, l).getByRole("link", { name: new RegExp(renamed) }).click();
@@ -474,9 +478,9 @@ test.describe("R2 UI · จอ 360 px", () => {
     await page.getByRole("dialog").getByRole("button", { name: msg(l, "exerciseForm.deleteConfirm"), exact: true }).click();
     await expect(page.getByRole("status").filter({ hasText: msg(l, "toast.deleted") })).toBeVisible();
     await expect(page.getByText(msg(l, "exercises.mineEmpty"))).toBeVisible();
-    expect((await sql<{ d: string | null }>(`select deleted_at::text as d from exercise where id = $1`, [myId]))[0].d).not.toBeNull();
-    // เปิด URL ของท่าที่ลบแล้ว = ไม่เจอ (ไม่พัง)
-    await page.goto(`/me/exercises/${myId}`);
+    await expect.poll(async () => (await sql<{ d: string | null }>(`select deleted_at::text as d from exercise where id = $1`, [myId]))[0].d).not.toBeNull();
+    // เปิดหน้าแก้ของท่าที่ลบแล้ว = ไม่เจอ (ไม่พัง) · R3a: หน้าแก้ path คงที่ /me/exercises/edit (id อยู่ในเครื่อง)
+    await page.goto("/me/exercises/edit");
     await expect(page.getByText(msg(l, "exerciseForm.notFound"))).toBeVisible();
     await u.api.dispose();
   });
@@ -557,8 +561,9 @@ test.describe("R2 UI · จอ 360 px", () => {
     await u.api.dispose();
   });
 
-  // BUG R2-QA-2 (qa แก้แล้ว): คำตอบของ push หายระหว่างทาง (เซิร์ฟเวอร์บันทึกแล้ว) → กด "ลองใหม่" เคยสร้าง id ใหม่ = สถานที่ซ้ำ
-  test("BUG R2-QA-2: คำตอบหายแล้วกดลองใหม่ = ไม่เกิดสถานที่/ท่าซ้ำ", async ({ page, baseURL }) => {
+  // BUG R2-QA-2 (qa แก้แล้ว): คำตอบของ push หายระหว่างทาง (เซิร์ฟเวอร์บันทึกแล้ว) → เคยสร้าง id ใหม่ = สถานที่ซ้ำ
+  // R3a: หน้าจอเขียนผ่านคิวในเครื่อง ไม่มีปุ่ม "ลองใหม่" แล้ว — คิวส่งซ้ำเองด้วย op เดิม → ต้องยังไม่ซ้ำ
+  test("BUG R2-QA-2: คำตอบหายแล้วคิวส่งซ้ำเอง = ไม่เกิดสถานที่/ท่าซ้ำ", async ({ page, baseURL }) => {
     const l = "en";
     const u = await asUser(page, baseURL!, l, "light");
     const uid = (await userIdOf(u.email))!;
@@ -579,8 +584,8 @@ test.describe("R2 UI · จอ 360 px", () => {
     await sheet.getByLabel(msg(l, "places.name")).fill("QA Lost Reply");
     drop = 1;
     await sheet.getByRole("button", { name: msg(l, "places.addButton"), exact: true }).click();
-    await sheet.getByRole("button", { name: msg(l, "places.retry") }).click();
     await expect(sheet).toBeHidden();
+    await expect.poll(() => drop).toBe(0);
     // สถานที่ (แผ่นเลือกบนหน้าหลัก)
     await page.goto("/");
     await page.getByRole("button", { name: /^At / }).click();
@@ -588,9 +593,9 @@ test.describe("R2 UI · จอ 360 px", () => {
     await sheet.getByLabel(msg(l, "places.add")).fill("QA Lost Chip");
     drop = 1;
     await sheet.getByRole("button", { name: msg(l, "places.addButton"), exact: true }).click();
-    await sheet.getByRole("button", { name: msg(l, "places.retry") }).click();
     await expect(sheet).toBeHidden();
-    expect(await sql(`select name, count(*)::int as n from place where user_id = $1 and name like 'QA Lost%' group by name order by name`, [uid])).toEqual([
+    await expect.poll(() => drop).toBe(0);
+    await expect.poll(() => sql(`select name, count(*)::int as n from place where user_id = $1 and name like 'QA Lost%' group by name order by name`, [uid]), { timeout: 20_000 }).toEqual([
       { name: "QA Lost Chip", n: 1 },
       { name: "QA Lost Reply", n: 1 },
     ]);
@@ -601,9 +606,9 @@ test.describe("R2 UI · จอ 360 px", () => {
     await page.getByRole("radiogroup", { name: msg(l, "exerciseForm.track") }).getByRole("radio").first().click();
     drop = 1;
     await page.getByRole("button", { name: msg(l, "exerciseForm.save") }).click();
-    await page.getByRole("button", { name: msg(l, "exerciseForm.retry") }).click();
     await expect(page.getByRole("status").filter({ hasText: msg(l, "toast.saved") })).toBeVisible();
-    expect(await sql(`select count(*)::int as n from exercise where owner_user_id = $1`, [uid])).toEqual([{ n: 1 }]);
+    await expect.poll(() => drop, { timeout: 20_000 }).toBe(0);
+    await expect.poll(() => sql(`select count(*)::int as n from exercise where owner_user_id = $1`, [uid]), { timeout: 20_000 }).toEqual([{ n: 1 }]);
     await u.api.dispose();
   });
 
@@ -681,7 +686,7 @@ test.describe("R2 UI · จอ 360 px", () => {
 });
 
 // =====================================================================================================
-// ออฟไลน์ (R2 ออนไลน์อย่างเดียว · /me/exercises /me/places /me/credits ไม่อยู่ใน OFFLINE_PAGES) — ต้องไม่พัง
+// ออฟไลน์ (R3a: /me/exercises /me/places /me/credits + ฟอร์มท่าอยู่ใน OFFLINE_PAGES และเขียนผ่านคิวได้ตอนออฟไลน์) — ต้องไม่พัง
 test.describe("R2 ออฟไลน์: เปิดหน้าใหม่ของรอบตรงๆ ไม่พัง", () => {
   test.beforeEach(({}, info) => {
     test.skip(info.project.name !== "mobile", "พฤติกรรม SW เหมือนกันทุกจอ");
@@ -725,30 +730,30 @@ test.describe("R2 ออฟไลน์: เปิดหน้าใหม่ข
     await u.api.dispose();
   });
 
-  test("อยู่ในแอปแล้วเน็ตหลุด: จอท่า/สถานที่บอกต้องต่อเน็ต · ปุ่มสร้าง/เพิ่มปิด · ไม่ยิงคำขอเขียน", async ({ page, context, baseURL }) => {
+  // R3a (contract ขอบเขต "ย้ายจอของ R2 มาเขียนผ่านคิว (ออฟไลน์ทำได้)") แทนพฤติกรรม R2 เดิมที่บอก "ต้องต่อเน็ต"
+  test("อยู่ในแอปแล้วเน็ตหลุด: เพิ่มสถานที่/สร้างท่าได้ · ลงคิวในเครื่อง ไม่ยิงคำขอ · ออนไลน์แล้วขึ้นเซิร์ฟเวอร์", async ({ page, context, baseURL }) => {
     const u = await asUser(page, baseURL!, "th", "light");
+    const uid = (await userIdOf(u.email))!;
     const writes: string[] = [];
-    page.on("request", (r) => {
+    // นับเฉพาะคำขอที่ถึงเซิร์ฟเวอร์ (ตอนออฟไลน์คิวพยายามส่งแล้วล้มทันที = ไม่ถึง)
+    page.on("response", (r) => {
       if (r.url().includes("/api/sync/push")) writes.push(r.url());
     });
-    await page.goto("/me/exercises");
-    await expect(page.getByText(msg("th", "exercises.mineEmpty"))).toBeVisible();
-    await context.setOffline(true);
-    await expect(page.getByRole("status").filter({ hasText: msg("th", "exercises.needNet") })).toBeVisible();
-    await expect(page.getByRole("link", { name: `+ ${msg("th", "exercises.create")}` })).toHaveCount(0);
-    // ค้นยังได้ (คลังอยู่ในหน่วยความจำของแท็บ)
-    await search(page).fill("bench");
-    await expect(results(page, "th").getByRole("button").first()).toBeVisible();
-
-    await context.setOffline(false);
     await page.goto("/me/places");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(msg("th", "places.title"));
-    await expect(page.getByRole("button", { name: `+ ${msg("th", "places.add")}` })).toBeEnabled();
+    await expect(page.getByRole("button", { name: `+ ${msg("th", "places.add")}` })).toBeEnabled(); // snapshot ลงเครื่องแล้ว
     await context.setOffline(true);
-    await expect(page.getByRole("button", { name: `+ ${msg("th", "places.add")}` })).toBeDisabled();
-    await expect(page.getByRole("status").filter({ hasText: msg("th", "places.needNet") })).toBeVisible();
-    expect(writes).toEqual([]);
+    const atOffline = writes.length;
+    await page.getByRole("button", { name: `+ ${msg("th", "places.add")}` }).click();
+    const sheet = page.getByRole("dialog");
+    await sheet.getByLabel(msg("th", "places.name")).fill("QA ที่ออฟไลน์");
+    await sheet.getByRole("button", { name: msg("th", "places.addButton"), exact: true }).click();
+    await expect(sheet).toBeHidden();
+    await expect(page.getByRole("button", { name: /^QA ที่ออฟไลน์/ })).toBeVisible();
+    await page.waitForTimeout(3000);
+    expect(writes.length, "ไม่มี push ถึงเซิร์ฟเวอร์ตอนออฟไลน์").toBe(atOffline);
     await context.setOffline(false);
+    await expect.poll(() => sql(`select count(*)::int as n from place where user_id = $1 and name = 'QA ที่ออฟไลน์'`, [uid]), { timeout: 20_000 }).toEqual([{ n: 1 }]);
     await u.api.dispose();
   });
 });

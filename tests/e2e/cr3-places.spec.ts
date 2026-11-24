@@ -100,6 +100,8 @@ test.describe("CR3 สถานที่: ลิงก์แผนที่ + �
       await expect(sheet.getByRole("alert")).toHaveCount(0);
       await add.click();
       await expect(toast(page, l, "toast.added")).toBeVisible();
+      // R3a: เขียนผ่านคิวในเครื่อง (ส่งหลัง ~1.5 วิ) → รอให้ขึ้นเซิร์ฟเวอร์
+      await expect.poll(async () => (await sql(`select 1 from place where user_id = $1 and name = 'QA Gym'`, [uid])).length).toBe(1);
       const [row] = await sql<{ id: string; map_url: string }>(`select id, map_url from place where user_id = $1 and name = 'QA Gym'`, [uid]);
       expect(row.map_url).toBe(SHARE_LINK);
       await expectPinLink(page, l, "QA Gym", SHARE_LINK);
@@ -141,7 +143,7 @@ test.describe("CR3 สถานที่: ลิงก์แผนที่ + �
       await sheet.getByRole("button", { name: msg(l, "places.save") }).click();
       await expect(toast(page, l, "toast.saved")).toBeVisible();
       await expect(page.getByRole("link", { name: msg(l, "places.openMap").replace("{place}", "QA Gym") })).toHaveCount(0);
-      expect((await sql<{ map_url: string | null }>(`select map_url from place where id = $1`, [row.id]))[0].map_url).toBeNull();
+      await expect.poll(async () => (await sql<{ map_url: string | null }>(`select map_url from place where id = $1`, [row.id]))[0].map_url).toBeNull();
 
       // ลบ (ที่ที่เลือกอยู่บนหน้าหลัก) → ยกเลิกได้ → ยืนยัน → หายจากรายการและชิปเปลี่ยนเป็นที่ถัดไป
       await page.getByRole("button", { name: /^QA Gym/ }).click();
@@ -157,7 +159,7 @@ test.describe("CR3 สถานที่: ลิงก์แผนที่ + �
       await expect(toast(page, l, "toast.deleted")).toBeVisible();
       await expect(page.getByRole("dialog")).toHaveCount(0);
       await expect(page.getByRole("button", { name: /^QA Gym/ })).toHaveCount(0);
-      expect((await sql<{ d: string | null }>(`select deleted_at::text as d from place where id = $1`, [row.id]))[0].d).not.toBeNull();
+      await expect.poll(async () => (await sql<{ d: string | null }>(`select deleted_at::text as d from place where id = $1`, [row.id]))[0].d).not.toBeNull();
       await page.goto("/");
       await expect(chip(page)).toHaveAttribute("aria-label", msg(l, "placePicker.chipLabel").replace("{place}", home.name));
       await chip(page).click();
