@@ -12,7 +12,8 @@ import { useLocalView } from "@/components/sync/use-offline";
 import { checkActiveSession, deleteEntity, resumeServerSession, writeEntity } from "@/lib/offline/client";
 import { discardSession, draftFromWire, finishSession, resumeDecision, type ActiveSessionDraft } from "@/lib/offline/session";
 import type { WireSession } from "@/lib/data/shared/workout";
-import { mutateSession, sessionCategories, categoryLookup } from "./session-logic";
+import { mutateSession, noChange, sessionCategories, categoryLookup, withSuggestedRow } from "./session-logic";
+import { unitsFromProfile } from "./set-logic";
 import { titleOfCategories } from "./session-title";
 
 type Ask = { kind: "local"; endAt: number | null } | { kind: "server"; ws: WireSession; endAt: number | null };
@@ -116,7 +117,12 @@ export function ResumeGate({ onLogPage = false }: { onLogPage?: boolean }) {
   async function resume() {
     const a = ask;
     setAsk(null);
-    if (a?.kind === "server") await resumeServerSession(a.ws);
+    if (a?.kind === "server") {
+      await resumeServerSession(a.ws);
+      // เซ็ตจากอีกเครื่องติ๊กครบทุกแถว → เติมแถวถัดไปให้ทุกท่า (ไม่มีปุ่ม "เพิ่มเซ็ต" แยก — ไม่เติม = ✓ ต่อไม่ได้)
+      const units = unitsFromProfile(view.snapshot?.profile);
+      await mutateSession((d, now) => d.exercises.reduce((ch, e) => withSuggestedRow(ch, e.id, undefined, units, now), noChange(d)));
+    }
     if (!onLogPage) router.push("/log");
   }
 
