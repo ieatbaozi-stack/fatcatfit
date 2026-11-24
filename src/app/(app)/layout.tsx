@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { AuthGate } from "@/components/auth/auth-gate";
+import { ActiveSessionBar } from "@/components/log/active-bar";
 import { BottomTabs } from "@/components/nav/bottom-tabs";
 import { hasSessionCookie } from "@/lib/auth/session-cookie";
 
@@ -12,6 +13,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <AuthGate kind="app">
       <div className="flex flex-1 flex-col pb-24">{children}</div>
+      <ActiveSessionBar />
       <BottomTabs />
     </AuthGate>
   );

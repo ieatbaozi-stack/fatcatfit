@@ -3,7 +3,9 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { SyncBar } from "@/components/sync/sync-bar";
 import { Button } from "@/components/ui/button";
+import { initOffline, resumeOfflineFromDevice } from "@/lib/offline/client";
 import { StatusScreen } from "@/components/ui/status-screen";
 import { fetchMe, type MeData, type MeFetch } from "./api";
 import { decideRoute, type MeResult, type ScreenKind } from "./decide-route";
@@ -53,7 +55,12 @@ export function AuthGate({ kind, children }: { kind: ScreenKind; children: React
     // fetch ล้ม (โยน error) = ถือว่าออฟไลน์ ไม่เปลี่ยนหน้า (ADR 0006)
     setNetworkFailed(r.status === "network");
     if (r.status !== "network") setResult(r);
-  }, []);
+    // R3a: ล็อกอินพร้อมใช้ (ยินยอมแล้ว) → เปิดฐานในเครื่องของผู้ใช้นี้ (ส่งคิว + ดึง snapshot) · เปิดแอปตอนเน็ตหลุด → ใช้ผู้ใช้ที่จำไว้
+    if (kind === "app") {
+      if (r.status === "ok" && r.me.state === "ready") void initOffline(r.me.user.id);
+      else if (r.status === "network") void resumeOfflineFromDevice();
+    }
+  }, [kind]);
 
   useEffect(() => {
     alive.current = true;
@@ -61,6 +68,11 @@ export function AuthGate({ kind, children }: { kind: ScreenKind; children: React
       alive.current = false;
     };
   }, []);
+
+  // เปิดแอปตอนออฟไลน์ตั้งแต่ต้น (ไม่ถาม /api/me) → เปิดฐานของผู้ใช้ที่จำไว้
+  useEffect(() => {
+    if (net === "offline" && kind === "app") void resumeOfflineFromDevice();
+  }, [net, kind]);
 
   // เปิดหน้า + กลับมาออนไลน์ → ถามสถานะจริง
   useEffect(() => {
@@ -96,9 +108,12 @@ export function AuthGate({ kind, children }: { kind: ScreenKind; children: React
   }
   // แถบ "เน็ตหลุด" ตัวเดียวทั้งแอป (ไม่มีแมว) — /welcome ใช้จอ OfflineSignIn แทน
   const showBar = decision.action === "stay" && decision.offline === true && kind !== "public";
+  let statusBar: ReactNode = null;
+  if (kind === "app") statusBar = <SyncBar offline={showBar} />;
+  else if (showBar) statusBar = <OfflineBar />;
   return (
     <GateContext.Provider value={value}>
-      {showBar ? <OfflineBar /> : null}
+      {statusBar}
       {children}
     </GateContext.Provider>
   );

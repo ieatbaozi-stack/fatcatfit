@@ -77,7 +77,7 @@ describe("AuthGate", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(me("ready")));
     renderWithIntl(<AuthGate kind="app"><p>เนื้อหาแอป</p></AuthGate>);
     await screen.findByText("เนื้อหาแอป");
-    expect(screen.queryByRole("status")).toBeNull();
+    expect(screen.queryByText("เน็ตหลุด")).toBeNull();
   });
 
   it("fetch ล้ม (ถือว่าออฟไลน์) ไม่เปลี่ยนหน้า", async () => {
