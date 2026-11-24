@@ -53,10 +53,10 @@ type Props = {
 
 /** คอลัมน์ตามจำนวนช่อง (+ ปุ่ม ▶ ของท่าเวลา) */
 function gridClass(cols: number, play: boolean): string {
-  if (play) return "grid-cols-[2.5rem_minmax(0,1fr)_3rem_3.5rem]";
-  if (cols === 1) return "grid-cols-[2.5rem_minmax(0,1fr)_3.5rem]";
-  if (cols === 2) return "grid-cols-[2.5rem_repeat(2,minmax(0,1fr))_3.5rem]";
-  return "grid-cols-[2.5rem_repeat(3,minmax(0,1fr))_3.5rem]";
+  if (play) return "grid-cols-[2.75rem_minmax(0,1fr)_3rem_3.5rem]";
+  if (cols === 1) return "grid-cols-[2.75rem_minmax(0,1fr)_3.5rem]";
+  if (cols === 2) return "grid-cols-[2.75rem_repeat(2,minmax(0,1fr))_3.5rem]";
+  return "grid-cols-[2.75rem_repeat(3,minmax(0,1fr))_3.5rem]";
 }
 
 export function SetRow({ ex, set, label, units, locale, star, stopwatch, onTick, onUntick, onValues, onMenu, onPlay, onStop }: Props) {
@@ -165,9 +165,9 @@ export function SetRow({ ex, set, label, units, locale, star, stopwatch, onTick,
           onClick={() => (checked ? onUntick(set) : onTick(set))}
         />
       </div>
-      {extra ? <p className="num ml-10 text-caption text-ink-3">{extra}</p> : null}
+      {extra ? <p className="num ml-11 text-caption text-ink-3">{extra}</p> : null}
       {shown.map((e) => (
-        <p key={e.key} role="alert" className="ml-10 text-caption text-warn">
+        <p key={e.key} role="alert" className="ml-11 text-caption text-warn">
           {t(`range.${e.key}`, e.params)}
         </p>
       ))}

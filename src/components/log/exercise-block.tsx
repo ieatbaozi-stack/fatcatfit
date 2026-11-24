@@ -86,7 +86,7 @@ export function ExerciseBlock({ ex, open, unilateral, summary, units, locale, st
         aria-hidden="true"
         className={cx(
           "grid items-end gap-2 text-caption text-ink-3",
-          ex.track_type === "duration" ? "grid-cols-[2.5rem_minmax(0,1fr)_3rem_3.5rem]" : cols.length === 1 ? "grid-cols-[2.5rem_minmax(0,1fr)_3.5rem]" : cols.length === 2 ? "grid-cols-[2.5rem_repeat(2,minmax(0,1fr))_3.5rem]" : "grid-cols-[2.5rem_repeat(3,minmax(0,1fr))_3.5rem]",
+          ex.track_type === "duration" ? "grid-cols-[2.75rem_minmax(0,1fr)_3rem_3.5rem]" : cols.length === 1 ? "grid-cols-[2.75rem_minmax(0,1fr)_3.5rem]" : cols.length === 2 ? "grid-cols-[2.75rem_repeat(2,minmax(0,1fr))_3.5rem]" : "grid-cols-[2.75rem_repeat(3,minmax(0,1fr))_3.5rem]",
         )}
       >
         <span className="text-center">{t("head.set")}</span>
