@@ -17,6 +17,7 @@ PWA สำหรับกลุ่มเพื่อนกลุ่มเล็�
   - CI job `docs` แดงเมื่อ PR แก้โค้ดหรือข้อความ (`src/` `messages/` `drizzle/` `public/`) แต่ไม่แตะ `CHANGELOG.md`, `PROCESS.md` หรือ `*_CONTRACT.md`
   - ทุก PR มีเช็กลิสต์ (`.github/pull_request_template.md`) ให้ Lead ติ๊กให้ครบ
   - ก่อนจบงานทุกชิ้น Lead อัปเดตบันทึกส่งต่องานใน memory (`handoff-current-state`) ให้ตรงสถานะจริง เพื่อให้เซสชันถัดไปหลัง hand off หรือ compact อ่านแล้วทำต่อได้
+  - **งานแบ่งให้ Antigravity (boss ตัดสิน 2026-11-24)**: กติกาใน `AGENTS.md` · งานที่ทำได้/ห้ามแตะ + สถานะปัจจุบันใน `docs/HANDOFF.md` — Lead อัปเดตส่วน "สถานะตอนนี้" และรายการ "ห้ามแตะ" ทุกครั้งที่เริ่มหรือปิดรอบ · งานจาก Antigravity มาเป็น branch `ag/*` ที่ยังไม่ push → Lead ตรวจ diff + รันเกตเอง (รวม e2e) ก่อนเปิด PR เหมือนงานของ agent
 
 ## ประหยัด token (boss สั่ง 2026-11-23: ลดที่สิ้นเปลือง ผลลัพธ์ต้องถูกเหมือนเดิม)
 
