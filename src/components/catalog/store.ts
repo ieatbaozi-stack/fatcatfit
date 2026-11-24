@@ -107,6 +107,11 @@ export function upsertPlace(row: WirePlace): void {
   }));
 }
 
+/** ลบสถานที่ออกจากข้อมูลในแท็บ (หลังเซิร์ฟเวอร์ตอบ applied) — ชิปหน้าหลักคำนวณใหม่เป็นที่ใช้ล่าสุดถัดไปเอง */
+export function removePlace(id: string): void {
+  patchBootstrap((b) => ({ ...b, places: b.places.filter((p) => p.id !== id) }));
+}
+
 /** ค่าที่หน้าจอต้องการ · need: ต้องโหลดอะไรบ้าง · online: ออนไลน์อยู่ไหม (ออฟไลน์ไม่ยิง · กลับมาออนไลน์ = โหลดเอง) */
 export function useCatalogStore(need: { catalog: boolean; bootstrap: boolean }, online: boolean): StoreState & { retry: () => void } {
   const snap = useSyncExternalStore(subscribe, getStoreState, getStoreState);

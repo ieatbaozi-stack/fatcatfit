@@ -368,7 +368,7 @@
         "title": "3. What we store, and for how long",
         "items": [
           "Account: email and name, plus your Google account ID (only with Google sign-in, the name and ID come from your Google account) — kept until you delete your account · we do not store your profile picture, and we do not keep your IP address or browser details with your account",
-          "Health data (sensitive): weight, height and birth year from the questionnaire, workout places, goals, experience, and the workout history you'll log in later versions — kept until you delete your account",
+          "Health data (sensitive): weight, height and birth year from the questionnaire, workout places (and the map link if you add one), goals, experience, and the workout history you'll log in later versions — kept until you delete your account",
           "Settings: units, language, theme, rest time — kept until you delete your account",
           "Consent record: time, notice version and language — kept until you delete your account",
           "Invite code used to sign up, and the label an admin gave that code (a nickname, visible only to admins and never shown to other users) — kept until you delete your account; when you delete your account, that code's label is cleared",
@@ -665,7 +665,18 @@
     "needNet": "Adding and editing places need a connection",
     "loadFailed": "Couldn't load places",
     "offlineTitle": "Places need a connection",
-    "retry": "Try again"
+    "retry": "Try again",
+    "mapUrl": "Google Maps link (optional)",
+    "mapUrlHint": "Copy it from the Share button in Google Maps",
+    "mapUrlInvalid": "Only Google Maps links work. Copy it from the Share button in the maps app.",
+    "openMap": "Open map for {place}",
+    "delete": "Delete place",
+    "deleteTitle": "Delete \"{name}\"?",
+    "deleteBody": "This can't be undone. To just hide it, archive it instead.",
+    "deleteConfirm": "Delete",
+    "deleting": "Deleting…",
+    "deleteFailed": "Couldn't delete. Try again.",
+    "cancel": "Cancel"
   },
   "placePicker": {
     "at": "At",

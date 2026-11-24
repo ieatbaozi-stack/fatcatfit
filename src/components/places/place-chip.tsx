@@ -14,6 +14,7 @@ import { useAfter } from "@/components/ui/use-keyboard-inset";
 import { EXERCISE_LIMITS } from "@/lib/data/shared/exercise-meta";
 import type { WirePlace } from "@/lib/data/shared/sync";
 import { useOnline } from "@/pwa/use-online";
+import { MapLinkButton } from "./map-link-button";
 import { addPlace, selectPlace } from "./place-actions";
 import { atPlaceLimit, currentPlace, isDuplicatePlace, placeNameValid, sortActive } from "./place-logic";
 
@@ -119,13 +120,13 @@ function PlacePickerSheet({ places, currentId, onPick, onClose }: { places: read
         {list.map((p, i) => {
           const isCurrent = p.id === currentId;
           return (
-            <li key={p.id}>
+            <li key={p.id} className="flex items-center border-b border-ink-3/40">
               <button
                 type="button"
                 data-autofocus={i === 0 ? true : undefined}
                 aria-current={isCurrent ? "true" : undefined}
                 onClick={() => (isCurrent ? onClose() : onPick(p))}
-                className="flex min-h-14 w-full cursor-pointer items-center gap-3 border-b border-ink-3/40 py-2 text-left"
+                className="flex min-h-14 min-w-0 flex-1 cursor-pointer items-center gap-3 py-2 text-left"
               >
                 <span aria-hidden="true" className={cx("grid size-7 flex-none place-items-center rounded-box border-draw border-ink text-on-accent", isCurrent && "bg-accent")}>
                   <Icon name="check" size={18} strokeWidth={3} className={isCurrent ? "opacity-100" : "opacity-0"} />
@@ -133,6 +134,7 @@ function PlacePickerSheet({ places, currentId, onPick, onClose }: { places: read
                 <span className="min-w-0 flex-1 truncate text-body text-ink">{p.name}</span>
                 {isCurrent ? <span className="flex-none text-caption text-ink-3">{t("current")}</span> : null}
               </button>
+              <MapLinkButton url={p.map_url} name={p.name} />
             </li>
           );
         })}

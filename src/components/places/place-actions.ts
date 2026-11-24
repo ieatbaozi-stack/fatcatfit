@@ -1,15 +1,16 @@
 // การเขียนสถานที่ผ่าน POST /api/sync/push (R2: ออนไลน์อย่างเดียว) + อัปเดตข้อมูลในแท็บหลังเซิร์ฟเวอร์ตอบ applied
-// ไม่มีปุ่มลบสถานที่ (D7) — มีแต่ เพิ่ม · แก้ชื่อ · เก็บเข้ากรุ/เอาออกจากกรุ · เลือกที่เล่น (last_used_at)
+// เพิ่ม · แก้ชื่อ/ลิงก์แผนที่ · เก็บเข้ากรุ/เอาออกจากกรุ · เลือกที่เล่น (last_used_at) · ลบ (CR3 D4: ยังไม่มีเซสชัน)
 
 import { pushOne } from "@/components/catalog/api";
-import { loadBootstrap, upsertPlace } from "@/components/catalog/store";
+import { loadBootstrap, removePlace, upsertPlace } from "@/components/catalog/store";
 import type { WirePlace } from "@/lib/data/shared/sync";
 import { buildPlaceRow } from "./place-logic";
 
 export type PlaceFailure = "limit" | "invalid" | "failed";
 export type PlaceResult = { ok: true; row: WirePlace } | { ok: false; reason: PlaceFailure };
 
-type Patch = { name?: string; lastUsedAt?: string | null; archivedAt?: string | null };
+/** mapUrl: ไม่ส่ง = คงเดิม · null = ล้าง · string = ตั้ง (ผู้เรียกตรวจด้วย normalizeMapUrl แล้ว) */
+type Patch = { name?: string; lastUsedAt?: string | null; archivedAt?: string | null; mapUrl?: string | null };
 
 /** upsert ทั้งแถว (ส่ง name เสมอ ตามสัญญา push) · base = null = สร้างใหม่ */
 export async function writePlace(id: string, base: WirePlace | null, patch: Patch): Promise<PlaceResult> {
@@ -17,9 +18,10 @@ export async function writePlace(id: string, base: WirePlace | null, patch: Patc
   const data: Record<string, unknown> = { name };
   if (patch.lastUsedAt !== undefined) data.last_used_at = patch.lastUsedAt;
   if (patch.archivedAt !== undefined) data.archived_at = patch.archivedAt;
+  if (patch.mapUrl !== undefined) data.map_url = patch.mapUrl;
   const r = await pushOne({ entity: "place", id, action: "upsert", data });
   if (r.kind === "applied") {
-    const row = buildPlaceRow({ id, base, name, lastUsedAt: patch.lastUsedAt, archivedAt: patch.archivedAt, now: new Date().toISOString() });
+    const row = buildPlaceRow({ id, base, name, lastUsedAt: patch.lastUsedAt, archivedAt: patch.archivedAt, mapUrl: patch.mapUrl, now: new Date().toISOString() });
     upsertPlace(row);
     void loadBootstrap(); // ถามค่าจริงจากเซิร์ฟเวอร์เงียบๆ (ข้ามเครื่อง)
     return { ok: true, row };
@@ -34,8 +36,21 @@ export async function writePlace(id: string, base: WirePlace | null, patch: Patc
 }
 
 /** id คงที่ต่อแผ่นเพิ่ม (ผู้เรียกสร้างครั้งเดียว) — ลองใหม่หลังคำตอบหาย = upsert แถวเดิม ไม่เกิดสถานที่ซ้ำ */
-export const addPlace = (id: string, name: string, opts: { select: boolean }): Promise<PlaceResult> =>
-  writePlace(id, null, { name, ...(opts.select ? { lastUsedAt: new Date().toISOString() } : {}) });
+export const addPlace = (id: string, name: string, opts: { select: boolean; mapUrl?: string | null }): Promise<PlaceResult> =>
+  writePlace(id, null, { name, ...(opts.select ? { lastUsedAt: new Date().toISOString() } : {}), ...(opts.mapUrl ? { mapUrl: opts.mapUrl } : {}) });
+
+/** ลบสถานที่ (push delete) — แห่งสุดท้ายที่ใช้งาน = เซิร์ฟเวอร์ตอบ invalid · ลบซ้ำได้ผลเท่าเดิม */
+export async function deletePlace(place: WirePlace): Promise<{ ok: true } | { ok: false; reason: PlaceFailure }> {
+  const r = await pushOne({ entity: "place", id: place.id, action: "delete" });
+  if (r.kind === "applied") {
+    removePlace(place.id);
+    void loadBootstrap();
+    return { ok: true };
+  }
+  if (r.kind === "rejected" && r.code === "invalid") return { ok: false, reason: "invalid" };
+  if (r.kind === "stale") void loadBootstrap();
+  return { ok: false, reason: "failed" };
+}
 
 /** เลือกที่เล่น: ชิปเปลี่ยนทันที (แก้ในแท็บก่อน) แล้วส่ง · ล้ม = คืนค่าเดิม */
 export async function selectPlace(place: WirePlace): Promise<boolean> {
