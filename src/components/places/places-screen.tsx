@@ -10,11 +10,12 @@ import { ButtonLink } from "@/components/ui/status-screen";
 import { useAfter } from "@/components/ui/use-keyboard-inset";
 import type { WirePlace } from "@/lib/data/shared/sync";
 import { useOnline } from "@/pwa/use-online";
+import { MapLinkButton } from "./map-link-button";
 import { writePlace } from "./place-actions";
 import { PlaceAddSheet, PlaceEditSheet } from "./place-sheets";
 import { archivedPlaces, atPlaceLimit, currentPlace, sortActive } from "./place-logic";
 
-const ROW = "flex min-h-14 w-full cursor-pointer items-center justify-between gap-3 border-b border-ink-3/40 py-2 text-left";
+const ROW = "flex min-h-14 min-w-0 flex-1 cursor-pointer items-center justify-between gap-3 py-2 text-left";
 
 /** ฉัน › สถานที่ (R2 · UX 12.7 · D7): เพิ่ม · แก้ชื่อ · เก็บเข้ากรุ / เอาออกจากกรุ — ไม่มีปุ่มลบ */
 export function PlacesScreen() {
@@ -86,13 +87,14 @@ export function PlacesScreen() {
           ) : (
             <ul className="m-0 flex list-none flex-col p-0">
               {active.map((p) => (
-                <li key={p.id}>
+                <li key={p.id} className="flex items-center border-b border-ink-3/40">
                   <button type="button" className={ROW} onClick={() => setEditing(p)}>
                     <span className="flex min-w-0 flex-col">
                       <span className="truncate text-body font-medium text-ink">{p.name}</span>
                       {current && current.id === p.id ? <span className="text-caption text-ink-3">{t("lastUsed")}</span> : null}
                     </span>
                   </button>
+                  <MapLinkButton url={p.map_url} name={p.name} />
                 </li>
               ))}
             </ul>

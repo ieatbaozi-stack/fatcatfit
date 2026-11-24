@@ -74,8 +74,8 @@ test.describe("R2 API · สิทธิ์ (เกณฑ์ 6)", () => {
       { entity: "place", id: plA, action: "upsert", data: { name: "B ทับ" } },
       { entity: "place", id: plA, action: "upsert", data: { name: "B ทับ", archived_at: new Date().toISOString() } },
     ])).map(status)).toEqual(["rejected:id_conflict", "rejected:id_conflict", "rejected:id_conflict", "rejected:id_conflict"]);
-    // B ลบสถานที่ของ A: ไม่มีการลบสถานที่เลย (D7) = invalid ก่อนดูเจ้าของ
-    expect((await push(b, [{ entity: "place", id: plA, action: "delete" }])).map(status)).toEqual(["rejected:invalid"]);
+    // B ลบสถานที่ของ A: CR3 เปิดการลบสถานที่แล้ว (D4) → ของคนอื่น = id_conflict (เดิม R2 D7 = invalid ทุกกรณี)
+    expect((await push(b, [{ entity: "place", id: plA, action: "delete" }])).map(status)).toEqual(["rejected:id_conflict"]);
     const [exRow] = await sql<{ name: string; owner_user_id: string; deleted_at: string | null }>(`select name, owner_user_id, deleted_at from exercise where id = $1`, [exA]);
     expect(exRow).toEqual({ name: "QA ท่าของ A", owner_user_id: aId, deleted_at: null });
     const [plRow] = await sql<{ name: string; user_id: string; archived_at: string | null }>(`select name, user_id, archived_at from place where id = $1`, [plA]);

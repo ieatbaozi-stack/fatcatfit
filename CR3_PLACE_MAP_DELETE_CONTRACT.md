@@ -1,6 +1,6 @@
 # CR3_PLACE_MAP_DELETE_CONTRACT.md
 
-> ร่าง 1 · 2026-11-24 · ผู้เขียน: Lead · สถานะ: **draft — รอ boss ตัดสิน D1–D5**
+> ร่าง 1 · 2026-11-24 · ผู้เขียน: Lead · สถานะ: **รอ merge** (boss อนุมัติ 2026-11-24 — รับข้อเสนอ D1–D5 ทั้งหมด · ตรวจผ่าน 2026-11-24)
 > อ้างอิง: [R2 contract](R2_CATALOG_CONTRACT.md) D7 · ADR [0003](docs/adr/0003-data-model.md) (ตาราง `place`) · [0004](docs/adr/0004-offline-sync.md) ข้อ 4 · [UX](docs/design/UX.md) ข้อ 12.3, 12.7 · [PROCESS](PROCESS.md) · [TEAM](TEAM.md)
 > branch: `cr3-place-map` (สร้างจาก `main` ล่าสุด) · รุ่นเมื่อปิดรอบ: `v0.5.0` (เพิ่มความสามารถใหม่ = minor · R3 เลื่อนเป็น 0.6.0) · ต้องเสร็จก่อน: R2 ✅ (v0.4.0)
 
@@ -86,10 +86,16 @@ boss ทดสอบ R2 บน production ผ่าน (2026-11-24) แล้ว
 
 ## สถานะ (Lead อัปเดตระหว่างรอบ)
 
-**draft (2026-11-24)** → boss อนุมัติ → กำลังทำ → ตรวจ → รอ merge → ปิด
+draft → boss อนุมัติ → กำลังทำ → ตรวจ → **รอ merge (2026-11-24)** → ปิด
 
 ## บันทึกระหว่างรอบ
 
 | วันที่ | เรื่อง | ผล |
 |---|---|---|
 | 2026-11-24 | boss feedback หลังทดสอบ R2 | Lead ร่าง contract |
+| 2026-11-24 | boss ตอบ "รับทั้งหมด" | อนุมัติ D1–D5 ตามข้อเสนอ · เริ่มงาน |
+| 2026-11-24 | researcher: allowlist (https · host ตรงเป๊ะ) = `maps.app.goo.gl` · `www.google.com/maps/` · `google.com/maps/` · `maps.google.com` · `goo.gl/maps/` · ไม่รับโดเมนประเทศ · `maps.app.goo.gl` ไม่อยู่ในเอกสารทางการ | Lead รับทั้ง 5 แบบ (goo.gl/maps เป็นโดเมนของ Google · Google ยืนยันว่าลิงก์จากแอปยังใช้ต่อ) · การทดสอบของ boss ข้อ 1 (คัดลอกลิงก์แชร์จากมือถือ) ยืนยันรูปลิงก์จริง |
+| 2026-11-24 | security-privacy: ผ่าน · ไม่มี high/medium · L1 `maps.google.com` รับทุก path รวม `/url` (ตัว redirect ของ Google) · L2 เก็บลิงก์ตามที่พิมพ์ ไม่ normalize · D5 แบบ ก ยอมรับได้ ขอให้บันทึกประวัติการแก้ประกาศ | platform แก้ทั้งสอง: `maps.google.com` รับเฉพาะ `/` `/maps…` `/place…` · เก็บ `u.href` · เพิ่มประวัติการแก้ประกาศเหนือ `PRIVACY_NOTICE_VERSION` (เวอร์ชันไม่เปลี่ยน ไม่ขอยินยอมใหม่) |
+| 2026-11-24 | qa-test: ผ่าน · เกณฑ์ 1–6 ผ่าน · e2e ใหม่ `cr3-places` `cr3-migration` · แก้เทสต์ R2 ที่ยังคาด `invalid` เมื่อ B ลบสถานที่ของ A (กติกาใหม่ = `id_conflict`) | — |
+| 2026-11-24 | ออกรุ่นในรอบเดียวกัน (บทเรียน R2) | ops-release: version 0.5.0 + CHANGELOG `[0.5.0]` อยู่ใน PR นี้ → merge แล้วออก v0.5.0 ทันที · ถ้า boss ทดสอบไม่ผ่าน ออก 0.5.1 |
+| 2026-11-24 | เกตของ Lead (รันเอง) | lint ✅ · typecheck ✅ · unit 967/967 ✅ · drizzle-kit check ✅ · build ✅ · e2e 542 ผ่าน 0 ล้ม (ข้าม 16 = เทสต์จอโทรศัพท์บน desktop) ✅ → **รอ boss merge** |

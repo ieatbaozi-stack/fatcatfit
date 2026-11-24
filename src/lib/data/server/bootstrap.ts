@@ -54,6 +54,7 @@ export async function getBootstrap(db: AppDb, userId: string, now: Date): Promis
   const places: WirePlace[] = placeRows.map((r) => ({
     id: r.id,
     name: r.name,
+    map_url: r.mapUrl,
     last_used_at: r.lastUsedAt ? iso(r.lastUsedAt) : null,
     archived_at: r.archivedAt ? iso(r.archivedAt) : null,
     created_at: iso(r.createdAt),

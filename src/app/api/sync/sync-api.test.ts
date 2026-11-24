@@ -279,13 +279,74 @@ describe("POST /api/sync/push — place", () => {
     expect((await one(c, op("place", p2, "upsert", plData({ name: "สำรอง", archived_at: ts(0) }), ts(0)))).code).toBe("invalid");
   });
 
-  it("ไม่มีปุ่มลบสถานที่: delete = rejected invalid · ชื่อว่าง/ยาวเกิน = invalid", async () => {
+  it("ลบแห่งสุดท้ายที่ใช้งานอยู่ = invalid · ชื่อว่าง/ยาวเกิน = invalid", async () => {
     const { c, placeId } = await readyUser("pl-del@example.com");
     expect(await one(c, op("place", placeId, "delete", null))).toMatchObject({ status: "rejected", code: "invalid" });
     expect((await t.db.select().from(place).where(eq(place.id, placeId)))[0].deletedAt).toBeNull();
     expect((await one(c, op("place", uuid(), "upsert", plData({ name: "   " })))).code).toBe("invalid");
     expect((await one(c, op("place", uuid(), "upsert", plData({ name: "x".repeat(61) })))).code).toBe("invalid");
     expect((await one(c, op("place", uuid(), "upsert", plData({ name: "x".repeat(60) })))).status).toBe("applied");
+  });
+
+  it("map_url: ใส่/แก้/ล้าง · ไม่ส่ง = คงเดิม · ลิงก์ไม่ผ่าน = invalid แถวไม่เปลี่ยน · bootstrap ส่ง map_url", async () => {
+    const { c, placeId } = await readyUser("pl-map@example.com");
+    const url = "https://maps.app.goo.gl/AbC123";
+    const row = async () => (await t.db.select().from(place).where(eq(place.id, placeId)))[0];
+    expect((await row()).mapUrl).toBeNull();
+    expect((await one(c, op("place", placeId, "upsert", plData({ name: "ยิม", map_url: `  ${url} ` }), ts(0)))).status).toBe("applied");
+    expect((await row()).mapUrl).toBe(url);
+    const bs = await bootstrapGet(req("GET", "/api/bootstrap", c));
+    expect((await bs.json()).places.find((p: { id: string }) => p.id === placeId).map_url).toBe(url);
+    expect((await one(c, op("place", placeId, "upsert", plData({ name: "ยิม2" }), ts(0)))).status).toBe("applied");
+    expect((await row()).mapUrl).toBe(url);
+    for (const bad of ["http://maps.app.goo.gl/x", "javascript:alert(1)", "https://google.com.evil.com/maps/x", "", 5, "https://maps.app.goo.gl/" + "a".repeat(500)]) {
+      expect(await one(c, op("place", placeId, "upsert", plData({ name: "ยิม3", map_url: bad }), ts(0)))).toMatchObject({
+        status: "rejected",
+        code: "invalid",
+      });
+    }
+    expect(await row()).toMatchObject({ name: "ยิม2", mapUrl: url });
+    expect((await one(c, op("place", placeId, "upsert", plData({ name: "ยิม2", map_url: null }), ts(0)))).status).toBe("applied");
+    expect((await row()).mapUrl).toBeNull();
+    const p2 = uuid();
+    expect((await one(c, op("place", p2, "upsert", plData({ name: "ใหม่", map_url: "https://www.google.com/maps/place/x" })))).status).toBe("applied");
+    expect((await t.db.select().from(place).where(eq(place.id, p2)))[0].mapUrl).toBe("https://www.google.com/maps/place/x");
+  });
+
+  it("delete place: tombstone · ลบซ้ำ = applied · upsert หลังลบ = stale · หายจาก bootstrap · แห่งสุดท้าย = invalid", async () => {
+    const { c, placeId } = await readyUser("pl-del2@example.com");
+    const p2 = uuid();
+    await one(c, op("place", p2, "upsert", plData({ name: "สำรอง" }), ts(-5000)));
+    expect((await one(c, op("place", p2, "delete", null, ts(-4000)))).status).toBe("applied");
+    const [row] = await t.db.select().from(place).where(eq(place.id, p2));
+    expect(row.deletedAt).not.toBeNull();
+    expect((await one(c, op("place", p2, "delete", null, ts(-3000)))).status).toBe("applied");
+    expect((await one(c, op("place", uuid(), "delete", null))).status).toBe("applied");
+    expect((await one(c, op("place", p2, "upsert", plData({ name: "กลับมา" }), ts(-100)))).status).toBe("stale");
+    expect((await t.db.select().from(place).where(eq(place.id, p2)))[0].deletedAt).not.toBeNull();
+    const bs = await (await bootstrapGet(req("GET", "/api/bootstrap", c))).json();
+    expect(bs.places.map((p: { id: string }) => p.id)).toEqual([placeId]);
+    expect(await one(c, op("place", placeId, "delete", null))).toMatchObject({ status: "rejected", code: "invalid" });
+    expect((await t.db.select().from(place).where(eq(place.id, placeId)))[0].deletedAt).toBeNull();
+  });
+
+  it("delete place: ลบแห่งในกรุได้ · ลบแห่งใช้งานที่ทำให้เหลือแต่ของในกรุ = invalid", async () => {
+    const { c, placeId } = await readyUser("pl-del3@example.com");
+    const p2 = uuid();
+    await one(c, op("place", p2, "upsert", plData({ name: "สอง" }), ts(-5000)));
+    await one(c, op("place", p2, "upsert", plData({ name: "สอง", archived_at: ts(-4000) }), ts(-4000)));
+    expect(await one(c, op("place", placeId, "delete", null))).toMatchObject({ status: "rejected", code: "invalid" });
+    expect((await one(c, op("place", p2, "delete", null))).status).toBe("applied");
+  });
+
+  it("แถวที่ลบแล้วยังนับในเพดานรวม 200 (ลบ-สร้างวนไม่ได้)", async () => {
+    const { c, id, placeId } = await readyUser("pl-del-cap@example.com");
+    const base = { userId: id, name: "x", createdAt: new Date(), updatedAt: new Date(), clientUpdatedAt: new Date() };
+    await t.db.insert(place).values(
+      Array.from({ length: EXERCISE_LIMITS.maxPlacesTotal - 1 }, () => ({ ...base, id: uuid(), deletedAt: new Date() })),
+    );
+    expect((await one(c, op("place", uuid(), "upsert", plData({ name: "เต็ม" })))).code).toBe("limit_reached");
+    expect(placeId).toBeTruthy();
   });
 
   it("เกิน 30 แห่ง = limit_reached · ส่งซ้ำ id เดิมที่มีอยู่ไม่โดนจำกัด", async () => {
@@ -338,7 +399,11 @@ describe("POST /api/sync/push — place", () => {
       status: "rejected",
       code: "id_conflict",
     });
-    expect(await one(a.c, op("place", b.placeId, "delete", null))).toMatchObject({ status: "rejected" });
+    expect(await one(a.c, op("place", b.placeId, "delete", null))).toMatchObject({ status: "rejected", code: "id_conflict" });
+    expect(await one(a.c, op("place", b.placeId, "upsert", plData({ name: "hijack", map_url: "https://maps.app.goo.gl/x" }), ts(-10)))).toMatchObject({
+      status: "rejected",
+      code: "id_conflict",
+    });
     const after = (await t.db.select().from(place).where(eq(place.id, b.placeId)))[0];
     expect(after).toEqual(before);
     expect(after.userId).toBe(b.id);

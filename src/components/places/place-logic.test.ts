@@ -5,6 +5,7 @@ import { activeCount, archivedPlaces, atPlaceLimit, canArchive, currentPlace, is
 const p = (id: string, over: Partial<WirePlace> = {}): WirePlace => ({
   id,
   name: id,
+  map_url: null,
   last_used_at: null,
   archived_at: null,
   created_at: "2026-01-01T00:00:00.000Z",

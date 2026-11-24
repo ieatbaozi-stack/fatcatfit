@@ -1,8 +1,10 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { act } from "@testing-library/react";
 import { resetStore } from "@/components/catalog/store";
 import { renderWithIntl } from "../test-utils";
+import { deletePlace } from "./place-actions";
 import { PlaceChip } from "./place-chip";
 import { PlacesScreen } from "./places-screen";
 
@@ -21,6 +23,7 @@ const ID_B = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 const place = (id: string, name: string, over: Record<string, unknown> = {}) => ({
   id,
   name,
+  map_url: null,
   last_used_at: null,
   archived_at: null,
   created_at: "2026-01-01T00:00:00.000Z",
@@ -48,7 +51,8 @@ beforeEach(() => {
       if (pushStatus === "invalid") return json({ results: [{ status: "rejected", code: "invalid" }] });
       const op = JSON.parse(String(init?.body)).ops[0];
       const i = places.findIndex((p) => p.id === op.id);
-      if (i >= 0) places[i] = { ...places[i], ...op.data };
+      if (op.action === "delete") places = places.filter((p) => p.id !== op.id);
+      else if (i >= 0) places[i] = { ...places[i], ...op.data };
       else places.push(place(op.id, op.data.name, op.data));
       return json({ results: [{ status: "applied" }] });
     }
@@ -183,10 +187,9 @@ describe("PlacesScreen", () => {
     expect(await screen.findByText("บันทึกแล้ว")).toBeTruthy();
     expect(screen.getByText("Gym 2")).toBeTruthy();
   });
-  it("เก็บเข้ากรุทำทันที · เหลือแห่งเดียว = ปิด + ข้อความ (ไม่มีปุ่มลบที่ไหนเลย)", async () => {
+  it("เก็บเข้ากรุทำทันที · เหลือแห่งเดียว = ปิด + ข้อความ ", async () => {
     renderWithIntl(<PlacesScreen />);
     fireEvent.click(await screen.findByText("Office gym"));
-    expect(screen.queryByRole("button", { name: /ลบ/ })).toBeNull();
     fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "เก็บเข้ากรุ" }));
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     expect(pushed()[0].data.archived_at).toMatch(/^\d{4}-/);
@@ -239,3 +242,145 @@ describe("PlacesScreen", () => {
   });
 });
 
+
+const MAPS = "https://maps.app.goo.gl/abc123";
+
+describe("CR3 · ลิงก์ Google Maps", () => {
+  it("แถวที่มี map_url มีไอคอนหมุดเปิดแท็บใหม่ (noopener noreferrer) · ที่ไม่มี/ลิงก์ผิดไม่มี", async () => {
+    places = [
+      place(ID_A, "Home", { map_url: MAPS, last_used_at: "2026-02-01T00:00:00.000Z" }),
+      place(ID_B, "Office gym"),
+      place("cccccccc-cccc-4ccc-8ccc-cccccccccccc", "Bad", { map_url: "javascript:alert(1)" }),
+    ];
+    renderWithIntl(<PlacesScreen />);
+    await screen.findByText("Home");
+    const links = screen.getAllByRole("link").filter((a) => a.getAttribute("aria-label")?.startsWith("เปิดแผนที่"));
+    expect(links).toHaveLength(1);
+    expect(links[0].getAttribute("href")).toBe(MAPS);
+    expect(links[0].getAttribute("target")).toBe("_blank");
+    expect(links[0].getAttribute("rel")).toBe("noopener noreferrer");
+    expect(links[0].getAttribute("aria-label")).toBe("เปิดแผนที่ของ Home");
+  });
+  it("EN: ป้ายของไอคอนหมุด", async () => {
+    places = [place(ID_A, "Home", { map_url: MAPS }), place(ID_B, "Gym")];
+    renderWithIntl(<PlacesScreen />, "en");
+    expect(await screen.findByRole("link", { name: "Open map for Home" })).toBeTruthy();
+  });
+  it("แผ่นเลือกสถานที่บนหน้าหลักมีไอคอนหมุดด้วย", async () => {
+    places = [place(ID_A, "Home", { map_url: MAPS, last_used_at: "2026-02-01T00:00:00.000Z" }), place(ID_B, "Office gym")];
+    renderWithIntl(<PlaceChip />);
+    fireEvent.click(await screen.findByRole("button", { name: /^เล่นที่ Home/ }));
+    expect(within(screen.getByRole("dialog")).getByRole("link", { name: "เปิดแผนที่ของ Home" }).getAttribute("href")).toBe(MAPS);
+  });
+  it("แผ่นแก้: ช่องลิงก์มีคำแนะนำ · ลิงก์ผิดขึ้นข้อความใต้ช่องหลังออกจากช่อง และบันทึกไม่ได้", async () => {
+    renderWithIntl(<PlacesScreen />);
+    fireEvent.click(await screen.findByText("Office gym"));
+    const dialog = screen.getByRole("dialog", { name: "แก้สถานที่" });
+    expect(within(dialog).getByText("คัดลอกจากปุ่มแชร์ใน Google Maps")).toBeTruthy();
+    const field = within(dialog).getByLabelText("ลิงก์ Google Maps (ไม่บังคับ)");
+    fireEvent.change(field, { target: { value: "http://maps.app.goo.gl/x" } });
+    expect(within(dialog).queryByRole("alert")).toBeNull(); // ยังไม่ออกจากช่อง
+    fireEvent.blur(field);
+    expect(within(dialog).getByRole("alert").textContent).toContain("ใช้ได้เฉพาะลิงก์ Google Maps");
+    expect((within(dialog).getByRole("button", { name: "บันทึก" }) as HTMLButtonElement).disabled).toBe(true);
+  });
+  it("วางลิงก์แล้วบันทึก = ส่ง name + map_url (ตัดช่องว่าง) · ล้างลิงก์ = ส่ง null", async () => {
+    renderWithIntl(<PlacesScreen />);
+    fireEvent.click(await screen.findByText("Office gym"));
+    let dialog = screen.getByRole("dialog", { name: "แก้สถานที่" });
+    fireEvent.change(within(dialog).getByLabelText("ลิงก์ Google Maps (ไม่บังคับ)"), { target: { value: `  ${MAPS}  ` } });
+    fireEvent.click(within(dialog).getByRole("button", { name: "บันทึก" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(pushed()[0].data).toEqual({ name: "Office gym", map_url: MAPS });
+    expect(await screen.findByRole("link", { name: "เปิดแผนที่ของ Office gym" })).toBeTruthy();
+
+    fireEvent.click(screen.getByText("Office gym"));
+    dialog = screen.getByRole("dialog", { name: "แก้สถานที่" });
+    fireEvent.change(within(dialog).getByLabelText("ลิงก์ Google Maps (ไม่บังคับ)"), { target: { value: "" } });
+    fireEvent.click(within(dialog).getByRole("button", { name: "บันทึก" }));
+    await waitFor(() => expect(pushed()).toHaveLength(2));
+    expect(pushed()[1].data).toEqual({ name: "Office gym", map_url: null });
+  });
+  it("เปลี่ยนแต่ชื่อ = ไม่ส่ง map_url (คงเดิม)", async () => {
+    places = [place(ID_A, "Home", { last_used_at: "2026-02-01T00:00:00.000Z" }), place(ID_B, "Office gym", { map_url: MAPS })];
+    renderWithIntl(<PlacesScreen />);
+    fireEvent.click(await screen.findByText("Office gym"));
+    const dialog = screen.getByRole("dialog");
+    fireEvent.change(within(dialog).getByLabelText("ชื่อ"), { target: { value: "Gym 2" } });
+    fireEvent.click(within(dialog).getByRole("button", { name: "บันทึก" }));
+    await waitFor(() => expect(pushed()).toHaveLength(1));
+    expect(pushed()[0].data).toEqual({ name: "Gym 2" });
+  });
+  it("แผ่นเพิ่ม: ใส่ลิงก์ได้ · ลิงก์ผิดปิดปุ่มเพิ่ม", async () => {
+    renderWithIntl(<PlacesScreen />);
+    fireEvent.click(await screen.findByRole("button", { name: "+ เพิ่มสถานที่" }));
+    const dialog = screen.getByRole("dialog", { name: "เพิ่มสถานที่" });
+    fireEvent.change(within(dialog).getByLabelText("ชื่อ"), { target: { value: "Park" } });
+    const field = within(dialog).getByLabelText("ลิงก์ Google Maps (ไม่บังคับ)");
+    fireEvent.change(field, { target: { value: "https://evil.com/maps/x" } });
+    expect((within(dialog).getByRole("button", { name: "เพิ่ม" }) as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.change(field, { target: { value: MAPS } });
+    fireEvent.click(within(dialog).getByRole("button", { name: "เพิ่ม" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(pushed()[0].data).toEqual({ name: "Park", map_url: MAPS });
+  });
+});
+
+describe("CR3 · ลบสถานที่", () => {
+  it("ลบ → หน้าต่างยืนยัน (ยกเลิกเป็นค่าเริ่ม) → push delete → หายจากรายการ + ข้อความ", async () => {
+    renderWithIntl(<PlacesScreen />);
+    fireEvent.click(await screen.findByText("Office gym"));
+    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "ลบสถานที่นี้" }));
+    const confirm = screen.getByRole("dialog", { name: 'ลบ "Office gym"?' });
+    expect(within(confirm).getByText(/ลบแล้วกู้คืนไม่ได้/)).toBeTruthy();
+    expect(document.activeElement).toBe(within(confirm).getByRole("button", { name: "ยกเลิก" }));
+    expect(pushed()).toHaveLength(0);
+    fireEvent.click(within(confirm).getByRole("button", { name: "ลบ" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(pushed()[0]).toMatchObject({ entity: "place", id: ID_B, action: "delete" });
+    expect("data" in pushed()[0]).toBe(false);
+    expect(await screen.findByText("ลบแล้ว")).toBeTruthy();
+    expect(screen.queryByText("Office gym")).toBeNull();
+  });
+  it("ยกเลิกในหน้าต่างยืนยัน = กลับแผ่นแก้ที่ยังมีค่าที่พิมพ์ไว้", async () => {
+    renderWithIntl(<PlacesScreen />);
+    fireEvent.click(await screen.findByText("Office gym"));
+    fireEvent.change(within(screen.getByRole("dialog")).getByLabelText("ชื่อ"), { target: { value: "Typed" } });
+    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "ลบสถานที่นี้" }));
+    fireEvent.click(screen.getByRole("button", { name: "ยกเลิก" }));
+    expect((screen.getByLabelText("ชื่อ") as HTMLInputElement).value).toBe("Typed");
+    expect(pushed()).toHaveLength(0);
+  });
+  it("เหลือที่ใช้งานแห่งเดียว = ปุ่มลบปิด (กติกาเดียวกับเก็บเข้ากรุ)", async () => {
+    places = [place(ID_A, "Home")];
+    renderWithIntl(<PlacesScreen />);
+    fireEvent.click(await screen.findByText("Home"));
+    expect((within(screen.getByRole("dialog")).getByRole("button", { name: "ลบสถานที่นี้" }) as HTMLButtonElement).disabled).toBe(true);
+  });
+  it("ลบล้ม = แผ่นยังเปิด + ข้อความ + ลองใหม่ · เซิร์ฟเวอร์ตอบ invalid = ต้องมีอย่างน้อย 1 แห่ง", async () => {
+    pushStatus = "fail";
+    renderWithIntl(<PlacesScreen />);
+    fireEvent.click(await screen.findByText("Office gym"));
+    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "ลบสถานที่นี้" }));
+    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "ลบ" }));
+    expect(await screen.findByText("ลบไม่ได้ · ลองอีกที")).toBeTruthy();
+    expect(within(screen.getByRole("dialog")).getByRole("button", { name: "ลองใหม่" })).toBeTruthy();
+    pushStatus = "invalid";
+    fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "ลองใหม่" }));
+    expect(await screen.findByText("ต้องมีสถานที่อย่างน้อย 1 แห่ง")).toBeTruthy();
+  });
+  it("ลบที่ที่ชิปหน้าหลักใช้อยู่ = ชิปย้ายไปที่ใช้ล่าสุดถัดไป", async () => {
+    places = [
+      place(ID_A, "Home", { last_used_at: "2026-03-01T00:00:00.000Z" }),
+      place(ID_B, "Office gym", { last_used_at: "2026-02-01T00:00:00.000Z" }),
+      place("cccccccc-cccc-4ccc-8ccc-cccccccccccc", "Park"),
+    ];
+    renderWithIntl(<PlaceChip />);
+    await screen.findByRole("button", { name: /^เล่นที่ Home/ });
+    await act(async () => {
+      const r = await deletePlace(places[0] as never);
+      expect(r.ok).toBe(true);
+    });
+    expect(await screen.findByRole("button", { name: /^เล่นที่ Office gym/ })).toBeTruthy();
+  });
+});

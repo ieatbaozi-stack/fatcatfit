@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { normalizeMapUrl } from "./map-link";
 import { CATEGORIES, EQUIPMENT, EXERCISE_LIMITS, LOAD_MODES, TRACK_TYPES, loadModeAllowed, stripControlChars } from "./exercise-meta";
 
 // รูปแบบบนสายของ POST /api/sync/push (ADR 0004 ข้อ 3–4) — ใช้ร่วมไคลเอนต์ (คิว/ฟอร์ม) กับเซิร์ฟเวอร์ (ตัดสินจริง)
@@ -61,6 +62,16 @@ const serverManaged = {
 export const placeDataSchema = z.strictObject({
   ...serverManaged,
   name,
+  // CR3: ไม่ส่ง = คงเดิม · null = ล้าง · ไม่ผ่านตัวตรวจลิงก์ Google Maps = invalid
+  map_url: z
+    .string()
+    .transform((v, ctx) => {
+      const n = normalizeMapUrl(v);
+      if (n === null) ctx.addIssue({ code: "custom", message: "invalid_map_url" });
+      return n ?? "";
+    })
+    .nullable()
+    .optional(),
   last_used_at: iso.nullable().optional(),
   archived_at: iso.nullable().optional(),
 });
@@ -89,6 +100,7 @@ export type ExerciseData = z.infer<typeof exerciseDataSchema>;
 export type WirePlace = {
   id: string;
   name: string;
+  map_url: string | null;
   last_used_at: string | null;
   archived_at: string | null;
   created_at: string;
