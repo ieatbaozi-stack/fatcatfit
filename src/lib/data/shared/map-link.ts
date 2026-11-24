@@ -4,17 +4,18 @@
 export const MAP_URL_MAX = 500;
 
 /** รูปที่รับ: https เท่านั้น · host ตรงเป๊ะ (ไม่รับโดเมนประเทศ/ซับโดเมนอื่น) · เส้นทางตามที่กำหนดต่อ host */
+const under = (p: string, base: string) => p === base || p.startsWith(base + "/");
 const ALLOWED: ReadonlyArray<{ host: string; path: (p: string) => boolean }> = [
   { host: "maps.app.goo.gl", path: (p) => p.length > 1 },
-  { host: "www.google.com", path: (p) => p === "/maps" || p.startsWith("/maps/") },
-  { host: "google.com", path: (p) => p === "/maps" || p.startsWith("/maps/") },
-  { host: "maps.google.com", path: () => true },
+  { host: "www.google.com", path: (p) => under(p, "/maps") },
+  { host: "google.com", path: (p) => under(p, "/maps") },
+  // ห้าม /url (redirect ของ Google ไปเว็บอื่นได้) — รับเฉพาะราก /maps/ และ /place/
+  { host: "maps.google.com", path: (p) => p === "/" || under(p, "/maps") || under(p, "/place") },
   { host: "goo.gl", path: (p) => p.startsWith("/maps/") },
 ];
 
 /**
- * คืนลิงก์ที่ตัดช่องว่างหัวท้ายแล้วถ้าเป็นลิงก์ Google Maps ที่รับได้ ไม่งั้นคืน null
- * (เก็บข้อความตามที่ผู้ใช้วาง ไม่แปลงรูป)
+ * คืนลิงก์ที่ตัดช่องว่างหัวท้ายและ normalize ด้วย WHATWG URL (`u.href`) แล้วถ้าเป็นลิงก์ Google Maps ที่รับได้ ไม่งั้นคืน null
  */
 export function normalizeMapUrl(input: unknown): string | null {
   if (typeof input !== "string") return null;
@@ -33,7 +34,8 @@ export function normalizeMapUrl(input: unknown): string | null {
   if (u.port !== "" && u.port !== "443") return null;
   const rule = ALLOWED.find((a) => a.host === u.hostname);
   if (!rule || !rule.path(u.pathname)) return null;
-  return s;
+  // เก็บและตรวจความยาวจากค่าที่ parser ทำให้เป็นมาตรฐานแล้ว (ค่าเดียวกับที่ลงฐานข้อมูล/ใช้เป็น href)
+  return u.href.length <= MAP_URL_MAX ? u.href : null;
 }
 
 export const isValidMapUrl = (input: unknown): boolean => normalizeMapUrl(input) !== null;

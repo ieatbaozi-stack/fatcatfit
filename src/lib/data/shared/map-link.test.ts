@@ -9,6 +9,8 @@ describe("normalizeMapUrl", () => {
     "https://google.com/maps/place/x",
     "https://maps.google.com/?q=13.7,100.5",
     "https://maps.google.com",
+    "https://maps.google.com/maps?q=x",
+    "https://maps.google.com/place/x",
     "https://goo.gl/maps/AbC123",
     "https://www.google.com:443/maps/place/x",
     "https://GOOGLE.COM/maps/place/x",
@@ -33,6 +35,9 @@ describe("normalizeMapUrl", () => {
     ["https://www.google.com/mapsx/y", "ขึ้นต้น /maps แต่ไม่ใช่ /maps/"],
     ["https://maps.app.goo.gl", "path ว่าง"],
     ["https://maps.app.goo.gl/", "path ว่าง"],
+    ["https://maps.google.com/url?q=https://evil.com", "redirect /url"],
+    ["https://maps.google.com/search/x", "path อื่นของ maps.google.com"],
+    ["https://maps.google.com/mapsx", "ขึ้นต้น /maps แต่ไม่ใช่ /maps/"],
     ["https://goo.gl/abc", "goo.gl ไม่ใช่ /maps/"],
     ["https://goo.gl/maps", "goo.gl/maps ไม่มี / ท้าย"],
     ["https://www.google.com/maps/x y", "ช่องว่างกลาง"],
@@ -48,8 +53,19 @@ describe("normalizeMapUrl", () => {
     for (const v of [null, undefined, 1, {}, ["https://maps.app.goo.gl/a"]]) expect(normalizeMapUrl(v)).toBeNull();
   });
 
-  it("ตัดช่องว่างหัวท้าย และคืนข้อความตามที่วาง", () => {
+  it("ตัดช่องว่างหัวท้าย และคืนค่าที่ normalize แล้ว (host ตัวเล็ก · ตัด :443)", () => {
     expect(normalizeMapUrl("  https://maps.app.goo.gl/Ab  \n")).toBe("https://maps.app.goo.gl/Ab");
+    expect(normalizeMapUrl("https://MAPS.GOOGLE.COM:443/maps/x")).toBe("https://maps.google.com/maps/x");
+    expect(normalizeMapUrl("https:maps.google.com/maps/x")).toBe("https://maps.google.com/maps/x");
+    expect(normalizeMapUrl("https://maps.google.com")).toBe("https://maps.google.com/");
+  });
+
+  it("ความยาว 500 วัดจากค่าที่เก็บจริง (หลัง normalize)", () => {
+    const base = "https://www.google.com/maps/place/";
+    const out = normalizeMapUrl(base + "ก".repeat(20));
+    expect(out).not.toBeNull();
+    expect(out!.length).toBeGreaterThan(base.length + 20);
+    expect(normalizeMapUrl(base + "ก".repeat(60))).toBeNull();
   });
 
   it("ยาว 500 ผ่าน · 501 ไม่ผ่าน", () => {
