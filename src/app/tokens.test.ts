@@ -48,16 +48,16 @@ describe("ค่า token ตรง DESIGN.md ข้อ 3 (CR4 Studio Minimal)",
       warn: "#c0392b",
     });
   });
-  it("โหมดมืด 4 ชั้นพื้นผิว", () => {
+  it("โหมดมืด 4 ชั้นพื้นผิว (Soft Charcoal)", () => {
     expect(dark).toMatchObject({
-      paper: "#0c0c0e",
-      "paper-2": "#17171a",
-      "surface-2": "#222227",
-      "surface-3": "#2a2a30",
-      ink: "#f4f4f6",
-      "ink-2": "#c4c4cc",
-      "ink-3": "#9898a3",
-      warn: "#f27c72",
+      paper: "#1c1d21",
+      "paper-2": "#24252b",
+      "surface-2": "#2d2f36",
+      "surface-3": "#353740",
+      ink: "#ececf0",
+      "ink-2": "#c8cad3",
+      "ink-3": "#a7aab6",
+      warn: "#f58a80",
     });
   });
   it("โหมดมืด: แมวเป็นเส้นล้วน (cat, cat-ear, cat-white = paper) และส้มคงเดิม", () => {
