@@ -47,7 +47,7 @@ function ListSkeleton() {
   return (
     <ul role="status" aria-label={t("list.loading")} className="m-0 flex list-none flex-col p-0">
       {[0, 1, 2].map((i) => (
-        <li key={i} aria-hidden="true" className="flex min-h-18 flex-col justify-center gap-2 border-b border-ink-3/40 py-3">
+        <li key={i} aria-hidden="true" className="flex min-h-18 flex-col justify-center gap-2 border-b border-line py-3">
           <div className="h-5 w-40 rounded-box bg-paper-2" />
           <div className="h-4 w-56 rounded-box bg-paper-2" />
         </li>
@@ -90,12 +90,12 @@ export function InviteList({
                 id={`invite-row-${row.id}`}
                 tabIndex={-1}
                 className={cx(
-                  "flex min-h-18 items-center gap-3 border-b border-ink-3/40 px-1 py-3 transition-colors duration-700",
-                  highlightId === row.id && "bg-paper-2 motion-reduce:bg-transparent",
+                  "flex min-h-18 items-center gap-3 border-b border-line px-1 py-3 transition-colors duration-700",
+                  highlightId === row.id && "rounded-box bg-paper-2 motion-reduce:bg-transparent",
                 )}
               >
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-body font-normal text-ink">{row.label}</p>
+                  <p className="truncate text-body font-medium text-ink">{row.label}</p>
                   <p className={cx("flex items-center gap-1.5 text-caption", active ? "text-ink" : "text-ink-3")}>
                     <StatusIcon status={row.status} />
                     <span>{t(`status.${row.status}`)}</span>
@@ -116,7 +116,7 @@ export function InviteList({
                     disabled={!online}
                     aria-label={t("revoke.buttonLabel", { label: row.label })}
                     onClick={() => onRevoke(row)}
-                    className="inline-flex min-h-11 min-w-11 flex-none cursor-pointer items-center justify-center rounded-hand border-draw-thin border-ink bg-transparent px-3 text-body font-normal text-ink disabled:cursor-not-allowed disabled:border-dashed disabled:text-ink-3"
+                    className="inline-flex min-h-11 min-w-11 flex-none cursor-pointer items-center justify-center rounded-box border border-line-strong bg-paper-2 px-3.5 text-body font-medium text-ink transition-opacity active:opacity-80 disabled:cursor-not-allowed disabled:border-dashed disabled:bg-transparent disabled:text-ink-3"
                   >
                     {t("revoke.button")}
                   </button>
@@ -133,7 +133,7 @@ export function InviteList({
             {t("list.loadFailed")}
           </p>
           <p className="text-caption text-ink-3">{t("list.loadFailedHint")}</p>
-          <TextButton className="-ml-3" onClick={onRetry}>
+          <TextButton className="mt-2" onClick={onRetry}>
             {t("list.retry")}
           </TextButton>
         </div>
@@ -205,7 +205,7 @@ export function RevokeSheet({
         role="dialog"
         aria-modal="true"
         aria-labelledby="revoke-title"
-        className="pb-safe absolute inset-x-3 bottom-3 mx-auto flex max-w-114 flex-col gap-3 rounded-hand border-draw border-ink bg-paper p-5"
+        className="pb-safe absolute inset-x-3 bottom-3 mx-auto flex max-w-114 flex-col gap-3.5 rounded-sheet border border-line-strong bg-surface-3 p-5 shadow-elevated"
       >
         <h2 id="revoke-title" className="text-section">
           {t("revoke.title", { label: row.label })}

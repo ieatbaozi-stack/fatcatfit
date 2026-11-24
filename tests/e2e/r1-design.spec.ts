@@ -288,17 +288,18 @@ test.describe("ป้ายแท็บที่ซูม 200% (งานค้�
     });
   }
 
-  // BUG R1-QA-3: R1 ใส่ `truncate` (overflow:hidden) ให้ป้ายแท็บเพื่อแก้ซูม 200% → เส้นใต้ wavy ของแท็บที่เลือก
-  // (text-underline-offset 5px อยู่นอกกล่องบรรทัด) ถูกตัดเหลือแค่จุด · สถานะแท็บที่เลือกต้องไม่พึ่งสีอย่างเดียว
-  test("BUG R1-QA-3: เส้นใต้ของแท็บที่เลือกไม่ถูกตัด", async ({ page }) => {
+  // CR4 (ต่อยอด BUG R1-QA-3): แท็บที่เลือกใช้แถบชี้ [data-active-indicator] + พื้นรอง (ไม่พึ่งสีอย่างเดียว ไม่มีเส้นหยักที่ถูกตัด)
+  test("BUG R1-QA-3: แถบชี้แท็บที่เลือกมองเห็นครบและไม่ถูกตัด", async ({ page }) => {
     await page.goto("/me");
-    const clip = await page.evaluate(() => {
-      const s = document.querySelector('nav a[aria-current="page"] span')!;
-      const cs = getComputedStyle(s);
-      const clips = cs.overflowY !== "visible";
-      const room = parseFloat(cs.paddingBottom) - parseFloat(cs.textUnderlineOffset) - 3; // เส้น wavy สูงราว 3px
-      return { clips, room, overflowY: cs.overflowY };
+    const box = await page.evaluate(() => {
+      const link = document.querySelector('nav a[aria-current="page"]')!;
+      const ind = link.querySelector("[data-active-indicator]")!;
+      const lr = link.getBoundingClientRect();
+      const ir = ind.getBoundingClientRect();
+      return { w: ir.width, h: ir.height, inside: ir.top >= lr.top && ir.bottom <= lr.bottom + 0.5 && ir.left >= lr.left && ir.right <= lr.right };
     });
-    expect(!clip.clips || clip.room >= 0, JSON.stringify(clip)).toBe(true);
+    expect(box.w).toBeGreaterThanOrEqual(16);
+    expect(box.h).toBeGreaterThanOrEqual(2);
+    expect(box.inside).toBe(true);
   });
 });

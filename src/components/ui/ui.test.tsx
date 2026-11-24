@@ -40,9 +40,18 @@ describe("Button", () => {
     expect(cls).toContain("min-h-13");
     expect(cls).not.toMatch(/#[0-9a-f]{3,6}|rgb\(/i);
   });
-  it("ปุ่มรองเป็นปุ่มจริงสูง ≥ 44px", () => {
+  it("ปุ่มรองเป็นปุ่มจริงสูง ≥ 44px และเป็นพื้นรองไม่ใช่เส้นหยัก", () => {
     render(<TextButton>รอง</TextButton>);
-    expect(screen.getByRole("button").className).toContain("min-h-11");
+    const cls = screen.getByRole("button").className;
+    expect(cls).toContain("min-h-11");
+    expect(cls).toContain("bg-paper-2");
+    expect(cls).not.toContain("underline-hand");
+  });
+  it("ปุ่มลบที่ส่ง border-warn / text-warn ได้พื้น paper เพื่อคอนทราสต์ผ่านทั้งสว่างและมืด", () => {
+    render(<Button className="border-warn text-warn">ลบ</Button>);
+    const cls = screen.getByRole("button").className;
+    expect(cls).toContain("bg-paper");
+    expect(cls).not.toContain("bg-ink");
   });
 });
 
@@ -50,9 +59,18 @@ describe("Chip", () => {
   it("สะท้อนสถานะด้วย aria-pressed (ไม่ใช้สีอย่างเดียว)", () => {
     const { rerender } = render(<Chip pressed={false}>ฟิตเนส</Chip>);
     expect(screen.getByRole("button").getAttribute("aria-pressed")).toBe("false");
+    expect(screen.getByRole("button").className).toContain("bg-paper-2");
     rerender(<Chip pressed>ฟิตเนส</Chip>);
     expect(screen.getByRole("button").getAttribute("aria-pressed")).toBe("true");
     expect(screen.getByRole("button").className).toContain("bg-ink");
+  });
+  it("surface=card ยกชั้นพื้นชิปที่ไม่ได้เลือกเป็น bg-surface-2", () => {
+    render(
+      <Chip pressed={false} surface="card">
+        มืด
+      </Chip>,
+    );
+    expect(screen.getByRole("button").className).toContain("bg-surface-2");
   });
 });
 

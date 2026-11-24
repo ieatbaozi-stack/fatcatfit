@@ -7,10 +7,10 @@ import { Chip } from "@/components/ui/chip";
 import { useOnline } from "@/pwa/use-online";
 import { locales, type Locale } from "@/lib/i18n/config";
 import { writeLocaleCookie } from "@/lib/i18n/client";
+
 /**
  * ตัวสลับภาษา TH/EN: เขียน cookie แล้ว refresh (ไม่มี locale ใน URL)
  * - "ภาษาที่เลือก" เป็น state ของตัวเอง ไม่อิง useLocale() เพราะค่านั้นเป็นของเก่าจนกว่า refresh จะเสร็จ
- *   (กดรัวๆ แล้วเทียบกับ useLocale() ทำให้ข้ามการเขียน cookie ของปุ่มสุดท้าย)
  * - ออฟไลน์: เปลี่ยนไม่ได้ (router.refresh ดึง RSC ไม่ได้ · ADR 0005) → ปิดปุ่มภาษาอื่น + บอกผู้ใช้
  */
 export function LocaleSwitch() {
@@ -41,6 +41,7 @@ export function LocaleSwitch() {
           <Chip
             key={locale}
             pressed={selected === locale}
+            surface="card"
             lang={locale}
             disabled={!online && selected !== locale}
             onClick={() => choose(locale)}
@@ -50,7 +51,7 @@ export function LocaleSwitch() {
         ))}
       </div>
       {!online && (
-        <p id="locale-offline-note" role="status" className="text-body text-ink-2">
+        <p id="locale-offline-note" role="status" className="text-caption text-ink-2">
           {t("offlineNote")}
         </p>
       )}

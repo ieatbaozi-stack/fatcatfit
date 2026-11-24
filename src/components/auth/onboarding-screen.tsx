@@ -5,8 +5,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { Cat } from "@/components/doodle";
 import { Button, TextButton } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
+import { Divider } from "@/components/ui/divider";
 import { NumberInput } from "@/components/ui/number-input";
-import { Squiggle } from "@/components/ui/squiggle";
 import { TextField } from "@/components/ui/text-field";
 import { ONBOARDING_LIMITS } from "@/lib/data/shared/onboarding";
 import { resolveLocale } from "@/lib/i18n/config";
@@ -37,33 +37,15 @@ import { useNet } from "./use-net";
 
 type SubmitFailure = "network" | "server" | "clock" | null;
 
-/** เส้นความคืบหน้าวาดมือ: เส้นประเทา + เส้นส้มตามขั้น (ส้มที่เดียวของจอ) + แมวเดินบนเส้น */
+/** แถบความคืบหน้าสะอาด (CR4 Studio Minimal): เส้นตรงเรียบ + แถบส้ม (ส้มที่เดียวของจอ) + แมวเดินบนเส้น */
 function ProgressLine({ pct }: { pct: number }) {
   return (
-    <div className="relative mb-4 h-14" aria-hidden="true">
-      <svg viewBox="0 0 320 12" preserveAspectRatio="none" className="absolute inset-x-0 bottom-0 h-3 w-full">
-        <path
-          d="M2 6 C60 3 120 9 180 6 S280 4 318 6"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2}
-          strokeLinecap="round"
-          strokeDasharray="2 7"
-          vectorEffect="non-scaling-stroke"
-          className="text-ink-3"
-        />
-        <path
-          d={`M2 6 C60 3 120 9 ${Math.max(4, pct * 3.18)} 6`}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={5}
-          strokeLinecap="round"
-          vectorEffect="non-scaling-stroke"
-          className="text-accent"
-        />
-      </svg>
-      <div className="absolute bottom-1 transition-[left] duration-300" style={{ left: `calc(${pct}% - 34px)` }}>
-        <Cat pose="side" size={56} className="text-ink" />
+    <div className="relative mb-5 h-14" aria-hidden="true">
+      <div className="absolute inset-x-0 bottom-1 h-1.5 w-full overflow-hidden rounded-full bg-paper-2">
+        <div className="h-full rounded-full bg-accent transition-[width] duration-300" style={{ width: `${pct}%` }} />
+      </div>
+      <div className="absolute bottom-2 transition-[left] duration-300" style={{ left: `calc(${pct}% - 34px)` }}>
+        <Cat pose="side" size={52} className="text-ink" />
       </div>
     </div>
   );
@@ -248,7 +230,7 @@ export function OnboardingScreen() {
             />
           </div>
 
-          <Squiggle variant={2} tone="muted" className="my-6" />
+          <Divider className="my-6" />
           <p className="text-caption text-ink-3">{t("optional")}</p>
           <p className="mt-2 text-body text-ink">{t("goals.title")}</p>
           <div role="group" aria-label={t("goals.title")} className="mt-2 flex flex-wrap gap-2">

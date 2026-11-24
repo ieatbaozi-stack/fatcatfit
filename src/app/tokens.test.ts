@@ -1,4 +1,4 @@
-// token ใน globals.css ต้องตรงกับ DESIGN.md ข้อ 3 และคอนทราสต์ผ่าน (เกณฑ์ R0 ข้อ 6–7)
+// token ใน globals.css ต้องตรงกับ DESIGN.md ข้อ 3 (CR4 Studio Minimal) และคอนทราสต์ผ่านทุกชั้นพื้นผิว
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -30,29 +30,34 @@ function contrast(a: string, b: string): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-describe("ค่า token ตรง DESIGN.md ข้อ 3", () => {
+describe("ค่า token ตรง DESIGN.md ข้อ 3 (CR4 Studio Minimal)", () => {
   it("โหมดสว่าง", () => {
     expect(light).toMatchObject({
       paper: "#ffffff",
-      "paper-2": "#f6f4f0",
-      ink: "#171717",
-      "ink-2": "#444444",
-      "ink-3": "#767676",
+      "paper-2": "#f4f4f5",
+      "surface-2": "#ebebed",
+      "surface-3": "#ffffff",
+      ink: "#111113",
+      "ink-2": "#4a4a52",
+      "ink-3": "#686870",
       accent: "#f9a03a",
+      "on-accent": "#111113",
       cat: "#f9a03a",
       "cat-ear": "#f4a19b",
       "cat-white": "#ffffff",
       warn: "#c0392b",
     });
   });
-  it("โหมดมืด", () => {
+  it("โหมดมืด 4 ชั้นพื้นผิว (Soft Charcoal)", () => {
     expect(dark).toMatchObject({
-      paper: "#161514",
-      "paper-2": "#211f1d",
-      ink: "#f2efea",
-      "ink-2": "#c9c5be",
-      "ink-3": "#8f8b84",
-      warn: "#e8766a",
+      paper: "#1c1d21",
+      "paper-2": "#24252b",
+      "surface-2": "#2d2f36",
+      "surface-3": "#353740",
+      ink: "#ececf0",
+      "ink-2": "#c8cad3",
+      "ink-3": "#a7aab6",
+      warn: "#f58a80",
     });
   });
   it("โหมดมืด: แมวเป็นเส้นล้วน (cat, cat-ear, cat-white = paper) และส้มคงเดิม", () => {
@@ -71,7 +76,7 @@ describe("ค่า token ตรง DESIGN.md ข้อ 3", () => {
   });
 });
 
-describe("คอนทราสต์ ≥ 4.5:1 ทั้งสองโหมด", () => {
+describe("คอนทราสต์ ≥ 4.5:1 ทั้งสองโหมดทุกชั้นพื้นผิว", () => {
   const modes = { สว่าง: light, มืด: { ...light, ...dark } } as Record<string, Record<string, string>>;
   const pairs: Array<[string, string]> = [
     ["ink", "paper"],
@@ -80,8 +85,18 @@ describe("คอนทราสต์ ≥ 4.5:1 ทั้งสองโหม�
     ["warn", "paper"],
     ["ink", "paper-2"],
     ["ink-2", "paper-2"],
+    ["ink-3", "paper-2"],
+    ["warn", "paper-2"],
+    ["ink", "surface-2"],
+    ["ink-2", "surface-2"],
+    ["ink-3", "surface-2"],
+    ["warn", "surface-2"],
+    ["ink", "surface-3"],
+    ["ink-2", "surface-3"],
+    ["ink-3", "surface-3"],
+    ["warn", "surface-3"],
     ["on-accent", "accent"],
-    ["paper", "ink"], // ชิปที่เลือก (พื้นดำตัวขาว)
+    ["paper", "ink"], // ปุ่มหลักและชิปที่เลือก
   ];
   for (const [modeName, tokens] of Object.entries(modes)) {
     for (const [fg, bg] of pairs) {

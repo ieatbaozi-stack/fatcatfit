@@ -10,7 +10,10 @@ export default async function PrivacyPage() {
   const t = await getTranslations("privacy");
   return (
     <>
-      <Link href="/" className="-ml-3 inline-flex min-h-11 items-center self-start px-3 text-body text-ink underline-hand">
+      <Link
+        href="/"
+        className="mb-4 inline-flex min-h-11 items-center self-start rounded-hand border border-line bg-paper-2 px-4 text-body font-medium text-ink no-underline transition-opacity active:opacity-80"
+      >
         {t("back")}
       </Link>
       <PrivacyNotice

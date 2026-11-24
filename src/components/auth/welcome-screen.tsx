@@ -214,23 +214,21 @@ export function WelcomeScreen() {
   if (step === "email" && showGoogle) {
     return (
       <div className="flex flex-1 flex-col">
-        <TextButton className="-ml-3 self-start" onClick={() => setStep("start")}>
+        <TextButton className="self-start" onClick={() => setStep("start")}>
           {t("email.back")}
         </TextButton>
-        <h1 className="mt-2 text-page">{t("email.title")}</h1>
+        <h1 className="mt-4 text-page">{t("email.title")}</h1>
         <p className="mt-1 text-body text-ink-2">{t("email.intro")}</p>
         <div className="mt-6">{emailField}</div>
-        <p className="mt-4 text-caption text-ink-3">
+        <div className="mt-4 flex flex-wrap items-center gap-2 text-caption text-ink-3">
           {invite && isInviteShapeValid(invite) ? (
-            <>
-              <span className="num">{t("email.inviteSummary", { code: invite })}</span> ·{" "}
-            </>
+            <span className="num text-ink-2">{t("email.inviteSummary", { code: invite })}</span>
           ) : (
-            <>{t("email.noInvite")} · </>
+            <span>{t("email.noInvite")}</span>
           )}
           <button
             type="button"
-            className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center text-ink underline-hand"
+            className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-box border border-line bg-paper-2 px-3 font-medium text-ink transition-opacity active:opacity-80"
             onClick={() => {
               setRevealInvite(true);
               setStep("start");
@@ -238,13 +236,13 @@ export function WelcomeScreen() {
           >
             {invite ? t("email.edit") : t("email.addInvite")}
           </button>
-        </p>
+        </div>
         {inviteMessage ? (
-          <p role="alert" className="text-caption text-warn">
+          <p role="alert" className="mt-2 text-caption text-warn">
             {inviteMessage}
           </p>
         ) : null}
-        <div className="mt-auto flex flex-col gap-2 pt-8">
+        <div className="mt-auto flex flex-col gap-2.5 pt-8">
           <Button loading={busy === "send" || busy === "check"} onClick={() => void onSendCode()}>
             {busy === "send" || busy === "check" ? t("email.sending") : t("email.send")}
           </Button>
@@ -262,10 +260,10 @@ export function WelcomeScreen() {
         </HandWord>
         <h1 className="mt-1 text-page">{t("title")}</h1>
         <p className="mt-1 text-body text-ink-2">{t("tagline")}</p>
-        <Cat pose="standing" size={showGoogle ? 150 : 110} motion className="mt-4 text-ink" />
+        <Cat pose="standing" size={showGoogle ? 148 : 108} motion className="mt-5 text-ink" />
       </div>
 
-      <div className="mt-auto flex flex-col gap-4 pt-8">
+      <div className="mt-auto flex flex-col gap-3 pt-8">
         {inviteField}
         {showGoogle ? (
           <>
@@ -283,7 +281,7 @@ export function WelcomeScreen() {
                 {t("google.failed")}
               </p>
             ) : null}
-            <TextButton className="self-center" onClick={() => setStep("email")}>
+            <TextButton className="w-full" onClick={() => setStep("email")}>
               {t("useEmail")}
             </TextButton>
           </>

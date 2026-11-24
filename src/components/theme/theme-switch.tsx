@@ -27,7 +27,7 @@ function getSnapshot(): ThemePref {
   }
 }
 
-/** ตัวสลับโหมด: ตามระบบ / สว่าง / มืด · จำใน localStorage */
+/** ตัวสลับโหมด: ตามระบบ / สว่าง / มืด · จำใน localStorage (CR4 Studio Minimal: แถบ segmented สะอาด) */
 export function ThemeSwitch() {
   const t = useTranslations("me.theme");
   const current = useSyncExternalStore(subscribe, getSnapshot, () => "system" as ThemePref);
@@ -47,7 +47,7 @@ export function ThemeSwitch() {
   return (
     <div role="group" aria-label={t("label")} className="flex flex-wrap gap-2">
       {THEME_PREFS.map((pref) => (
-        <Chip key={pref} pressed={current === pref} onClick={() => choose(pref)}>
+        <Chip key={pref} pressed={current === pref} surface="card" onClick={() => choose(pref)}>
           {t(pref)}
         </Chip>
       ))}

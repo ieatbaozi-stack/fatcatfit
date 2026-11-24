@@ -5,9 +5,17 @@ import { renderWithIntl } from "../test-utils";
 import { BottomTabs, isTabActive } from "./bottom-tabs";
 
 const pathname = vi.hoisted(() => ({ value: "/" }));
+const linkPending = vi.hoisted(() => ({ value: false }));
 vi.mock("next/navigation", () => ({ usePathname: () => pathname.value }));
+vi.mock("next/link", async () => {
+  const actual = await vi.importActual<typeof import("next/link")>("next/link");
+  return { ...actual, useLinkStatus: () => ({ pending: linkPending.value }) };
+});
 
-afterEach(cleanup);
+afterEach(() => {
+  linkPending.value = false;
+  cleanup();
+});
 
 describe("isTabActive", () => {
   it("หน้าหลักตรงเป๊ะเท่านั้น", () => {
@@ -43,5 +51,21 @@ describe("BottomTabs", () => {
   it("ทุกแท็บแตะได้ ≥ 44px (min-h-13)", () => {
     renderWithIntl(<BottomTabs />);
     for (const a of screen.getAllByRole("link")) expect(a.className).toContain("min-h-13");
+  });
+  it("แท็บที่เลือกมีแถบชี้ [data-active-indicator] อันเดียว และไม่มีเส้นหยัก", () => {
+    pathname.value = "/me";
+    const { container } = renderWithIntl(<BottomTabs />);
+    const indicators = container.querySelectorAll("[data-active-indicator]");
+    expect(indicators).toHaveLength(1);
+    expect(indicators[0].closest("a")?.getAttribute("aria-current")).toBe("page");
+    expect(container.querySelectorAll("nav a span")).toHaveLength(4);
+  });
+  it("ระหว่างเปลี่ยนหน้า (useLinkStatus pending) แสดงจุดเด้ง 3 จุดพร้อม role=status", () => {
+    pathname.value = "/";
+    linkPending.value = true;
+    renderWithIntl(<BottomTabs />);
+    const statuses = screen.getAllByRole("status", { name: "กำลังโหลด" });
+    expect(statuses.length).toBeGreaterThan(0);
+    expect(statuses[0].querySelectorAll(".fcf-dot")).toHaveLength(3);
   });
 });
