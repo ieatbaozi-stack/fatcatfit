@@ -98,6 +98,8 @@ export const place = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
+    // CR3: ลิงก์ Google Maps (ตรวจ host ที่แอป/เซิร์ฟเวอร์) · null = ไม่ได้ใส่
+    mapUrl: text("map_url"),
     lastUsedAt: instant("last_used_at"),
     archivedAt: instant("archived_at"),
     createdAt: instant("created_at").notNull(),
@@ -109,6 +111,7 @@ export const place = pgTable(
     // ให้ลูก (workout_session ใน R3) ผูก composite FK (place_id, user_id) ได้
     unique("place_id_user_id_unique").on(t.id, t.userId),
     index("place_user_id_updated_at_idx").on(t.userId, t.updatedAt),
+    check("place_map_url_check", sql`${t.mapUrl} IS NULL OR char_length(${t.mapUrl}) BETWEEN 1 AND 500`),
   ],
 );
 

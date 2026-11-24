@@ -1,0 +1,2 @@
+ALTER TABLE "place" ADD COLUMN "map_url" text;--> statement-breakpoint
+ALTER TABLE "place" ADD CONSTRAINT "place_map_url_check" CHECK ("place"."map_url" IS NULL OR char_length("place"."map_url") BETWEEN 1 AND 500);

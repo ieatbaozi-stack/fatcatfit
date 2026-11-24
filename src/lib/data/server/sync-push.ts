@@ -76,8 +76,7 @@ async function pushOne(db: AppDb, userId: string, raw: unknown, now: Date): Prom
 // ---------------- place ----------------
 
 async function applyPlace(tx: Tx, me: string, o: PushOp, ts: Date, now: Date): Promise<Outcome> {
-  // ไม่มีปุ่มลบสถานที่ (D7: เซสชันใน R3 อ้างถึง) · ปิดทางเลี่ยงขีดจำกัดและกฎ "ต้องมีสถานที่ที่ใช้งานอยู่" ด้วย
-  if (o.action === "delete") return reject("invalid");
+  if (o.action === "delete") return deletePlace(tx, me, o.id, now);
   const d = placeDataSchema.safeParse(o.data);
   if (!d.success) return reject("invalid");
   const data = d.data;
@@ -120,6 +119,7 @@ async function applyPlace(tx: Tx, me: string, o: PushOp, ts: Date, now: Date): P
       id: o.id,
       userId: me,
       name: data.name,
+      mapUrl: data.map_url ?? null,
       lastUsedAt: toDateClamped(data.last_used_at, now),
       archivedAt: toDate(data.archived_at),
       createdAt: now,
@@ -131,6 +131,7 @@ async function applyPlace(tx: Tx, me: string, o: PushOp, ts: Date, now: Date): P
       // ช่องที่ไม่ได้ส่ง = คงค่าเดิม
       set: {
         name: data.name,
+        ...(data.map_url !== undefined ? { mapUrl: data.map_url } : {}),
         ...(data.last_used_at !== undefined ? { lastUsedAt: toDateClamped(data.last_used_at, now) } : {}),
         ...(data.archived_at !== undefined ? { archivedAt: toDate(data.archived_at) } : {}),
         updatedAt: now,
@@ -141,6 +142,28 @@ async function applyPlace(tx: Tx, me: string, o: PushOp, ts: Date, now: Date): P
     .returning({ id: place.id });
   if (rows.length > 0) return applied;
   return classifyMiss(tx, me, "place", o.id);
+}
+
+/**
+ * delete ของ place (CR3 D4 · ADR 0004 ข้อ 4): ของฉัน → tombstone · ของคนอื่น = id_conflict · ลบซ้ำ/ไม่มีอยู่ = applied
+ * ลบแล้วทำให้ไม่เหลือสถานที่ที่ใช้งานอยู่ (ไม่ลบ ไม่เก็บกรุ) = invalid · แถวที่ลบยังนับในเพดานรวม (ไม่ลบจริง)
+ */
+async function deletePlace(tx: Tx, me: string, id: string, now: Date): Promise<Outcome> {
+  const [ex] = await tx.select({ userId: place.userId, deletedAt: place.deletedAt }).from(place).where(eq(place.id, id));
+  if (!ex) return applied;
+  if (ex.userId !== me) return reject("id_conflict");
+  if (ex.deletedAt) return applied;
+  // R3: ตรวจเซสชันที่อ้างถึงสถานที่นี้ที่นี่ — มีเซสชัน = ห้ามลบ (ให้เก็บเข้ากรุแทน · code กำหนดใน R3)
+  const [{ n }] = await tx
+    .select({ n: count() })
+    .from(place)
+    .where(and(eq(place.userId, me), isNull(place.deletedAt), isNull(place.archivedAt), ne(place.id, id)));
+  if (n === 0) return reject("invalid");
+  await tx
+    .update(place)
+    .set({ deletedAt: now, updatedAt: now })
+    .where(and(eq(place.id, id), eq(place.userId, me), isNull(place.deletedAt)));
+  return applied;
 }
 
 // ---------------- exercise ----------------
