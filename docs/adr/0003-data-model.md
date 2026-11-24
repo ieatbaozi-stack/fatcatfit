@@ -63,7 +63,7 @@ PRD ข้อ 5/7: เก็บหน่วยมาตรฐาน (kg/เม�
 | `app_admin` | R1.5 | `user_id` PK (`app_admin_pkey`) · `created_at` (ไม่มี DEFAULT) · ไม่มีคอลัมน์ sync · แอปมีแต่ SELECT — เพิ่ม/ถอนด้วย SQL เท่านั้น (ADR 0007 ข้อ 1) | → `user` CASCADE (`app_admin_user_id_user_id_fk`) |
 | `consent_record` | R1 | `notice_version` · `accepted_at` · `locale` (ไม่มีคอลัมน์ sync) | → `user` CASCADE |
 | `profile` | R1 | PK = `user_id` · `locale` · `weight_unit` `length_unit` `distance_unit` · `theme` · `rest_seconds` (90) · `birth_year` · `height_m/_input/_unit` · `goals` (JSON array) · `experience` · `onboarded_at` · `client_updated_at` | 1:1 `user` CASCADE |
-| `place` | R1 | `name` · `last_used_at` · `archived_at` | → `user` |
+| `place` | R1 | `name` · `map_url` (CR3: ลิงก์ Google Maps 1–500 ตัว หรือ null · migration 0004) · `last_used_at` · `archived_at` | → `user` |
 | `body_entry` | R1 (น้ำหนัก) · R4 (ที่เหลือ) | `measured_at` · `local_date` · `weight_kg/_input/_unit` ● · R4: `body_fat_pct` · `muscle_kg/_input` (ใช้ `weight_unit` เดียวกัน) | → `user` · วันละหลายแถวได้ กราฟใช้แถวล่าสุดของวัน |
 | `body_measurement` | R4 | `body_entry_id` · `site` (`waist` `chest` `hip` `arm` `thigh` `neck` — เพิ่มได้ด้วย CHECK) · `value_m/_input/_unit` | composite → `body_entry` CASCADE |
 | `exercise` | R2 | `owner_user_id` (null = คลังกลาง · **ใช้แทน `user_id`**) · `name` · `name_th` · `search_terms` · `track_type` · `load_mode` · `is_unilateral` · `category` · `equipment` · `source_dataset` `source_ref` `license` `attribution` · `met` · `archived_at` — ชนิดและ CHECK ในข้อ 3.1 | ท่าเอง → `user` CASCADE · คลังกลางไม่มีเจ้าของ |
@@ -97,7 +97,7 @@ Index หลัก: `(user_id, updated_at)` ทุกตาราง sync · `se
 | คอลัมน์ร่วม | `created_at` `updated_at` `client_updated_at` (NOT NULL · แถวคลัง seed ตั้ง = `updated_at`) `deleted_at` · CHECK `owner_user_id IS NOT NULL OR deleted_at IS NULL` (คลังไม่ลบ) |
 
 - ค่าคงที่ของ CHECK อยู่ `src/lib/data/shared/exercise-meta.ts` + `track-types.ts` ที่เดียว · repository ของท่าของฉันกรอง `owner_user_id = :me AND deleted_at IS NULL` · คลังกรอง `owner_user_id IS NULL`
-- จำนวนสูงสุดต่อคน (นับเฉพาะแถวที่ใช้งาน: `deleted_at IS NULL AND archived_at IS NULL` · Lead ตัดสิน 2026-11-23 เพราะสถานที่ลบไม่ได้): ท่าของฉัน 300 · `place` 30 → เกิน = `limit_reached` (ADR 0004 ข้อ 4)
+- จำนวนสูงสุดต่อคน (นับเฉพาะแถวที่ใช้งาน: `deleted_at IS NULL AND archived_at IS NULL` · Lead ตัดสิน 2026-11-23 · แถวที่ลบแล้วนับในเพดานรวม 200): ท่าของฉัน 300 · `place` 30 → เกิน = `limit_reached` (ADR 0004 ข้อ 4)
 
 **กติกาการเปลี่ยนแปลง**: ท่าเอง/สถานที่/เทมเพลตลบ = tombstone · ท่าเองที่มีประวัติลบไม่ได้ → `archived_at` · ท่าในคลังไม่เคยลบ (เลิกใช้ = `archived_at`) · ลบเซสชัน = tombstone เซสชัน + ลูกทั้งหมดใน transaction เดียว · ลำดับซ้ำกันได้ (สองเครื่อง) เรียงด้วย `position, completed_at, id`
 
