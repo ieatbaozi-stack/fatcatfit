@@ -28,10 +28,10 @@ export const TABS = [
 
 export const PAGES = ["/", "/history", "/progress", "/me", "/styleguide"] as const;
 
-/** ค่าสีจาก DESIGN.md ข้อ 3 (rgb ตามที่เบราว์เซอร์คืน) */
+/** ค่าสีจาก DESIGN.md ข้อ 3 (CR4 Studio Minimal · rgb ตามที่เบราว์เซอร์คืน) */
 export const TOKENS = {
-  light: { paper: "rgb(255, 255, 255)", ink: "rgb(23, 23, 23)", ink2: "rgb(68, 68, 68)", ink3: "rgb(118, 118, 118)" },
-  dark: { paper: "rgb(22, 21, 20)", ink: "rgb(242, 239, 234)", ink2: "rgb(201, 197, 190)", ink3: "rgb(143, 139, 132)" },
+  light: { paper: "rgb(255, 255, 255)", ink: "rgb(17, 17, 19)", ink2: "rgb(74, 74, 82)", ink3: "rgb(104, 104, 112)" },
+  dark: { paper: "rgb(12, 12, 14)", ink: "rgb(244, 244, 246)", ink2: "rgb(196, 196, 204)", ink3: "rgb(152, 152, 163)" },
   accent: "rgb(249, 160, 58)",
 } as const;
 
