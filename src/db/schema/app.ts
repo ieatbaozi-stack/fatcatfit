@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  boolean,
   check,
   date,
   doublePrecision,
@@ -12,6 +13,7 @@ import {
   unique,
   uuid,
 } from "drizzle-orm/pg-core";
+import { CATEGORIES, EQUIPMENT, LOAD_MODES, TRACK_TYPES, sqlList } from "../../lib/data/shared/exercise-meta";
 import { user } from "./auth";
 
 // ตารางของแอปใน R1 (ADR 0003 ข้อ 3) — กติกา ADR 0001: id เป็น uuid สร้างในโค้ด · เวลาเป็น timestamptz(3) ·
@@ -135,3 +137,51 @@ export const bodyEntry = pgTable(
   ],
 );
 
+
+// ท่าออกกำลังกาย (R2 · ADR 0003 ข้อ 2–3 · contract R2) — owner_user_id null = คลังกลาง (อ่านได้ทุกคน เขียนผ่านสคริปต์ seed เท่านั้น)
+// ท่าของฉัน = owner_user_id ของผู้ใช้ · ลบบัญชีแล้วหายด้วย cascade · คลังกลางไม่เคยลบ (เลิกใช้ = archived_at)
+export const exercise = pgTable(
+  "exercise",
+  {
+    id: uuid("id").primaryKey(),
+    ownerUserId: uuid("owner_user_id").references(() => user.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    nameTh: text("name_th"),
+    // คำค้นสะกดอื่น คั่นด้วย | (ไม่ใช้ JSON)
+    searchTerms: text("search_terms"),
+    trackType: text("track_type").notNull(),
+    loadMode: text("load_mode").notNull(),
+    isUnilateral: boolean("is_unilateral").notNull(),
+    category: text("category").notNull(),
+    equipment: text("equipment"),
+    sourceDataset: text("source_dataset"),
+    sourceRef: text("source_ref"),
+    license: text("license"),
+    attribution: text("attribution"),
+    met: doublePrecision("met"),
+    archivedAt: instant("archived_at"),
+    createdAt: instant("created_at").notNull(),
+    updatedAt: instant("updated_at").notNull(),
+    clientUpdatedAt: instant("client_updated_at").notNull(),
+    deletedAt: instant("deleted_at"),
+  },
+  (t) => [
+    index("exercise_owner_user_id_updated_at_idx").on(t.ownerUserId, t.updatedAt),
+    check("exercise_name_check", sql`char_length(${t.name}) BETWEEN 1 AND 60`),
+    check("exercise_name_th_check", sql`${t.nameTh} IS NULL OR char_length(${t.nameTh}) BETWEEN 1 AND 60`),
+    check("exercise_track_type_check", sql`${t.trackType} IN (${sql.raw(sqlList(TRACK_TYPES))})`),
+    check("exercise_load_mode_check", sql`${t.loadMode} IN (${sql.raw(sqlList(LOAD_MODES))})`),
+    check("exercise_load_mode_track_check", sql`${t.loadMode} = 'external' OR ${t.trackType} = 'weight_reps'`),
+    check("exercise_category_check", sql`${t.category} IN (${sql.raw(sqlList(CATEGORIES))})`),
+    check("exercise_equipment_check", sql`${t.equipment} IS NULL OR ${t.equipment} IN (${sql.raw(sqlList(EQUIPMENT))})`),
+    // คลังกลางต้องมีชื่อไทยและเครดิตครบทุกแถว · ท่าของฉันห้ามมีช่องที่มา/MET (เซิร์ฟเวอร์ตั้งเอง = null) · คลังกลางไม่มี tombstone
+    check(
+      "exercise_catalog_fields_check",
+      sql`${t.ownerUserId} IS NOT NULL OR (${t.nameTh} IS NOT NULL AND ${t.sourceDataset} IS NOT NULL AND ${t.sourceRef} IS NOT NULL AND ${t.license} IS NOT NULL AND ${t.attribution} IS NOT NULL AND ${t.deletedAt} IS NULL)`,
+    ),
+    check(
+      "exercise_own_fields_check",
+      sql`${t.ownerUserId} IS NULL OR (${t.sourceDataset} IS NULL AND ${t.sourceRef} IS NULL AND ${t.license} IS NULL AND ${t.attribution} IS NULL AND ${t.met} IS NULL)`,
+    ),
+  ],
+);

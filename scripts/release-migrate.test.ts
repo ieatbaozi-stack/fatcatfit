@@ -1,7 +1,7 @@
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { decide } from "./release-migrate";
+import { decide, migrateAndSeed } from "./release-migrate";
 
 describe("release-migrate decide()", () => {
   const url = "postgresql://<user>:<password>@<host>/<db>";
@@ -33,5 +33,38 @@ describe("release-migrate เป็นสคริปต์", () => {
     const r = spawnSync(process.execPath, [path.join(root, "node_modules", "tsx", "dist", "cli.mjs"), "scripts/release-migrate.ts"], { cwd: root, env, encoding: "utf8" });
     expect(r.status).toBe(0);
     expect(r.stdout).toContain("ข้าม");
+  });
+});
+
+describe("release-migrate migrateAndSeed()", () => {
+  const db = {} as Parameters<typeof migrateAndSeed>[0];
+  it("migrate ก่อน แล้ว seed ตามลำดับ", async () => {
+    const calls: string[] = [];
+    await migrateAndSeed(db, {
+      migrate: async () => void calls.push("migrate"),
+      seed: async () => (calls.push("seed"), "seed: เปลี่ยน 0 แถว"),
+      log: (m) => calls.push(m),
+    });
+    expect(calls).toEqual(["migrate", "release-migrate: migration เสร็จ", "seed", "release-migrate: seed: เปลี่ยน 0 แถว"]);
+  });
+  it("migrate ล้ม = throw และไม่ seed", async () => {
+    let seeded = false;
+    await expect(
+      migrateAndSeed(db, {
+        migrate: async () => { throw new Error("boom"); },
+        seed: async () => { seeded = true; return ""; },
+        log: () => undefined,
+      }),
+    ).rejects.toThrow("boom");
+    expect(seeded).toBe(false);
+  });
+  it("seed ล้ม = throw (deploy ล้ม)", async () => {
+    await expect(
+      migrateAndSeed(db, {
+        migrate: async () => undefined,
+        seed: async () => { throw new Error("catalog invalid"); },
+        log: () => undefined,
+      }),
+    ).rejects.toThrow("catalog invalid");
   });
 });

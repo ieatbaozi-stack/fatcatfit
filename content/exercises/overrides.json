@@ -1,0 +1,457 @@
+{
+ "Alternate_Leg_Diagonal_Bound": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Bodyweight_Mid_Row": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Bodyweight_Walking_Lunge": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Box_Jump_Multiple_Response": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Box_Skip": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Carioca_Quick_Step": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Decline_Push-Up": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Depth_Jump_Leap": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Exercise_Ball_Crunch": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Exercise_Ball_Pull-In": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Floor_Glute-Ham_Raise": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Front_Box_Jump": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Front_Cone_Hops_or_hurdle_hops": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Hurdle_Hops": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Incline_Push-Up_Depth_Jump": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Inverted_Row": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Inverted_Row_with_Straps": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Kipping_Muscle_Up": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Knee_Hip_Raise_On_Parallel_Bars": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Kneeling_Arm_Drill": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Lateral_Box_Jump": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Lateral_Cone_Hops": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Linear_Depth_Jump": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Linear_3-Part_Start_Technique": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Linear_Acceleration_Wall_Drill": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Moving_Claw_Series": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Mountain_Climbers": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Muscle_Up": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Push-Ups_With_Feet_On_An_Exercise_Ball": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Quick_Leap": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Rope_Climb": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Scapular_Pull-Up": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Side_Hop-Sprint": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Side_Standing_Long_Jump": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Side_to_Side_Box_Shuffle": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Single_Leg_Push-off": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Single-Leg_High_Box_Squat": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Single-Leg_Hop_Progression": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Single-Leg_Lateral_Hop": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Single-Leg_Stride_Jump": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Stride_Jump_Crossover": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Suspended_Fallout": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Suspended_Push-Up": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Suspended_Reverse_Crunch": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Suspended_Row": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Suspended_Split_Squat": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Physioball_Hip_Bridge": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Platform_Hamstring_Slides": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Ab_Roller": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Single-Cone_Sprint_Drill": {
+  "reason": "ท่าน้ำหนักตัวที่ต้นทางระบุอุปกรณ์เป็น other/ว่าง จึงตกกติกาข้อ 9 (weight_reps) — ใช้น้ำหนักตัวล้วน นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Dips_-_Chest_Version": {
+  "reason": "ท่าดึงข้อ/ดิปที่ต้นทางระบุอุปกรณ์เป็น other จึงไม่ตกกติกาข้อ 7 — นิยมถ่วงเพิ่ม = น้ำหนักตัว+เพิ่ม",
+  "track_type": "weight_reps",
+  "load_mode": "bodyweight_plus"
+ },
+ "Gironda_Sternum_Chins": {
+  "reason": "ท่าดึงข้อ/ดิปที่ต้นทางระบุอุปกรณ์เป็น other จึงไม่ตกกติกาข้อ 7 — นิยมถ่วงเพิ่ม = น้ำหนักตัว+เพิ่ม",
+  "track_type": "weight_reps",
+  "load_mode": "bodyweight_plus"
+ },
+ "Mixed_Grip_Chin": {
+  "reason": "ท่าดึงข้อ/ดิปที่ต้นทางระบุอุปกรณ์เป็น other จึงไม่ตกกติกาข้อ 7 — นิยมถ่วงเพิ่ม = น้ำหนักตัว+เพิ่ม",
+  "track_type": "weight_reps",
+  "load_mode": "bodyweight_plus"
+ },
+ "One_Arm_Chin-Up": {
+  "reason": "ท่าดึงข้อ/ดิปที่ต้นทางระบุอุปกรณ์เป็น other จึงไม่ตกกติกาข้อ 7 — นิยมถ่วงเพิ่ม = น้ำหนักตัว+เพิ่ม",
+  "track_type": "weight_reps",
+  "load_mode": "bodyweight_plus"
+ },
+ "Parallel_Bar_Dip": {
+  "reason": "ท่าดึงข้อ/ดิปที่ต้นทางระบุอุปกรณ์เป็น other จึงไม่ตกกติกาข้อ 7 — นิยมถ่วงเพิ่ม = น้ำหนักตัว+เพิ่ม",
+  "track_type": "weight_reps",
+  "load_mode": "bodyweight_plus"
+ },
+ "Ring_Dips": {
+  "reason": "ท่าดึงข้อ/ดิปที่ต้นทางระบุอุปกรณ์เป็น other จึงไม่ตกกติกาข้อ 7 — นิยมถ่วงเพิ่ม = น้ำหนักตัว+เพิ่ม",
+  "track_type": "weight_reps",
+  "load_mode": "bodyweight_plus"
+ },
+ "Rocky_Pull-Ups_Pulldowns": {
+  "reason": "ท่าดึงข้อ/ดิปที่ต้นทางระบุอุปกรณ์เป็น other จึงไม่ตกกติกาข้อ 7 — นิยมถ่วงเพิ่ม = น้ำหนักตัว+เพิ่ม",
+  "track_type": "weight_reps",
+  "load_mode": "bodyweight_plus"
+ },
+ "Side_To_Side_Chins": {
+  "reason": "ท่าดึงข้อ/ดิปที่ต้นทางระบุอุปกรณ์เป็น other จึงไม่ตกกติกาข้อ 7 — นิยมถ่วงเพิ่ม = น้ำหนักตัว+เพิ่ม",
+  "track_type": "weight_reps",
+  "load_mode": "bodyweight_plus"
+ },
+ "Weighted_Pull_Ups": {
+  "reason": "ท่าดึงข้อ/ดิปที่ต้นทางระบุอุปกรณ์เป็น other จึงไม่ตกกติกาข้อ 7 — นิยมถ่วงเพิ่ม = น้ำหนักตัว+เพิ่ม",
+  "track_type": "weight_reps",
+  "load_mode": "bodyweight_plus"
+ },
+ "Weighted_Bench_Dip": {
+  "reason": "ท่าดึงข้อ/ดิปที่ต้นทางระบุอุปกรณ์เป็น other จึงไม่ตกกติกาข้อ 7 — นิยมถ่วงเพิ่ม = น้ำหนักตัว+เพิ่ม",
+  "track_type": "weight_reps",
+  "load_mode": "bodyweight_plus"
+ },
+ "Sled_Push": {
+  "reason": "ลาก/ดันสเลดและพราวเลอร์: จดน้ำหนักที่โหลด + เวลา (ถือเดิน/ลากน้ำหนักตามเจตนาข้อ 4)",
+  "track_type": "weight_duration",
+  "load_mode": "external"
+ },
+ "Sled_Drag_-_Harness": {
+  "reason": "ลาก/ดันสเลดและพราวเลอร์: จดน้ำหนักที่โหลด + เวลา (ถือเดิน/ลากน้ำหนักตามเจตนาข้อ 4)",
+  "track_type": "weight_duration",
+  "load_mode": "external"
+ },
+ "Bear_Crawl_Sled_Drags": {
+  "reason": "ลาก/ดันสเลดและพราวเลอร์: จดน้ำหนักที่โหลด + เวลา (ถือเดิน/ลากน้ำหนักตามเจตนาข้อ 4)",
+  "track_type": "weight_duration",
+  "load_mode": "external"
+ },
+ "Forward_Drag_with_Press": {
+  "reason": "ลาก/ดันสเลดและพราวเลอร์: จดน้ำหนักที่โหลด + เวลา (ถือเดิน/ลากน้ำหนักตามเจตนาข้อ 4)",
+  "track_type": "weight_duration",
+  "load_mode": "external"
+ },
+ "Backward_Drag": {
+  "reason": "ลาก/ดันสเลดและพราวเลอร์: จดน้ำหนักที่โหลด + เวลา (ถือเดิน/ลากน้ำหนักตามเจตนาข้อ 4)",
+  "track_type": "weight_duration",
+  "load_mode": "external"
+ },
+ "Sled_Overhead_Backward_Walk": {
+  "reason": "ลาก/ดันสเลดและพราวเลอร์: จดน้ำหนักที่โหลด + เวลา (ถือเดิน/ลากน้ำหนักตามเจตนาข้อ 4)",
+  "track_type": "weight_duration",
+  "load_mode": "external"
+ },
+ "Prowler_Sprint": {
+  "reason": "ลาก/ดันสเลดและพราวเลอร์: จดน้ำหนักที่โหลด + เวลา (ถือเดิน/ลากน้ำหนักตามเจตนาข้อ 4)",
+  "track_type": "weight_duration",
+  "load_mode": "external"
+ },
+ "Battling_Ropes": {
+  "reason": "เชือกสะบัดจดเป็นเวลา ไม่ใช่น้ำหนัก×ครั้ง",
+  "track_type": "duration",
+  "load_mode": "external"
+ },
+ "Isometric_Wipers": {
+  "reason": "ท่าค้าง/วิ่งเร็วจดเป็นเวลา (ข้อ 5/6 ตามเจตนา)",
+  "track_type": "duration",
+  "load_mode": "external"
+ },
+ "Wind_Sprints": {
+  "reason": "ท่าค้าง/วิ่งเร็วจดเป็นเวลา (ข้อ 5/6 ตามเจตนา)",
+  "track_type": "duration",
+  "load_mode": "external"
+ },
+ "Push_Up_to_Side_Plank": {
+  "reason": "ชื่อมี plank แต่เป็นท่าเคลื่อนไหวนับครั้ง ไม่ใช่ท่าค้าง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Toe_Touchers": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Crossover_Reverse_Lunge": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Frog_Hops": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Sit_Squats": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Split_Squats": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Front_Leg_Raises": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Rear_Leg_Raises": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Side_Leg_Raises": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Scissor_Kick": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Groiners": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Inchworm": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Windmills": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Shoulder_Raise": {
+  "reason": "ท่าเคลื่อนไหวน้ำหนักตัวนับครั้ง (ต้นทางจัดหมวด stretching แบบไดนามิก จึงตกข้อ 5 เป็น duration) — รอบสอง: นับครั้งเหมาะกว่าเวลา",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Heavy_Bag_Thrust": {
+  "reason": "พลัยโอเมตริกผลักกระสอบทราย ไม่มีน้ำหนักให้จด (อุปกรณ์ other ตกข้อ 9) — รอบสอง: นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Drop_Push": {
+  "reason": "พลัยโอเมตริกวิดพื้นน้ำหนักตัวระหว่างกล่อง (อุปกรณ์ other ตกข้อ 9) — รอบสอง: นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Bench_Sprint": {
+  "reason": "พลัยโอเมตริกน้ำหนักตัวบนม้านั่ง (อุปกรณ์ other ตกข้อ 9) — รอบสอง: นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Ball_Leg_Curl": {
+  "reason": "ท่าน้ำหนักตัวบนบอล ไม่มีน้ำหนักให้จด (อุปกรณ์ exercise ball แมปเป็น other ตกข้อ 9) — รอบสอง: นับครั้ง",
+  "track_type": "reps_only",
+  "load_mode": "external"
+ },
+ "Balance_Board": {
+  "reason": "ท่าทรงตัวบนบอร์ด ต้นทางให้ค้างตามต้องการ จดเป็นเวลา ไม่ใช่น้ำหนัก×ครั้ง — รอบสอง",
+  "track_type": "duration",
+  "load_mode": "external"
+ },
+ "Plate_Pinch": {
+  "reason": "ค้างหนีบเพลท น้ำหนักเพลทคือตัวแปรหลัก + เวลา (force=static ตกข้อ 5 เป็น duration ซึ่งทิ้งน้ำหนัก) — รอบสอง",
+  "track_type": "weight_duration",
+  "load_mode": "external"
+ },
+ "Crucifix": {
+  "reason": "ถือน้ำหนักกางแขนค้างตามเวลา น้ำหนักคือตัวแปรหลัก (force=static ตกข้อ 5 เป็น duration ซึ่งทิ้งน้ำหนัก) — รอบสอง",
+  "track_type": "weight_duration",
+  "load_mode": "external"
+ }
+}

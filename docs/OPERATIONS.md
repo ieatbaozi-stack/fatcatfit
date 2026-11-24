@@ -139,9 +139,11 @@ migration บน production รันแล้วตอน deploy v0.2.0 (2026-1
 4. เปิด Build Logs ของ deployment นั้น ต้องเห็นบรรทัด `release-migrate: migration เสร็จ` ก่อนขั้น `next build` (ถ้าเห็น `ข้าม (...)` แปลว่าตัวแปรยังไม่มีผล)
 5. เปิด `/api/health` ต้องได้ `{"ok":true}`
 
+**ตั้งแต่ R2:** หลัง migration สำเร็จ สคริปต์เดียวกันจะ seed คลังท่ากลาง (`exercise`) ต่อทันที ภายใต้สวิตช์ `MIGRATE_ON_DEPLOY` เดิม (ไม่ต้องตั้งตัวแปรเพิ่ม) · ใน Build Logs ต้องเห็น `release-migrate: seed: ...` ต่อจากบรรทัด migration เสร็จ · seed ตรวจไฟล์คลังก่อนเขียน รันซ้ำได้ผลเท่าเดิม · ล้ม = build ล้ม = รุ่นเดิมยังให้บริการอยู่
+
 วิธีปิด: ลบตัวแปร `MIGRATE_ON_DEPLOY` ออก (ไม่ต้องแก้โค้ด)
 
-ฐานข้อมูลชุด `dev` (Preview/ในเครื่อง) ไม่รันอัตโนมัติ — Lead รัน `npm run db:migrate` กับชุด dev ก่อนทดสอบ Preview ของ PR ที่มี migration ใหม่ (boss ไม่ต้องทำ)
+ฐานข้อมูลชุด `dev` (Preview/ในเครื่อง) ไม่รันอัตโนมัติ — Lead รัน `npm run db:migrate` กับชุด dev ก่อนทดสอบ Preview ของ PR ที่มี migration ใหม่ (boss ไม่ต้องทำ) · คลังท่าบนฐาน dev ต้อง seed เอง (Lead ทำ): `npm run db:seed` (ใช้ `DATABASE_URL_UNPOOLED` ใน `.env.local` ชุด dev · รันซ้ำได้) · ตรวจไฟล์คลังโดยไม่แตะฐานข้อมูล: `npm run catalog:check`
 
 ### 2.4 ข้อควรระวังของวิธี A (ให้ architect/platform รู้)
 

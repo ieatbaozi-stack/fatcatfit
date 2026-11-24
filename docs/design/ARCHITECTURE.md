@@ -1,7 +1,7 @@
 # ARCHITECTURE — แมวอ้วนจะผอม (Fat Cat Fit) v1
 
-> ร่าง 1 · 2026-11-15 · ผู้เขียน: architect · สถานะ: **อนุมัติโดย boss 2026-11-16** พร้อม ADR 0001–0004 · **ร่าง 2 · 2026-11-17**: ปรับให้ตรงกับโค้ดจริงหลัง R0 · **ร่าง 3 · 2026-11-18**: ตาม ADR 0006 และ ADR 0002 ที่แก้ 2026-11-18 (ดูบันทึกการแก้ไขท้ายไฟล์) · **ร่าง 4 · 2026-11-20**: หน้าแอดมินออกโค้ดเชิญ (R1.5 · ADR 0007)
-> เอกสารนี้เป็นภาพรวมหน้าเดียว รายละเอียดและเหตุผลอยู่ใน ADR: [0001 ฐานข้อมูล/โฮสต์](../adr/0001-database-and-hosting.md) · [0002 auth](../adr/0002-auth.md) · [0003 โมเดลข้อมูล](../adr/0003-data-model.md) · [0004 ออฟไลน์/sync](../adr/0004-offline-sync.md) · [0005 service worker](../adr/0005-service-worker-tool.md) · [0006 การพาไปจอตามสถานะบัญชี + ยินดีต้อนรับออฟไลน์](../adr/0006-auth-routing-offline.md) · [0007 สิทธิ์แอดมินและหน้าออกโค้ดเชิญ](../adr/0007-admin-invites.md)
+> ร่าง 1 · 2026-11-15 · ผู้เขียน: architect · สถานะ: **อนุมัติโดย boss 2026-11-16** พร้อม ADR 0001–0004 · **ร่าง 2 · 2026-11-17**: ปรับให้ตรงกับโค้ดจริงหลัง R0 · **ร่าง 3 · 2026-11-18**: ตาม ADR 0006 และ ADR 0002 ที่แก้ 2026-11-18 (ดูบันทึกการแก้ไขท้ายไฟล์) · **ร่าง 4 · 2026-11-20**: หน้าแอดมินออกโค้ดเชิญ (R1.5 · ADR 0007) · **ร่าง 5 · 2026-11-23**: คลังท่า สถานที่ และ API เขียนชุดแรก (R2 · ADR 0008 · กำลังทำ — โฟลเดอร์/ตารางที่ระบุ "R2" ยังไม่อยู่ใน `main`)
+> เอกสารนี้เป็นภาพรวมหน้าเดียว รายละเอียดและเหตุผลอยู่ใน ADR: [0001 ฐานข้อมูล/โฮสต์](../adr/0001-database-and-hosting.md) · [0002 auth](../adr/0002-auth.md) · [0003 โมเดลข้อมูล](../adr/0003-data-model.md) · [0004 ออฟไลน์/sync](../adr/0004-offline-sync.md) · [0005 service worker](../adr/0005-service-worker-tool.md) · [0006 การพาไปจอตามสถานะบัญชี + ยินดีต้อนรับออฟไลน์](../adr/0006-auth-routing-offline.md) · [0007 สิทธิ์แอดมินและหน้าออกโค้ดเชิญ](../adr/0007-admin-invites.md) · [0008 คลังท่ากลาง](../adr/0008-exercise-catalog.md)
 > boss เลือก Neon (Singapore) ตาม ADR 0001 · Vercel function ต้องตั้งภูมิภาค `sin1`
 
 ## 1. แผนภาพส่วนประกอบ
@@ -54,7 +54,7 @@ flowchart LR
 - ไคลเอนต์ `AuthGate` (`src/components/auth/**`) รับ `kind` จาก layout เรียก `GET /api/me` แล้วพาไป `/welcome` · `/consent` · `/onboarding` · `/` ตามตาราง `decideRoute` ของ ADR 0006 ข้อ 3 · ออฟไลน์ไม่เปลี่ยนหน้า: hint `fcf:auth = ready` → แสดงหน้า · ไม่มี → จอยินดีต้อนรับแบบออฟไลน์ในที่เดิม (hint อ่าน/เขียนผ่าน `src/pwa/auth-hint.ts`)
 - ออกจากระบบ/ลบบัญชี: เรียกเซิร์ฟเวอร์สำเร็จ → `resetDeviceAfterSignOut()` (`src/pwa`) → `location.replace("/welcome")`
 
-### 1.2 ตารางที่มีในฐานข้อมูลแล้ว (migration `0000`–`0002` · ตารางของรอบถัดไปและคอลัมน์เต็มอยู่ใน ADR 0003 ข้อ 3)
+### 1.2 ตารางในฐานข้อมูล (migration `0000`–`0002` + `0003` ของ R2 · ตารางของรอบถัดไปและคอลัมน์เต็มอยู่ใน ADR 0003 ข้อ 3, 3.1)
 
 ```mermaid
 erDiagram
@@ -65,8 +65,11 @@ erDiagram
   user ||--o{ place : "CASCADE"
   user ||--o{ body_entry : "CASCADE"
   user ||--o| app_admin : "CASCADE (PK user_id) R1.5"
+  user |o--o{ exercise : "owner_user_id CASCADE · null = คลังกลาง R2"
   invite_code |o--o{ user : "user.invite_code_id SET NULL"
 ```
+
+`exercise` (R2): ตารางเดียวเก็บทั้งคลังกลาง (`owner_user_id` null · seed จาก `content/exercises/**` · ไม่ลบ เลิกใช้ = `archived_at`) และท่าของฉัน (เขียนผ่าน push) · เพดานต่อคน: ท่าของฉัน 300 · สถานที่ 30 (ADR 0003 ข้อ 3.1)
 
 ไม่ผูกผู้ใช้ด้วย FK: `verification` (OTP · ลบด้วย identifier ตรงตัวตอนลบบัญชี) · `rate_limit` (Better Auth ต่อ IP) · `auth_throttle` (key เป็น hash · ลบ `otp-email:` และ `admin-invite:` ตอนลบบัญชี) · `invite_code` ไม่มี `user_id` · `app_admin` แอปอ่านอย่างเดียว เพิ่ม/ถอนด้วย SQL (ADR 0007)
 
@@ -88,6 +91,7 @@ src/
       auth/[...all]/        Better Auth handler (R1)
       invite/check/ consent/ onboarding/ me/ cron/daily/   R1
       admin/invites/        R1.5 · GET/POST · [id]/revoke/ POST (ADR 0007)
+      catalog/ bootstrap/ sync/push/   R2 · คลังกลาง · snapshot · push (ADR 0004 ข้อ 4 · ADR 0008)
     serwist/[path]/         pwa-offline — route.ts สร้าง /serwist/sw.js ตอน build (ADR 0005)
   components/               frontend
     auth/                   R1 · AuthGate, decideRoute, จอยินดีต้อนรับแบบออฟไลน์
@@ -99,7 +103,7 @@ src/
   db/                       platform — client.ts, schema/ (auth.ts, invite.ts, app.ts, index.ts · R1.5: admin.ts), sql-helpers.ts, migrations.test.ts
     testing/                platform — pglite.ts: ฐานข้อมูลเทสต์ (PGlite + migration จริง) ใช้ใน *.test.ts เท่านั้น
   lib/
-    data/shared/            platform (R1+) — track-types, units, zod schema, ชนิดข้อมูลบนสาย · R1.5: admin-invite.ts (zod ของฟอร์มออกโค้ด ใช้ร่วมหน้า/API)
+    data/shared/            platform (R1+) — track-types, units, zod schema, ชนิดข้อมูลบนสาย · R1.5: admin-invite.ts (zod ของฟอร์มออกโค้ด ใช้ร่วมหน้า/API) · R2: exercise-meta.ts (หมวด/อุปกรณ์/ชุดข้อมูล — ที่เดียว) · exercise-search.ts (ค้นฝั่งไคลเอนต์ ฟังก์ชันบริสุทธิ์)
     data/server/            platform — repository (import 'server-only') · R0 มี health.ts
     stats/                  platform (R3+) — สถิติ/PR ฟังก์ชันบริสุทธิ์
     auth/                   platform — server.ts (R0: createAuth · R1: requireUser, requireConsent), session-cookie.ts (R1 · hasSessionCookie ไม่ import db), client.ts (R1), http.ts (json/handle/assertSameOrigin), throttle.ts, invite-store.ts · R1.5: admin.ts (requireAdmin, isAdmin · server-only)
@@ -110,10 +114,10 @@ src/
     e2e/                    pwa-offline — s5-offline-check.ts สคริปต์ตรวจออฟไลน์/อัปเดต/ภาษาใน Chromium (รันเอง ไม่อยู่ใน CI)
   test/                     ตัวช่วยของ Vitest (stub `server-only`)
 public/                     manifest.webmanifest (pwa-offline) · icons/ (ux-brand)
-drizzle/                    platform — migration SQL + meta/ (0000_auth_init.sql · 0001_r1_invite_consent_profile.sql · R1.5: 0002_* ตาราง app_admin)
-content/exercises/          catalog (R2)
+drizzle/                    platform — migration SQL + meta/ (0000_auth_init.sql · 0001_r1_invite_consent_profile.sql · R1.5: 0002_* ตาราง app_admin · R2: 0003_* ตาราง exercise)
+content/exercises/          catalog (R2) — *.json แถวคลัง (UUID คงที่) + SOURCES.md (ชุดข้อมูล · commit ที่ล็อก · ใบอนุญาต) · ไม่มี instructions/รูป (ADR 0008)
 messages/                   frontend — th.json, en.json
-scripts/                    db-migrate.ts (platform) · release.ts, release-lib.ts, release-notes.ts, release-migrate.ts (ops) · export-stickers.mjs, export-icons.mjs, cat-source.mjs (ux-brand) · invite.ts (R1) · seed*.ts (R2) · เทสต์ของ ops: env-example, eslint-boundaries, security-headers
+scripts/                    db-migrate.ts (platform) · release.ts, release-lib.ts, release-notes.ts, release-migrate.ts (ops) · export-stickers.mjs, export-icons.mjs, cat-source.mjs (ux-brand) · invite.ts (R1) · seed*.ts (R2 catalog: แปลง, seed รันซ้ำได้, ตรวจคลัง · release-migrate เรียก seed ต่อจาก migrate) · เทสต์ของ ops: env-example, eslint-boundaries, security-headers
 tests/e2e/                  qa-test (smoke, design, pwa)
 .github/                    ops-release — ci.yml, release.yml, dependabot.yml
 next.config.ts · vercel.json · eslint.config.mjs   ops-release
@@ -152,9 +156,9 @@ unit/integration test วางคู่กับไฟล์ (`*.test.ts`) ใ�
 | `GET /api/admin/invites` | แอดมิน: รายการโค้ด `{ invites: [{ id, label, status, usesCount, maxUses, expiresAt, createdAt }] }` ใหม่สุดก่อน ≤ 200 แถว · **ไม่มีโค้ด/hash** · ลำดับตรวจ: `requireAdmin` | ✓ | R1.5 |
 | `POST /api/admin/invites` | แอดมิน: ออกโค้ด body `{ label, days, maxUses }` (D3: 1/3/7/14 วัน · 1–10 ครั้ง · ป้าย 1–40 ตัว) → 201 `{ id, code, label, maxUses, expiresAt }` (โค้ดดิบครั้งเดียว) · ลำดับตรวจ: Origin แบบเข้ม → `requireAdmin` → throttle 20/24 ชม. (`admin-invite:`) → body → zod | ✓ | R1.5 |
 | `POST /api/admin/invites/:id/revoke` | แอดมิน: เพิกถอน → `{ result: "revoked" \| "unchanged" }` (ส่งซ้ำได้) · ไม่พบ 404 · ลำดับตรวจ: Origin แบบเข้ม → `requireAdmin` → id เป็น UUID | ✓ | R1.5 |
-| `POST /api/sync/push` | รับรายการจากคิว upsert/delete แบบส่งซ้ำได้ (entity เพิ่มตามรอบ: R1 profile, place, body_entry · R2 exercise · R3 session/exercise/set · R4 template, body_measurement) | — | R1 → R4 |
-| `GET /api/bootstrap` | snapshot ของผู้ใช้ (ส่วนเพิ่มตามรอบ: สถิติดีสุด/ค่าครั้งก่อนต่อท่า ตั้งแต่ R3) | — | R1 → R4 |
-| `GET /api/catalog` | คลังท่ากลาง + `catalog_version` (ETag) | — | R2 |
+| `POST /api/sync/push` | รับรายการ upsert/delete แบบส่งซ้ำได้ `{ v:1, ops }` → `{ results, server_time }` (ADR 0004 ข้อ 4) · entity เพิ่มตามรอบ: **R2 `place` `exercise`** · R3 session/session_exercise/set · R4 template, body_measurement · `profile` `body_entry` เพิ่มในรอบที่มีจอแก้ข้อมูลนั้น · code ปฏิเสธเพิ่ม `limit_reached` (R2) · zod strict ช่องที่เซิร์ฟเวอร์ตั้งเอง = `invalid` · ท่าคลัง/ของคนอื่น = `id_conflict` · `place` ลบไม่ได้และต้องเหลือแห่งที่ไม่อยู่ในกรุ ≥ 1 | — | R2 → R4 |
+| `GET /api/bootstrap` | snapshot ของผู้ใช้ · R2: `{ profile, places, my_exercises, catalog_version, server_time }` (รวมแถวในกรุ ไม่รวมแถวที่ลบ) · R3+: สถิติดีสุด/ค่าครั้งก่อนต่อท่า เซสชัน ฯลฯ ตาม ADR 0004 ข้อ 2 | — | R2 → R4 |
+| `GET /api/catalog` | ทุกแถวคลังกลาง (รวมในกรุ) `{ catalog_version, exercises }` · ไม่ส่ง `source_ref` `license` `attribution` `met` · `ETag: "<catalog_version>"` + `If-None-Match` → 304 (ADR 0008 ข้อ 5) · ค้นท่าทำฝั่งไคลเอนต์ ไม่มี API ค้น | — | R2 |
 | `GET /api/sessions?before=&limit=` · `GET /api/sessions/:id` | ประวัติ (เก่ากว่า snapshot) / รายละเอียด | ✓ | R3 |
 | `GET /api/stats/summary?period=week\|month&anchor=YYYY-MM-DD` | วันที่มา · จำนวนเซสชัน · เวลารวม | ✓ (มีสำเนาล่าสุด) | R5 |
 | `GET /api/stats/exercise/:id?range=` | ข้อมูลกราฟ + สถิติรายท่า | ✓ | R5 |
@@ -166,7 +170,7 @@ unit/integration test วางคู่กับไฟล์ (`*.test.ts`) ใ�
 
 **API แอดมิน (`/api/admin/**` · ADR 0007)**: ไม่ผ่าน `requireAdmin()` ทุกกรณี (ไม่มี session / หมดอายุ / ไม่ใช่แอดมิน / method ที่ไม่มี รวม `OPTIONS` ที่ export ไว้ตอบ 404) → 404 `{ code: "not_found" }` เหมือนกันทุกไบต์ · `HEAD` ใช้ handler `GET` (body ว่าง) · ตรวจสิทธิ์ก่อนอ่าน body เสมอ · ไม่เรียก `requireConsent()` · สิทธิ์อ่านจากตาราง `app_admin` ทุกคำขอ (ไม่ cache) · ไม่มี API ใดเขียน `app_admin`
 
-R1 ยังไม่มีคิวเต็มรูป (คิวเป็นงาน R3): การเขียนของ R1–R2 เรียก `/api/sync/push` ผ่านฟังก์ชันใน `src/lib/offline` ที่ส่งทันทีและแจ้งข้อผิดพลาด แล้ว R3 เปลี่ยนไส้ในเป็น outbox โดยหน้าจอไม่ต้องแก้
+ยังไม่มีคิวเต็มรูปก่อน R3: R1 เขียนผ่าน `POST /api/onboarding` · R2 เขียน `place`/`exercise` ผ่าน `/api/sync/push` ด้วยฟังก์ชันใน `src/lib/offline` ที่ส่งทันทีตอนออนไลน์และแจ้งข้อผิดพลาด (ล้ม = ค่าอยู่ในฟอร์ม + ลองใหม่) แล้ว R3 เปลี่ยนไส้ในเป็น outbox โดยหน้าจอไม่ต้องแก้ · R2 ยังไม่เก็บคลังหรือ snapshot ใน IndexedDB (R3)
 
 ## 5. ตัวแปร env (ใส่ใน `.env.example` โดยไม่มีค่าจริง)
 
@@ -228,4 +232,5 @@ R1 ยังไม่มีคิวเต็มรูป (คิวเป็น
 | 2026-11-18 | เพิ่มข้อ 1.1 (จอ · route group `(public)` `(setup)` `(app)` · ใครตรวจอะไร · ไม่ใช้ `proxy.ts`) · แผนภาพ SW (ถอยไป `/welcome`) · โครงโฟลเดอร์ R1 (`(public)/welcome`, `(setup)`, `(app)`, `components/auth`, `lib/auth/session-cookie.ts`, ไฟล์ใหม่ใน `src/pwa`) · ขอบเขตโมดูลของหน้าจอ · ตาราง API (`/api/me` รูปคำตอบ, จุดกั้น OTP, `customRules`, `X-Retry-After`, `email_unavailable` 503, `POST /api/onboarding`, วิธีลบ `verification`, invite จำกัดด้วย `auth_throttle`) · env: ลบ `TRUSTED_IP_HEADER`, Gmail host/port ยืนยันแล้ว | ADR 0006 และ ADR 0002 แก้ไข 2026-11-18 · ไม่มีการตัดสินใจใหม่ในไฟล์นี้ |
 | 2026-11-20 | ข้อ 1.1 แถว `/admin/invites` · เพิ่มข้อ 1.2 ตารางที่มีจริง + ความสัมพันธ์ (รวม `app_admin`) · โครงโฟลเดอร์ (`admin/` ทั้งหน้าและ API, `lib/auth/admin.ts`, `data/shared/admin-invite.ts`, `schema/admin.ts`, migration `0001`/`0002`, route ของ R1 ที่ตกหล่น) · ขอบเขตโมดูล (`lib/auth/admin` ให้หน้าแอดมิน) · ตาราง API 3 เส้นทางแอดมิน + `isAdmin` + ลบ key `admin-invite:` · **แก้รูปข้อผิดพลาดให้ตรงโค้ด** `{ code, ...extra }` (เดิมเขียน `{ error: { code, message } }` ซึ่งไม่เคยตรงกับ `HttpError`) | ADR 0007 (R1.5 contract ที่ boss อนุมัติ 2026-11-20) · ตรวจกับโค้ด `src/lib/auth/http.ts` `src/lib/data/shared/http-error.ts` · ไม่มีการตัดสินใจใหม่ในไฟล์นี้ |
 | 2026-11-20 | ข้อ 1.1 + โครงโฟลเดอร์ + ขอบเขตโมดูล: หน้าแอดมินอยู่กลุ่ม `(admin)` (ไม่มีแถบล่าง) แทน `(app)/admin` · กลุ่มที่ห้าม loading/Suspense · API แอดมิน `OPTIONS`/`HEAD` · `DELETE /api/me` ล้างป้ายโค้ดที่ใช้สมัคร | ADR 0007 แก้ไข 2026-11-20 (commit 96449fa · boss ตัดสินเกณฑ์ 3 และ M1 ทาง ก.) · ไม่มีการตัดสินใจใหม่ในไฟล์นี้ |
+| 2026-11-23 | ร่าง 5: ลิงก์ ADR 0008 · ข้อ 1.2 เพิ่ม `exercise` + เพดานต่อคน · โครงโฟลเดอร์ (API `catalog/` `bootstrap/` `sync/push/`, `exercise-meta.ts` `exercise-search.ts`, migration `0003`, `content/exercises/`, `seed*.ts`) · ตาราง API: push เริ่ม R2 กับ `place` `exercise` (**แก้ของเดิมที่เขียนว่า R1 มี push** — R1 เขียนผ่าน `/api/onboarding`), bootstrap รูป R2, catalog ETag/304 · ย่อหน้าการเขียนก่อน R3 | R2 contract ที่ boss อนุมัติ 2026-11-23 · ADR 0008 · ADR 0003/0004 แก้ไข 2026-11-23 · ไม่มีการตัดสินใจใหม่ในไฟล์นี้ |
 

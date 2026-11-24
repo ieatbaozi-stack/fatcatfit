@@ -78,8 +78,18 @@ type OutboxOp = {
 - upsert = `INSERT … ON CONFLICT (id) DO UPDATE … WHERE t.user_id = :me AND t.deleted_at IS NULL AND t.client_updated_at <= excluded.client_updated_at` → อัปเดต 0 แถว = `stale` (ถือว่าสำเร็จ ไคลเอนต์เอาออกจากคิว) · ถ้า id นั้นเป็นของผู้ใช้อื่น = `rejected` `id_conflict` (ไม่บอกรายละเอียด)
 - delete = ตั้ง `deleted_at` (tombstone) · แถวไม่มีอยู่ = `applied` · **ลบชนะเสมอ** upsert ที่มาทีหลังบนแถวที่ลบแล้ว = `stale` · "ย้อนการลบ" ในไคลเอนต์ = สร้างแถวใหม่ id ใหม่
 - `client_updated_at` อนาคตเกิน `server_time` → ใช้ `server_time` แทน · เกิน 24 ชม. = `rejected` `bad_clock`
-- ตรวจทุกรายการ: zod ตาม entity + ช่องตาม track_type (ADR 0003) · พ่อแม่ต้องเป็นของ `:me` (composite FK) · `exercise_id` ต้องเป็นคลังกลางหรือของ `:me` · code ปฏิเสธ: `invalid` `parent_missing` `id_conflict` `exercise_has_history` `bad_clock`
+- ตรวจทุกรายการ: zod ตาม entity + ช่องตาม track_type (ADR 0003) · พ่อแม่ต้องเป็นของ `:me` (composite FK) · `exercise_id` ต้องเป็นคลังกลางหรือของ `:me` · code ปฏิเสธ: `invalid` `parent_missing` `id_conflict` `exercise_has_history` `bad_clock` `limit_reached` (R2)
 - `GET /api/bootstrap` → snapshot ทั้งก้อน + `catalog_version` + `server_time` · ไม่ทำ delta sync ใน v1 (ข้อมูลต่อคนเล็ก) · เพิ่ม delta ภายหลังได้เพราะทุกตารางมี `(user_id, updated_at)` และ tombstone แล้ว
+- `GET /api/catalog` → `{ catalog_version, exercises }` ทุกแถวคลังกลาง · `ETag` + 304 · รูปแถวและนิยาม `catalog_version` อยู่ใน [ADR 0008](0008-exercise-catalog.md) ข้อ 5 · ไคลเอนต์ดึงใหม่เมื่อ `catalog_version` ใน bootstrap ไม่ตรงกับที่เก็บไว้
+
+**ส่วนที่ทำใน R2** (contract R2 · ไคลเอนต์เรียกตรงตอนออนไลน์ ยังไม่มีคิว — R3 เพิ่ม entity และเอาคิวมาครอบโดยไม่แก้รูป API)
+- `/api/sync/push` รับ entity `place` และ `exercise` เท่านั้น (entity อื่น = `rejected` `invalid`) · R1 เขียนผ่าน `POST /api/onboarding` จึงยังไม่มี endpoint นี้ก่อน R2
+- ช่องเจ้าของ: `exercise` ใช้ `owner_user_id` แทน `user_id` ในเงื่อนไข upsert · id ที่เป็นท่าคลัง (`owner_user_id IS NULL`) หรือของคนอื่น = `rejected` `id_conflict` ทั้ง upsert และ delete
+- `data` ใช้ zod แบบ strict: ช่องที่เซิร์ฟเวอร์ตั้งเอง (`owner_user_id` `user_id` `name_th` `search_terms` `source_dataset` `source_ref` `license` `attribution` `met` `created_at` `updated_at` `deleted_at`) หรือช่องที่ไม่รู้จัก = `rejected` `invalid` · ช่องที่รับ — `exercise`: `name` `track_type` `load_mode` `is_unilateral` `category` `equipment` `archived_at` · `place`: `name` (1–60) `last_used_at` `archived_at`
+- `limit_reached`: upsert ที่สร้างแถวใหม่แบบใช้งาน หรือเอาแถวออกจากกรุ เมื่อผู้ใช้มีแถวที่ใช้งาน (`deleted_at IS NULL AND archived_at IS NULL`) ครบเพดานแล้ว (Lead ตัดสิน 2026-11-23: ไม่นับแถวในกรุ เพราะสถานที่ลบไม่ได้) — ท่าของฉัน 300 · สถานที่ 30 (ADR 0003 ข้อ 3.1) · แก้แถวเดิมหรือเก็บเข้ากรุไม่ติดเพดาน · ต้องไม่เกินแม้หลายคำขอมาพร้อมกัน (platform เลือกวิธี เช่น advisory lock ต่อผู้ใช้ใน transaction)
+- `place`: upsert ที่ทำให้ไม่เหลือสถานที่ที่ไม่อยู่ในกรุ = `rejected` `invalid` · **`delete` ของ `place` = `rejected` `invalid` ใน v1** (ไม่มีปุ่มลบ · R3 เซสชันอ้างถึง — contract R2 D7) · เลือกชิปสถานที่ = upsert ทั้งแถวพร้อม `last_used_at` ใหม่ (LWW ตามปกติ)
+- `exercise` delete = tombstone ได้ใน R2 (ยังไม่มีประวัติ) · R3 เพิ่มการตรวจ `exercise_has_history` และล็อก `track_type`/`load_mode`
+- `GET /api/bootstrap` ใน R2 คืน `{ profile, places, my_exercises, catalog_version, server_time }` (รวมแถวในกรุ ไม่รวมแถวที่ลบ) · R3 เพิ่มส่วนที่เหลือตามข้อ 2
 
 ### 5. จังหวะ sync
 
@@ -134,3 +144,4 @@ push เมื่อ: เปิดแอป · `online` · `visibilitychange` �
 | 2026-11-17 | ข้อ 1: "shell มีชุดเดียว" → shell ขึ้นกับภาษา cache เก็บทีละภาษา · สลับภาษาตอนออฟไลน์ไม่มีผลจนกว่าจะออนไลน์ | S4: next-intl อ่านภาษาจาก cookie ตอน render ทำให้ HTML ต่างกันตามภาษาและทุกหน้าเป็น dynamic (สมมติฐานเดิมของ ADR นี้ผิด) | **ใช่ บางส่วน** — สมมติฐานเปลี่ยนและมีข้อจำกัดที่ผู้ใช้เห็นได้ (สลับภาษาตอนออฟไลน์ไม่ได้) → boss ควรรับทราบ · ทางเลือกถ้าไม่รับ: ใส่ locale ใน URL (`/th/...`) ซึ่งทำให้ cache 2 ชุดได้แต่ต้องแก้ routing ของ frontend |
 | 2026-11-17 | ข้อ 1 และข้อ 8: HTML ที่ cache ห้ามมีข้อมูลส่วนตัว · ออกจากระบบเรียก `clearUserCaches()` ซึ่งลบ `fcf-pages-v*` ด้วย (เดิมระบุแค่ `user-*`) | S5: HTML ถูกเก็บไว้ใช้ตอนออฟไลน์แม้ Next ส่ง `no-store` | ไม่ — เพิ่มสิ่งที่ต้องทำตาม |
 | 2026-11-17 | ผลที่ตามมา: เพิ่มผลต่อการออกแบบ R3 | ข้อค้นพบจาก S5 และ source ของ Next 16.4.6 | ไม่ |
+| 2026-11-23 | ข้อ 4: code `limit_reached` · `GET /api/catalog` · หัวข้อ "ส่วนที่ทำใน R2" (push เฉพาะ `place` `exercise`, `owner_user_id`, zod strict, เพดานจำนวน, สถานที่แห่งสุดท้าย, ไม่ลบ `place`, bootstrap รูป R2) | R2 contract ที่ boss อนุมัติ 2026-11-23 (D7 D8) · ADR 0008 | ไม่ — รูปแบบ push/LWW/tombstone เดิมทุกประการ เพิ่ม code และกติกาต่อ entity |

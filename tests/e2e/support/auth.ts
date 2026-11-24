@@ -24,7 +24,7 @@ export async function sql<T = Record<string, unknown>>(query: string, params: un
   return (await ctrl<{ rows: T[] }>("/sql", { sql: query, params })).rows;
 }
 
-/** จำนวนแถวที่เหลือของบัญชี: ทุกตารางที่มี user_id + user + verification/auth_throttle ของอีเมล */
+/** จำนวนแถวที่เหลือของบัญชี: ทุกตารางที่มี user_id หรือ owner_user_id (key "<ตาราง>.owner_user_id") + user + verification/auth_throttle ของอีเมล */
 export async function residue(userId: string, email: string): Promise<Record<string, number>> {
   return ctrl(`/residue?userId=${encodeURIComponent(userId)}&email=${encodeURIComponent(email)}`);
 }

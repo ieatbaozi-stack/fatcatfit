@@ -267,6 +267,17 @@
   .once .flag { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; color: var(--ink); font-weight: 400; line-height: 1.45; }
   .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex: none; }
   .duo .btn { min-height: 48px; font-size: 16px; font-weight: 400; }
+  /* R2 คลังท่า สถานที่ */
+  .sw { width: 54px; height: 32px; flex: none; position: relative; border: 2.5px solid var(--ink); border-radius: 20px 17px 19px 16px / 17px 20px 16px 19px; }
+  .sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 21px; height: 21px; border-radius: 50%; border: 2px solid var(--ink); background: var(--paper); }
+  .sw.on { background: var(--ink); } .sw.on::after { left: auto; right: 3px; border-color: var(--paper); }
+  .opt.trk { min-height: 48px; font-size: 16px; align-items: center; }
+  .opt.trk > span:not(.cb):not(.mut) { white-space: normal; line-height: 1.35; }
+  .opt.trk .mut { flex: none; }
+  .sub { padding: 0 0 6px 42px; }
+  .li .tag { font-size: 14px; color: var(--ink-3); }
+  .credit { font-size: 15px; line-height: 1.6; color: var(--ink-2); margin: 2px 0 0; }
+  .credit a { color: var(--ink); text-decoration: underline; text-decoration-style: wavy; text-underline-offset: 4px; text-decoration-thickness: 1.5px; word-break: break-all; }
   /* จอคอม: กรอบกว้าง ขอบซ้ายขวาย่อ คอลัมน์เนื้อหา 480px ขนาดจริง */
   .fr.wide { width: 100%; max-width: 780px; }
   .desk { width: 100%; max-width: 780px; height: 720px; position: relative; overflow: hidden; background: var(--paper); color: var(--ink-2);
@@ -329,7 +340,7 @@
   </div>
 
   <h1>Wireframe v1 · แมวอ้วนจะผอม</h1>
-  <p class="note">ร่าง 2 · 2026-11-16 · <b>boss อนุมัติแล้ว</b> และแก้ตามที่ตัดสิน (UX.md ข้อ 5) · <b>แก้ 2026-11-18 สำหรับ R1</b> (UX.md ข้อ 10): กลุ่ม 1 ตรงกับ ADR 0006 + API จริง · เพิ่มจอยินดีต้อนรับออฟไลน์ ไม่ยินยอม ประกาศความเป็นส่วนตัว · กลุ่ม 7 ยึดหน้า "ฉัน" ของ R0 แล้วต่อส่วนบัญชี (D1) · <b>แก้ 2026-11-20 สำหรับ R1.5</b> (UX.md ข้อ 11): เพิ่มกลุ่ม 9 ออกโค้ดเชิญของแอดมิน (จอ 48–59) ·คู่กับ <b>UX.md</b> (flow ฟอร์มจด ตารางสถานะ กติกาส้ม รุ่นที่รองรับ) · ทุกจอกว้าง 360px · ข้อความใต้กรอบเป็นหมายเหตุถึงทีม (ภาษาไทยเท่านั้น) ปุ่ม TH/EN เปลี่ยนเฉพาะข้อความในจอ · ตั้งค่าเริ่มผ่าน URL ได้ เช่น <code>#dark,en</code> หรือเฉพาะกลุ่ม <code>#dark,en,only-g3</code></p>
+  <p class="note">ร่าง 2 · 2026-11-16 · <b>boss อนุมัติแล้ว</b> และแก้ตามที่ตัดสิน (UX.md ข้อ 5) · <b>แก้ 2026-11-18 สำหรับ R1</b> (UX.md ข้อ 10): กลุ่ม 1 ตรงกับ ADR 0006 + API จริง · เพิ่มจอยินดีต้อนรับออฟไลน์ ไม่ยินยอม ประกาศความเป็นส่วนตัว · กลุ่ม 7 ยึดหน้า "ฉัน" ของ R0 แล้วต่อส่วนบัญชี (D1) · <b>แก้ 2026-11-20 สำหรับ R1.5</b> (UX.md ข้อ 11): เพิ่มกลุ่ม 9 ออกโค้ดเชิญของแอดมิน (จอ 48–59) · <b>แก้ 2026-11-23 สำหรับ R2</b> (UX.md ข้อ 12): เพิ่มกลุ่ม 10 คลังท่า สถานที่ เครดิต (จอ 60–81) · กลุ่ม 3 ใช้ชื่อท่าตาม D3 หมวดตาม D9 ฟอร์มตาม D8 ·คู่กับ <b>UX.md</b> (flow ฟอร์มจด ตารางสถานะ กติกาส้ม รุ่นที่รองรับ) · ทุกจอกว้าง 360px · ข้อความใต้กรอบเป็นหมายเหตุถึงทีม (ภาษาไทยเท่านั้น) ปุ่ม TH/EN เปลี่ยนเฉพาะข้อความในจอ · ตั้งค่าเริ่มผ่าน URL ได้ เช่น <code>#dark,en</code> หรือเฉพาะกลุ่ม <code>#dark,en,only-g3</code></p>
   <div class="legend">
     <span><i>1</i>ลำดับแตะของเส้นทางหลักของจอ (สีฟ้าเป็นหมายเหตุ ไม่ใช่สีของแอป)</span>
     <span><i class="b">B1</i>ลำดับแตะของเส้นทางรองบนจอเดียวกัน</span>
@@ -745,7 +756,7 @@
       ${wob('thin')}
       ${fld(T('เพิ่มสถานที่', 'Add a place'), T('ยิมที่ทำงาน', 'Office gym') + '<span class="caret"></span>')}
       <span class="btn mt12">${T('เพิ่ม', 'Add')}</span></div>`,
-    note: 'เปิดจากชิปสถานที่บนหน้าหลัก · แตะแถว = เลือกแล้วปิดแผ่นเลย (1 แตะ) · จำล่าสุดไว้ใช้ครั้งหน้า · แก้ชื่อ/ลบสถานที่อยู่ใน ฉัน › สถานที่ของฉัน' });
+    note: 'เปิดจากชิปสถานที่บนหน้าหลัก · แตะแถว = เลือกแล้วปิดแผ่นเลย (1 แตะ) · จำล่าสุดไว้ใช้ครั้งหน้า (บันทึกที่เซิร์ฟเวอร์ ข้ามเครื่องได้) · แก้ชื่อ/เก็บเข้ากรุอยู่ใน ฉัน › สถานที่ (ไม่มีการลบ · R2 D7) · แบบ R2 ที่ใช้จริงดูกลุ่ม 10 จอ 61–63' });
   add(g2, { t: 'กลับมาหลังปิดแอปนาน', us: 'US-3.5', html: `${homeTop(true)}<div class="sp"></div>${live()}${tabs(0)}`,
     over: `<div class="scrim"></div><div class="sheet"><div class="grab"></div>
       ${cat(36, 140)}
@@ -755,13 +766,55 @@
       <span class="lnk mt4">${T('จบเซสชัน (นับถึง 18:40)', 'Finish (ends at 18:40)')}</span></div>`,
     note: 'ถามเฉพาะเมื่อไม่มีการจดเกิน 3 ชม. ถ้าน้อยกว่านั้นเปิดแอปแล้วเข้าหน้าจดเลย · จบแบบนี้ เวลาจบ = เวลาเซ็ตสุดท้าย ไม่ใช่ตอนกด' });
 
+  // ---------- ของใช้ร่วมของคลังท่า (R2 · UX.md ข้อ 12) — ประกาศก่อนกลุ่ม 3 เพราะกลุ่ม 3 (R3) ใช้ component เดียวกัน ----------
+  // หมวดและอุปกรณ์ตาม D9 (ลำดับเดียวกับ exercise-meta.ts) · ชนิดการจดตาม D8
+  const CATS = [['อก', 'Chest'], ['หลัง', 'Back'], ['ไหล่', 'Shoulders'], ['แขน', 'Arms'], ['ขา/ก้น', 'Legs &amp; glutes'], ['แกนกลาง', 'Core'], ['ทั้งตัว', 'Full body'], ['คาร์ดิโอ', 'Cardio'], ['กีฬา', 'Sports'], ['ยืดเหยียด', 'Mobility'], ['อื่นๆ', 'Other']];
+  const EQS = [['บาร์เบล', 'Barbell'], ['ดัมเบล', 'Dumbbell'], ['เคตเทิลเบล', 'Kettlebell'], ['เครื่อง', 'Machine'], ['เคเบิล', 'Cable'], ['ยางยืด', 'Band'], ['น้ำหนักตัว', 'Bodyweight'], ['อื่นๆ', 'Other']];
+  const TRK = [['น้ำหนัก × ครั้ง', 'Weight × reps', 'เบนช์เพรส', 'bench press'], ['ครั้งอย่างเดียว', 'Reps only', 'ซิทอัพ', 'sit-up'], ['เวลา', 'Time', 'แพลงก์', 'plank'],
+    ['ระยะ + เวลา', 'Distance + time', 'วิ่ง ปั่น', 'run, ride'], ['น้ำหนัก + เวลา', 'Weight + time', 'ฟาร์เมอร์วอล์ก', 'farmer’s walk'], ['ลู่วิ่ง: ชัน + เร็ว + เวลา', 'Treadmill: incline + speed + time', 'เดินชัน', 'incline walk']];
+  // ชิปหมวด: from = เริ่มวาดจากชิปที่เท่าไร (จำลองแถวที่เลื่อนแล้ว)
+  const catChips = (sel = -1, wrap = false, o = {}) => `<div class="chips ${wrap ? '' : 'nowrap'} ${o.cls || ''}">${CATS.map(([th, en], i) => i < (o.from || 0) ? '' : chip(T(th, en), i === sel)).join('')}</div>`;
+  // แถวท่าคลัง (D3): โหมดไทย = ชื่อไทยตัวใหญ่ + ชื่ออังกฤษตัวเล็กใต้ · โหมดอังกฤษ = อังกฤษอย่างเดียว
+  const cx = (en, th, r = '', t = '') => li(T(th, en), `<span class="th">${en}</span>`, r, t);
+  // แถวท่าของฉัน: ชื่อตามที่ผู้ใช้พิมพ์ (ไม่แปล) + "ของฉัน · หมวด · ชนิดการจด"
+  const mx = (name, c, k, t = '', dim = false) => li(dim ? `<span style="color:var(--ink-3);font-weight:400">${name}</span>` : name,
+    T(`ของฉัน · ${CATS[c][0]} · ${TRK[k][0]}`, `Mine · ${CATS[c][1]} · ${TRK[k][1]}`), ic('chev', 20), t);
+  const sw = on => `<span class="sw ${on ? 'on' : ''}" aria-hidden="true"></span>`;
+  const trkOpt = (i, on, sub = '') => `<div class="opt trk"><span class="cb ${on ? 'on' : ''}" style="border-radius:50%">${on ? ic('check', 18, 3) : ''}</span><span>${T(TRK[i][0], TRK[i][1])}</span><span class="mut">${T(TRK[i][2], TRK[i][3])}</span></div>${sub}`;
+  const loadSub = `<div class="sub"><p class="fl" style="margin:0">${T('ใช้น้ำหนักตัวไหม', 'Bodyweight?')}</p>
+    <div class="chips mt4">${chip(T('ไม่ใช้', 'No'), true)}${chip(T('ตัว + ถ่วงเพิ่ม', 'Body + added'))}${chip(T('เครื่องช่วยผ่อน', 'Assisted'))}</div></div>`;
+  // ฟอร์มท่าของฉัน (D8) · o.r3 = เปิดจากจอเลือกท่าในเซสชัน (R3)
+  const exForm = (o = {}) => {
+    const k = o.trk ?? 0;
+    return `
+    <div class="lhead"><span class="ibtn">${ic('close')}</span><div class="tt"><b>${o.edit ? T('แก้ท่าของฉัน', 'Edit my exercise') : T('สร้างท่าของฉัน', 'New exercise')}</b></div></div>
+    ${fld(T('ชื่อ', 'Name'), (o.name || 'ยกถังน้ำ') + (o.caret ? '<span class="caret"></span>' : ''),
+      { hint: o.dup ? `<span style="color:var(--ink-2)">${T('มีท่าของฉันชื่อนี้แล้ว · บันทึกซ้ำได้ แต่ตอนค้นอาจสับสน', 'You already have an exercise with this name. You can still save it.')}</span>` : T('ไทยหรืออังกฤษก็ได้ · ไม่เกิน 60 ตัว', 'Thai or English, up to 60 characters') })}
+    <p class="fl mt16" style="margin-bottom:0">${T('หมวด', 'Category')}</p>
+    ${catChips(o.cat ?? 2, true, { cls: 'mt4' })}
+    <p class="fl mt16" style="margin-bottom:0">${T('จดอะไร', 'What do you log?')}</p>
+    ${TRK.map((_, i) => trkOpt(i, i === k, i === k && i === 0 ? loadSub : '')).join('')}
+    ${[0, 1, 2, 4].includes(k) ? `<div class="between mt8" style="min-height:52px"><div><span class="bd" style="color:var(--ink)">${T('จดข้างละ', 'Log each side')}</span>
+      <div class="fh" style="margin:0">${T('ครั้งที่จดคือต่อข้าง เช่น ดัมเบลทีละข้าง', 'Reps are per side, e.g. one-arm row')}</div></div>${sw(o.uni ?? true)}</div>` : ''}
+    <p class="mut mt4" style="margin-bottom:0">${T('พอเริ่มจดท่านี้แล้ว ชนิดการจดจะเปลี่ยนไม่ได้', "Once you've logged this exercise, its log type can't change.")}</p>
+    <p class="fl mt16" style="margin-bottom:0">${T('อุปกรณ์ (ไม่บังคับ)', 'Equipment (optional)')}</p>
+    <div class="chips mt4">${EQS.map(([th, en], i) => chip(T(th, en), i === o.eq)).join('')}</div>
+    ${o.err ? `<p class="fe mt16" style="margin-bottom:0">${o.err}</p>` : ''}
+    <span class="btn big ${o.err ? 'mt8' : 'mt24'} ${o.dis ? 'dis' : ''}"${o.t || ''}>${o.btn || (o.r3 ? T('บันทึกและเพิ่มเข้าเซสชัน', 'Save and add to session') : T('บันทึก', 'Save'))}</span>
+    ${o.edit ? `${wob('thin mt16')}
+      <span class="lnk l">${o.archived ? T('เอาออกจากกรุ', 'Unarchive') : T('เก็บเข้ากรุ', 'Archive')}</span>
+      <p class="mut" style="margin:0">${T('ซ่อนจากการค้นหา · เอาออกจากกรุได้ทุกเมื่อ', 'Hidden from search. You can bring it back anytime.')}</p>
+      <span class="lnk l warn mt8"${o.tDel || ''}>${T('ลบท่านี้', 'Delete exercise')}</span>` : ''}
+    <div class="pb16"></div>`;
+  };
+
   // ---------- กลุ่ม 3: เลือกท่า ----------
-  const g3 = grp('g3', '3 · เลือกท่าและสร้างท่า (E2: US-2.1 · US-2.2)', 'เปิดเองหลังกดเริ่ม และจากปุ่ม "+ เพิ่มท่า" ในหน้าจด · ชื่ออังกฤษเป็นหลักเสมอ คำทับศัพท์ไทยอยู่ใต้ชื่อ');
-  const exRow = (en, th, r, t = '') => li(en, `<span class="th">${th}</span>`, r, t);
+  const g3 = grp('g3', '3 · เลือกท่าและสร้างท่า (E2: US-2.1 · US-2.2 · ใช้ใน R3)', 'เปิดเองหลังกดเริ่ม และจากปุ่ม "+ เพิ่มท่า" ในหน้าจด · ใช้ component ค้นท่าและฟอร์มเดียวกับ ฉัน › ท่าออกกำลังกาย (กลุ่ม 10) · ชื่อท่าตาม R2 D3: โหมดไทย = ชื่อไทยตัวใหญ่ + อังกฤษตัวเล็กใต้ · โหมดอังกฤษ = อังกฤษอย่างเดียว');
+  const exRow = (en, th, r, t = '') => cx(en, th, r, t);
   add(g3, { t: 'เลือกท่า', us: 'US-2.1', thumb: true, html: `
     <div class="lhead"><span class="ibtn">${ic('close')}</span><div class="tt"><b>${T('เลือกท่า', 'Pick an exercise')}</b></div></div>
     <div class="srch mt8">${ic('search', 22)}${T('ค้นหา เช่น bench, สควอท', 'Search, e.g. bench, squat')}</div>
-    <div class="chips nowrap mt12">${chip(T('ทั้งหมด', 'All'), true)}${chip(T('อก', 'Chest'))}${chip(T('หลัง', 'Back'))}${chip(T('ขา', 'Legs'))}${chip(T('ไหล่', 'Shoulders'))}${chip(T('แขน', 'Arms'))}${chip(T('คาร์ดิโอ', 'Cardio'))}${chip(T('ของฉัน', 'Mine'))}</div>
+    ${catChips(-1, false, { cls: 'mt12' })}
     <div class="sec mt8"><b>${T('ล่าสุด', 'Recent')}</b></div>
     ${exRow('Bench press', 'เบนช์เพรส', '<span class="num">62.5×6</span>', tap(1))}
     ${exRow('Incline dumbbell press', 'อินคลายน์ดัมเบลเพรส', '<span class="num">22.5×10</span>')}
@@ -772,7 +825,7 @@
     ${exRow('Cable fly', 'เคเบิลฟลาย', '')}
     <div class="sp"></div>
     <span class="lnk pb16">+ ${T('สร้างท่าใหม่', 'Create exercise')}</span>`,
-    note: 'แตะแถว = เพิ่มท่าเข้าเซสชันแล้วเปิดหน้าจดทันที (ไม่ต้องกดยืนยัน) · ล่าสุดเรียงตามใช้ล่าสุด+บ่อย 5 ท่า มีค่าเซ็ตสุดท้ายให้ดู · ชิปหมวดเลื่อนข้างได้ · ไม่เคยเล่น: ไม่มีส่วนล่าสุด เริ่มที่หมวด' });
+    note: 'R2 แก้: ชิปหมวด 11 อันตาม D9 (ไม่เลือกชิป = ทุกหมวด · ท่าของฉันขึ้นก่อนเมื่อตรงเท่ากัน) · ชื่อท่าตาม D3 · แตะแถว = เพิ่มท่าเข้าเซสชันแล้วเปิดหน้าจดทันที (ไม่ต้องกดยืนยัน) · ล่าสุดเรียงตามใช้ล่าสุด+บ่อย 5 ท่า มีค่าเซ็ตสุดท้ายให้ดู · ชิปหมวดเลื่อนข้างได้ · ไม่เคยเล่น: ไม่มีส่วนล่าสุด เริ่มที่หมวด' });
   add(g3, { t: 'ค้นหา', us: 'US-2.1 · US-2.2', html: `
     <div class="lhead"><span class="ibtn">${ic('close')}</span><div class="tt"><b>${T('เลือกท่า', 'Pick an exercise')}</b></div></div>
     <div class="srch typed mt8">${ic('search', 22)}${T('เบนช', 'bench')}<span class="caret"></span></div>
@@ -785,24 +838,8 @@
     <span class="lnk l"${tap(1)}>+ ${T('สร้าง "เบนช" เป็นท่าของฉัน', 'Create "bench" as my exercise')}</span>
     <div class="sp"></div>${kbText()}`,
     note: 'ค้นทั้งชื่ออังกฤษ ชื่อทับศัพท์ไทย และชื่อเรียกอื่น · ผลขึ้นทันทีที่พิมพ์ (ข้อมูลอยู่ในเครื่อง ใช้ได้ออฟไลน์) · ไม่เจอเลย: เหลือแค่ "ไม่เจอ "xxx"" + ปุ่มสร้าง เติมชื่อให้' });
-  const tt = (on, th, en, exTh, exEn) => `<div class="opt" style="min-height:46px;font-size:16px"><span class="cb ${on ? 'on' : ''}" style="border-radius:50%">${on ? ic('check', 18, 3) : ''}</span><span>${T(th, en)}</span><span class="mut">${T(exTh, exEn)}</span></div>`;
-  add(g3, { t: 'สร้างท่าของตัวเอง', us: 'US-2.2', html: `
-    <div class="lhead"><span class="ibtn">${ic('close')}</span><div class="tt"><b>${T('ท่าของฉัน', 'My exercise')}</b></div></div>
-    ${fld(T('ชื่อ (บังคับ)', 'Name (required)'), 'Boss plank')}
-    ${fld(T('ชื่อไทย (ไม่บังคับ)', 'Thai name (optional)'), T('บอสแพลงก์', 'บอสแพลงก์'), { ph: true })}
-    <p class="fl mt12">${T('หมวด', 'Category')}</p>
-    <div class="chips nowrap mt4">${chip(T('ท้อง', 'Core'), true)}${chip(T('อก', 'Chest'))}${chip(T('ขา', 'Legs'))}${chip(T('คาร์ดิโอ', 'Cardio'))}${chip(T('กีฬา', 'Sport'))}</div>
-    <p class="fl mt12">${T('จดอะไร (บังคับ)', 'What do you log? (required)')}</p>
-    ${tt(false, 'น้ำหนัก × ครั้ง', 'Weight × reps', 'เบนช์', 'bench')}
-    ${tt(false, 'ครั้งอย่างเดียว', 'Reps only', 'ซิทอัพ', 'sit-up')}
-    ${tt(true, 'เวลา', 'Time', 'แพลงก์', 'plank')}
-    ${tt(false, 'เวลา + ระยะ', 'Time + distance', 'วิ่ง', 'run')}
-    ${tt(false, 'น้ำหนัก + เวลา', 'Weight + time', 'ฟาร์เมอร์', 'carry')}
-    ${tt(false, 'ชัน + เร็ว + เวลา', 'Incline + speed + time', 'ลู่', 'treadmill')}
-    <p class="mut mt4">${T('เปลี่ยนสิ่งที่จดไม่ได้หลังเริ่มจดแล้ว', "You can't change this once you've logged it.")}</p>
-    <div class="sp"></div>
-    <span class="btn big pb"${tap(1)}>${T('บันทึกและเพิ่มเข้าเซสชัน', 'Save and add to session')}</span><div class="pb16"></div>`,
-    note: 'เลือก "น้ำหนัก × ครั้ง" แล้วมีสวิตช์เพิ่ม 3 อัน: ใช้น้ำหนักตัว · ทีละข้าง · เครื่องช่วย · ชื่อซ้ำกับท่าของฉัน: "มีท่าชื่อนี้แล้ว" ใต้ช่อง · แก้ชื่อ/เก็บเข้ากรุได้ที่ ฉัน › ท่าของฉัน (ท่าที่มีประวัติลบไม่ได้)' });
+  add(g3, { t: 'สร้างท่าของตัวเอง (ในเซสชัน)', us: 'US-2.2 · R3', cls: 'long', html: exForm({ r3: true, name: 'ยกถังน้ำ', t: tap(1) }),
+    note: 'ฟอร์มเดียวกับ ฉัน › ท่าออกกำลังกาย (กลุ่ม 10 · UX.md ข้อ 12.6) ต่างแค่ปุ่ม: <b>บันทึกและเพิ่มเข้าเซสชัน</b> (1) → กลับหน้าจดพร้อมท่าใหม่ · ชื่อเติมจากคำที่ค้น · ไม่มีช่องชื่อไทยแยก (D8) · R3: ออฟไลน์สร้างได้ เข้าคิว' });
 
   // ---------- กลุ่ม 4: จด ----------
   const g4 = grp('g4', '4 · หน้าจด (E3: US-3.2–3.7)', 'ข้อยกเว้นของความโล่ง: ข้อมูลแน่น ไม่มีของตกแต่ง ตัวเลขใหญ่ ✓ 56px ชิดขวา · ปุ่มหลักอยู่ครึ่งล่าง · ส้ม = เซ็ตที่ติ๊กแล้วเท่านั้น');
@@ -1286,6 +1323,256 @@
   add(g9, { t: 'จอคอม 1280px · คีย์บอร์ด', us: 'US-1.6 · เกณฑ์ 15', wide: 'กว้าง 1280 px (ภาพย่อขอบซ้ายขวา · คอลัมน์ 480 px ขนาดจริง)', html: invMain({ noTap: true, focus: true }),
     note: 'คอลัมน์เดียวกว้างสูงสุด 480 px กลางจอ (UX ข้อ 7) ไม่จัดวางใหม่ · ไม่มีแถบล่าง · <b>คีย์บอร์ด</b>: Tab ไล่ตามลำดับบนลงล่าง (‹ → ป้าย → กลุ่มชิปวัน → −/ช่องจำนวน/+ → ออกโค้ด → แชร์/คัดลอก → ปุ่มเพิกถอนของแต่ละแถว) · กลุ่มชิปวันเป็น radiogroup: Tab เข้าที่ชิปที่เลือก ลูกศรซ้าย/ขวาเปลี่ยน (ภาพ: focus ที่ "3 วัน") · ช่องจำนวนรับลูกศรขึ้น/ลง · Enter ในช่องป้าย = ออกโค้ด · แผ่นยืนยัน: focus อยู่ที่ "ยกเลิก" ก่อน (กันกด Enter แล้วเพิกถอนเลย) Esc ปิด focus ถูกขังในแผ่น · กรอบ focus เส้นหนา 2 ชั้นแบบทั้งแอป · เมาส์: ทุกปุ่ม/ชิปมี cursor pointer · คอมบางเครื่องมี <code>navigator.share</code> (เช่น Windows) — ใช้ตามที่ตรวจเจอ ไม่ใช่ตามขนาดจอ' });
 
+  // ---------- กลุ่ม 10: คลังท่า สถานที่ เครดิต (R2) ----------
+  // R2_CATALOG_CONTRACT.md · UX.md ข้อ 12 · ไม่มีส้ม ยกเว้นตัวเลือกที่เลือกแล้วในฟอร์ม/แผ่นเลือกสถานที่ (ข้อ 6) · ชื่อสถานที่/ท่าของฉันเป็นตัวอย่างสมมติ
+  const g10 = grp('g10', '10 · คลังท่า สถานที่ เครดิต (E2: US-2.1–2.3 · R2)', 'ฉัน › ท่าออกกำลังกาย (ค้น + ชิปหมวด + ท่าของฉัน) · ฟอร์มท่าของฉัน (D8) · ฉัน › สถานที่ (D7) · ฉัน › เครดิตข้อมูลท่า (D5) · ชิปสถานที่บนหน้าหลัก · <b>กด TH/EN ด้านบนเพื่อดูชื่อท่าตาม D3</b> (ไทย = ชื่อไทยใหญ่ + อังกฤษเล็กใต้ · อังกฤษ = อังกฤษอย่างเดียว) · สเปกละเอียดอยู่ UX.md ข้อ 12');
+  const subHead = (th, en) => `<div class="lhead"><span class="ibtn">${ic('back')}</span></div><p class="t1 mt4">${T(th, en)}</p>`;
+  const srchBox = (typed, cls = 'mt8') => typed
+    ? `<div class="srch typed ${cls}">${ic('search', 22)}${typed}<span class="caret"></span></div>`
+    : `<div class="srch ${cls}">${ic('search', 22)}${T('ค้นหา เช่น bench, สควอท', 'Search, e.g. bench, squat')}</div>`;
+  const createBtn = (o = {}) => `<span class="btn ${o.dis ? 'dis' : ''} mt8"${o.t || ''}>${ic('plus', 20)}${T('สร้างท่าของฉัน', 'New exercise')}</span>`;
+  const PLACES = [[LOC, true], [T('บ้าน', 'Home'), false], [T('สวนลุม', 'Lumpini Park'), false]];
+
+  // --- ฉัน (R2) ---
+  const meR2 = (off) => `
+    <p class="t1">${T('ฉัน', 'Me')}</p>
+    <div class="mt24"></div>
+    ${meSec(T('โหมด', 'Mode'), chip(T('ตามระบบ', 'System'), true) + chip(T('สว่าง', 'Light')) + chip(T('มืด', 'Dark')))}
+    ${wob('gap')}
+    ${meSec(T('ภาษา', 'Language'), chip('ไทย', true) + `<span class="chip ${off ? 'dis' : ''}">English</span>`)}
+    ${wob('gap')}
+    <p class="t2">${T('ออกกำลังกาย', 'Training')}</p>
+    <div class="mt4"></div>
+    ${set(T('ท่าออกกำลังกาย', 'Exercises'), ic('chev', 20), tap(1))}
+    ${set(T('สถานที่', 'Places'), `<span class="mut">${T('3 แห่ง', '3 places')}</span>${ic('chev', 20)}`, tap(2))}
+    ${wob('gap')}
+    <p class="t2">${T('บัญชี', 'Account')}</p>
+    <p class="mut" style="margin:2px 0 4px">nok@example.com</p>
+    ${set(T('ประกาศความเป็นส่วนตัว', 'Privacy notice'), ic('chev', 20), '', off)}
+    ${set(T('ส่งออกข้อมูล', 'Export my data'), `<span class="mut">${T('เร็วๆ นี้', 'Coming soon')}</span>`, '', true)}
+    ${set(T('ออกจากระบบ', 'Sign out'), '', '', off)}
+    ${set(`<span class="warn">${T('ลบบัญชี', 'Delete account')}</span>`, ic('chev', 20), '', off)}
+    ${wob('gap')}
+    <p class="t2">${T('เกี่ยวกับ', 'About')}</p>
+    <div class="mt4"></div>
+    ${set(T('เครดิตข้อมูลท่า', 'Exercise data credits'), ic('chev', 20), tap(3))}`;
+  add(g10, { t: 'ฉัน · R2', us: 'US-2.1–2.3 · <code>/me</code>', cls: 'long', thumb: true, html: `
+    ${meR2(false)}
+    ${cat(1, 120, 'margin-top:40px')}
+    <div class="pb16"></div>
+    ${tabs(3)}`,
+    note: 'ต่อจากกลุ่ม 7 ด้วยรูปเดิม (UX ข้อ 10.3 "รอบหลัง"): ส่วนใหม่ <b>ออกกำลังกาย</b> อยู่ระหว่างภาษากับบัญชี — ท่าออกกำลังกาย (1) › <code>/me/exercises</code> · สถานที่ (2) › <code>/me/places</code> (ป้ายขวา = จำนวนแห่งที่ไม่อยู่ในกรุ จาก bootstrap · ระหว่างรอไม่มีป้าย) · ส่วนใหม่ <b>เกี่ยวกับ</b> ท้ายสุด — เครดิตข้อมูลท่า (3) › <code>/me/credits</code> (R6 เพิ่มเครดิตอื่น/เลขรุ่นในส่วนนี้) · แถวใหม่ทั้ง 3 <b>ไม่ปิดตอนออฟไลน์</b> (หน้าปลายทางจัดการเอง) · แอดมินมีแถวออกโค้ดเชิญในส่วนบัญชีเหมือนเดิม · ไม่มีส้ม' });
+
+  // --- หน้าหลัก: ชิปสถานที่ ---
+  const placeChip = (o = {}) => `
+    <div class="row mt8"><span class="mut">${T('เล่นที่', 'At')}</span><span class="chip ${o.off ? 'dis' : ''}" style="max-width:250px"${o.t || ''}>${ic('pin', 18)}<span style="overflow:hidden;text-overflow:ellipsis">${o.name || LOC}</span>${ic('down', 16)}</span></div>
+    ${o.off ? `<p class="mut" style="margin:4px 0 0">${T('เปลี่ยนที่เล่นต้องต่อเน็ต', 'Changing place needs a connection')}</p>` : ''}`;
+  const homeR2 = (o = {}) => `
+    ${o.off ? `<div class="net">${ic('cloudoff', 18)}${T('เน็ตหลุด', 'Offline')}</div>` : ''}
+    <div class="hw">fat cat fit</div>
+    <p class="t1">${T('หน้าหลัก', 'Home')}</p>
+    <div class="sp"></div>
+    ${cat(12, 200)}
+    <p class="bd c mt8">${T('ยังไม่มีอะไรเลย · แมวก็ยังไม่ได้ขยับ', "Nothing here yet. The cat hasn't moved either.")}</p>
+    <div class="sp"></div>
+    ${placeChip(o)}
+    <div class="pb16"></div>
+    ${tabs(0)}`;
+  add(g10, { t: 'หน้าหลัก · ชิปสถานที่', us: 'US-2.3 · <code>/</code>', thumb: true, html: homeR2({ t: tap(1) }),
+    note: 'R2 ยังไม่มีปุ่มเริ่ม (มาใน R3 ใต้ชิปนี้ ตามกลุ่ม 2) — ชิปอยู่ที่เดียวกับที่จะเป็นตอนมีปุ่ม คือครึ่งล่างเหนือแถบล่าง · ชิปแสดงสถานที่ที่ไม่อยู่ในกรุและ <code>last_used_at</code> ใหม่สุด (เสมอกัน/ไม่มีค่า = สร้างก่อนสุด) · ชื่อยาวตัดด้วย … · แตะชิป (1) = แผ่นเลือก · โหลด bootstrap: < 400 ms ไม่แสดงชิป · เกินนั้นชิปเส้นประว่างกว้าง 140px · โหลดไม่ได้: แทนชิปด้วยบรรทัด "โหลดสถานที่ไม่ได้" + ลิงก์ ลองใหม่ (ไม่มีแมว #23 ทั้งจอ — ส่วนอื่นของหน้ายังใช้ได้) · ไม่มีส้ม' });
+  add(g10, { t: 'แผ่นเลือกสถานที่', us: 'US-2.3', html: homeR2(),
+    over: `<div class="scrim"></div><div class="sheet"><div class="grab"></div>
+      <p class="t2">${T('เล่นที่ไหน', 'Where are you?')}</p>
+      ${PLACES.map(([n, on], i) => `<div class="opt ${i === 0 ? 'mt8' : ''}"${i === 1 ? tap(1) : ''}><span class="cb ${on ? 'on' : ''}">${on ? ic('check', 20, 3) : ''}</span><span style="overflow:hidden;text-overflow:ellipsis">${n}</span>${on ? `<span class="mut">${T('ตอนนี้', 'current')}</span>` : ''}</div>`).join('')}
+      ${wob('thin')}
+      ${fld(T('เพิ่มสถานที่', 'Add a place'), T('เช่น ยิมที่ทำงาน', 'e.g. office gym'), { ph: true })}
+      <span class="btn mt12 dis">${T('เพิ่ม', 'Add')}</span>
+      <span class="lnk mt4"${tapB(1)}>${T('จัดการสถานที่', 'Manage places')}</span></div>`,
+    note: 'เรียงตาม <code>last_used_at</code> ใหม่สุดก่อน (ไม่มีค่าไว้ท้ายตามเวลาสร้าง) · เฉพาะที่ไม่อยู่ในกรุ · <b>แตะแถว (1) = เลือก + ปิดแผ่นทันที</b> → ชิปเปลี่ยนเลย แล้วส่ง push <code>place</code> (upsert <code>last_used_at</code>) · ส่งไม่ได้ (ล้ม/เน็ตหลุดระหว่างส่ง): ชิปกลับเป็นที่เดิม + toast "เปลี่ยนที่ไม่ได้ · ลองอีกที" · เพิ่ม = สร้าง + เลือกทันที + ปิดแผ่น (ปุ่มปิดจนพิมพ์ชื่อ · Enter = เพิ่ม · ชื่อซ้ำเตือนใต้ช่องไม่บล็อก · ครบ 30 แห่ง: ช่องและปุ่มซ่อน เหลือบรรทัด "ครบ 30 แห่งแล้ว") · <b>B1</b> จัดการสถานที่ › <code>/me/places</code> · ส้ม = ช่องติ๊กของที่ที่เลือก (ข้อ 6 แถวเลือกสถานที่) · ยกเลิก = แตะพื้นมืด / ลากลง / Esc' });
+  add(g10, { t: 'หน้าหลัก · ออฟไลน์', us: 'US-2.3', html: homeR2({ off: true }),
+    note: 'R2 ไม่มีคิว (UX ข้อ 4 หมายเหตุก่อน R3): ชิปแสดงที่เดิม (ค่าที่โหลดไว้) แต่<b>ปิด</b> เส้นประ + บรรทัด "เปลี่ยนที่เล่นต้องต่อเน็ต" · เปิดแอปตอนออฟไลน์โดยไม่มีค่าที่โหลดไว้ = ไม่แสดงชิปเลย · กลับมาออนไลน์ = กดได้เอง · R3 เปลี่ยนเป็นเลือกได้ตอนออฟไลน์ (เข้าคิว)' });
+
+  // --- ฉัน › ท่าออกกำลังกาย ---
+  add(g10, { t: 'ท่าออกกำลังกาย · ยังไม่ค้น', us: 'US-2.1 · US-2.2 · <code>/me/exercises</code>', thumb: true, html: `
+    ${subHead('ท่าออกกำลังกาย', 'Exercises')}
+    ${srchBox('', 'mt8')}
+    ${catChips(-1, false, { cls: 'mt12' })}
+    <div class="sec mt16"><b>${T('ท่าของฉัน · 2', 'My exercises · 2')}</b></div>
+    ${mx('Boss plank', 5, 2, tap(1))}
+    ${mx('ยกถังน้ำ', 2, 0)}
+    <div class="li" style="min-height:48px"><div class="tx"><span class="tag">${T('ในกรุ 1 ท่า', '1 archived')}</span></div><div class="r">${ic('down', 18)}</div></div>
+    <div class="sp"></div>
+    ${createBtn({ t: tapB(1) })}
+    ${tabs(3)}`,
+    note: 'จอแรกเมื่อเข้ามา (D6 ก): ช่องค้น · ชิปหมวด 11 อัน (D9) เลื่อนข้างได้ <b>ยังไม่มีชิปไหนถูกเลือก</b> · ส่วน "ท่าของฉัน · N" เรียงตามชื่อ · ในกรุพับไว้ แตะเพื่อกาง (แถวสีจาง) · ไม่มี "ล่าสุด" (มาใน R3 จากประวัติ) · แตะท่าของฉัน (1) = ฟอร์มแก้ · <b>B1</b> สร้างท่าของฉัน (ปุ่มรองติดล่าง เหนือแถบล่าง) = ฟอร์มเปล่า · ยังไม่มีท่าของฉัน: ส่วนนี้เหลือบรรทัดเดียว "ยังไม่มีท่าของฉัน · หาไม่เจอก็สร้างเองได้" ไม่มีแมว · ไม่มีส้ม' });
+  add(g10, { t: 'ค้นหา', us: 'US-2.1 · D3', html: `
+    ${subHead('ท่าออกกำลังกาย', 'Exercises')}
+    ${srchBox(T('เบนช', 'bench'))}
+    ${cx('Barbell Bench Press', 'บาร์เบลเบนช์เพรส', '', tap(1))}
+    ${cx('Dumbbell Bench Press', 'ดัมเบลเบนช์เพรส')}
+    ${cx('Close-Grip Barbell Bench Press', 'โคลสกริปบาร์เบลเบนช์เพรส')}
+    ${cx('Incline Dumbbell Bench Press', 'อินคลายน์ดัมเบลเบนช์เพรส')}
+    ${wob('thin')}
+    <p class="mut" style="margin:0">${T('ไม่ใช่ท่าที่หา?', 'Not what you want?')}</p>
+    <span class="lnk l"${tapB(1)}>+ ${T('สร้าง "เบนช" เป็นท่าของฉัน', 'Create "bench" as my exercise')}</span>
+    <div class="sp"></div>${kbText()}`,
+    note: 'ผลขึ้นทุกครั้งที่พิมพ์ (ค้นในเครื่อง ไม่หน่วง ไม่ต้องกด Enter) · อันดับตาม contract (ขึ้นต้นชื่อ > ขึ้นต้นคำ > กลางคำ · เท่ากันท่าของฉันก่อน) · <b>ชื่อตาม D3</b>: ไทย = ชื่อไทย 16px/500 ขึ้นได้ 2 บรรทัด + ชื่ออังกฤษ 14px <code>--ink-3</code> บรรทัดเดียวตัดด้วย … · อังกฤษ = ชื่ออังกฤษอย่างเดียว · ท่าของฉันแสดงชื่อที่พิมพ์ + "ของฉัน · หมวด · ชนิดการจด" · ชิปหมวดซ่อนระหว่างมีคำค้น <b>ถ้าไม่มีชิปที่เลือก</b> (ให้ผลขึ้นเต็มจอ) · แสดง 50 แถวแรก ต่อด้วยปุ่ม "ดูเพิ่ม" · ท้ายผลเสมอ: "ไม่ใช่ท่าที่หา?" + <b>B1</b> สร้าง "<คำ>" · แตะท่าคลัง (1) = แผ่นรายละเอียด (จอ 72) · ✕ ในช่อง (ขวาสุด เมื่อมีคำ) ล้างคำ · ไม่มีส้ม' });
+  add(g10, { t: 'เลือกชิปหมวด', us: 'US-2.1', html: `
+    ${subHead('ท่าออกกำลังกาย', 'Exercises')}
+    ${srchBox('', 'mt8')}
+    ${catChips(4, false, { cls: 'mt12', from: 3 })}
+    <div class="sec mt16"><b>${T('ขา/ก้น · 142 ท่า', 'Legs &amp; glutes · 142')}</b></div>
+    ${mx('สควอทกับลูกบอล', 4, 0)}
+    ${cx('Barbell Full Squat', 'บาร์เบลฟูลสควอท')}
+    ${cx('Barbell Hip Thrust', 'บาร์เบลฮิปทรัสต์')}
+    ${cx('Bulgarian Split Squat', 'บัลแกเรียนสปลิตสควอท')}
+    ${cx('Leg Press', 'เลกเพรส')}
+    <div class="sp"></div>
+    ${createBtn()}
+    ${tabs(3)}`,
+    note: 'แตะชิป = กรองหมวด · ชิปที่เลือกพื้นดำ (เลื่อนให้เห็นเสมอ) · แตะซ้ำ = เลิกเลือก กลับจอยังไม่ค้น · เลือกได้ทีละชิป · หัวส่วนบอกหมวด + จำนวน · ท่าของฉันในหมวดนี้ขึ้นก่อน แล้วท่าคลังตามตัวอักษร (โหมดไทยเรียงตามชื่อไทย · อังกฤษตามชื่ออังกฤษ) · มีคำค้นด้วย = กรองทั้งสองอย่าง ชิปยังแสดง · สร้างท่าจากจอนี้ = เติมหมวดที่เลือกให้ในฟอร์ม · ส่วนท่าของฉันทั้งหมดซ่อนเมื่อเลือกชิป' });
+  add(g10, { t: 'ค้นไม่เจอ', us: 'US-2.2', html: `
+    ${subHead('ท่าออกกำลังกาย', 'Exercises')}
+    ${srchBox(T('ยกถังน้ำ', 'water jug lift'))}
+    <p class="t3 mt24" style="margin-bottom:0">${T('ไม่เจอ "ยกถังน้ำ"', 'No match for "water jug lift"')}</p>
+    <p class="mut" style="margin:2px 0 0">${T('ลองสะกดแบบอื่น หรือพิมพ์ชื่ออังกฤษ', 'Try another spelling, or the Thai name.')}</p>
+    <span class="btn big mt16"${tap(1)}>${ic('plus', 20)}${T('สร้าง "ยกถังน้ำ" เป็นท่าของฉัน', 'Create "water jug lift" as my exercise')}</span>
+    <div class="sp"></div>${kbText()}`,
+    note: 'ไม่มีผลเลย: ประโยคบอก + คำแนะนำ + ปุ่มหลัก <b>สร้าง "<คำ>" เป็นท่าของฉัน</b> (1) อยู่เหนือแป้นพิมพ์ (UX ข้อ 7 <code>visualViewport</code>) → ฟอร์มที่ชื่อเติมแล้ว (ตัดช่องว่างหัวท้าย · เกิน 60 ตัวตัดเหลือ 60) · คำในปุ่มยาวตัดด้วย … (ชื่อเต็มอยู่ในฟอร์ม) · มีชิปหมวดเลือกอยู่: ประโยคเป็น "ไม่เจอ "<คำ>" ในหมวด <หมวด>" + ลิงก์ "ค้นทุกหมวด" เหนือปุ่ม · ไม่มีแมว (แป้นพิมพ์กินที่)' });
+  add(g10, { t: 'กำลังโหลด', us: 'UX ข้อ 4', html: `
+    ${subHead('ท่าออกกำลังกาย', 'Exercises')}
+    ${srchBox('', 'mt8')}
+    ${catChips(-1, false, { cls: 'mt12' })}
+    <div class="skel mt24" style="width:55%"></div><div class="skel"></div><div class="skel" style="width:75%"></div><div class="skel" style="width:65%"></div><div class="skel" style="width:85%"></div>
+    <div class="sp"></div>
+    ${cat(14, 120)}
+    <p class="bd c mt8">${T('รอแป๊บ', 'One sec')}</p>
+    <div class="sp"></div>
+    ${createBtn({ dis: true })}
+    ${tabs(3)}`,
+    note: 'ต้องได้ทั้ง <code>/api/catalog</code> และ <code>/api/bootstrap</code> · < 400 ms ไม่แสดงอะไร · เกินนั้น skeleton 5 แถว · เกิน 2 วิ เพิ่มแมว #14 "รอแป๊บ" · ช่องค้นและชิปพิมพ์/แตะได้ระหว่างรอ — ผลขึ้นเองเมื่อโหลดเสร็จ · ปุ่มสร้างปิดจนโหลดเสร็จ (ต้องรู้ชื่อท่าของฉันก่อนเตือนชื่อซ้ำ) · คลังที่โหลดแล้วใช้ซ้ำทั้งแอปจนปิดแท็บ (เปิดหน้านี้รอบสองไม่โหลดใหม่ ยกเว้น ETag เปลี่ยน)' });
+  add(g10, { t: 'โหลดไม่ได้', us: 'UX ข้อ 4', html: `
+    ${subHead('ท่าออกกำลังกาย', 'Exercises')}
+    <div class="sp"></div>
+    ${cat(23, 160)}
+    <p class="t2 c mt16">${T('โหลดคลังท่าไม่ได้', "Couldn't load exercises")}</p>
+    <p class="bd c">${T('ไม่ใช่ความผิดของเธอ · ลองใหม่อีกครั้งนะ', "Not your fault. Let's try again.")}</p>
+    <div class="sp"></div>
+    <span class="btn big"${tap(1)}>${T('ลองใหม่', 'Try again')}</span>
+    <div class="pb16"></div>
+    ${tabs(3)}`,
+    note: 'API ใดใน 2 ตัวล้ม (5xx / เน็ตหลุดระหว่างโหลด) = จอนี้ · ลองใหม่ (1) โหลดทั้งสองใหม่ · 401 → <code>/welcome</code> · 403 <code>consent_required</code> → <code>/consent</code> (ตาม AuthGate เดิม) · แมว #23 · ไม่มีส้ม' });
+  add(g10, { t: 'ออฟไลน์ · ยังไม่ได้โหลด', us: 'UX ข้อ 4', html: `
+    <div class="net">${ic('cloudoff', 18)}${T('เน็ตหลุด', 'Offline')}</div>
+    ${subHead('ท่าออกกำลังกาย', 'Exercises')}
+    <div class="sp"></div>
+    ${cat(24, 160)}
+    <p class="t2 c mt16">${T('ดูคลังท่าต้องต่อเน็ต', 'Exercises need a connection')}</p>
+    <p class="bd c">${T('ต่อเน็ตแล้วหน้านี้จะกลับมาเอง', 'This page comes back once you are online.')}</p>
+    <div class="sp"></div>
+    <span class="btn big"${tap(1)}>${T('กลับไปหน้า ฉัน', 'Back to Me')}</span>
+    <div class="pb16"></div>
+    ${tabs(3)}`,
+    note: 'R2 ยังไม่เก็บคลังในเครื่อง (R3 · ADR 0004 ข้อ 2) · ใช้เมื่อเปิดหน้าตอนออฟไลน์และยังไม่มีข้อมูลในหน่วยความจำ · แมว #24 · กลับมาออนไลน์ = โหลดเองไม่ต้องกด · ใช้รูปเดียวกันกับ ฉัน › สถานที่ ("ดูสถานที่ต้องต่อเน็ต") · R3 เลิกใช้จอนี้กับคลังท่า' });
+  add(g10, { t: 'ออฟไลน์ · โหลดไว้แล้ว', us: 'UX ข้อ 4', html: `
+    <div class="net">${ic('cloudoff', 18)}${T('เน็ตหลุด', 'Offline')}</div>
+    ${subHead('ท่าออกกำลังกาย', 'Exercises')}
+    ${srchBox(T('สควอท', 'squat'), 'mt8')}
+    ${cx('Barbell Full Squat', 'บาร์เบลฟูลสควอท')}
+    ${cx('Front Barbell Squat', 'ฟรอนต์บาร์เบลสควอท')}
+    ${cx('Goblet Squat', 'กอบเล็ตสควอท')}
+    <div class="sp"></div>
+    <p class="mut c" style="margin:0">${T('สร้างและแก้ท่าต้องต่อเน็ต', 'Creating and editing need a connection')}</p>
+    ${createBtn({ dis: true })}
+    ${tabs(3)}`,
+    note: 'เน็ตหลุดหลังโหลดแล้ว: <b>ค้นและกรองได้ปกติ</b> (ข้อมูลอยู่ในหน่วยความจำ) · ปุ่มสร้างปิด + บรรทัดเดียวเหนือปุ่ม · แตะท่าของฉัน = เปิดฟอร์มได้ แต่ปุ่มบันทึก/เก็บเข้ากรุ/ลบปิด พร้อมบรรทัดเดียวกัน · "สร้าง "<คำ>"" ท้ายผลเป็นสีจาง แตะไม่ได้ · กลับมาออนไลน์ = กดได้เอง ไม่โหลดใหม่ · ตัวตรวจเน็ต <code>useOnline()</code> ตัวเดียว' });
+  add(g10, { t: 'รายละเอียดท่าคลัง', us: 'US-2.1 · D1 · D3', html: `
+    ${subHead('ท่าออกกำลังกาย', 'Exercises')}
+    ${srchBox(T('เบนช', 'bench'))}
+    ${cx('Barbell Bench Press', 'บาร์เบลเบนช์เพรส')}
+    ${cx('Dumbbell Bench Press', 'ดัมเบลเบนช์เพรส')}
+    <div class="sp"></div>${tabs(3)}`,
+    over: `<div class="scrim"></div><div class="sheet"><div class="grab"></div>
+      <p class="t2">${T('บาร์เบลเบนช์เพรส', 'Barbell Bench Press')}</p>
+      <p class="mut th" style="margin:0">Barbell Bench Press</p>
+      <div class="mt12"></div>
+      ${li(T('หมวด', 'Category'), '', `<span style="color:var(--ink)">${T('อก', 'Chest')}</span>`)}
+      ${li(T('อุปกรณ์', 'Equipment'), '', `<span style="color:var(--ink)">${T('บาร์เบล', 'Barbell')}</span>`)}
+      ${li(T('จดแบบ', 'Logged as'), '', `<span style="color:var(--ink)">${T('น้ำหนัก × ครั้ง', 'Weight × reps')}</span>`)}
+      <p class="mut mt8" style="margin-bottom:0">${T('จากคลังกลาง · ที่มาดูได้ใน ฉัน › เครดิตข้อมูลท่า', 'From the shared library. Sources: Me › Exercise data credits')}</p>
+      <span class="btn mt16">${T('ปิด', 'Close')}</span></div>`,
+    note: 'อ่านอย่างเดียว (ท่าคลังแก้ไม่ได้) · ไม่มีรูป ไม่มีวิธีทำท่า (D1) · หัว = ชื่อตาม D3 (ไทย: ชื่อไทย + อังกฤษจางใต้ · อังกฤษ: อังกฤษบรรทัดเดียว) · แถว: หมวด · อุปกรณ์ (null = "ไม่ระบุ") · จดแบบ (คำเดียวกับฟอร์ม D8 · <code>bodyweight_plus</code> = "น้ำหนักตัว + ถ่วงเพิ่ม" · <code>assisted</code> = "เครื่องช่วยผ่อน" · <code>is_unilateral</code> ต่อท้าย " · ข้างละ") · ปิด = ปุ่ม / แตะพื้นมืด / Esc · ใช้ได้ตอนออฟไลน์ · R3 จอเลือกท่าในเซสชันไม่เปิดแผ่นนี้ (แตะ = เพิ่มเข้าเซสชัน) · ไม่มีส้ม' });
+
+  // --- ฟอร์มท่าของฉัน (D8) ---
+  add(g10, { t: 'สร้างท่าของฉัน', us: 'US-2.2 · D8 · <code>/me/exercises/new</code>', cls: 'long', html: exForm({ name: 'ยกถังน้ำ', cat: 2, trk: 0, uni: true, eq: 7, t: tap(1) }),
+    note: 'ลำดับช่องตาม D8: <b>ชื่อ</b> (1–60 · ตัวนับ <code>52/60</code> ขึ้นเมื่อถึง 50 · มาจากคำค้นก็เติมให้) → <b>หมวด</b> 11 ชิปตัดบรรทัด (ไม่มีค่าเริ่ม · มาจากจอที่เลือกชิปไว้ก็เติมให้) → <b>จดอะไร</b> 6 ตัวเลือก + ตัวอย่างจางขวา (ไม่มีค่าเริ่ม — เลือกเองเพราะล็อกเมื่อมีประวัติ) → เลือก น้ำหนัก × ครั้ง แล้วมี "ใช้น้ำหนักตัวไหม" 3 ชิป (ค่าเริ่ม ไม่ใช้ · ตัวเลือกอื่นซ่อน <code>load_mode</code> กลับเป็น external) → <b>จดข้างละ</b> สวิตช์ (เฉพาะ น้ำหนัก×ครั้ง · ครั้ง · เวลา · น้ำหนัก+เวลา · ค่าเริ่มปิด · ภาพแสดงตอนเปิด) → บรรทัดเตือนล็อก → <b>อุปกรณ์</b> ไม่บังคับ (แตะซ้ำ = เลิกเลือก = ไม่ระบุ) · ปุ่ม <b>บันทึก</b> (1) ปิดจนมีชื่อ + หมวด + ชนิดการจด → "กำลังบันทึก…" → push <code>exercise</code> → กลับรายการ + toast "บันทึกแล้ว" + คำค้นเดิมยังอยู่ (ท่าใหม่ขึ้นบนสุดของผล) · ✕ เมื่อมีอะไรกรอกแล้ว = ถาม "ทิ้งที่กรอกไว้ไหม" (ทิ้ง / กรอกต่อ) · ส้ม = วงของชนิดการจดที่เลือก · ชิปที่เลือก/สวิตช์ = ดำ' });
+  add(g10, { t: 'สร้างท่า · ชื่อซ้ำ + บันทึกไม่ได้', us: 'US-2.2 · UX ข้อ 4', cls: 'long', html: exForm({ name: 'Boss plank', dup: true, cat: 5, trk: 2, uni: false, err: T('ยังบันทึกไม่ได้ · ที่กรอกไว้ยังอยู่ ลองอีกที', "Couldn't save. What you entered is still here. Try again."), btn: T('ลองใหม่', 'Try again'), t: tap(1) }),
+    note: '<b>ชื่อซ้ำกับท่าของฉัน</b> (ไม่สนตัวพิมพ์เล็กใหญ่ ตัดช่องว่างหัวท้าย · ไม่นับท่าที่ลบแล้ว) = บรรทัดใต้ช่องสี <code>--ink-2</code> <b>ไม่บล็อก</b> (แบบเดียวกับสถานที่ D7) · <b>บันทึกไม่ได้</b> (เน็ตหลุด/5xx/ผลอื่นที่ไม่ใช่ applied): ค่าอยู่ครบ + ข้อความ <code>--warn</code> เหนือปุ่ม + ปุ่มเป็น "ลองใหม่" (1) (UX ข้อ 4 หมายเหตุก่อน R3) · <code>limit_reached</code>: "ท่าของฉันครบ 300 ท่าแล้ว · ลบท่าที่ไม่ใช้ก่อนนะ" ปุ่มปิด · <code>stale</code> (แก้จากอีกเครื่องใหม่กว่า): "ท่านี้ถูกแก้จากเครื่องอื่น · โหลดค่าล่าสุดแล้ว" แล้วโหลดค่าใหม่ใส่ฟอร์ม · <code>invalid</code> / <code>id_conflict</code>: ข้อความทั่วไปเดียวกับบันทึกไม่ได้' });
+  add(g10, { t: 'แก้ท่าของฉัน', us: 'US-2.2 · D8 · <code>/me/exercises/[id]</code>', cls: 'long', html: exForm({ edit: true, name: 'ยกถังน้ำ', cat: 2, trk: 0, uni: true, eq: 7, dis: true, tDel: tap(1) }),
+    note: 'ฟอร์มเดียวกับสร้าง ค่าเติมครบ · ปุ่มบันทึกปิดจนมีอะไรเปลี่ยน · R2 แก้ได้ทุกช่อง (D8) · ท้ายฟอร์ม: <b>เก็บเข้ากรุ</b> (ทำทันที ไม่ถาม → กลับรายการ + toast "เก็บเข้ากรุแล้ว" + ปุ่ม "เลิกทำ" ใน toast) / ท่าในกรุเป็น <b>เอาออกจากกรุ</b> (toast "เอาออกจากกรุแล้ว") · <b>ลบท่านี้</b> (1) สี <code>--warn</code> → แผ่นยืนยัน · <b>R3</b>: ท่าที่มีประวัติ — ชนิดการจด/ใช้น้ำหนักตัวเป็นข้อความอ่านอย่างเดียว + "ท่านี้มีประวัติแล้ว เปลี่ยนชนิดการจดไม่ได้" · ลบเป็นสีจางแตะไม่ได้ + "ท่าที่มีประวัติลบไม่ได้ · เก็บเข้ากรุแทนได้"' });
+  add(g10, { t: 'ยืนยันลบท่า', us: 'US-2.2', html: exForm({ edit: true, name: 'ยกถังน้ำ', cat: 2, trk: 0, uni: true, eq: 7, dis: true }),
+    over: `<div class="scrim"></div><div class="sheet"><div class="grab"></div>
+      <p class="t2">${T('ลบ "ยกถังน้ำ" ไหม', 'Delete "ยกถังน้ำ"?')}</p>
+      <p class="bd">${T('ลบแล้วกู้คืนไม่ได้ · ถ้าแค่ไม่อยากเห็น เก็บเข้ากรุแทนได้', "This can't be undone. To just hide it, archive it instead.")}</p>
+      <span class="btn big warnb mt16"${tap(1)}>${T('ลบ', 'Delete')}</span>
+      <span class="lnk">${T('ยกเลิก', 'Cancel')}</span></div>`,
+    note: 'แผ่นล่างซ้อนบนฟอร์ม · focus เริ่มที่ "ยกเลิก" (กัน Enter แล้วลบเลย) · ลบ (1) → "กำลังลบ…" → push delete → กลับรายการ + toast "ลบแล้ว" · ล้มเหลว: แผ่นยังเปิด + "ลบไม่ได้ · ลองอีกที" <code>--warn</code> เหนือปุ่ม + ปุ่มเป็น "ลองใหม่" · ยกเลิก / แตะพื้นมืด / Esc = ปิด · ไม่มีส้ม' });
+
+  // --- ฉัน › สถานที่ (D7) ---
+  const placeRow = (n, o = {}) => `<div class="li" style="min-height:56px"${o.t || ''}><div class="tx"><b${o.dim ? ' style="color:var(--ink-3);font-weight:400"' : ''}>${n}</b>${o.cur ? `<span>${T('ใช้ล่าสุด', 'Last used')}</span>` : ''}</div>${o.r ?? ic('chev', 20)}</div>`;
+  const placesBase = (o = {}) => `
+    ${o.off ? `<div class="net">${ic('cloudoff', 18)}${T('เน็ตหลุด', 'Offline')}</div>` : ''}
+    ${subHead('สถานที่', 'Places')}
+    <div class="mt8"></div>
+    ${placeRow(LOC, { cur: true, t: o.noTap ? '' : tap(1) })}
+    ${placeRow(T('บ้าน', 'Home'))}
+    ${placeRow(T('สวนลุม', 'Lumpini Park'))}
+    ${wob('thin mt16')}
+    <div class="sec"><b>${T('ในกรุ · 1', 'Archived · 1')}</b></div>
+    ${placeRow(T('ยิมเก่าแถวมหาลัย', 'Old campus gym'), { dim: true, r: `<span class="rv ${o.off ? 'dis' : ''}"${o.noTap ? '' : tapB(1)}>${T('เอาออกจากกรุ', 'Unarchive')}</span>` })}
+    <div class="sp"></div>
+    ${o.off ? `<p class="mut c" style="margin:0">${T('เพิ่มและแก้สถานที่ต้องต่อเน็ต', 'Adding and editing places need a connection')}</p>` : ''}
+    <span class="btn mt8 ${o.off ? 'dis' : ''}"${o.noTap ? '' : tap(2)}>${ic('plus', 20)}${T('เพิ่มสถานที่', 'Add a place')}</span>
+    ${tabs(3)}`;
+  add(g10, { t: 'สถานที่', us: 'US-2.3 · D7 · <code>/me/places</code>', thumb: true, html: placesBase(),
+    note: 'ที่ไม่อยู่ในกรุ เรียงตามใช้ล่าสุด (แบบเดียวกับแผ่นเลือก) · แถวแรกที่ชิปหน้าหลักใช้มีบรรทัด "ใช้ล่าสุด" · แตะแถว (1) = แผ่นแก้ · ส่วน "ในกรุ · N" แสดงเมื่อมี · ปุ่ม <b>B1</b> เอาออกจากกรุ ทำทันที ≥ 44px (toast "เอาออกจากกรุแล้ว") · <b>เพิ่มสถานที่</b> (2) = แผ่นเพิ่ม · ไม่มีปุ่มลบ (D7) · ครบ 30 แห่ง: ปุ่มเพิ่มปิด + "ครบ 30 แห่งแล้ว" เหนือปุ่ม · โหลด/ผิดพลาด/ออฟไลน์ยังไม่ได้โหลด = รูปเดียวกับจอ 68–70 (ข้อความ "ดูสถานที่ต้องต่อเน็ต") · ไม่มีส้ม' });
+  add(g10, { t: 'แก้สถานที่', us: 'US-2.3 · D7', html: placesBase({ noTap: true }),
+    over: `<div class="scrim"></div><div class="sheet"><div class="grab"></div>
+      <p class="t2">${T('แก้สถานที่', 'Edit place')}</p>
+      ${fld(T('ชื่อ', 'Name'), LOC + '<span class="caret"></span>')}
+      <span class="btn mt16 dis">${T('บันทึก', 'Save')}</span>
+      ${wob('thin mt16')}
+      <span class="lnk l"${tap(1)}>${T('เก็บเข้ากรุ', 'Archive')}</span>
+      <p class="mut" style="margin:0">${T('ไม่ขึ้นในตัวเลือกหน้าหลัก · ประวัติเก่ายังอยู่ · เอาออกจากกรุได้ทุกเมื่อ', "Won't show on Home. Past history stays. You can bring it back anytime.")}</p></div>`,
+    note: 'ชื่อ 1–60 ตัว · บันทึกปิดจนชื่อเปลี่ยน · Enter = บันทึก · ชื่อซ้ำกับที่อื่น (รวมในกรุ) = บรรทัดใต้ช่อง "มีสถานที่ชื่อนี้แล้ว · ใช้ซ้ำได้" ไม่บล็อก · บรรทัดเล็กใต้ช่องเสมอ: "เปลี่ยนชื่อแล้ว ประวัติเก่าจะแสดงชื่อใหม่ด้วย" (D7 หมายเหตุ) · <b>เก็บเข้ากรุ</b> (1) ทำทันที → ปิดแผ่น + toast "เก็บเข้ากรุแล้ว" · ถ้าเป็นที่ชิปหน้าหลักใช้อยู่ ชิปเปลี่ยนไปที่ใช้ล่าสุดถัดไป · <b>เหลือแห่งเดียว</b>: เก็บเข้ากรุเป็นสีจางแตะไม่ได้ + "ต้องมีสถานที่อย่างน้อย 1 แห่ง" (เซิร์ฟเวอร์ตอบ <code>invalid</code> ด้วย ใช้ข้อความเดียวกัน) · ล้มเหลว: แผ่นยังเปิด ค่ายังอยู่ + "บันทึกไม่ได้ · ลองอีกที" <code>--warn</code> เหนือปุ่ม · แตะแถวในกรุ = แผ่นเดียวกันแต่ลิงก์เป็น "เอาออกจากกรุ" · ไม่มีส้ม' });
+  add(g10, { t: 'เพิ่มสถานที่', us: 'US-2.3 · D7', html: placesBase({ noTap: true }),
+    over: `<div class="scrim"></div><div class="sheet"><div class="grab"></div>
+      <p class="t2">${T('เพิ่มสถานที่', 'Add a place')}</p>
+      ${fld(T('ชื่อ', 'Name'), T('บ้าน', 'Home') + '<span class="caret"></span>', { hint: `<span style="color:var(--ink-2)">${T('มีสถานที่ชื่อนี้แล้ว · ใช้ซ้ำได้', 'You already have a place with this name. You can still use it.')}</span>` })}
+      <span class="btn mt16"${tap(1)}>${T('เพิ่ม', 'Add')}</span>
+      <div class="mt8"></div>${kbText()}</div>`,
+    note: 'ชื่อ 1–60 ตัว · ปุ่มปิดจนพิมพ์ · Enter = เพิ่ม · ชื่อซ้ำ = เตือนไม่บล็อก (D7) · เพิ่ม (1) → "กำลังเพิ่ม…" → push → แผ่นปิด + แถวใหม่ในรายการ + toast "เพิ่มแล้ว" · <b>ไม่เปลี่ยนชิปหน้าหลัก</b> (เพิ่มจากแผ่นเลือกบนหน้าหลักเท่านั้นที่เลือกให้เลย) · <code>limit_reached</code>: "ครบ 30 แห่งแล้ว" ปุ่มปิด · ล้มเหลว: ค่ายังอยู่ + "เพิ่มไม่ได้ · ลองอีกที" + ลองใหม่' });
+  add(g10, { t: 'สถานที่ · ออฟไลน์', us: 'US-2.3', html: placesBase({ off: true, noTap: true }),
+    note: 'เน็ตหลุดหลังโหลดแล้ว: รายการดูได้ · ปุ่มเพิ่มปิด · ปุ่มเอาออกจากกรุเส้นประ ปิด · แตะแถว = แผ่นแก้เปิดได้แต่บันทึก/เก็บเข้ากรุปิด · บรรทัดเดียวเหนือปุ่ม "เพิ่มและแก้สถานที่ต้องต่อเน็ต" · ยังไม่ได้โหลด = แมว #24 แบบจอ 70' });
+
+  // --- ฉัน › เครดิตข้อมูลท่า (D5) ---
+  add(g10, { t: 'เครดิตข้อมูลท่า', us: 'E2 · D5 · <code>/me/credits</code>', html: `
+    ${subHead('เครดิตข้อมูลท่า', 'Exercise data credits')}
+    <p class="bd mt8">${T('ชื่อท่าในคลังมาจากชุดข้อมูลเปิด แล้วทีมเราแปลชื่อไทยและจัดหมวดเอง', 'Exercise names come from an open dataset. We added the Thai names and categories ourselves.')}</p>
+    <p class="doc-h mt24">free-exercise-db</p>
+    <p class="credit">${T('ชื่อท่าเวทในคลังมาจากชุดข้อมูลนี้ · ใช้เฉพาะชื่อท่า ไม่ใช้รูปและวิธีทำท่า', 'Strength exercise names come from this dataset. We use names only, not images or instructions.')}</p>
+    <p class="credit">${T('ใบอนุญาต', 'License')}: Unlicense (${T('สาธารณสมบัติ', 'public domain')})</p>
+    <p class="credit"><a>github.com/yuhonas/free-exercise-db</a></p>
+    ${wob('thin mt16')}
+    <p class="doc-h">${T('คาร์ดิโอและกีฬา', 'Cardio and sports')}</p>
+    <p class="credit">${T('ทีม แมวอ้วนจะผอม เขียนรายการเอง', 'Written by the Fat Cat Fit team.')}</p>
+    ${wob('thin mt16')}
+    <p class="doc-h">${T('ชื่อภาษาไทย', 'Thai names')}</p>
+    <p class="credit">${T('ทีมทับศัพท์ตามที่คนเล่นยิมพูดกันจริง · เจอชื่อแปลก บอกในกลุ่มแชตได้เลย เดี๋ยวแก้ให้', 'Transliterated by our team the way Thai gym-goers say them. Spot an odd one? Tell us in the group chat.')}</p>
+    <div class="sp"></div>
+    ${tabs(3)}`,
+    note: 'หน้าข้อความล้วน (DESIGN ข้อ 7) · ไม่มีแมว ไม่มีส้ม · ต้องล็อกอิน (D5 ก) · <b>ข้อความคงที่ใน messages</b> ไม่เรียก API → ไม่มีสถานะโหลด/ผิดพลาด/ว่าง · ออฟไลน์: แสดงได้ถ้าหน้าอยู่ใน cache · ลิงก์ชุดข้อมูลเปิดแท็บใหม่ (<code>target="_blank" rel="noopener noreferrer"</code>) แตะได้ ≥ 44px · ชื่อชุดข้อมูล/ใบอนุญาต/ลิงก์ <b>ต้องตรงกับ <code>content/exercises/SOURCES.md</code></b> (catalog ยืนยัน · ถ้า SOURCES ระบุต้นทางชั้นถัดไป เช่น exercises.json ให้เพิ่มบรรทัด) · ชื่อชุดข้อมูลและใบอนุญาตไม่แปล · R6 เพิ่มส่วนเครดิตฟอนต์ในหน้าเดียวกัน (หัวหน้าอาจเปลี่ยนเป็น "เครดิต" ตอนนั้น)' });
+
   // =====================================================================
   // วาดทั้งหน้า
   // =====================================================================
@@ -1312,7 +1599,7 @@
   if (h.includes('en')) apply('lang', 'en');
   if (h.includes('noann')) apply('ann', 'off');
   // #only-g4 = แสดงเฉพาะกลุ่ม 4 (ใช้ตอนถ่ายภาพตรวจ)
-  const only = h.find(x => /^only-g\d$/.test(x));
+  const only = h.find(x => /^only-g\d+$/.test(x));
   if (only) document.querySelectorAll('section').forEach(s => { if ('only-' + s.id !== only) s.style.display = 'none'; });
   // #f12 = แสดงเฉพาะจอที่ 12 ไม่มีส่วนหัวเอกสาร (ถ่ายภาพตรวจทีละจอ)
   const one = h.find(x => /^f\d+$/.test(x));

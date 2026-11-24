@@ -33,7 +33,14 @@
       "offlineNote": "Change language when you're online",
       "th": "ไทย",
       "en": "English"
-    }
+    },
+    "training": "Training",
+    "exercises": "Exercises",
+    "places": "Places",
+    "placesCount": "{count, plural, one {# place} other {# places}}",
+    "about": "About",
+    "credits": "Exercise data credits",
+    "back": "Back to Me"
   },
   "notFound": {
     "text": "Can't find this page · let's go home",
@@ -47,7 +54,8 @@
   "ui": {
     "decrease": "Decrease",
     "increase": "Increase",
-    "loading": "Loading"
+    "loading": "Loading",
+    "slow": "Hang on a sec"
   },
   "styleguide": {
     "title": "Style guide",
@@ -505,5 +513,179 @@
         "back": "Back to Me"
       }
     }
+  },
+  "exercise": {
+    "category": {
+      "chest": "Chest",
+      "back": "Back",
+      "shoulders": "Shoulders",
+      "arms": "Arms",
+      "legs": "Legs & glutes",
+      "core": "Core",
+      "full_body": "Full body",
+      "cardio": "Cardio",
+      "sport": "Sports",
+      "mobility": "Mobility",
+      "other": "Other"
+    },
+    "equipment": {
+      "barbell": "Barbell",
+      "dumbbell": "Dumbbell",
+      "kettlebell": "Kettlebell",
+      "machine": "Machine",
+      "cable": "Cable",
+      "band": "Band",
+      "bodyweight": "Bodyweight",
+      "other": "Other",
+      "none": "Not set"
+    },
+    "track": {
+      "weight_reps": "Weight × reps",
+      "reps_only": "Reps only",
+      "duration": "Time",
+      "distance_duration": "Distance + time",
+      "weight_duration": "Weight + time",
+      "incline_speed_duration": "Treadmill: incline + speed + time"
+    },
+    "trackExample": {
+      "weight_reps": "bench press",
+      "reps_only": "sit-up",
+      "duration": "plank",
+      "distance_duration": "run, ride",
+      "weight_duration": "farmer's walk",
+      "incline_speed_duration": "incline walk"
+    },
+    "load": {
+      "label": "Bodyweight?",
+      "external": "No",
+      "bodyweight_plus": "Body + added",
+      "assisted": "Assisted"
+    },
+    "unilateral": "each side"
+  },
+  "exercises": {
+    "title": "Exercises",
+    "search": "Search, e.g. bench, squat",
+    "clear": "Clear search",
+    "categories": "Category",
+    "mine": "My exercises · {count}",
+    "mineEmpty": "No exercises of your own yet. Can't find one? Make it.",
+    "mineMeta": "Mine · {category} · {track}",
+    "archived": "{count} archived",
+    "categoryCount": "{category} · {count}",
+    "more": "Show more",
+    "notWhat": "Not what you want?",
+    "createFrom": "Create \"{q}\" as my exercise",
+    "create": "New exercise",
+    "noMatch": "No match for \"{q}\"",
+    "noMatchIn": "No match for \"{q}\" in {category}",
+    "noMatchHint": "Try another spelling, or the Thai name.",
+    "searchAll": "Search all categories",
+    "loadFailed": "Couldn't load exercises",
+    "loadFailedBody": "Not your fault. Let's try again.",
+    "offlineTitle": "Exercises need a connection",
+    "offlineBody": "This page comes back once you're online.",
+    "needNet": "Creating and editing need a connection",
+    "detail": {
+      "category": "Category",
+      "equipment": "Equipment",
+      "track": "Logged as",
+      "source": "From the shared library. Sources: Me › Exercise data credits",
+      "close": "Close"
+    }
+  },
+  "exerciseForm": {
+    "newTitle": "New exercise",
+    "editTitle": "Edit my exercise",
+    "close": "Close",
+    "name": "Name",
+    "nameHint": "Thai or English, up to 60 characters",
+    "nameCount": "{count}/60",
+    "nameDuplicate": "You already have an exercise with this name. You can still save it.",
+    "category": "Category",
+    "track": "What do you log?",
+    "unilateral": "Log each side",
+    "unilateralHint": "Reps are per side, e.g. one-arm row",
+    "lockNote": "Once you've logged this exercise, its log type can't change.",
+    "equipment": "Equipment (optional)",
+    "save": "Save",
+    "saving": "Saving…",
+    "saveFailed": "Couldn't save. What you entered is still here. Try again.",
+    "retry": "Try again",
+    "limit": "You've reached 300 exercises. Delete or archive ones you don't use first.",
+    "stale": "This was changed on another device. We loaded the latest version.",
+    "archive": "Archive",
+    "unarchive": "Unarchive",
+    "archiveHint": "Hidden from search. You can bring it back anytime.",
+    "delete": "Delete exercise",
+    "deleteTitle": "Delete \"{name}\"?",
+    "deleteBody": "This can't be undone. To just hide it, archive it instead.",
+    "deleteConfirm": "Delete",
+    "deleting": "Deleting…",
+    "deleteFailed": "Couldn't delete. Try again.",
+    "cancel": "Cancel",
+    "discardTitle": "Discard your changes?",
+    "discard": "Discard",
+    "keepEditing": "Keep editing",
+    "notFound": "We can't find this exercise. It may have been deleted.",
+    "backToList": "Back to exercises",
+    "needNet": "Creating and editing need a connection"
+  },
+  "toast": {
+    "saved": "Saved.",
+    "archived": "Archived.",
+    "unarchived": "Unarchived.",
+    "deleted": "Deleted.",
+    "added": "Added.",
+    "undo": "Undo",
+    "actionFailed": "That didn't work. Try again."
+  },
+  "places": {
+    "title": "Places",
+    "lastUsed": "Last used",
+    "archivedSection": "Archived · {count}",
+    "unarchive": "Unarchive",
+    "add": "Add a place",
+    "empty": "No places yet. Add where you usually work out.",
+    "editTitle": "Edit place",
+    "name": "Name",
+    "namePlaceholder": "e.g. office gym",
+    "renameNote": "Past sessions will show the new name too.",
+    "duplicate": "You already have a place with this name. You can still use it.",
+    "save": "Save",
+    "saving": "Saving…",
+    "addButton": "Add",
+    "adding": "Adding…",
+    "saveFailed": "Couldn't save. Try again.",
+    "addFailed": "Couldn't add. Try again.",
+    "archive": "Archive",
+    "archiveHint": "Won't show on Home. Past history stays. You can bring it back anytime.",
+    "lastOne": "You need at least one place.",
+    "limit": "You've reached 30 places.",
+    "needNet": "Adding and editing places need a connection",
+    "loadFailed": "Couldn't load places",
+    "offlineTitle": "Places need a connection",
+    "retry": "Try again"
+  },
+  "placePicker": {
+    "at": "At",
+    "chipLabel": "At {place}. Tap to change.",
+    "title": "Where are you?",
+    "current": "current",
+    "manage": "Manage places",
+    "changeFailed": "Couldn't change place. Try again.",
+    "needNet": "Changing place needs a connection",
+    "loadFailed": "Couldn't load places"
+  },
+  "credits": {
+    "title": "Exercise data credits",
+    "intro": "Exercise names come from an open dataset. We added the Thai names and categories ourselves.",
+    "fedbBody": "Strength exercise names come from this dataset. We use names only, not images or instructions.",
+    "license": "License: {license}",
+    "publicDomain": "public domain",
+    "cardioTitle": "Cardio and sports",
+    "cardioBody": "Written by the Fat Cat Fit team.",
+    "thaiTitle": "Thai names",
+    "thaiBody": "Transliterated by our team the way Thai gym-goers say them. Spot an odd one? Tell us in the group chat."
   }
 }
