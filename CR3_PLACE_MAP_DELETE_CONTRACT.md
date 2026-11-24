@@ -94,3 +94,4 @@ draft → **boss อนุมัติ (2026-11-24)** → กำลังทำ 
 |---|---|---|
 | 2026-11-24 | boss feedback หลังทดสอบ R2 | Lead ร่าง contract |
 | 2026-11-24 | boss ตอบ "รับทั้งหมด" | อนุมัติ D1–D5 ตามข้อเสนอ · เริ่มงาน |
+| 2026-11-24 | researcher: allowlist (https · host ตรงเป๊ะ) = `maps.app.goo.gl` · `www.google.com/maps/` · `google.com/maps/` · `maps.google.com` · `goo.gl/maps/` · ไม่รับโดเมนประเทศ · `maps.app.goo.gl` ไม่อยู่ในเอกสารทางการ | Lead รับทั้ง 5 แบบ (goo.gl/maps เป็นโดเมนของ Google · Google ยืนยันว่าลิงก์จากแอปยังใช้ต่อ) · การทดสอบของ boss ข้อ 1 (คัดลอกลิงก์แชร์จากมือถือ) ยืนยันรูปลิงก์จริง |
