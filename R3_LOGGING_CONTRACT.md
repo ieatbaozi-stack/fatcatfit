@@ -1,6 +1,6 @@
 # R3_LOGGING_CONTRACT.md
 
-> ร่าง 1 · 2026-11-24 · ผู้เขียน: Lead (ร่างโดย architect) · สถานะ: **draft** (รอ boss ตัดสิน D0–D10)
+> ร่าง 1 · 2026-11-24 · ผู้เขียน: Lead (ร่างโดย architect) · สถานะ: **boss อนุมัติแล้ว 2026-11-24** — รับข้อเสนอ D0–D10 ทั้งหมด · กำลังทำ R3a
 > อ้างอิง: [PRD](docs/prd/PRD.md) E3, §5, §7, §8 · ADR [0003](docs/adr/0003-data-model.md) ข้อ 1–4 · [0004](docs/adr/0004-offline-sync.md) ข้อ 2–8 · [0005](docs/adr/0005-service-worker-tool.md) "สิ่งที่ R3 ต้องรู้" · [0006](docs/adr/0006-auth-routing-offline.md) ข้อ 4–5 · [UX](docs/design/UX.md) ข้อ 1–4, 7 · wireframe กลุ่ม 2–4, 6 · [R2 contract](R2_CATALOG_CONTRACT.md) D6–D8 · [CR3 contract](CR3_PLACE_MAP_DELETE_CONTRACT.md) D4 · [PROCESS](PROCESS.md) · [TEAM](TEAM.md)
 > branch: `r3a-logging` แล้ว `r3b-history` (สร้างจาก `main` ล่าสุดทีละรอบ) · รุ่นเมื่อปิดรอบ: R3a `v0.6.0` · R3b `v0.7.0` (ถ้า D0 = แบ่ง · R4 เลื่อนเป็น 0.8.0) · ต้องเสร็จก่อน: R2 ✅ (v0.4.0) · CR3 ✅ (v0.5.0)
 
@@ -147,10 +147,11 @@
 
 ## สถานะ (Lead อัปเดตระหว่างรอบ)
 
-**draft** → boss อนุมัติ → กำลังทำ (R3a) → ตรวจ → รอ merge → R3b → ปิด
+draft → **boss อนุมัติ (2026-11-24)** → **กำลังทำ (R3a)** → ตรวจ → รอ merge → R3b → ปิด
 
 ## บันทึกระหว่างรอบ
 
 | วันที่ | เรื่อง | ผล |
 |---|---|---|
 | 2026-11-24 | architect ร่าง contract | รอ boss ตัดสิน D0–D10 |
+| 2026-11-24 | boss ตอบ "รับทั้งหมด" | อนุมัติ D0–D10 ตามข้อเสนอ (แบ่ง R3a v0.6.0 / R3b v0.7.0) · เริ่ม R3a branch `r3a-logging` |
