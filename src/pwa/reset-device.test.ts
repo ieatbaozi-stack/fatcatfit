@@ -2,6 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AUTH_HINT_KEY, KNOWN_DEVICE_KEY, getAuthHint, isKnownDevice, markKnownDevice, setAuthHint } from "./auth-hint";
 import { USER_RESET_MESSAGE } from "./messages";
+import { getOfflineUserId, setOfflineUserId } from "./offline-db";
 import { resetDeviceAfterSignOut } from "./reset-device";
 import { CACHE_NAMES } from "./strategy";
 
@@ -105,6 +106,28 @@ describe("resetDeviceAfterSignOut", () => {
       ),
     ).resolves.toBeUndefined();
     vi.restoreAllMocks();
+  });
+
+  it("R3: ลบฐาน IndexedDB ของผู้ใช้ที่จำไว้ในเครื่อง + ลืม user id · ไม่มีผู้ใช้ = ไม่ลบอะไร", async () => {
+    setOfflineUserId("user_a");
+    const deleteDb = vi.fn(async () => true);
+    await resetDeviceAfterSignOut({ accountDeleted: false }, { getRegistration: async () => undefined, clearCaches: async () => {}, deleteDb });
+    expect(deleteDb).toHaveBeenCalledWith("user_a");
+    expect(getOfflineUserId()).toBeNull();
+    deleteDb.mockClear();
+    await resetDeviceAfterSignOut({ accountDeleted: false }, { getRegistration: async () => undefined, clearCaches: async () => {}, deleteDb });
+    expect(deleteDb).not.toHaveBeenCalled();
+  });
+
+  it("R3: userId ที่ส่งมาชนะค่าที่จำไว้ · ลบฐานล้มไม่โยน", async () => {
+    setOfflineUserId("user_a");
+    const deleteDb = vi.fn(async () => {
+      throw new Error("blocked");
+    });
+    await expect(
+      resetDeviceAfterSignOut({ accountDeleted: true, userId: "user_b" }, { getRegistration: async () => undefined, clearCaches: async () => {}, deleteDb }),
+    ).resolves.toBeUndefined();
+    expect(deleteDb).toHaveBeenCalledWith("user_b");
   });
 
   it("ค่าเริ่มต้น: ไม่มี navigator.serviceWorker และไม่มี caches → ไม่โยน และล้าง hint", async () => {

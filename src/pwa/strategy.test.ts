@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 import { TABS } from "../components/nav/bottom-tabs";
 import {
   APP_SHELL_PATH,
+  ASSET_CACHE_LIMITS,
   CACHE_NAMES,
+  EXERCISE_EDIT_PATH,
+  R3_OFFLINE_PAGES,
   OFFLINE_FALLBACK_PATHS,
   OFFLINE_PAGES,
   WELCOME_PATH,
@@ -190,13 +193,25 @@ describe("หน้าที่ต้องเปิดได้ตอนออ�
     expect(OFFLINE_PAGES).toContain(WELCOME_PATH);
   });
 
-  it("นอกจากแท็บแล้วมีแค่ /welcome (หน้าที่เพิ่มต้องตั้งใจเพิ่ม)", () => {
-    expect([...OFFLINE_PAGES].sort()).toEqual([...TABS.map((t) => t.href), WELCOME_PATH].sort());
+  it("นอกจากแท็บแล้วมีแค่ /welcome + หน้าของ R3a (หน้าที่เพิ่มต้องตั้งใจเพิ่ม)", () => {
+    expect([...OFFLINE_PAGES].sort()).toEqual([...TABS.map((t) => t.href), WELCOME_PATH, ...R3_OFFLINE_PAGES].sort());
   });
 
-  it("app shell อยู่ในรายการ และทุก path คงที่ (ไม่มี query/id)", () => {
+  it("R3a: หน้าจด ท่าของฉัน (รายการ/สร้าง/แก้ path คงที่) สถานที่ เครดิต เปิดได้ออฟไลน์ (เกณฑ์ 15)", () => {
+    for (const p of ["/log", "/me/exercises", "/me/exercises/new", "/me/places", "/me/credits"]) expect(OFFLINE_PAGES).toContain(p);
+    expect(EXERCISE_EDIT_PATH).toBe("/me/exercises/edit");
+    expect(OFFLINE_PAGES).toContain(EXERCISE_EDIT_PATH);
+  });
+
+  it("app shell อยู่ในรายการ และทุก path คงที่ (ไม่มี query/id) ไม่ซ้ำ", () => {
     expect(OFFLINE_PAGES).toContain(APP_SHELL_PATH);
-    for (const p of OFFLINE_PAGES) expect(p).toMatch(/^\/[a-z-]*$/);
+    for (const p of OFFLINE_PAGES) expect(p).toMatch(/^(\/[a-z-]*)+$/);
+    expect(new Set(OFFLINE_PAGES).size).toBe(OFFLINE_PAGES.length);
+  });
+
+  it("เพดาน cache asset มีจำนวนและอายุ (ADR 0005 เลื่อนมา R3)", () => {
+    expect(ASSET_CACHE_LIMITS.maxEntries).toBeGreaterThan(0);
+    expect(ASSET_CACHE_LIMITS.maxAgeSeconds).toBeGreaterThan(0);
   });
 
   it("offlinePageUrls เป็น URL เต็มของ origin", () => {
@@ -206,6 +221,12 @@ describe("หน้าที่ต้องเปิดได้ตอนออ�
       `${ORIGIN}/progress`,
       `${ORIGIN}/me`,
       `${ORIGIN}/welcome`,
+      `${ORIGIN}/log`,
+      `${ORIGIN}/me/exercises`,
+      `${ORIGIN}/me/exercises/new`,
+      `${ORIGIN}/me/exercises/edit`,
+      `${ORIGIN}/me/places`,
+      `${ORIGIN}/me/credits`,
     ]);
   });
 
@@ -217,7 +238,10 @@ describe("หน้าที่ต้องเปิดได้ตอนออ�
 });
 
 const u = (p: string) => `${ORIGIN}${p}`;
-const ALL_TABS = ["/", "/history", "/progress", "/me", "/welcome"].map(u);
+// ทุกหน้าใน OFFLINE_PAGES (4 แท็บ + /welcome + หน้าของ R3a)
+const ALL_TABS = OFFLINE_PAGES.map(u);
+const R3 = R3_OFFLINE_PAGES.map(u);
+const FIRST5 = ["/", "/history", "/progress", "/me", "/welcome"].map(u);
 
 describe("pagesToStage — SW ใหม่ดึงอะไรตอน install", () => {
   it("ติดตั้งครั้งแรก (cache ว่าง) → ทั้ง 4 แท็บ + /welcome", () => {
@@ -246,16 +270,16 @@ describe("planPageSync — ภาษาเดียว และมีครบ�
       { url: u("/styleguide"), lang: "th" },
     ];
     const plan = planPageSync(entries, "en", "", ORIGIN);
-    expect(plan.remove.sort()).toEqual([...ALL_TABS, u("/styleguide")].sort());
+    expect(plan.remove.sort()).toEqual([...FIRST5, u("/styleguide")].sort());
     expect(plan.fetch.sort()).toEqual([...ALL_TABS, u("/styleguide")].sort());
   });
 
   it("เปลี่ยนภาษาจากการเปิด /me (เพิ่งได้จากเครือข่าย) → ไม่ลบ/ไม่ดึง /me ซ้ำ", () => {
     const entries = ALL_TABS.map((url) => ({ url, lang: url === u("/me") ? "en" : "th" }));
     const plan = planPageSync(entries, "en", u("/me"), ORIGIN);
-    expect(plan.remove.sort()).toEqual([u("/"), u("/history"), u("/progress"), u("/welcome")].sort());
+    expect(plan.remove.sort()).toEqual(ALL_TABS.filter((x) => x !== u("/me")).sort());
     expect(plan.fetch).not.toContain(u("/me"));
-    expect(plan.fetch.sort()).toEqual([u("/"), u("/history"), u("/progress"), u("/welcome")].sort());
+    expect(plan.fetch.sort()).toEqual(ALL_TABS.filter((x) => x !== u("/me")).sort());
   });
 
   it("ภาษาเดิมและครบแล้ว → ไม่ทำอะไร (ไม่ยิงเครือข่ายทุกครั้งที่เปลี่ยนหน้า)", () => {
@@ -265,7 +289,7 @@ describe("planPageSync — ภาษาเดียว และมีครบ�
 
   it("แท็บขาด (เช่นหลังออกจากระบบ หรือดึงไม่สำเร็จตอน install) → เติมเฉพาะที่ขาด", () => {
     const plan = planPageSync([{ url: u("/"), lang: "th" }], "th", "", ORIGIN);
-    expect(plan).toEqual({ remove: [], fetch: [u("/history"), u("/progress"), u("/me"), u("/welcome")] });
+    expect(plan).toEqual({ remove: [], fetch: [u("/history"), u("/progress"), u("/me"), u("/welcome"), ...R3] });
   });
 
   it("cache ว่าง → เติมทั้ง 4 แท็บ + /welcome", () => {
@@ -289,7 +313,7 @@ describe("planActivation — ย้ายหน้าที่พักไว้
     const plan = planActivation(current, staged, ORIGIN);
     expect(plan.lang).toBe("th");
     expect(plan.promote).toEqual([u("/"), u("/history"), u("/me"), u("/welcome"), u("/styleguide")]);
-    expect(plan.refetch).toEqual([u("/progress")]);
+    expect(plan.refetch).toEqual([u("/progress"), ...R3]);
   });
 
   it("ผู้ใช้เปลี่ยนภาษาหลัง SW ใหม่ install (ระหว่างรอ) → ยึดภาษาของ cache ปัจจุบัน ไม่ย้ายหน้าภาษาเก่าที่พักไว้", () => {
@@ -361,7 +385,7 @@ describe("ADR 0006 เทสต์ 6 — ถอยตอนออฟไลน์
 
   it("หลังออกจากระบบ (cache มีแค่ /welcome) → ลองเติมแท็บที่ขาด (เซิร์ฟเวอร์ redirect จึงไม่ถูกเก็บ — ดู page-fetch.test)", () => {
     const plan = planPageSync([{ url: u("/welcome"), lang: "th" }], "th", u("/welcome"), ORIGIN);
-    expect(plan).toEqual({ remove: [], fetch: [u("/"), u("/history"), u("/progress"), u("/me")] });
+    expect(plan).toEqual({ remove: [], fetch: [u("/"), u("/history"), u("/progress"), u("/me"), ...R3] });
   });
 });
 

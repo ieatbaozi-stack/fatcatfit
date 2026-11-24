@@ -20,8 +20,18 @@ export const CACHE_NAMES = {
   pagesStaging: `${CACHE_PREFIX}pages-staging-v${CACHE_VERSION}`,
 } as const;
 
+/**
+ * เพดาน cache asset (`fcf-assets-v*` · CacheFirst) — ADR 0005 "ความเสี่ยงที่ยังเปิด" เลื่อนมา R3
+ * chunk ของรุ่นปัจจุบันอยู่ใน precache ของ Serwist อยู่แล้ว cache นี้เก็บแค่ chunk ที่ไม่อยู่ใน precache
+ * (เช่นรุ่นก่อนที่หน้า HTML เก่ายังอ้าง) → เก็บไม่เกินจำนวน/อายุนี้ และยอมถูกล้างก่อนเมื่อพื้นที่เต็ม (ไม่แย่งพื้นที่คิวออฟไลน์)
+ */
+export const ASSET_CACHE_LIMITS = { maxEntries: 200, maxAgeSeconds: 30 * 24 * 60 * 60 } as const;
+
 /** path ของ app shell — ถอยไปหน้านี้เมื่อ URL ที่ขอไม่มีสำเนา */
 export const APP_SHELL_PATH = "/";
+
+/** หน้าแก้ท่าของฉัน path คงที่ (ข้อเสนอของ pwa-offline · frontend ยืนยันกับ Lead) — id ของท่าอยู่ในเครื่อง ไม่อยู่ใน URL */
+export const EXERCISE_EDIT_PATH = "/me/exercises/edit";
 
 /** จอยินดีต้อนรับ (ADR 0006 ข้อ 1) — HTML เหมือนกันทุกสถานะ เซิร์ฟเวอร์ไม่ redirect จึงเก็บได้เสมอ */
 export const WELCOME_PATH = "/welcome";
@@ -36,10 +46,14 @@ export const OFFLINE_FALLBACK_PATHS = [APP_SHELL_PATH, WELCOME_PATH] as const;
 /**
  * หน้าที่ต้องเปิดได้ตอนออฟไลน์ตั้งแต่ติดตั้งครั้งแรก (ADR 0005 สิ่งที่ R3 ต้องรู้ ข้อ ง + ADR 0006 ข้อ 4)
  * = แท็บทั้ง 4 ของแถบล่าง (src/components/nav/bottom-tabs.tsx — เทสต์ตรวจว่าทุกแท็บอยู่ในรายการ) + `/welcome`
- * เพิ่มหน้าใหม่ที่ต้องใช้ออฟไลน์ (เช่นหน้าจดของ R3) ที่นี่ · path ต้องคงที่ ไม่มี id หรือ query
+ *   + หน้าที่ R3a ต้องใช้ออฟไลน์ (contract R3 ขอบเขต · เกณฑ์ 15): หน้าจด · ท่าของฉัน (รายการ/สร้าง/แก้) · สถานที่ · เครดิตคลังท่า
+ * path ต้องคงที่ ไม่มี id หรือ query — หน้าแก้ท่าอ่าน id จาก state ในเครื่อง ไม่ใช่จาก URL (ADR 0005 สิ่งที่ R3 ต้องรู้ ค)
+ * ทุกหน้าที่เพิ่ม = ดึงเพิ่ม 1 ครั้งตอน install และทุกครั้งที่เปลี่ยนภาษา
  * หน้าที่เซิร์ฟเวอร์ redirect (เช่นแท็บของแอปตอนไม่ล็อกอิน) ถูกดึงแต่ไม่ถูกเก็บ
  */
-export const OFFLINE_PAGES = ["/", "/history", "/progress", "/me", WELCOME_PATH] as const;
+export const TAB_PAGES = ["/", "/history", "/progress", "/me"] as const;
+export const R3_OFFLINE_PAGES = ["/log", "/me/exercises", "/me/exercises/new", EXERCISE_EDIT_PATH, "/me/places", "/me/credits"] as const;
+export const OFFLINE_PAGES = [...TAB_PAGES, WELCOME_PATH, ...R3_OFFLINE_PAGES] as const;
 
 /** URL เต็มของ OFFLINE_PAGES */
 export function offlinePageUrls(origin: string): string[] {
