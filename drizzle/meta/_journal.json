@@ -36,6 +36,13 @@
       "when": 1795489992749,
       "tag": "0004_r3_place_map_url",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795502792777,
+      "tag": "0005_r3a_logging",
+      "breakpoints": true
     }
   ]
 }
