@@ -144,6 +144,7 @@ Index เพิ่ม: `session_exercise(session_id)` · `set_record(user_id, co
 - "**X มากสุดที่ Y ≥ เดิม**" = เซ็ต (y, x) ชนะเมื่อ x > max{x ของเซ็ตฐานที่ y′ ≥ y} · ไม่มีเซ็ตฐานที่ y′ ≥ y = ไม่นับตัวนี้ (ตัว "Y สูงสุด" จับแทน) · ช่วย (↓): ใช้ y′ ≤ y · น้ำหนัก null ของ `bodyweight_plus` = 0
 - **เพซ** = `duration_s / (distance_m/1000)` วินาทีต่อ km ↓ · นับเฉพาะเซ็ตที่มีระยะ **≥ 1,000 m** · ระยะ ↑ นับเฉพาะเซ็ตที่มีระยะ · เวลา ↑ นับทุกเซ็ต
 - ไคลเอนต์ (ออฟไลน์) = `bests` จาก snapshot ⊕ เซ็ตในคิวของเซสชันที่จบแล้ว ⊕ เซ็ตก่อนหน้าในเซสชันนี้ · `bests` ใน bootstrap คำนวณจากเซสชันที่**จบแล้ว**เท่านั้น และตัว "≥ เดิม" ส่งเป็นรายการจุดที่ไม่ถูกข่ม (Pareto frontier ของ (y, x)) ไม่ใช่เลขเดียว · ฟังก์ชันพับเซ็ตเข้า `bests` อยู่ใน `src/lib/stats` ใช้ทั้งสองฝั่ง
+- **รูป `ExerciseBests`** (ตัวจริงใน `src/lib/stats/bests.ts` · บันทึก 2026-11-24): `max_weight_kg` · `max_reps` (เฉพาะ `reps_only`) · `reps_at_weight[]` (frontier · `assisted` ใช้น้ำหนักช่วย ทิศ ≤ · `bodyweight_plus` ใช้น้ำหนักถ่วง null = 0) · `max_extra_weight_kg` · `min_assist_kg` · `max_duration_s` · `duration_at_weight[]` (`weight_duration`) · `max_distance_m` · `best_pace_s_per_km` (เฉพาะเซ็ต ≥ 1 km) · `duration_at_incline[]` (frontier) · สร้างจากเซ็ต `normal` เท่านั้น · `last_sets` รวมวอร์มอัพ (ไคลเอนต์ข้ามเอง)
 
 | ชนิด | ตัวที่ฉลอง (ทิศทาง) |
 |---|---|
