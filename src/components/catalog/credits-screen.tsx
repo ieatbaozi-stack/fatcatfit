@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { Squiggle } from "@/components/ui/squiggle";
+import { Divider } from "@/components/ui/divider";
 import { SubPageHeader } from "./shared";
 
 // ชื่อชุดข้อมูล ใบอนุญาต และลิงก์ไม่แปล (UX 12.8) — ต้องตรงกับ content/exercises/SOURCES.md
@@ -13,7 +13,7 @@ export async function CreditsScreen() {
       <SubPageHeader title={t("title")} />
       <p className="text-body text-ink-2">{t("intro")}</p>
 
-      <section aria-labelledby="credits-fedb" className="flex flex-col gap-1">
+      <section aria-labelledby="credits-fedb" className="flex flex-col gap-1.5">
         <h2 id="credits-fedb" className="text-section">
           {FEDB.name}
         </h2>
@@ -26,18 +26,18 @@ export async function CreditsScreen() {
         </a>
       </section>
 
-      <Squiggle variant={1} />
+      <Divider className="my-2" />
 
-      <section aria-labelledby="credits-cardio" className="flex flex-col gap-1">
+      <section aria-labelledby="credits-cardio" className="flex flex-col gap-1.5">
         <h2 id="credits-cardio" className="text-section">
           {t("cardioTitle")}
         </h2>
         <p className="text-body text-ink-2">{t("cardioBody")}</p>
       </section>
 
-      <Squiggle variant={2} />
+      <Divider className="my-2" />
 
-      <section aria-labelledby="credits-thai" className="flex flex-col gap-1">
+      <section aria-labelledby="credits-thai" className="flex flex-col gap-1.5">
         <h2 id="credits-thai" className="text-section">
           {t("thaiTitle")}
         </h2>

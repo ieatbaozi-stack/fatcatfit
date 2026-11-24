@@ -7,22 +7,22 @@ import { useCatalogStore } from "@/components/catalog/store";
 import { activeCount } from "@/components/places/place-logic";
 import { useOnline } from "@/pwa/use-online";
 
-const ROW = "flex min-h-13 w-full items-center justify-between gap-3 border-b border-ink-3/40 text-body font-normal text-ink no-underline";
+const ROW = "flex min-h-14 w-full items-center justify-between gap-3 text-body font-medium text-ink no-underline transition-opacity active:opacity-70";
 
 function Chevron() {
   return (
-    <svg width={20} height={20} viewBox="0 0 24 24" aria-hidden="true" className="flex-none">
-      <path d="M9 5 L16 12 L9.2 19" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
+    <svg width={18} height={18} viewBox="0 0 24 24" aria-hidden="true" className="flex-none text-ink-3">
+      <path d="M9.5 6 L15.5 12 L9.5 18" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
 function NavRow({ href, children, trailing }: { href: string; children: ReactNode; trailing?: ReactNode }) {
   return (
-    <li>
+    <li className="border-b border-line last:border-b-0">
       <Link href={href} className={ROW}>
         <span>{children}</span>
-        <span className="flex items-center gap-2 text-caption text-ink-3">
+        <span className="flex items-center gap-2 text-caption font-normal text-ink-3">
           {trailing}
           <Chevron />
         </span>
@@ -31,7 +31,7 @@ function NavRow({ href, children, trailing }: { href: string; children: ReactNod
   );
 }
 
-/** ส่วน "ออกกำลังกาย" ของหน้า "ฉัน" (UX 12.2): ท่าออกกำลังกาย · สถานที่ (ป้าย "N แห่ง" จาก bootstrap ไม่นับในกรุ · ระหว่างรอ/ล้ม = ไม่มีป้าย) */
+/** ส่วน "ออกกำลังกาย" ของหน้า "ฉัน" (UX 12.2 · CR4 Studio Minimal): ท่าออกกำลังกาย · สถานที่ */
 export function TrainingSection() {
   const t = useTranslations("me");
   const online = useOnline();

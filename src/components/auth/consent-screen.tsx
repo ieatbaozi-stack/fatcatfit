@@ -204,7 +204,10 @@ export function ConsentScreen() {
         <li>{t("bullet3")}</li>
         <li>{t("bullet4")}</li>
       </ul>
-      <Link href="/privacy" className="mt-4 inline-flex min-h-11 items-center self-start text-body text-ink underline-hand">
+      <Link
+        href="/privacy"
+        className="mt-5 inline-flex min-h-11 items-center self-start rounded-hand border border-line bg-paper-2 px-4 text-body font-medium text-ink no-underline transition-opacity active:opacity-80"
+      >
         {t("readFull", { version: PRIVACY_NOTICE_VERSION })}
       </Link>
 

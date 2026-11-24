@@ -5,8 +5,8 @@ import { flushSync } from "react-dom";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Cat } from "@/components/doodle";
+import { Divider } from "@/components/ui/divider";
 import { ButtonLink } from "@/components/ui/status-screen";
-import { Squiggle } from "@/components/ui/squiggle";
 import { useToast } from "@/components/ui/toast";
 import { useOnline } from "@/pwa/use-online";
 import { InviteForm } from "./invite-form";
@@ -127,18 +127,18 @@ export function InvitesScreen() {
 
   return (
     <div className="flex flex-col">
-      <header className="-ml-3 flex items-center gap-1">
+      <header className="flex items-center gap-3">
         <Link
           href="/me"
           aria-label={t("back")}
-          className="grid size-11 flex-none place-items-center text-ink no-underline"
+          className="grid size-11 flex-none place-items-center rounded-full border border-line bg-paper-2 text-ink no-underline transition-opacity active:opacity-75"
         >
-          <svg width={24} height={24} viewBox="0 0 24 24" aria-hidden="true">
+          <svg width={20} height={20} viewBox="0 0 24 24" aria-hidden="true">
             <path
-              d="M15 5 L8 12 L14.8 19"
+              d="M15 5 L8 12 L15 19"
               fill="none"
               stroke="currentColor"
-              strokeWidth={2.2}
+              strokeWidth={1.9}
               strokeLinecap="round"
               strokeLinejoin="round"
             />
@@ -173,7 +173,7 @@ export function InvitesScreen() {
               {t("needNet")}
             </p>
           ) : null}
-          <Squiggle variant={1} className="my-8" />
+          <Divider className="my-8" />
           <InviteList view={view} highlightId={highlightId} online={online} onRetry={retryList} onRevoke={setRevokeTarget} />
         </>
       )}

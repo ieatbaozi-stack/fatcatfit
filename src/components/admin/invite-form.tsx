@@ -106,7 +106,7 @@ export function InviteForm({ online, onCreated }: { online: boolean; onCreated: 
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <span id={daysLabelId} className="text-caption text-ink-3">
+        <span id={daysLabelId} className="text-caption font-medium text-ink-2">
           {t("form.days")}
         </span>
         <div role="radiogroup" aria-labelledby={daysLabelId} onKeyDown={onDaysKey} className="grid grid-cols-4 gap-2">
@@ -121,8 +121,8 @@ export function InviteForm({ online, onCreated }: { online: boolean; onCreated: 
                 tabIndex={on ? 0 : -1}
                 onClick={() => setDays(d)}
                 className={cx(
-                  "inline-flex min-h-11 cursor-pointer items-center justify-center whitespace-nowrap rounded-hand border-draw-thin border-ink px-2 text-body font-normal",
-                  on ? "bg-ink text-paper" : "bg-transparent text-ink",
+                  "inline-flex min-h-11 cursor-pointer items-center justify-center whitespace-nowrap rounded-box border px-2 text-body transition-colors duration-150",
+                  on ? "border-ink bg-ink font-medium text-paper" : "border-line bg-paper-2 font-normal text-ink",
                 )}
               >
                 {t("form.daysOption", { days: d })}

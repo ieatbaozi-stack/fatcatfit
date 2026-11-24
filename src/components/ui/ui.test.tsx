@@ -40,9 +40,18 @@ describe("Button", () => {
     expect(cls).toContain("min-h-13");
     expect(cls).not.toMatch(/#[0-9a-f]{3,6}|rgb\(/i);
   });
-  it("ปุ่มรองเป็นปุ่มจริงสูง ≥ 44px", () => {
+  it("ปุ่มรองเป็นปุ่มจริงสูง ≥ 44px และเป็นพื้นรองไม่ใช่เส้นหยัก", () => {
     render(<TextButton>รอง</TextButton>);
-    expect(screen.getByRole("button").className).toContain("min-h-11");
+    const cls = screen.getByRole("button").className;
+    expect(cls).toContain("min-h-11");
+    expect(cls).toContain("bg-paper-2");
+    expect(cls).not.toContain("underline-hand");
+  });
+  it("ปุ่มลบที่ส่ง border-warn / text-warn ได้พื้น paper เพื่อคอนทราสต์ผ่านทั้งสว่างและมืด", () => {
+    render(<Button className="border-warn text-warn">ลบ</Button>);
+    const cls = screen.getByRole("button").className;
+    expect(cls).toContain("bg-paper");
+    expect(cls).not.toContain("bg-ink");
   });
 });
 

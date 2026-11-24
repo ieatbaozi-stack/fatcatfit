@@ -7,7 +7,7 @@ type CheckboxProps = Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "id" |
   tone?: "accent" | "ink";
 };
 
-/** ช่องติ๊ก: กล่องวาดมือ 28px ในแถวสูง ≥ 52px แตะได้ทั้งแถว · ติ๊กแล้วมีเครื่องหมายถูก (ไม่ใช่สีอย่างเดียว) */
+/** ช่องติ๊ก (CR4 Studio Minimal): กล่องมุมโค้ง 10px ขนาด 28px ในแถวสูง ≥ 52px แตะได้ทั้งแถว */
 export function Checkbox({ children, className, tone = "accent", ...rest }: CheckboxProps) {
   const id = useId();
   return (
@@ -15,9 +15,13 @@ export function Checkbox({ children, className, tone = "accent", ...rest }: Chec
       <input id={id} type="checkbox" className="peer sr-only" {...rest} />
       <span
         aria-hidden="true"
-        className={`mt-0.5 grid size-7 flex-none place-items-center rounded-box border-draw border-ink ${tone === "ink" ? "text-paper peer-checked:bg-ink" : "text-on-accent peer-checked:bg-accent"} peer-focus-visible:shadow-[0_0_0_3px_var(--paper),0_0_0_5.5px_var(--ink)] peer-disabled:opacity-40 [&>svg]:opacity-0 peer-checked:[&>svg]:opacity-100`}
+        className={`mt-0.5 grid size-7 flex-none place-items-center rounded-box border border-line-strong bg-paper-2 transition-colors duration-150 ${
+          tone === "ink"
+            ? "text-paper peer-checked:border-ink peer-checked:bg-ink"
+            : "text-on-accent peer-checked:border-transparent peer-checked:bg-accent"
+        } peer-focus-visible:shadow-[0_0_0_2.5px_var(--paper),0_0_0_4.5px_var(--ink)] peer-disabled:opacity-40 [&>svg]:opacity-0 peer-checked:[&>svg]:opacity-100`}
       >
-        <Icon name="check" size={20} strokeWidth={3} />
+        <Icon name="check" size={18} strokeWidth={2.8} />
       </span>
       <span className={className ?? "text-body text-ink"}>{children}</span>
     </label>
