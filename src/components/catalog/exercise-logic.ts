@@ -2,6 +2,7 @@
 
 import { CATEGORIES, EXERCISE_LIMITS, TRACK_TYPES, loadModeAllowed, type Category, type LoadMode, type TrackType } from "@/lib/data/shared/exercise-meta";
 import type { CatalogExercise, WireExercise } from "@/lib/data/shared/sync";
+import type { LocalView } from "@/lib/offline/client";
 
 export type Locale = "th" | "en";
 
@@ -121,28 +122,12 @@ export function toPushData(v: FormValues): Record<string, unknown> {
   };
 }
 
-/** แถวท่าของฉันที่ประกอบในเครื่องหลังเซิร์ฟเวอร์ตอบ applied (ใช้อัปเดตจอทันที · แล้วถาม bootstrap ใหม่เงียบๆ) */
-export function buildExerciseRow(args: { id: string; ownerId: string; values: FormValues; archivedAt: string | null; base: WireExercise | null; now: string }): WireExercise {
-  const d = toPushData(args.values) as { name: string; track_type: string; load_mode: string; is_unilateral: boolean; category: string; equipment: string | null };
-  return {
-    id: args.id,
-    owner_user_id: args.base?.owner_user_id ?? args.ownerId,
-    name: d.name,
-    name_th: null,
-    search_terms: null,
-    track_type: d.track_type,
-    load_mode: d.load_mode,
-    is_unilateral: d.is_unilateral,
-    category: d.category,
-    equipment: d.equipment,
-    source_dataset: null,
-    source_ref: null,
-    license: null,
-    attribution: null,
-    met: null,
-    archived_at: args.archivedAt,
-    created_at: args.base?.created_at ?? args.now,
-    updated_at: args.now,
-    client_updated_at: args.now,
-  };
+/**
+ * ท่าของฉันมีประวัติไหม (D8 · UX 13.6): has_history จาก bootstrap หรือมีเซ็ตที่ติ๊กแล้วของท่านี้ในเครื่อง (เซสชันที่เล่นอยู่ + ที่ค้างส่งในคิว)
+ * ท่าที่อยู่ในเซสชันแต่ยังไม่มีเซ็ตติ๊ก = ยังไม่มีประวัติ
+ */
+export function exerciseHasHistory(row: { id: string; has_history?: boolean }, view: Pick<LocalView, "ops" | "activeSession">): boolean {
+  if (row.has_history) return true;
+  if (view.activeSession?.exercises.some((e) => e.exercise_id === row.id && e.sets.some((s) => s.completed_at !== null))) return true;
+  return view.ops.some((op) => op.entity === "set_record" && op.action === "upsert" && op.display?.exercise_id === row.id);
 }

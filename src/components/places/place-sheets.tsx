@@ -19,8 +19,11 @@ type Where = "save" | "archive" | "delete";
 /** ลิงก์ที่กรอก → ค่าที่ส่ง: ว่าง = null (ล้าง) · ไม่ว่าง = ลิงก์ที่ตัดช่องว่างแล้ว */
 const mapValueOf = (input: string): string | null => (input.trim() === "" ? null : normalizeMapUrl(input));
 
-/** แผ่นแก้สถานที่ (จอ 78): ชื่อ · ลิงก์แผนที่ · บันทึก · เก็บเข้ากรุ/เอาออกจากกรุ · ลบ (CR3) — เปิดได้ตอนออฟไลน์แต่ปุ่มปิด */
-export function PlaceEditSheet({ place, places, online, onClose, onDone }: { place: WirePlace; places: readonly WirePlace[]; online: boolean; onClose: () => void; onDone: (key: FlashKey) => void }) {
+/**
+ * แผ่นแก้สถานที่ (จอ 78): ชื่อ · ลิงก์แผนที่ · บันทึก · เก็บเข้ากรุ/เอาออกจากกรุ · ลบ (CR3)
+ * R3a: เขียนผ่านคิวในเครื่อง ใช้ได้ตอนออฟไลน์ · มีเซสชันแล้ว = ไม่มีปุ่มลบ (D8) · ที่ของเซสชันที่เล่นอยู่ = เก็บเข้ากรุไม่ได้ (UX 13.6)
+ */
+export function PlaceEditSheet({ place, places, hasSessions, isActive, onClose, onDone }: { place: WirePlace; places: readonly WirePlace[]; hasSessions: boolean; isActive: boolean; onClose: () => void; onDone: (key: FlashKey) => void }) {
   const t = useTranslations("places");
   const titleId = useId();
   const [name, setName] = useState(place.name);
@@ -32,9 +35,10 @@ export function PlaceEditSheet({ place, places, online, onClose, onDone }: { pla
   const archived = Boolean(place.archived_at);
   const nameChanged = name.trim() !== place.name.trim();
   const mapChanged = mapUrl.trim() !== (place.map_url ?? "");
-  const canSave = placeNameValid(name) && mapUrlOk(mapUrl) && (nameChanged || mapChanged) && online && !busy;
+  const canSave = placeNameValid(name) && mapUrlOk(mapUrl) && (nameChanged || mapChanged) && !busy;
   // เก็บเข้ากรุ/ลบที่ใช้งานแห่งสุดท้ายไม่ได้ (กติกาเดียวกัน) · ที่อยู่ในกรุลบได้เสมอ (ไม่กระทบจำนวนที่ใช้งาน)
   const lastOne = !archived && !canArchive(places, place.id);
+  const archiveLocked = !archived && isActive;
   const duplicate = isDuplicatePlace(name, places, place.id);
 
   async function run(patch: { name?: string; archivedAt?: string | null; mapUrl?: string | null }, done: FlashKey, at: Where) {
@@ -77,10 +81,10 @@ export function PlaceEditSheet({ place, places, online, onClose, onDone }: { pla
         <p className="text-body text-ink-2">{t("deleteBody")}</p>
         {failure ? (
           <p role="alert" className="text-caption text-warn">
-            {failure === "invalid" ? t("lastOne") : t("deleteFailed")}
+            {t("deleteFailed")}
           </p>
         ) : null}
-        <Button loading={busy} disabled={!online} onClick={() => void onDelete()} className="border-warn! text-warn!">
+        <Button loading={busy} onClick={() => void onDelete()} className="border-warn! text-warn!">
           {busy ? t("deleting") : failure === "failed" ? t("retry") : t("deleteConfirm")}
         </Button>
         <TextButton data-autofocus disabled={busy} onClick={() => setConfirmDelete(false)}>
@@ -117,19 +121,9 @@ export function PlaceEditSheet({ place, places, online, onClose, onDone }: { pla
             setFailure(null);
           }}
         />
-        {failure === "invalid" && where === "save" ? (
-          <p role="alert" className="text-caption text-warn">
-            {t("mapUrlInvalid")}
-          </p>
-        ) : null}
-        {failure && failure !== "limit" && failure !== "invalid" && where === "save" ? (
+        {failure && where === "save" ? (
           <p role="alert" className="text-caption text-warn">
             {t("saveFailed")}
-          </p>
-        ) : null}
-        {!online ? (
-          <p role="status" className="text-caption text-ink-3">
-            {t("needNet")}
           </p>
         ) : null}
         <Button type="submit" loading={busy} disabled={!canSave}>
@@ -137,43 +131,42 @@ export function PlaceEditSheet({ place, places, online, onClose, onDone }: { pla
         </Button>
       </form>
       <div className="flex flex-col gap-1 border-t border-ink-3/40 pt-3">
-        {failure === "limit" ? (
+        {failure && where === "archive" ? (
           <p role="alert" className="text-caption text-warn">
-            {t("limit")}
-          </p>
-        ) : null}
-        {failure && where === "archive" && failure !== "limit" ? (
-          <p role="alert" className="text-caption text-warn">
-            {failure === "invalid" ? t("lastOne") : t("saveFailed")}
+            {t("saveFailed")}
           </p>
         ) : null}
         <button
           type="button"
-          disabled={busy || !online || lastOne}
+          disabled={busy || lastOne || archiveLocked}
           onClick={() => void run({ archivedAt: archived ? null : new Date().toISOString() }, archived ? "unarchived" : "archived", "archive")}
           className="inline-flex min-h-11 w-fit cursor-pointer items-center text-body text-ink underline-hand disabled:cursor-not-allowed disabled:text-ink-3 disabled:no-underline"
         >
           {archived ? t("unarchive") : t("archive")}
         </button>
-        {lastOne || !archived ? <p className="text-caption text-ink-3">{lastOne ? t("lastOne") : t("archiveHint")}</p> : null}
-        <button
-          type="button"
-          disabled={busy || !online || lastOne}
-          onClick={() => {
-            setFailure(null);
-            setConfirmDelete(true);
-          }}
-          className="mt-2 inline-flex min-h-11 w-fit cursor-pointer items-center text-body text-warn underline-hand disabled:cursor-not-allowed disabled:text-ink-3 disabled:no-underline"
-        >
-          {t("delete")}
-        </button>
+        {archiveLocked ? <p className="text-caption text-ink-3">{t("activeLocked")}</p> : lastOne || !archived ? <p className="text-caption text-ink-3">{lastOne ? t("lastOne") : t("archiveHint")}</p> : null}
+        {hasSessions || isActive ? (
+          <p className="mt-2 text-caption text-ink-3">{t("historyNoDelete")}</p>
+        ) : (
+          <button
+            type="button"
+            disabled={busy || lastOne}
+            onClick={() => {
+              setFailure(null);
+              setConfirmDelete(true);
+            }}
+            className="mt-2 inline-flex min-h-11 w-fit cursor-pointer items-center text-body text-warn underline-hand disabled:cursor-not-allowed disabled:text-ink-3 disabled:no-underline"
+          >
+            {t("delete")}
+          </button>
+        )}
       </div>
     </Sheet>
   );
 }
 
 /** แผ่นเพิ่มสถานที่ (จอ 79) — จากหน้า สถานที่ ไม่เปลี่ยนชิปหน้าหลัก */
-export function PlaceAddSheet({ places, online, onClose, onDone }: { places: readonly WirePlace[]; online: boolean; onClose: () => void; onDone: (key: FlashKey) => void }) {
+export function PlaceAddSheet({ places, onClose, onDone }: { places: readonly WirePlace[]; onClose: () => void; onDone: (key: FlashKey) => void }) {
   const t = useTranslations("places");
   const titleId = useId();
   const [name, setName] = useState("");
@@ -181,8 +174,8 @@ export function PlaceAddSheet({ places, online, onClose, onDone }: { places: rea
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState<Failure>(null);
   const [newId] = useState(() => crypto.randomUUID());
-  const full = atPlaceLimit(places) || failure === "limit";
-  const canAdd = placeNameValid(name) && mapUrlOk(mapUrl) && online && !busy && !full;
+  const full = atPlaceLimit(places);
+  const canAdd = placeNameValid(name) && mapUrlOk(mapUrl) && !busy && !full;
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -224,7 +217,7 @@ export function PlaceAddSheet({ places, online, onClose, onDone }: { places: rea
             setFailure(null);
           }}
         />
-        {failure === "failed" || failure === "invalid" ? (
+        {failure ? (
           <p role="alert" className="text-caption text-warn">
             {t("addFailed")}
           </p>
@@ -232,11 +225,6 @@ export function PlaceAddSheet({ places, online, onClose, onDone }: { places: rea
         {full ? (
           <p role="status" className="text-caption text-ink-2">
             {t("limit")}
-          </p>
-        ) : null}
-        {!online ? (
-          <p role="status" className="text-caption text-ink-3">
-            {t("needNet")}
           </p>
         ) : null}
         <Button type="submit" loading={busy} disabled={!canAdd}>

@@ -7,7 +7,6 @@ import th from "../../../messages/th.json";
 import { renderWithIntl } from "../test-utils";
 import { TrainingSection } from "./me-sections";
 import { ExerciseName } from "./exercise-name";
-import { resetStore } from "./store";
 
 vi.mock("@/pwa/use-online", () => ({ useOnline: () => false }));
 vi.mock("next/link", () => ({
@@ -54,7 +53,6 @@ describe("ExerciseName (D3)", () => {
 
 describe("หน้า ฉัน · ส่วนออกกำลังกาย", () => {
   it("ลิงก์ไปท่า/สถานที่ ไม่มีป้ายจำนวนระหว่างยังไม่โหลด", () => {
-    resetStore();
     renderWithIntl(<TrainingSection />);
     expect(screen.getByRole("link", { name: "ท่าออกกำลังกาย" }).getAttribute("href")).toBe("/me/exercises");
     const places = screen.getByRole("link", { name: "สถานที่" });

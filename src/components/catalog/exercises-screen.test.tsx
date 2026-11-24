@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { closeTestOffline, openTestOffline } from "../test-offline";
 import { renderWithIntl } from "../test-utils";
 import { ExercisesScreen } from "./exercises-screen";
-import { resetStore } from "./store";
 
 const online = vi.hoisted(() => ({ value: true }));
 vi.mock("@/pwa/use-online", () => ({ useOnline: () => online.value }));
@@ -53,33 +53,22 @@ const mineRow = (id: string, name: string, archived: string | null = null) => ({
   archived_at: archived,
   category: "arms",
   track_type: "reps_only",
+  has_history: false,
+  created_at: "2026-01-01T00:00:00.000Z",
+  updated_at: "2026-01-01T00:00:00.000Z",
+  client_updated_at: "2026-01-01T00:00:00.000Z",
 });
 
-const BOOTSTRAP = {
-  profile: null,
-  places: [],
-  my_exercises: [mineRow("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", "Curl ของฉัน"), mineRow("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb", "ท่าเก่า", "2026-01-01T00:00:00.000Z")],
-  catalog_version: "3-1",
-  server_time: "2026-01-02T00:00:00.000Z",
-};
+const MINE = [mineRow("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", "Curl ของฉัน"), mineRow("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb", "ท่าเก่า", "2026-01-01T00:00:00.000Z")];
 
-let fetchMock: ReturnType<typeof vi.fn>;
-const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
-
-beforeEach(() => {
-  resetStore();
+beforeEach(async () => {
   online.value = true;
   window.history.replaceState(null, "", "/me/exercises");
-  fetchMock = vi.fn(async (url: string) => {
-    if (url === "/api/catalog") return json(CATALOG);
-    if (url === "/api/bootstrap") return json(BOOTSTRAP);
-    throw new Error(`unexpected ${url}`);
-  });
-  vi.stubGlobal("fetch", fetchMock);
+  await openTestOffline({ snapshot: { my_exercises: MINE }, catalog: CATALOG });
 });
 afterEach(() => {
   cleanup();
-  vi.unstubAllGlobals();
+  closeTestOffline();
 });
 
 async function loaded(locale: "th" | "en" = "th") {
@@ -102,10 +91,16 @@ describe("ExercisesScreen · หน้าแรก (D6)", () => {
   it("กางแถวในกรุแล้วเห็นท่าที่เก็บไว้ (ลิงก์ไปฟอร์มแก้)", async () => {
     await loaded();
     fireEvent.click(screen.getByRole("button", { name: /ในกรุ 1 ท่า/ }));
-    expect(screen.getByText("ท่าเก่า").closest("a")?.getAttribute("href")).toBe("/me/exercises/bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb");
+    // หน้าแก้ใช้ path คงที่ (เปิดออฟไลน์ได้) — id ของท่าจำไว้ในเครื่องตอนแตะ
+    const link = screen.getByText("ท่าเก่า").closest("a");
+    expect(link?.getAttribute("href")).toBe("/me/exercises/edit");
+    fireEvent.click(link as HTMLElement);
+    expect(sessionStorage.getItem("fcf:edit-exercise")).toBe("bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb");
   });
   it("ไม่มีท่าของฉัน = บรรทัดเดียว ไม่มีแถวในกรุ", async () => {
-    fetchMock.mockImplementation(async (url: string) => (url === "/api/catalog" ? json(CATALOG) : json({ ...BOOTSTRAP, my_exercises: [] })));
+    cleanup();
+    closeTestOffline();
+    await openTestOffline({ snapshot: { my_exercises: [] }, catalog: CATALOG });
     renderWithIntl(<ExercisesScreen />);
     expect(await screen.findByText("ยังไม่มีท่าของฉัน · หาไม่เจอก็สร้างเองได้")).toBeTruthy();
     expect(screen.queryByRole("button", { name: /ในกรุ/ })).toBeNull();
@@ -190,32 +185,27 @@ describe("ExercisesScreen · รายละเอียดท่าคลัง
 });
 
 describe("ExercisesScreen · สถานะ", () => {
-  it("โหลดไม่ได้ = ข้อความ + ลองใหม่ แล้วโหลดสำเร็จ", async () => {
-    let fail = true;
-    fetchMock.mockImplementation(async (url: string) => {
-      if (fail) return json({}, 500);
-      return url === "/api/catalog" ? json(CATALOG) : json(BOOTSTRAP);
-    });
+  it("ออนไลน์แต่ยังไม่มีข้อมูลในเครื่องและดึงไม่ได้ = ข้อความ + ลองใหม่", async () => {
+    cleanup();
+    closeTestOffline();
+    await openTestOffline({ snapshot: null, catalog: null });
     renderWithIntl(<ExercisesScreen />);
     expect(await screen.findByText("โหลดคลังท่าไม่ได้")).toBeTruthy();
-    fail = false;
-    fireEvent.click(screen.getByRole("button", { name: "ลองใหม่" }));
-    expect(await screen.findByRole("searchbox")).toBeTruthy();
-    expect(await screen.findByText("Curl ของฉัน")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "ลองใหม่" })).toBeTruthy();
   });
   it("ออฟไลน์และยังไม่เคยโหลด = ดูคลังท่าต้องต่อเน็ต", async () => {
-    online.value = false;
-    renderWithIntl(<ExercisesScreen />);
-    expect(screen.getByText("ดูคลังท่าต้องต่อเน็ต")).toBeTruthy();
-    expect(fetchMock).not.toHaveBeenCalled();
-  });
-  it("ออฟไลน์แต่โหลดแล้ว = ค้นได้ สร้างปิด + บรรทัดเตือน", async () => {
-    await loaded();
-    online.value = false;
     cleanup();
+    closeTestOffline();
+    await openTestOffline({ snapshot: null, catalog: null });
+    online.value = false;
     renderWithIntl(<ExercisesScreen />);
-    expect(await screen.findByText("สร้างและแก้ท่าต้องต่อเน็ต")).toBeTruthy();
-    expect(screen.queryByRole("link", { name: /สร้างท่าของฉัน/ })).toBeNull();
+    expect(await screen.findByText("ดูคลังท่าต้องต่อเน็ต")).toBeTruthy();
+  });
+  it("ออฟไลน์แต่มีข้อมูลในเครื่อง = ค้นได้ สร้างได้ (R3a เขียนผ่านคิว) ไม่มีบรรทัดต้องต่อเน็ต", async () => {
+    online.value = false;
+    await loaded();
+    expect(screen.queryByText("สร้างและแก้ท่าต้องต่อเน็ต")).toBeNull();
+    expect(screen.getByRole("link", { name: /สร้างท่าของฉัน/ })).toBeTruthy();
     fireEvent.change(screen.getByRole("searchbox"), { target: { value: "bench" } });
     expect(screen.getByText("บาร์เบลเบนช์เพรส")).toBeTruthy();
   });
