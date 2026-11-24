@@ -26,44 +26,44 @@
   --elevated-shadow: 0 1px 2px rgb(17 17 19 / 0.05), 0 10px 28px -14px rgb(17 17 19 / 0.16);
 }
 
-/* โหมดมืด: Neutral Graphite 4 ชั้น (ยิ่งลอยสูงยิ่งสว่าง) · แมวเป็นเส้นล้วน (cat/ear/white = paper) ส้มเหลือเฉพาะจุดเน้นของ UI */
+/* โหมดมืด: Soft Charcoal 4 ชั้นสบายตา (CR4.1 · ยิ่งลอยสูงยิ่งสว่าง ไม่ดำปี๋) · แมวเป็นเส้นล้วน (cat/ear/white = paper) ส้มเหลือเฉพาะจุดเน้นของ UI */
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --paper: #0c0c0e;
-  --paper-2: #17171a;
-  --surface-2: #222227;
-  --surface-3: #2a2a30;
-  --ink: #f4f4f6;
-  --ink-2: #c4c4cc;
-  --ink-3: #9898a3;
-  --line: rgb(255 255 255 / 0.08);
-  --line-strong: rgb(255 255 255 / 0.16);
+  --paper: #1c1d21;
+  --paper-2: #24252b;
+  --surface-2: #2d2f36;
+  --surface-3: #353740;
+  --ink: #ececf0;
+  --ink-2: #c8cad3;
+  --ink-3: #a7aab6;
+  --line: rgb(255 255 255 / 0.09);
+  --line-strong: rgb(255 255 255 / 0.17);
   --cat: var(--paper);
   --cat-ear: var(--paper);
   --cat-white: var(--paper);
-  --warn: #f27c72;
-  --scrim: rgb(0 0 0 / 0.64);
-  --elevated-shadow: 0 1px 0 rgb(255 255 255 / 0.05) inset, 0 12px 32px -12px rgb(0 0 0 / 0.7);
+  --warn: #f58a80;
+  --scrim: rgb(0 0 0 / 0.56);
+  --elevated-shadow: 0 1px 0 rgb(255 255 255 / 0.06) inset, 0 12px 32px -12px rgb(0 0 0 / 0.52);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
     color-scheme: dark;
-    --paper: #0c0c0e;
-    --paper-2: #17171a;
-    --surface-2: #222227;
-    --surface-3: #2a2a30;
-    --ink: #f4f4f6;
-    --ink-2: #c4c4cc;
-    --ink-3: #9898a3;
-    --line: rgb(255 255 255 / 0.08);
-    --line-strong: rgb(255 255 255 / 0.16);
+    --paper: #1c1d21;
+    --paper-2: #24252b;
+    --surface-2: #2d2f36;
+    --surface-3: #353740;
+    --ink: #ececf0;
+    --ink-2: #c8cad3;
+    --ink-3: #a7aab6;
+    --line: rgb(255 255 255 / 0.09);
+    --line-strong: rgb(255 255 255 / 0.17);
     --cat: var(--paper);
     --cat-ear: var(--paper);
     --cat-white: var(--paper);
-    --warn: #f27c72;
-    --scrim: rgb(0 0 0 / 0.64);
-    --elevated-shadow: 0 1px 0 rgb(255 255 255 / 0.05) inset, 0 12px 32px -12px rgb(0 0 0 / 0.7);
+    --warn: #f58a80;
+    --scrim: rgb(0 0 0 / 0.56);
+    --elevated-shadow: 0 1px 0 rgb(255 255 255 / 0.06) inset, 0 12px 32px -12px rgb(0 0 0 / 0.52);
   }
 }
 

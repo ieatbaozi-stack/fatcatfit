@@ -41,6 +41,7 @@ export function LocaleSwitch() {
           <Chip
             key={locale}
             pressed={selected === locale}
+            surface="card"
             lang={locale}
             disabled={!online && selected !== locale}
             onClick={() => choose(locale)}
