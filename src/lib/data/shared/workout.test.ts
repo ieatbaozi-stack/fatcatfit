@@ -17,7 +17,7 @@ import {
 
 const U4 = "11111111-1111-4111-8111-111111111111";
 const U5 = "11111111-1111-5111-8111-111111111111";
-const base = { session_exercise_id: U4, position: 0, set_kind: "normal", completed_at: "2026-11-24T10:00:00.000Z" };
+const base = { session_exercise_id: U4, position: 0, set_kind: "normal" as const, completed_at: "2026-11-24T10:00:00.000Z" };
 
 /** ค่าถูกต้องของแต่ละช่อง */
 const OK: Record<SetField, Partial<SetRecordData>> = {
