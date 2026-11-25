@@ -72,7 +72,7 @@ export function Skeleton({ rows }: { rows: number }) {
   return (
     <div aria-hidden="true" className="flex flex-col">
       {Array.from({ length: rows }, (_, i) => (
-        <div key={i} className="flex min-h-14 items-center border-b border-ink-3/20 py-2">
+        <div key={i} className="flex min-h-14 items-center border-b border-line py-2 last:border-b-0">
           <div className="h-5 w-3/5 rounded-box bg-paper-2" />
         </div>
       ))}

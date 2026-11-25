@@ -102,7 +102,7 @@ export function useFlash(consume = false): [React.ReactNode, (f: Flash) => void]
   const node = (
     <div role="status" className="pointer-events-none fixed inset-x-0 bottom-44 z-30 flex justify-center px-5">
       {flash ? (
-        <div className="pointer-events-auto flex max-w-100 items-center gap-1 rounded-hand border-draw border-ink bg-paper py-1 pr-2 pl-4">
+        <div className="pointer-events-auto flex max-w-100 items-center gap-1 rounded-hand border border-line-strong bg-surface-3 py-1 pr-2 pl-4 shadow-elevated">
           <p className="py-1 text-body text-ink">{flash.text ?? t(flash.key)}</p>
           {flash.undo ? (
             <button

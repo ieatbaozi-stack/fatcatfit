@@ -88,7 +88,7 @@ export function PlacesScreen() {
           ) : (
             <ul className="m-0 flex list-none flex-col p-0">
               {active.map((p) => (
-                <li key={p.id} className="flex items-center border-b border-ink-3/40">
+                <li key={p.id} className="flex items-center border-b border-line last:border-b-0">
                   <button type="button" className={ROW} onClick={() => setEditing(p)}>
                     <span className="flex min-w-0 flex-col">
                       <span className="truncate text-body font-medium text-ink">{p.name}</span>
@@ -116,7 +116,7 @@ export function PlacesScreen() {
               {showArchived ? (
                 <ul className="m-0 flex list-none flex-col p-0">
                   {archived.map((p) => (
-                    <li key={p.id} className="flex items-center gap-2 border-b border-ink-3/40">
+                    <li key={p.id} className="flex items-center gap-2 border-b border-line last:border-b-0">
                       <button type="button" className="flex min-h-14 min-w-0 flex-1 cursor-pointer items-center py-2 text-left" onClick={() => setEditing(p)}>
                         <span className="truncate text-body text-ink-3">{p.name}</span>
                       </button>

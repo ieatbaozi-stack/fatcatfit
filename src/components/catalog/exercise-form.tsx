@@ -280,7 +280,7 @@ function FormBody({ base, initial, mine, addToSession }: BodyProps) {
               }}
               after={{
                 weight_reps: showsLoadMode(values.track) ? (
-                  <div className="ml-10 flex flex-col gap-2 border-b border-ink-3/40 py-3">
+                  <div className="ml-10 flex flex-col gap-2 border-b border-line py-3">
                     <p className="text-caption text-ink-3">{t("exercise.load.label")}</p>
                     <ChoiceGroup variant="chips" label={t("exercise.load.label")} value={values.loadMode} options={loadOptions} onChange={(v: LoadMode) => set({ loadMode: v })} />
                   </div>
@@ -298,7 +298,7 @@ function FormBody({ base, initial, mine, addToSession }: BodyProps) {
           role="switch"
           aria-checked={values.unilateral}
           onClick={() => set({ unilateral: !values.unilateral })}
-          className="flex min-h-14 w-full cursor-pointer items-center justify-between gap-4 border-b border-ink-3/40 py-2 text-left"
+          className="flex min-h-14 w-full cursor-pointer items-center justify-between gap-4 border-b border-line py-2 text-left"
         >
           <span className="flex min-w-0 flex-col">
             <span className="text-body font-normal text-ink">{t("exerciseForm.unilateral")}</span>
@@ -321,7 +321,7 @@ function FormBody({ base, initial, mine, addToSession }: BodyProps) {
       </section>
 
       {isEdit ? (
-        <section className="flex flex-col gap-1 border-t border-ink-3/40 pt-4">
+        <section className="flex flex-col gap-1 border-t border-line pt-4">
           <button
             type="button"
             disabled={busy}

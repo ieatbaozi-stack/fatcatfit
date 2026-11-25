@@ -35,15 +35,15 @@ export function ActiveSessionBar() {
       <Link
         href="/log"
         aria-label={t("label", { name: title })}
-        className={cx("pointer-events-auto flex min-h-12 items-center gap-3 rounded-hand bg-ink px-4 py-2 text-paper no-underline")}
+        className={cx("pointer-events-auto flex min-h-12 items-center gap-3 rounded-hand bg-ink px-4 py-2 text-paper no-underline shadow-elevated")}
       >
         <span className="flex min-w-0 flex-1 flex-col leading-tight">
           <span className="text-caption opacity-80">{t("now")}</span>
           <span className="truncate text-body font-medium">{title}</span>
         </span>
-        <span className="num flex-none text-body">{formatClock(Math.round(elapsedMs(d, now) / 1000))}</span>
+        <span className="num flex-none text-body text-paper!">{formatClock(Math.round(elapsedMs(d, now) / 1000))}</span>
         {resting && d.rest ? (
-          <span className="num flex-none rounded-hand border-draw-thin border-paper px-2 text-caption">
+          <span className="num flex-none rounded-box border border-paper/35 px-2 py-0.5 text-caption text-paper!">
             {t("rest", { time: formatClock(restRemainingS(d.rest, now)) })}
           </span>
         ) : null}

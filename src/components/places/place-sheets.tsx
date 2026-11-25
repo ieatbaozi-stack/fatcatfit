@@ -130,7 +130,7 @@ export function PlaceEditSheet({ place, places, hasSessions, isActive, onClose, 
           {busy && where === "save" ? t("saving") : failure === "failed" && where === "save" ? t("retry") : t("save")}
         </Button>
       </form>
-      <div className="flex flex-col gap-1 border-t border-ink-3/40 pt-3">
+      <div className="flex flex-col gap-1 border-t border-line pt-3">
         {failure && where === "archive" ? (
           <p role="alert" className="text-caption text-warn">
             {t("saveFailed")}

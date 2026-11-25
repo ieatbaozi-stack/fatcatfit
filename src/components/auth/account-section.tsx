@@ -29,7 +29,7 @@ function Chevron() {
 
 function Row({ children, disabled, note }: { children: ReactNode; disabled?: boolean; note?: string }) {
   return (
-    <li className={cx("border-b border-ink-3/40", disabled && "text-ink-3")}>
+    <li className={cx("border-b border-line last:border-b-0", disabled && "text-ink-3")}>
       <div className={ROW}>{children}</div>
       {note ? <p className="-mt-2 pb-2 text-caption text-ink-3">{note}</p> : null}
     </li>
@@ -81,7 +81,7 @@ export function AccountSection() {
     }
     // ADR 0006 ข้อ 5 ขั้น 2: ปิดฐานในเครื่องก่อน (ไม่ให้ขวางการลบ) แล้วล้างแคชหน้าผู้ใช้ + ฐาน + hint ก่อนโหลดเต็มหน้า
     closeOffline();
-    await resetDeviceAfterSignOut({ accountDeleted: false });
+    await resetDeviceAfterSignOut({ accountDeleted: false, userId: me?.user.id });
     window.location.replace("/welcome");
   }
 
@@ -105,7 +105,7 @@ export function AccountSection() {
       {me ? (
         <p className="break-all text-body text-ink-3">{me.user.email}</p>
       ) : (
-        <div aria-hidden="true" className="h-6 w-48 rounded-box bg-paper-2" />
+        <div aria-hidden="true" className="h-6 w-48 rounded-box bg-surface-2" />
       )}
 
       <ul className="m-0 mt-2 flex list-none flex-col p-0">
@@ -230,7 +230,7 @@ function SignOutSheet({ busy, offline, onConfirm, onClose }: { busy: boolean; of
         role="dialog"
         aria-modal="true"
         aria-labelledby="signout-title"
-        className="pb-safe absolute inset-x-3 bottom-3 mx-auto flex max-w-114 flex-col gap-3 rounded-hand border-draw border-ink bg-paper p-5"
+        className="pb-safe absolute inset-x-3 bottom-3 mx-auto flex max-w-114 flex-col gap-3 rounded-sheet border border-line-strong bg-surface-3 p-5 shadow-elevated"
       >
         <h2 id="signout-title" className="text-section">
           {t("title")}
@@ -305,6 +305,7 @@ type DeleteState = "confirm" | "deleting" | "failed" | "done";
 /** จอเต็มซ้อนบน /me: ยืนยันลบ → "กำลังลบ…" (กดซ้ำไม่ได้) → ลบเรียบร้อย (#13) */
 function DeleteAccountScreen({ onCancel }: { onCancel: () => void }) {
   const t = useTranslations("account.deleteScreen");
+  const { me } = useMe();
   const net = useNet();
   const [understood, setUnderstood] = useState(false);
   const [state, setState] = useState<DeleteState>("confirm");
@@ -319,7 +320,7 @@ function DeleteAccountScreen({ onCancel }: { onCancel: () => void }) {
     if (r.ok) {
       // ล้างเครื่อง (ฐานในเครื่อง + แคช + hint + เครื่องที่เคยเข้า) เสร็จก่อนแสดงจอสำเร็จ
       closeOffline();
-      await resetDeviceAfterSignOut({ accountDeleted: true });
+      await resetDeviceAfterSignOut({ accountDeleted: true, userId: me?.user.id });
       setState("done");
     } else setState("failed");
   }

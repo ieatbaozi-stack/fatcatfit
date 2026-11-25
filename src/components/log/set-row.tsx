@@ -129,7 +129,7 @@ export function SetRow({ ex, set, label, units, locale, star, stopwatch, onTick,
     ex.track_type === "distance_duration" ? paceOf(v) : ex.track_type === "incline_speed_duration" ? (estimatedDistance(v, units) !== null ? `≈ ${fmtNum(estimatedDistance(v, units) ?? 0, locale)} ${unitLabel(units.distance)}` : null) : null;
 
   return (
-    <div className="border-b border-ink-3/20 pb-1">
+    <div className="border-b border-line pb-1 last:border-b-0">
       <div className={cx("grid items-center gap-2 py-1", gridClass(cols.length, hasPlay))}>
         <button
           type="button"
@@ -153,7 +153,7 @@ export function SetRow({ ex, set, label, units, locale, star, stopwatch, onTick,
             disabled={otherRunning}
             aria-label={running ? t("stopwatchStop") : t("stopwatchStart")}
             onClick={() => (running ? onStop() : onPlay(set))}
-            className="grid size-12 cursor-pointer place-items-center rounded-blob border-draw border-ink bg-transparent text-ink disabled:cursor-not-allowed disabled:opacity-35"
+            className="grid size-12 cursor-pointer place-items-center rounded-full border border-line-strong bg-paper-2 text-ink transition-[transform,background-color] duration-150 enabled:active:scale-95 disabled:cursor-not-allowed disabled:opacity-35"
           >
             <Icon name={running ? "stop" : "play"} size={20} strokeWidth={2.4} />
           </button>

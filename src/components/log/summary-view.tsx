@@ -40,7 +40,7 @@ export function SummaryView({ data, onDone }: { data: SummaryData; onDone: () =>
 
       <ul className="m-0 mt-2 flex w-full list-none flex-col p-0 text-left">
         {data.exercises.map((e, i) => (
-          <li key={i} className="flex min-h-14 items-center gap-3 border-b border-ink-3/40 py-2">
+          <li key={i} className="flex min-h-14 items-center gap-3 border-b border-line py-2 last:border-b-0">
             <SessionExName ex={{ exercise_name: e.name, exercise_name_th: e.nameTh }} locale={locale} className="flex-1" />
             <span className="num flex-none text-caption text-ink-2">
               {t("summary.sets", { count: e.sets })}

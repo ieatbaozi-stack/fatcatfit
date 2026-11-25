@@ -114,7 +114,7 @@ export function RejectedSheet({ onClose }: { onClose: () => void }) {
         {visible.map((g) => {
           const r = describeRejected(g, tr, locale);
           return (
-            <li key={g.item.op_id} className="flex items-start gap-2 border-b border-ink-3/40 py-3">
+            <li key={g.item.op_id} className="flex items-start gap-2 border-b border-line py-3 last:border-b-0">
               <div className="flex min-w-0 flex-1 flex-col">
                 <p className="break-words text-body font-medium text-ink">{[r.kind, r.title].filter(Boolean).join(" · ")}</p>
                 <p className="num break-words text-caption text-ink-2">{r.detail}</p>

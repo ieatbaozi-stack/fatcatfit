@@ -19,7 +19,7 @@ export function RestBar({ rest }: { rest: RestTimer }) {
   const done = restDone(rest, now);
   const alerted = useRef<number | null>(null);
   const endsAt = rest.started_at + rest.duration_s * 1000;
-  const pct = Math.min(100, Math.max(0, ((now - rest.started_at) / (rest.duration_s * 1000)) * 100));
+  const pct = rest.duration_s > 0 ? Math.min(100, Math.max(0, ((now - rest.started_at) / (rest.duration_s * 1000)) * 100)) : 100;
 
   useEffect(() => {
     if (!done || alerted.current === rest.started_at) return;
@@ -28,24 +28,26 @@ export function RestBar({ rest }: { rest: RestTimer }) {
   }, [done, rest.started_at, endsAt]);
 
   return (
-    <div className="flex flex-col gap-1 rounded-hand border-draw-thin border-ink px-3 py-1">
-      <div className="flex items-center gap-1">
+    <div className="flex flex-col gap-1.5 rounded-card border border-line bg-paper-2 px-3 py-2">
+      <div className="flex items-center gap-1.5">
         <p className="flex min-w-0 flex-1 items-baseline gap-2">
           <span className="text-caption text-ink-3">{t("label")}</span>
           <span className="num text-numeral" aria-live="off">
             {done ? t("go") : formatClock(restRemainingS(rest, now))}
           </span>
         </p>
-        <TextButton aria-label={t("minus", { s: REST_STEP_S })} disabled={done} onClick={() => void adjustRestTimer(-REST_STEP_S)}>
+        <TextButton className="bg-surface-2 px-2.5" aria-label={t("minus", { s: REST_STEP_S })} disabled={done} onClick={() => void adjustRestTimer(-REST_STEP_S)}>
           −{REST_STEP_S}
         </TextButton>
-        <TextButton aria-label={t("plus", { s: REST_STEP_S })} onClick={() => void adjustRestTimer(REST_STEP_S)}>
+        <TextButton className="bg-surface-2 px-2.5" aria-label={t("plus", { s: REST_STEP_S })} onClick={() => void adjustRestTimer(REST_STEP_S)}>
           +{REST_STEP_S}
         </TextButton>
-        <TextButton onClick={() => void skipRest()}>{done ? t("dismiss") : t("skip")}</TextButton>
+        <TextButton className="bg-surface-2 px-3" onClick={() => void skipRest()}>
+          {done ? t("dismiss") : t("skip")}
+        </TextButton>
       </div>
-      <div aria-hidden="true" className="h-0.5 w-full bg-ink-3/30">
-        <div className="h-full bg-ink-3" style={{ width: `${pct}%` }} />
+      <div aria-hidden="true" className="h-1 w-full overflow-hidden rounded-full bg-line">
+        <div className="h-full rounded-full bg-ink-3" style={{ width: `${pct}%` }} />
       </div>
       {/* ประกาศครั้งเดียวตอนครบ */}
       <p role="status" className="sr-only">

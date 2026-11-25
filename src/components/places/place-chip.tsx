@@ -57,7 +57,7 @@ export function PlaceChip({ className }: { className?: string }) {
           aria-haspopup="dialog"
           aria-label={t("chipLabel", { place: current.name })}
           onClick={() => setOpen(true)}
-          className="inline-flex min-h-12 max-w-62 cursor-pointer items-center gap-2 rounded-hand border-draw-thin border-ink px-4 text-body text-ink"
+          className="inline-flex min-h-12 max-w-62 cursor-pointer items-center gap-2 rounded-hand border border-line-strong bg-paper-2 px-4 text-body text-ink"
         >
           <span aria-hidden="true" className="flex-none text-ink-2">
             {t("at")}
@@ -111,7 +111,7 @@ function PlacePickerSheet({ places, currentId, onPick, onClose }: { places: read
         {list.map((p, i) => {
           const isCurrent = p.id === currentId;
           return (
-            <li key={p.id} className="flex items-center border-b border-ink-3/40">
+            <li key={p.id} className="flex items-center border-b border-line last:border-b-0">
               <button
                 type="button"
                 data-autofocus={i === 0 ? true : undefined}

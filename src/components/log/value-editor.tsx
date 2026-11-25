@@ -24,7 +24,7 @@ type Props = {
 };
 
 const STEP_BTN =
-  "grid size-12 flex-none cursor-pointer place-items-center rounded-blob border-draw border-ink bg-transparent text-ink enabled:active:translate-y-0.5 enabled:active:bg-accent enabled:active:text-on-accent disabled:cursor-not-allowed disabled:opacity-35";
+  "grid size-12 flex-none cursor-pointer place-items-center rounded-full border border-line bg-paper-2 text-ink transition-[transform,background-color] duration-150 enabled:active:scale-95 enabled:active:bg-accent enabled:active:text-on-accent disabled:cursor-not-allowed disabled:opacity-35";
 
 export function ValueEditor({ field, label, value, unit, step, onChange, onBlur, onDone }: Props) {
   const t = useTranslations("ui");

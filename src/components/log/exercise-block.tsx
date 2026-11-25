@@ -43,7 +43,7 @@ export function ExerciseBlock({ ex, open, unilateral, summary, units, locale, st
 
   if (!open) {
     return (
-      <div className="border-b border-ink-3/40">
+      <div className="border-b border-line">
         <button type="button" aria-expanded={false} onClick={onToggle} className="flex min-h-14 w-full cursor-pointer items-center gap-3 py-2 text-left">
           <SessionExName ex={ex} locale={locale} className="flex-1" />
           <span className="num flex-none text-caption text-ink-3">

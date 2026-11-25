@@ -23,7 +23,7 @@ import { useCatalogStore } from "./store";
 const SLOW_MS = 400;
 const VERY_SLOW_MS = 2000;
 
-const ROW = "flex min-h-14 w-full cursor-pointer items-center gap-3 border-b border-ink-3/40 py-2 text-left no-underline";
+const ROW = "flex min-h-14 w-full cursor-pointer items-center gap-3 border-b border-line py-2 text-left no-underline";
 
 /** อ่านคำค้น/หมวดจาก URL ของจอนี้ (เก็บไว้ใน URL ให้กลับจากฟอร์มแล้วอยู่ที่เดิม) */
 function readUrl(): { q: string; category: Category | null } {
@@ -184,7 +184,7 @@ export function ExercisesScreen() {
                 type="button"
                 aria-expanded={showArchived}
                 onClick={() => setShowArchived((v) => !v)}
-                className="flex min-h-14 w-full cursor-pointer items-center justify-between border-b border-ink-3/40 py-2 text-left text-body text-ink-3"
+                className="flex min-h-14 w-full cursor-pointer items-center justify-between border-b border-line py-2 text-left text-body text-ink-3"
               >
                 {t("exercises.archived", { count: myArchived.length })}
                 <Icon name="down" size={20} className={showArchived ? "rotate-180" : ""} />
@@ -366,7 +366,7 @@ function DetailSheet({ exercise, onClose }: { exercise: ExerciseRow; onClose: ()
 
 function Fact({ label, value }: { label: string; value: string }) {
   return (
-    <div className={cx("flex min-h-11 items-baseline justify-between gap-4 border-b border-ink-3/40 py-2")}>
+    <div className={cx("flex min-h-11 items-baseline justify-between gap-4 border-b border-line py-2")}>
       <dt className="text-caption text-ink-3">{label}</dt>
       <dd className="m-0 text-right text-body text-ink">{value}</dd>
     </div>
