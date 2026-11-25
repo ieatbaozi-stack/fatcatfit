@@ -184,7 +184,9 @@ test.describe("R3a เส้นทางหลัก + ออฟไลน์ (�
     // เซ็ตถัดไปเติมค่าจากเซ็ตก่อน → ✓ ได้เลย
     await expect(tick(page, l, 2)).toBeEnabled();
     await tick(page, l, 2).click();
+    await expect(tick(page, l, 3)).toBeEnabled();
     await tick(page, l, 3).click();
+    await expect(page.getByRole("button", { name: msg(l, "log.tick").replace("{n}", "3"), pressed: true })).toBeVisible();
 
     // ท่าที่ 2: สร้างใหม่ตอนออฟไลน์จากจอเลือกท่า (ชนิดเวลา)
     await page.getByRole("button", { name: new RegExp(msg(l, "log.addExercise")) }).click();
@@ -204,7 +206,11 @@ test.describe("R3a เส้นทางหลัก + ออฟไลน์ (�
     await expect(page.getByText("QA water jug carry").first()).toBeVisible();
     await enter(page, l, "duration", "45");
     await tick(page, l, 1).click();
+    await expect(tick(page, l, 2)).toBeEnabled();
     await tick(page, l, 2).click();
+    // รอให้การเขียนลง IndexedDB เสร็จก่อน reload (กัน reload ตัดจังหวะ transaction บนเครื่อง CI ที่ช้า)
+    await expect(page.getByRole("button", { name: msg(l, "log.tick").replace("{n}", "2"), pressed: true })).toBeVisible();
+    await expect(page.getByText(msg(l, "sync.bar.offlinePending").replace("{count}", "9"))).toBeVisible();
 
     // ปิดแอปกลางคัน (โหลดทั้งหน้าตอนออฟไลน์) → ร่างอยู่ครบ
     await page.reload();
@@ -509,7 +515,8 @@ test.describe("R3a ส่งไม่ผ่าน / 401 / ออกจากร�
     await enter(page, l, "weight", "20");
     await enter(page, l, "reps", "10");
     await tick(page, l, 1).click();
-    expect((await outbox(page, id)).length).toBe(3);
+    await expect(page.getByRole("button", { name: msg(l, "log.tick").replace("{n}", "1"), pressed: true })).toBeVisible();
+    await expect.poll(async () => (await outbox(page, id)).length).toBe(3);
 
     // 401
     await page.route("**/api/sync/push", (route) => route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ code: "unauthorized" }) }));
