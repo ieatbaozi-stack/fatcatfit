@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest";
 import { exerciseDataSchema } from "@/lib/data/shared/sync";
 import {
   EMPTY_FORM,
-  buildExerciseRow,
   clampName,
   displayNames,
+  exerciseHasHistory,
   hasDuplicateName,
   isDirty,
   isFormValid,
@@ -12,7 +12,6 @@ import {
   showsUnilateral,
   sortForBrowse,
   toPushData,
-  valuesOf,
   withTrack,
   type ExerciseRow,
 } from "./exercise-logic";
@@ -125,11 +124,17 @@ describe("ฟอร์ม", () => {
     expect(hasDuplicateName("plank", mine, "1")).toBe(false);
     expect(hasDuplicateName("", mine, null)).toBe(false);
   });
-  it("buildExerciseRow / valuesOf วนกลับได้", () => {
-    const values = { ...EMPTY_FORM, name: "ท่า", category: "core" as const, track: "duration" as const, unilateral: true, equipment: "band" };
-    const row = buildExerciseRow({ id: "i", ownerId: "u", values, archivedAt: null, base: null, now: "2026-01-01T00:00:00.000Z" });
-    expect(row.owner_user_id).toBe("u");
-    expect(row.name_th).toBeNull();
-    expect(valuesOf(row)).toEqual(values);
+  it("exerciseHasHistory: has_history · เซ็ตที่ติ๊กในร่าง · เซ็ตที่ค้างในคิว (ท่าที่ยังไม่มีเซ็ตติ๊ก = ยังไม่มีประวัติ)", () => {
+    const none = { ops: [], activeSession: null };
+    expect(exerciseHasHistory({ id: "e1", has_history: true }, none)).toBe(true);
+    expect(exerciseHasHistory({ id: "e1", has_history: false }, none)).toBe(false);
+    const draft = (completed: string | null) =>
+      ({ exercises: [{ exercise_id: "e1", sets: [{ completed_at: completed }] }] }) as unknown as NonNullable<Parameters<typeof exerciseHasHistory>[1]["activeSession"]>;
+    expect(exerciseHasHistory({ id: "e1" }, { ops: [], activeSession: draft("2026-01-01T00:00:00.000Z") })).toBe(true);
+    expect(exerciseHasHistory({ id: "e1" }, { ops: [], activeSession: draft(null) })).toBe(false);
+    const op = (action: "upsert" | "delete") => ({ entity: "set_record", action, display: { exercise_id: "e1" } }) as never;
+    expect(exerciseHasHistory({ id: "e1" }, { ops: [op("upsert")], activeSession: null })).toBe(true);
+    expect(exerciseHasHistory({ id: "e1" }, { ops: [op("delete")], activeSession: null })).toBe(false);
+    expect(exerciseHasHistory({ id: "e2" }, { ops: [op("upsert")], activeSession: null })).toBe(false);
   });
 });

@@ -16,14 +16,14 @@ import { ButtonLink } from "@/components/ui/status-screen";
 import { clampName, compareByDisplay, isMine, PAGE_SIZE, sortForBrowse, type ExerciseRow, type Locale } from "./exercise-logic";
 import { ExerciseName } from "./exercise-name";
 import { useFlash } from "./flash";
-import { markInApp } from "./in-app-nav";
+import { EXERCISE_EDIT_HREF, markInApp, setEditExerciseId } from "./in-app-nav";
 import { BottomBar, CatState, PrimaryLink, Skeleton, SubPageHeader } from "./shared";
 import { useCatalogStore } from "./store";
 
 const SLOW_MS = 400;
 const VERY_SLOW_MS = 2000;
 
-const ROW = "flex min-h-14 w-full cursor-pointer items-center gap-3 border-b border-ink-3/40 py-2 text-left no-underline";
+const ROW = "flex min-h-14 w-full cursor-pointer items-center gap-3 border-b border-line py-2 text-left no-underline";
 
 /** อ่านคำค้น/หมวดจาก URL ของจอนี้ (เก็บไว้ใน URL ให้กลับจากฟอร์มแล้วอยู่ที่เดิม) */
 function readUrl(): { q: string; category: Category | null } {
@@ -42,7 +42,7 @@ function writeUrl(q: string, category: Category | null): void {
 
 /**
  * ฉัน › ท่าออกกำลังกาย (R2 · UX 12.4): ค้นคลัง + ท่าของฉัน · ชิปหมวด · สร้าง/แก้
- * คลังอยู่ในหน่วยความจำของแท็บ ค้นในเครื่องด้วย exercise-search.ts · R2 ออนไลน์อย่างเดียวสำหรับสร้าง/แก้
+ * คลังอยู่ในเครื่อง (R3a) ค้นด้วย exercise-search.ts · สร้าง/แก้ได้ตอนออฟไลน์ (เข้าคิว)
  */
 export function ExercisesScreen() {
   const t = useTranslations();
@@ -104,7 +104,7 @@ export function ExercisesScreen() {
   const slow = useAfter(pending, SLOW_MS);
   const verySlow = useAfter(pending, VERY_SLOW_MS);
 
-  const canCreate = ready && online;
+  const canCreate = ready;
   const createHref = `/me/exercises/new${(() => {
     const p = new URLSearchParams();
     const name = clampName(q);
@@ -170,7 +170,7 @@ export function ExercisesScreen() {
               <ul className="m-0 flex list-none flex-col p-0">
                 {myActive.map((e) => (
                   <li key={e.id}>
-                    <Link href={`/me/exercises/${e.id}`} className={ROW}>
+                    <Link href={EXERCISE_EDIT_HREF} onClick={() => setEditExerciseId(e.id)} className={ROW}>
                       <ExerciseName exercise={e} className="flex-1" />
                     </Link>
                   </li>
@@ -184,7 +184,7 @@ export function ExercisesScreen() {
                 type="button"
                 aria-expanded={showArchived}
                 onClick={() => setShowArchived((v) => !v)}
-                className="flex min-h-14 w-full cursor-pointer items-center justify-between border-b border-ink-3/40 py-2 text-left text-body text-ink-3"
+                className="flex min-h-14 w-full cursor-pointer items-center justify-between border-b border-line py-2 text-left text-body text-ink-3"
               >
                 {t("exercises.archived", { count: myArchived.length })}
                 <Icon name="down" size={20} className={showArchived ? "rotate-180" : ""} />
@@ -193,7 +193,7 @@ export function ExercisesScreen() {
                 <ul className="m-0 flex list-none flex-col p-0">
                   {myArchived.map((e) => (
                     <li key={e.id}>
-                      <Link href={`/me/exercises/${e.id}`} className={ROW}>
+                      <Link href={EXERCISE_EDIT_HREF} onClick={() => setEditExerciseId(e.id)} className={ROW}>
                         <ExerciseName exercise={e} muted className="flex-1" />
                       </Link>
                     </li>
@@ -212,7 +212,7 @@ export function ExercisesScreen() {
             {shown.map((e) => (
               <li key={e.id}>
                 {isMine(e) ? (
-                  <Link href={`/me/exercises/${e.id}`} className={ROW}>
+                  <Link href={EXERCISE_EDIT_HREF} onClick={() => setEditExerciseId(e.id)} className={ROW}>
                     <ExerciseName exercise={e} className="flex-1" />
                   </Link>
                 ) : (
@@ -260,11 +260,6 @@ export function ExercisesScreen() {
       {/* ปุ่มสร้างลอยเหนือแถบล่าง/แป้นพิมพ์ — ค้นไม่เจอ = ปุ่มหลัก · อย่างอื่น = ปุ่มรอง */}
       {ready || pending ? (
         <BottomBar>
-          {ready && !online ? (
-            <p role="status" className="text-center text-caption text-ink-3">
-              {t("exercises.needNet")}
-            </p>
-          ) : null}
           {noResults && hasQuery ? (
             <PrimaryLink href={createHref} disabled={!canCreate}>
               <span className="truncate py-1.5">+ {t("exercises.createFrom", { q: clampName(q) })}</span>
@@ -287,7 +282,7 @@ export function ExercisesScreen() {
   );
 }
 
-function SearchField({ value, onChange, inputRef }: { value: string; onChange: (v: string) => void; inputRef: React.RefObject<HTMLInputElement | null> }) {
+export function SearchField({ value, onChange, inputRef }: { value: string; onChange: (v: string) => void; inputRef: React.RefObject<HTMLInputElement | null> }) {
   const t = useTranslations("exercises");
   const id = useId();
   return (
@@ -327,7 +322,7 @@ function SearchField({ value, onChange, inputRef }: { value: string; onChange: (
   );
 }
 
-function CategoryChips({ selected, onSelect, label, labelOf }: { selected: Category | null; onSelect: (c: Category | null) => void; label: string; labelOf: (c: Category) => string }) {
+export function CategoryChips({ selected, onSelect, label, labelOf }: { selected: Category | null; onSelect: (c: Category | null) => void; label: string; labelOf: (c: Category) => string }) {
   const box = useRef<HTMLDivElement>(null);
   // ชิปที่เลือกต้องเลื่อนให้เห็นเสมอ
   useEffect(() => {
@@ -371,7 +366,7 @@ function DetailSheet({ exercise, onClose }: { exercise: ExerciseRow; onClose: ()
 
 function Fact({ label, value }: { label: string; value: string }) {
   return (
-    <div className={cx("flex min-h-11 items-baseline justify-between gap-4 border-b border-ink-3/40 py-2")}>
+    <div className={cx("flex min-h-11 items-baseline justify-between gap-4 border-b border-line py-2")}>
       <dt className="text-caption text-ink-3">{label}</dt>
       <dd className="m-0 text-right text-body text-ink">{value}</dd>
     </div>

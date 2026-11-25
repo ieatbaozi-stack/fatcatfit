@@ -1,6 +1,6 @@
 # R3_LOGGING_CONTRACT.md
 
-> ร่าง 1 · 2026-11-24 · ผู้เขียน: Lead (ร่างโดย architect) · สถานะ: **draft** (รอ boss ตัดสิน D0–D10)
+> ร่าง 1 · 2026-11-24 · ผู้เขียน: Lead (ร่างโดย architect) · สถานะ: **R3a ตรวจผ่าน (QA + Security & Privacy PASS) · รอ merge (v0.6.0)** (boss อนุมัติ D0–D10 แล้ว 2026-11-24)
 > อ้างอิง: [PRD](docs/prd/PRD.md) E3, §5, §7, §8 · ADR [0003](docs/adr/0003-data-model.md) ข้อ 1–4 · [0004](docs/adr/0004-offline-sync.md) ข้อ 2–8 · [0005](docs/adr/0005-service-worker-tool.md) "สิ่งที่ R3 ต้องรู้" · [0006](docs/adr/0006-auth-routing-offline.md) ข้อ 4–5 · [UX](docs/design/UX.md) ข้อ 1–4, 7 · wireframe กลุ่ม 2–4, 6 · [R2 contract](R2_CATALOG_CONTRACT.md) D6–D8 · [CR3 contract](CR3_PLACE_MAP_DELETE_CONTRACT.md) D4 · [PROCESS](PROCESS.md) · [TEAM](TEAM.md)
 > branch: `r3a-logging` แล้ว `r3b-history` (สร้างจาก `main` ล่าสุดทีละรอบ) · รุ่นเมื่อปิดรอบ: R3a `v0.6.0` · R3b `v0.7.0` (ถ้า D0 = แบ่ง · R4 เลื่อนเป็น 0.8.0) · ต้องเสร็จก่อน: R2 ✅ (v0.4.0) · CR3 ✅ (v0.5.0)
 
@@ -147,10 +147,16 @@
 
 ## สถานะ (Lead อัปเดตระหว่างรอบ)
 
-**draft** → boss อนุมัติ → กำลังทำ (R3a) → ตรวจ → รอ merge → R3b → ปิด
+draft → boss อนุมัติ (2026-11-24) → กำลังทำ (R3a) → ตรวจ (PASS) → **รอ merge (R3a v0.6.0)** → R3b → ปิด
 
 ## บันทึกระหว่างรอบ
 
 | วันที่ | เรื่อง | ผล |
 |---|---|---|
 | 2026-11-24 | architect ร่าง contract | รอ boss ตัดสิน D0–D10 |
+| 2026-11-24 | boss ตอบ "รับทั้งหมด" | อนุมัติ D0–D10 ตามข้อเสนอ (แบ่ง R3a v0.6.0 / R3b v0.7.0) · เริ่ม R3a branch `r3a-logging` |
+| 2026-11-24 | ระหว่างทำ (Lead ตัดสินเรื่องเทคนิค) | กติกา "สร้างแล้วลบก่อนส่ง" ต้องเพิ่มเงื่อนไขว่าเซิร์ฟเวอร์ยังไม่รู้จักแถวนั้น (`created`) · ช่องที่เซิร์ฟเวอร์คัดลอก/คำนวณ ถ้าไคลเอนต์ส่งมา = `invalid` · `position` 0–1,000 · ระยะรับ km/mi เท่านั้น · เพดาน 40 ท่า/100 เซ็ตนับเฉพาะแถวที่ยังไม่ลบ · ออกจากระบบไม่จบเซสชันที่เล่นอยู่ให้ (D5 ดูแล) · ADR 0003/0004 + ARCHITECTURE แก้แล้ว · UX ข้อ 13 + wireframe กลุ่ม 11 เสร็จ |
+| 2026-11-24 | platform ขั้น 2 + pwa-offline + catalog เสร็จ | วัด bootstrap ผู้ใช้ 1 ปี 544 KB / 312 ms · push 50 รายการ 120 ms (PGlite) · Lead ตัดสิน: หน้าแก้ท่าใช้ path คงที่ `/me/exercises/edit` · คง eslint ห้าม React/idb ใน `src/lib/offline` · ไม่เพิ่ม dependency `fake-indexeddb` รอบนี้ (ชั้น IndexedDB ทดสอบผ่าน e2e ของ qa) · ออกจากระบบ: ไม่จบเซสชันให้ |
+| 2026-11-25 | รับช่วงปิดรอบ R3a (Antigravity แทน Claude Code ที่ติด limit) · รวม `origin/main` (v0.5.2) + ตรวจภาพจริง 360px Light/Dark | merge `v0.5.2` (CR4 Studio Minimal + CR4.1 Soft Charcoal) เข้า `r3a-logging` เรียบร้อย · ตรวจภาพจริง 360px ทั้ง Light/Dark ครบ 6 หน้าจอ · เก็บงาน `account-section.tsx` (`bg-surface-2`, `border-line last:border-b-0`, `SignOutSheet`), ปรับหน้าจด R3a เข้าชุด Studio Minimal, แก้คอนทราสต์เวลาใน `ActiveSessionBar`, และแก้ปุ่มย่อ `<` ใน `/log` ไม่ให้เด้งกลับจาก `ResumeGate` |
+| 2026-11-25 | ตรวจอิสระ Security & Privacy + QA & Contract | รอบแรกพบ Must-Fix ฝั่ง Security 3 ข้อ (H1 แยก `verified` + `verifySameUser` + `closeOffline` กันคิว/snapshot ข้ามผู้ใช้หลัง 401/ออฟไลน์ · M1 บังคับ `.int()` บน `reps`/`duration_s` · M2 ล้าง `sessionStorage` `fcf:*` และส่ง `userId` สำรองตอนออก/ลบบัญชี) และ QA 3 ข้อ (M1 `hasPriorBests` กันวอร์มอัพล้วนฉลอง PR · M2 `onStopStopwatch` ฉลอง PR/ปลดล็อกเสียง/แจ้งพัง · M3 `recentExercises` แสดงค่าเซ็ตสุดท้ายของคิวค้างส่ง) → แก้ครบพร้อมเทสต์และทั้งสอง subagent ตรวจซ้ำยืนยัน **PASS ครบทุกข้อ** · D10 เห็นชอบทาง ก (ไม่ต้องขอยินยอมใหม่) |
+| 2026-11-25 | เกต CI ชุดเต็มในเครื่อง + ออกรุ่น v0.6.0 | `lint` ✅ · `typecheck` ✅ · unit **81/81 ไฟล์ (1,255/1,255 เทสต์)** ✅ · `drizzle-kit check` ✅ · `build` (20/20 หน้า) ✅ · `test:e2e` **557/557 ผ่าน 0 ล้ม** (ข้าม 31 = เฉพาะจอมือถือบน desktop · รวม `r3a-logging.spec.ts`) ✅ · เกณฑ์ 18 (หลังปรับ `bootstrap.ts` อ่านตารางละครั้ง): `bootstrap = 559 KB / 85 ms`, `push 50 ops = 135 ms` · หมายเหตุเกณฑ์ 16: WebKit iPhone ไม่ได้ตั้งใน Playwright (ทดสอบบน iPhone จริงโดย boss หลัง merge) |

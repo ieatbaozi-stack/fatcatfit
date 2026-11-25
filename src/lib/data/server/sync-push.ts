@@ -1,4 +1,5 @@
 import "server-only";
+import { applied, applySessionExercise, applySetRecord, applyWorkoutSession, exerciseHasHistory, placeHasSessions, reject, stale, type Outcome, type Tx } from "@/lib/data/server/sync-workout";
 import { and, count, eq, isNull, lte, ne } from "drizzle-orm";
 import { exercise, place, user } from "@/db/schema";
 import type { AppDb } from "@/db/types";
@@ -13,7 +14,6 @@ import {
   pushBodySchema,
   pushOpSchema,
   type PushOp,
-  type PushRejectCode,
   type PushResponse,
   type PushResult,
 } from "@/lib/data/shared/sync";
@@ -24,12 +24,6 @@ import {
 // - ช่องที่ไคลเอนต์ห้ามตั้ง (owner/user_id/source_*/license/attribution/met) = invalid ที่ zod · เซิร์ฟเวอร์ตั้งเอง
 // - ทุกการเขียนผูก user_id/owner_user_id = ผู้ส่ง · การอ่านด้วย id อย่างเดียวเพื่อแยก id_conflict ใช้แค่ดูว่าเป็นของใคร ไม่คืนข้อมูลแถว
 
-type Tx = Parameters<Parameters<AppDb["transaction"]>[0]>[0];
-type Outcome = { status: "applied" | "stale" } | { status: "rejected"; code: PushRejectCode };
-
-const applied: Outcome = { status: "applied" };
-const stale: Outcome = { status: "stale" };
-const reject = (code: PushRejectCode): Outcome => ({ status: "rejected", code });
 const toDate = (s: string | null | undefined) => (s ? new Date(s) : null);
 /** เวลาที่ไคลเอนต์ส่งมา (last_used_at) ห้ามล้ำเวลาเซิร์ฟเวอร์ — ใช้เวลาเซิร์ฟเวอร์แทน */
 const toDateClamped = (s: string | null | undefined, now: Date) => {
@@ -68,8 +62,18 @@ async function pushOne(db: AppDb, userId: string, raw: unknown, now: Date): Prom
   return db.transaction(async (tx) => {
     // ล็อกแถว user ของผู้ส่ง — การเขียนของคนเดียวกันเรียงทีละรายการ
     await tx.select({ id: user.id }).from(user).where(eq(user.id, userId)).for("update");
-    if (o.entity === "place") return done(await applyPlace(tx, userId, o, ts, now));
-    return done(await applyExercise(tx, userId, o, ts, now));
+    switch (o.entity) {
+      case "place":
+        return done(await applyPlace(tx, userId, o, ts, now));
+      case "exercise":
+        return done(await applyExercise(tx, userId, o, ts, now));
+      case "workout_session":
+        return done(await applyWorkoutSession(tx, userId, o, ts, now));
+      case "session_exercise":
+        return done(await applySessionExercise(tx, userId, o, ts, now));
+      default:
+        return done(await applySetRecord(tx, userId, o, ts, now));
+    }
   });
 }
 
@@ -153,7 +157,8 @@ async function deletePlace(tx: Tx, me: string, id: string, now: Date): Promise<O
   if (!ex) return applied;
   if (ex.userId !== me) return reject("id_conflict");
   if (ex.deletedAt) return applied;
-  // R3: ตรวจเซสชันที่อ้างถึงสถานที่นี้ที่นี่ — มีเซสชัน = ห้ามลบ (ให้เก็บเข้ากรุแทน · code กำหนดใน R3)
+  // R3: มีเซสชันที่ไม่ถูกลบอ้างสถานที่นี้ = ห้ามลบ (ให้เก็บเข้ากรุแทน)
+  if (await placeHasSessions(tx, me, id)) return reject("place_has_history");
   const [{ n }] = await tx
     .select({ n: count() })
     .from(place)
@@ -170,7 +175,7 @@ async function deletePlace(tx: Tx, me: string, id: string, now: Date): Promise<O
 
 async function applyExercise(tx: Tx, me: string, o: PushOp, ts: Date, now: Date): Promise<Outcome> {
   const [ex] = await tx
-    .select({ owner: exercise.ownerUserId, deletedAt: exercise.deletedAt, archivedAt: exercise.archivedAt, clientUpdatedAt: exercise.clientUpdatedAt })
+    .select({ owner: exercise.ownerUserId, trackType: exercise.trackType, loadMode: exercise.loadMode, deletedAt: exercise.deletedAt, archivedAt: exercise.archivedAt, clientUpdatedAt: exercise.clientUpdatedAt })
     .from(exercise)
     .where(eq(exercise.id, o.id));
   // ท่าคลังกลาง (owner null) และท่าของคนอื่น = id_conflict เหมือนกัน (ไม่บอกว่าเป็นของใคร)
@@ -178,8 +183,9 @@ async function applyExercise(tx: Tx, me: string, o: PushOp, ts: Date, now: Date)
 
   if (o.action === "delete") {
     if (!ex) return applied; // ไม่มีอยู่ = ถือว่าลบแล้ว
-    // R3: เพิ่มตรวจ exercise_has_history ที่นี่ (ท่าที่มีเซ็ตแล้วลบไม่ได้ → archived_at)
+    // R3: ท่าที่มีเซ็ตแล้วลบไม่ได้ (เก็บเข้ากรุแทน)
     if (!ex.deletedAt) {
+      if (await exerciseHasHistory(tx, me, o.id)) return reject("exercise_has_history");
       await tx
         .update(exercise)
         .set({ deletedAt: now, updatedAt: now })
@@ -193,7 +199,10 @@ async function applyExercise(tx: Tx, me: string, o: PushOp, ts: Date, now: Date)
   const data = d.data;
 
   if (ex && (ex.deletedAt || ex.clientUpdatedAt.getTime() > ts.getTime())) return stale;
-  // R3: ท่าที่มีเซ็ตแล้ว เปลี่ยน track_type/load_mode ไม่ได้ (exercise_has_history)
+  // R3: ท่าที่มีเซ็ตแล้ว เปลี่ยน track_type/load_mode ไม่ได้ (ชื่อ/หมวด/อุปกรณ์/ข้างละ/กรุ แก้ได้)
+  if (ex && (ex.trackType !== data.track_type || ex.loadMode !== data.load_mode) && (await exerciseHasHistory(tx, me, o.id))) {
+    return reject("exercise_has_history");
+  }
 
   // เพดานรวมทุกแถวที่เป็นเจ้าของ (รวมเก็บกรุ/tombstone) กันสแปมแถว
   if (!ex) {

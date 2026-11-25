@@ -333,9 +333,24 @@
       "doneHand": "bye for now",
       "doneTitle": "All deleted",
       "doneBody": "Thanks for coming along. Your data is gone from our system.",
-      "doneButton": "Back to start"
+      "doneButton": "Back to start",
+      "pending": "Including {count, plural, one {# item} other {# items}} not yet synced from this phone"
     },
-    "adminInvites": "Invite codes"
+    "adminInvites": "Invite codes",
+    "signOutQueue": {
+      "title": "{count, plural, one {# item hasn't} other {# items haven't}} synced yet",
+      "body": "If you sign out now, they'll be removed from this phone and won't be saved.",
+      "includesRejected": "Includes {count} that couldn't sync",
+      "syncFirst": "Sync first",
+      "syncing": "Syncing…",
+      "syncFailed": "Still couldn't sync. Try again, or discard and sign out.",
+      "discard": "Discard and sign out",
+      "signingOut": "Signing out…",
+      "cancel": "Cancel",
+      "rejectedTitle": "{count, plural, one {# item} other {# items}} couldn't sync",
+      "rejectedBody": "They'll be gone after you sign out. You can view or copy them first.",
+      "view": "View items"
+    }
   },
   "privacy": {
     "back": "Back to home",
@@ -368,7 +383,8 @@
         "title": "3. What we store, and for how long",
         "items": [
           "Account: email and name, plus your Google account ID (only with Google sign-in, the name and ID come from your Google account) — kept until you delete your account · we do not store your profile picture, and we do not keep your IP address or browser details with your account",
-          "Health data (sensitive): weight, height and birth year from the questionnaire, workout places (and the map link if you add one), goals, experience, and the workout history you'll log in later versions — kept until you delete your account",
+          "Health data (sensitive): weight, height and birth year from the questionnaire, workout places (and the map link if you add one), goals, experience, and workout history (sessions and sets) — kept until you delete your account",
+          "When you're offline, your data waits on this phone until it's sent, and is cleared when you sign out",
           "Settings: units, language, theme, rest time — kept until you delete your account",
           "Consent record: time, notice version and language — kept until you delete your account",
           "Invite code used to sign up, and the label an admin gave that code (a nickname, visible only to admins and never shown to other users) — kept until you delete your account; when you delete your account, that code's label is cleared",
@@ -629,7 +645,10 @@
     "keepEditing": "Keep editing",
     "notFound": "We can't find this exercise. It may have been deleted.",
     "backToList": "Back to exercises",
-    "needNet": "Creating and editing need a connection"
+    "needNet": "Creating and editing need a connection",
+    "historyLocked": "This exercise has history, so its log type can't change.",
+    "historyNoDelete": "Exercises with history can't be deleted. You can archive it instead.",
+    "saveAndAdd": "Save and add to session"
   },
   "toast": {
     "saved": "Saved.",
@@ -676,7 +695,9 @@
     "deleteConfirm": "Delete",
     "deleting": "Deleting…",
     "deleteFailed": "Couldn't delete. Try again.",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "historyNoDelete": "This place has sessions, so it can't be deleted. Archive it instead.",
+    "activeLocked": "You're in a session here. Finish it first."
   },
   "placePicker": {
     "at": "At",
@@ -698,5 +719,183 @@
     "cardioBody": "Written by the Fat Cat Fit team.",
     "thaiTitle": "Thai names",
     "thaiBody": "Transliterated by our team the way Thai gym-goers say them. Spot an odd one? Tell us in the group chat."
+  },
+  "log": {
+    "start": "Start",
+    "saveFailed": "Couldn't save yet. Try again.",
+    "sessionNew": "New session",
+    "sessionNameTwo": "{a} & {b}",
+    "sessionNameMany": "{a} + {count} more",
+    "noSession": "No session in progress",
+    "minimize": "Minimize (the session keeps going)",
+    "sessionMenu": "Session menu",
+    "noExercises": "No exercises yet. Add the first one.",
+    "addExercise": "Add exercise",
+    "finish": "Finish",
+    "newRecord": "New record!",
+    "record": "Record",
+    "unticked": "Unchecked",
+    "setDeleted": "Set deleted",
+    "exerciseLimit": "Can't add more. Session limit reached.",
+    "setTitle": "Set {n}",
+    "setTitleWarmup": "Warm-up set",
+    "setMenu": "Menu for set {n}",
+    "setMenuWarmup": "Menu for warm-up set",
+    "warmup": "Warm-up set",
+    "warmupHint": "Doesn't count for records or volume. Counts toward the set total in the summary.",
+    "deleteSet": "Delete set",
+    "close": "Close",
+    "cancel": "Cancel",
+    "done": "Done",
+    "exerciseMenu": "Menu for {name}",
+    "exerciseMenuTitle": "{name}",
+    "removeExercise": "Remove from session",
+    "removeExerciseConfirm": "Remove with logged sets",
+    "removeExerciseBody": "The sets you've logged for this exercise will be deleted too.",
+    "changePlace": "Change place",
+    "discard": "Discard session",
+    "discardTitle": "Discard this session?",
+    "discardBody": "All the sets you logged in this session will be deleted.",
+    "discardConfirm": "Discard session",
+    "head": {
+      "set": "Set"
+    },
+    "perSide": "per side",
+    "field": {
+      "weight": "Weight",
+      "weightPlus": "Body +",
+      "weightAssist": "Assist −",
+      "reps": "Reps",
+      "duration": "Time",
+      "distance": "Dist",
+      "speed": "Speed",
+      "incline": "Incline %"
+    },
+    "empty": "empty",
+    "tick": "Complete set {n}",
+    "stopwatchStart": "Start timer",
+    "stopwatchStop": "Stop timer",
+    "collapsedSets": "{count, plural, one {# set} other {# sets}}",
+    "collapsedNone": "not started",
+    "range": {
+      "weightMax": "Weight can be up to {max} {unit}",
+      "weightMin": "Weight can't be negative",
+      "weightDecimals": "Weight allows up to 2 decimal places",
+      "repsMin": "Reps must be at least 1",
+      "repsMax": "Reps can be up to {max}",
+      "repsInteger": "Reps must be a whole number",
+      "durationMin": "Time must be at least 1 second",
+      "durationMax": "Time can be up to 24 hours",
+      "distanceMin": "Distance must be at least {min} {unit}",
+      "distanceMax": "Distance can be up to {max} {unit}",
+      "distanceDecimals": "Distance allows up to 2 decimal places",
+      "speedMin": "Speed must be at least {min} {unit}",
+      "speedMax": "Speed can be up to {max} {unit}",
+      "speedDecimals": "Speed allows 1 decimal place",
+      "incline": "Incline can be {min}–{max} %",
+      "inclineDecimals": "Incline allows 1 decimal place"
+    },
+    "rest": {
+      "label": "Rest",
+      "go": "Go",
+      "minus": "Subtract {s} seconds",
+      "plus": "Add {s} seconds",
+      "skip": "Skip",
+      "dismiss": "Dismiss",
+      "done": "Rest is over. Go on."
+    },
+    "picker": {
+      "title": "Pick an exercise",
+      "close": "Close picker",
+      "recent": "Recent",
+      "pickCategory": "Pick a category or search",
+      "inSession": "in session"
+    },
+    "summary": {
+      "title": "You showed up",
+      "minutes": "{count} min",
+      "sets": "{count, plural, one {# set} other {# sets}}",
+      "exercises": "{count, plural, one {# exercise} other {# exercises}}",
+      "records": "{count, plural, one {# new record} other {# new records}}",
+      "offline": "Will sync when you're online",
+      "done": "Done"
+    },
+    "active": {
+      "label": "Session in progress: {name}. Tap to go back.",
+      "now": "In progress",
+      "rest": "Rest {time}"
+    },
+    "resume": {
+      "title": "Still going?",
+      "started": "started {time}",
+      "last": "last set {time}",
+      "continue": "Keep going",
+      "finish": "Finish at the last set",
+      "discard": "Discard this session"
+    },
+    "autoEnded": {
+      "one": "We finished a session you left open",
+      "many": "We finished {count, plural, one {# session} other {# sessions}} you left open",
+      "detail": "{name} · {date} · ended at last set, {time}",
+      "close": "Dismiss"
+    }
+  },
+  "sync": {
+    "bar": {
+      "authNeeded": "Sign in again to sync {count, plural, one {# item} other {# items}}",
+      "signIn": "Sign in",
+      "storage": "Phone storage is full or unavailable. What you log may not be kept.",
+      "rejected": "{count} couldn't sync",
+      "view": "View",
+      "stale": "Unsynced data · go online and open the app",
+      "offlinePending": "Offline · {count} saved on this phone",
+      "pending": "{count} saved on this phone",
+      "syncNow": "Sync now",
+      "sending": "Syncing {count}…",
+      "done": "All synced"
+    },
+    "rejected": {
+      "title": "{count, plural, one {# item couldn't sync} other {# items couldn't sync}}",
+      "body": "The server refused these. Everything else synced. Copy them first if you want to log them again.",
+      "stillPending": "{count, plural, one {# more item} other {# more items}} waiting to sync. We'll send them.",
+      "children": "and {count, plural, one {# more item} other {# more items}} in this session",
+      "copy": "Copy details",
+      "copyAll": "Copy all",
+      "discard": "Discard",
+      "discarded": "Discarded",
+      "copied": "Copied",
+      "copyFailed": "Couldn't copy. You can select the text below.",
+      "copyHeader": "Fat Cat Fit · couldn't sync · version {version}",
+      "reasonLabel": "Reason",
+      "close": "Close"
+    },
+    "entity": {
+      "set": "Set",
+      "sessionExercise": "Exercise in session",
+      "session": "Session",
+      "exercise": "My exercise",
+      "place": "Place"
+    },
+    "action": {
+      "create": "Create",
+      "update": "Edit",
+      "archive": "Archive",
+      "delete": "Delete",
+      "select": "Set as current place",
+      "addToSession": "Added to session",
+      "started": "Started {time}",
+      "ended": "Ended {time}"
+    },
+    "warmup": "warm-up",
+    "reason": {
+      "invalid": "Something was missing or out of range",
+      "typeChanged": "This exercise was changed on another device",
+      "parentMissing": "Its exercise or session is gone",
+      "idConflict": "The server didn't accept this",
+      "exerciseHasHistory": "This exercise has history, so its log type can't change and it can't be deleted",
+      "placeHasHistory": "This place has sessions, so it can't be deleted. Archive it instead.",
+      "badClock": "Your phone's clock is off by more than a day. Fix it and log again.",
+      "limitReached": "Limit reached"
+    }
   }
 }

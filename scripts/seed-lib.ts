@@ -3,7 +3,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { eq, inArray, isNull } from "drizzle-orm";
+import { eq, inArray, isNull, sql } from "drizzle-orm";
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import { exercise } from "../src/db/schema/app";
 import {
@@ -445,6 +445,38 @@ function sameContent(db: DbRow, v: ReturnType<typeof toValues>): boolean {
 }
 
 /**
+ * R3 (ADR 0003 ข้อ 2): track_type / load_mode ของท่าที่มีประวัติ (เซ็ตไม่ถูกลบ ใต้ session_exercise ที่ไม่ถูกลบ) เปลี่ยนไม่ได้
+ * ไฟล์คลังเปลี่ยนสองช่องนี้ของท่าเช่นนั้น = throw (ทั้ง transaction ย้อนกลับ ไม่เขียนอะไร) · ฐานที่ยังไม่มีตาราง R3 = ข้าม
+ */
+async function assertNoHistoryConflict(tx: AnyPgDb, rows: CatalogRow[], byId: Map<string, DbRow>): Promise<void> {
+  const changed = rows.filter((r) => {
+    const cur = byId.get(r.id);
+    return cur && (cur.trackType !== r.track_type || cur.loadMode !== r.load_mode);
+  });
+  if (!changed.length) return;
+  const has = (await tx.execute(sql`select to_regclass('public.session_exercise') is not null and to_regclass('public.set_record') is not null as ok`)) as unknown as { rows: { ok?: boolean }[] };
+  if (!has.rows[0]?.ok) return;
+  const ids = changed.map((r) => r.id);
+  const bad: string[] = [];
+  for (let i = 0; i < ids.length; i += 500) {
+    const part = ids.slice(i, i + 500);
+    const hit = (await tx.execute(sql`
+      select distinct se.exercise_id as id from session_exercise se
+      where se.deleted_at is null and se.exercise_id in (${sql.join(part.map((x) => sql`${x}`), sql`, `)})
+        and exists (select 1 from set_record sr where sr.session_exercise_id = se.id and sr.deleted_at is null)`)) as unknown as { rows: { id: string }[] };
+    for (const h of hit.rows) bad.push(h.id);
+  }
+  if (!bad.length) return;
+  const byRow = new Map(changed.map((r) => [r.id, r]));
+  const list = bad.slice(0, 5).map((id) => {
+    const r = byRow.get(id)!;
+    const cur = byId.get(id)!;
+    return `${r.name} (${id}): ${cur.trackType}/${cur.loadMode} -> ${r.track_type}/${r.load_mode}`;
+  });
+  throw new Error(`seed: ไฟล์คลังเปลี่ยน track_type/load_mode ของท่าที่มีประวัติแล้ว ${bad.length} ท่า — ทำไม่ได้ (ต้องสร้างท่าใหม่แทน) · หยุด ไม่เขียนอะไร · ${list.join(" ; ")}`);
+}
+
+/**
  * upsert คลังกลางด้วย id (contract R2 หัวข้อ seed) — รันซ้ำได้
  * - แตะ updated_at/client_updated_at เฉพาะแถวที่เนื้อหาเปลี่ยน (เป็นตัวกำหนด catalog_version) · แถวใหม่ตั้ง created_at ด้วย
  * - แถวคลังที่หายจากไฟล์ = ตั้ง archived_at (ไม่ลบ) · กลับมาในไฟล์ = เอา archived_at ออก
@@ -463,6 +495,8 @@ export async function syncCatalog(db: AnyPgDb, rows: CatalogRow[], now: Date = n
       const clash = hit.find((h) => !byId.has(h.id));
       if (clash) throw new Error(`seed: id คลัง ${clash.id} ชนกับแถวของผู้ใช้ (owner_user_id ไม่ว่าง) — หยุด ไม่เขียนอะไร`);
     }
+
+    await assertNoHistoryConflict(tx, rows, byId);
 
     const toInsert: (ReturnType<typeof toValues> & { id: string })[] = [];
     for (const r of rows) {

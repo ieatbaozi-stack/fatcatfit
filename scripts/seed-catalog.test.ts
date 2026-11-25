@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { eq, isNull } from "drizzle-orm";
+import { eq, isNull, sql } from "drizzle-orm";
 import { createTestDb, type TestDb } from "../src/db/testing/pglite";
 import { exercise, user } from "../src/db/schema";
 import { catalogId, checkCatalog, flattenFiles, uuidV5, loadCatalog, loadCatalogFiles, mapRaw, syncCatalog, type CatalogRow, type RawExercise } from "./seed-lib";
@@ -265,6 +265,33 @@ describe("seed ลงฐานข้อมูล (PGlite · migration จริ�
       });
       await expect(syncCatalog(fresh.db, rows, now)).rejects.toThrow(/ชนกับแถวของผู้ใช้/);
       expect((await fresh.db.select().from(exercise)).length).toBe(1);
+    } finally {
+      await fresh.close();
+    }
+  });
+
+  it("เปลี่ยน track_type/load_mode ของท่าที่มีประวัติ = ล้มและย้อนกลับทั้งหมด · เซ็ตถูกลบแล้วเปลี่ยนได้", async () => {
+    const fresh = await createTestDb();
+    try {
+      const now = new Date("2026-11-24T00:00:00Z");
+      const rows = loadCatalog().rows;
+      await syncCatalog(fresh.db, rows, now);
+      // ข้าม FK (ไม่ต้องสร้าง user/place/session) — เทสต์นี้สนใจแค่ session_exercise/set_record ของ migration 0005 จริง
+      await fresh.db.execute(sql`set session_replication_role = replica`);
+      const target = rows.find((r) => r.track_type === "weight_reps" && r.load_mode === "external")!;
+      const other = rows.find((r) => r.id !== target.id && r.track_type === "weight_reps" && r.load_mode === "external")!;
+      const u = crypto.randomUUID();
+      const [se1, se2, sess] = [crypto.randomUUID(), crypto.randomUUID(), crypto.randomUUID()];
+      await fresh.db.execute(sql`insert into session_exercise (id, user_id, session_id, exercise_id, position, exercise_name, track_type, load_mode, created_at, updated_at, client_updated_at)
+        values (${se1}, ${u}, ${sess}, ${target.id}, 0, 'A', 'weight_reps', 'external', now(), now(), now()), (${se2}, ${u}, ${sess}, ${other.id}, 1, 'B', 'weight_reps', 'external', now(), now(), now())`);
+      await fresh.db.execute(sql`insert into set_record (id, user_id, session_exercise_id, position, set_kind, completed_at, weight_kg, weight_input, weight_unit, reps, created_at, updated_at, client_updated_at)
+        values (${crypto.randomUUID()}, ${u}, ${se1}, 0, 'normal', now(), 50, 50, 'kg', 5, now(), now(), now())`);
+      const before = await fresh.db.select().from(exercise);
+      const edited = rows.map((r): CatalogRow => (r.id === target.id || r.id === other.id ? { ...r, track_type: "reps_only", load_mode: "external" } : r));
+      await expect(syncCatalog(fresh.db, edited, now)).rejects.toThrow(/มีประวัติ/);
+      expect(await fresh.db.select().from(exercise)).toEqual(before);
+      await fresh.db.execute(sql`update set_record set deleted_at = now()`);
+      expect((await syncCatalog(fresh.db, edited, now)).updated).toBe(2);
     } finally {
       await fresh.close();
     }

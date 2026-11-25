@@ -1,8 +1,9 @@
 // ล้างสิ่งที่ผูกกับผู้ใช้ในเครื่องหลังออกจากระบบ/ลบบัญชีสำเร็จ (ADR 0006 ข้อ 5 ขั้น 2 · ADR 0004 ข้อ 8)
 // ลำดับฝั่งไคลเอนต์: (1) signOut / DELETE /api/me สำเร็จ → (2) resetDeviceAfterSignOut → (3) location.replace("/welcome")
-// R3 เพิ่มการลบฐาน IndexedDB ของคิวออฟไลน์ที่ฟังก์ชันนี้
+// R3: ลบฐาน IndexedDB ของคิวออฟไลน์ `fcf:v1:<user_id>` (คิว ส่งไม่ผ่าน ร่างเซสชัน snapshot) + ลืม user id ของเครื่อง
 import { clearAuthHint, clearKnownDevice } from "./auth-hint";
 import { clearUserCaches } from "./clear-caches";
+import { clearOfflineUserId, deleteOfflineDb, getOfflineUserId } from "./offline-db";
 import { USER_RESET_MESSAGE } from "./messages";
 
 /** รอ SW ตอบรับไม่เกินเท่านี้ — SW ไม่ตอบ (ไม่มี/ค้าง) ต้องไม่ทำให้ออกจากระบบค้าง */
@@ -15,6 +16,8 @@ export interface ResetDeps {
   /** SW ทุกตัวของ registration (installing/waiting/active) — แต่ละตัวมีการดึงหน้าของตัวเอง */
   getRegistration?: () => Promise<RegistrationLike | undefined>;
   clearCaches?: () => Promise<unknown>;
+  /** ลบฐานในเครื่องของผู้ใช้ (ค่าเริ่มต้น: deleteOfflineDb) */
+  deleteDb?: (userId: string) => Promise<unknown>;
   timeoutMs?: number;
 }
 
@@ -58,16 +61,37 @@ async function resetWorkers(deps: ResetDeps, timeoutMs: number): Promise<void> {
  * - บอก SW ให้ทิ้งการดึงหน้าที่ค้าง (กันหน้าที่ได้ด้วย cookie เดิมถูกเขียนกลับหลังล้าง)
  * - `clearUserCaches()`: หน้า HTML ที่ cache ไว้ + cache `user-*` (คง asset ที่มี hash)
  * - ล้าง hint `fcf:auth` · ลบบัญชี: ล้าง `fcf:known-device` ด้วย (กลับมาต้องใส่โค้ดเชิญใหม่)
+ * - ลบฐาน IndexedDB `fcf:v1:<user_id>` ทั้งก้อน (userId ไม่ส่ง = ผู้ใช้ที่ลงทะเบียนไว้ใน offline-db) · ไม่ลบฐานของคนอื่นในเครื่อง
+ * ผู้เรียกต้องถามผู้ใช้ก่อนถ้ายังมีค้างส่ง (UX 13.3 · `flushBeforeSignOut` ใน src/lib/offline)
  */
-export async function resetDeviceAfterSignOut(opts: { accountDeleted: boolean }, deps: ResetDeps = {}): Promise<void> {
+export async function resetDeviceAfterSignOut(opts: { accountDeleted: boolean; userId?: string }, deps: ResetDeps = {}): Promise<void> {
   const timeoutMs = deps.timeoutMs ?? SW_RESET_TIMEOUT_MS;
   // hint ล้างก่อน: ถ้าขั้นอื่นค้าง/ล้ม ตอนออฟไลน์ก็ไม่แสดงหน้าแอปแล้ว
   clearAuthHint();
   if (opts.accountDeleted) clearKnownDevice();
+  // ล้าง sessionStorage ของแอปทั้งหมด (fcf:flash, fcf:edit-exercise, fcf:auto-open ฯลฯ) กันตกค้างถึงผู้ใช้ถัดไปในแท็บเดิม
+  try {
+    if (typeof sessionStorage !== "undefined") {
+      const keys: string[] = [];
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const k = sessionStorage.key(i);
+        if (k && k.startsWith("fcf:")) keys.push(k);
+      }
+      for (const k of keys) sessionStorage.removeItem(k);
+    }
+  } catch {
+    // sessionStorage ใช้ไม่ได้
+  }
+  const userId = opts.userId ?? getOfflineUserId();
+  clearOfflineUserId();
+  const dbDone = userId
+    ? (deps.deleteDb ?? ((id: string) => deleteOfflineDb(id)))(userId).catch(() => {})
+    : Promise.resolve();
   await resetWorkers(deps, timeoutMs);
   try {
     await (deps.clearCaches ?? (() => clearUserCaches()))();
   } catch {
     // Cache Storage ใช้ไม่ได้ — ไม่มีอะไรให้ล้าง
   }
+  await dbDone;
 }

@@ -3,7 +3,10 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useMe } from "@/components/auth/auth-gate";
+import { addExerciseChange, mutateSession } from "@/components/log/session-logic";
+import { unitsFromProfile } from "@/components/log/set-logic";
+import { useLocalView } from "@/components/sync/use-offline";
+import { deleteEntity, writeEntity } from "@/lib/offline/client";
 import { Button, TextButton } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { ChoiceGroup } from "@/components/ui/choice-group";
@@ -12,14 +15,13 @@ import { Icon } from "@/components/ui/icon";
 import { Sheet } from "@/components/ui/sheet";
 import { ButtonLink } from "@/components/ui/status-screen";
 import { CATEGORIES, EQUIPMENT, EXERCISE_LIMITS, LOAD_MODES, TRACK_TYPES, isCategory, type Category, type LoadMode, type TrackType } from "@/lib/data/shared/exercise-meta";
-import type { WireExercise } from "@/lib/data/shared/sync";
+import type { WireMyExercise } from "@/lib/data/shared/sync";
 import { useHideTabs } from "@/components/nav/tabs-visibility";
 import { useOnline } from "@/pwa/use-online";
-import { pushOne } from "./api";
 import {
   EMPTY_FORM,
   clampName,
-  buildExerciseRow,
+  exerciseHasHistory,
   hasDuplicateName,
   isDirty,
   isFormValid,
@@ -31,15 +33,15 @@ import {
   type FormValues,
 } from "./exercise-logic";
 import { queueFlash } from "./flash";
-import { cameFromApp } from "./in-app-nav";
+import { cameFromApp, getEditExerciseId } from "./in-app-nav";
 import { BottomBar, CatState, Skeleton } from "./shared";
-import { loadBootstrap, removeMyExercise, upsertMyExercise, useCatalogStore } from "./store";
+import { useCatalogStore } from "./store";
 
-/** ค่าเติมจาก hash ของจอค้น (ตัดช่องว่าง/60 ตัว · หมวดต้องอยู่ในรายการ) */
-export function readPrefill(hash: string): { name: string; category: Category | null } {
+/** ค่าเติมจาก hash ของจอค้น (ตัดช่องว่าง/60 ตัว · หมวดต้องอยู่ในรายการ) · session=1 = มาจากหน้าจด (บันทึกแล้วเพิ่มเข้าเซสชันด้วย) */
+export function readPrefill(hash: string): { name: string; category: Category | null; session: boolean } {
   const p = new URLSearchParams(hash.replace(/^#/, ""));
   const c = p.get("category");
-  return { name: clampName(p.get("name") ?? ""), category: c && isCategory(c) ? c : null };
+  return { name: clampName(p.get("name") ?? ""), category: c && isCategory(c) ? c : null, session: p.get("session") === "1" };
 }
 
 type SaveError = "save" | "limit" | "delete" | null;
@@ -57,7 +59,7 @@ function useGoBack() {
 export function NewExerciseForm() {
   const online = useOnline();
   const { bootstrap } = useCatalogStore({ catalog: false, bootstrap: true }, online);
-  const [prefill, setPrefill] = useState<{ name: string; category: Category | null } | null>(null);
+  const [prefill, setPrefill] = useState<{ name: string; category: Category | null; session: boolean } | null>(null);
   // ชื่อ/หมวดจากจอค้นมาใน hash (#name=&category=) — hash ไม่ถูกส่งไปเซิร์ฟเวอร์ ไม่เข้า log
   useEffect(() => {
     // อ่านจาก URL ภายนอกครั้งเดียวตอนเปิดหน้า
@@ -65,21 +67,31 @@ export function NewExerciseForm() {
     setPrefill(readPrefill(window.location.hash));
   }, []);
   if (!prefill) return null;
-  return <FormBody key="new" base={null} initial={{ ...EMPTY_FORM, name: prefill.name, category: prefill.category }} mine={bootstrap.data?.my_exercises ?? []} notice={null} onStale={() => {}} />;
+  return <FormBody key="new" base={null} initial={{ ...EMPTY_FORM, name: prefill.name, category: prefill.category }} mine={bootstrap.data?.my_exercises ?? []} addToSession={prefill.session} />;
 }
 
-/** แก้ท่าของฉัน (จอ 75–76) */
-export function EditExerciseForm({ id }: { id: string }) {
+/** หน้า `/me/exercises/edit`: อ่าน id ของท่าที่เลือกจากเครื่อง (ตั้งตอนแตะแถวในรายการ) */
+export function EditExerciseFromDevice() {
+  const [id, setId] = useState<string | null | undefined>(undefined);
+  useEffect(() => {
+    // อ่านจาก storage ในเครื่องครั้งเดียวตอนเปิดหน้า
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setId(getEditExerciseId());
+  }, []);
+  if (id === undefined) return null;
+  return <EditExerciseForm id={id} />;
+}
+
+/** แก้ท่าของฉัน (จอ 75–76) — id ของท่ามาจากเครื่อง (หน้านี้ path คงที่ `/me/exercises/edit` เปิดออฟไลน์ได้) */
+export function EditExerciseForm({ id }: { id: string | null }) {
   const t = useTranslations();
   const online = useOnline();
   const goBack = useGoBack();
   const { bootstrap, retry } = useCatalogStore({ catalog: false, bootstrap: true }, online);
-  const [version, setVersion] = useState(0);
-  const [notice, setNotice] = useState<"stale" | null>(null);
-  const row = bootstrap.data?.my_exercises.find((e) => e.id === id) ?? null;
+  const row = id ? (bootstrap.data?.my_exercises.find((e) => e.id === id) ?? null) : null;
 
   if (!row) {
-    if (bootstrap.status === "ready") {
+    if (bootstrap.status === "ready" || id === null) {
       return (
         <CatState pose="confused" title={t("exerciseForm.notFound")}>
           <ButtonLink href="/me/exercises">{t("exerciseForm.backToList")}</ButtonLink>
@@ -97,42 +109,20 @@ export function EditExerciseForm({ id }: { id: string }) {
         </CatState>
       );
     }
-    if (!online) {
-      return (
-        <CatState pose="offline" title={t("exercises.offlineTitle")} body={t("exercises.offlineBody")}>
-          <Button onClick={goBack}>{t("exerciseForm.backToList")}</Button>
-        </CatState>
-      );
-    }
     return <Skeleton rows={5} />;
   }
 
-  return (
-    <FormBody
-      key={`${row.id}:${version}`}
-      base={row}
-      initial={valuesOf(row)}
-      mine={bootstrap.data?.my_exercises ?? []}
-      notice={notice}
-      onStale={() => {
-        // แก้จากเครื่องอื่นไปแล้ว: โหลดค่าล่าสุดแล้วเติมใหม่ในฟอร์ม
-        void loadBootstrap().then(() => {
-          setNotice("stale");
-          setVersion((v) => v + 1);
-        });
-      }}
-    />
-  );
+  return <FormBody key={row.id} base={row} initial={valuesOf(row)} mine={bootstrap.data?.my_exercises ?? []} addToSession={false} />;
 }
 
-type BodyProps = { base: WireExercise | null; initial: FormValues; mine: readonly WireExercise[]; notice: "stale" | null; onStale: () => void };
+type BodyProps = { base: WireMyExercise | null; initial: FormValues; mine: readonly WireMyExercise[]; addToSession: boolean };
 
-function FormBody({ base, initial, mine, notice, onStale }: BodyProps) {
+function FormBody({ base, initial, mine, addToSession }: BodyProps) {
   useHideTabs();
   const t = useTranslations();
-  const online = useOnline();
+  const router = useRouter();
   const goBack = useGoBack();
-  const { me } = useMe();
+  const view = useLocalView();
   const [values, setValues] = useState<FormValues>(initial);
   const [id] = useState(() => base?.id ?? crypto.randomUUID());
   const [busy, setBusy] = useState(false);
@@ -144,9 +134,12 @@ function FormBody({ base, initial, mine, notice, onStale }: BodyProps) {
   const noteId = useId();
 
   const isEdit = base !== null;
+  // มีประวัติ (D8): ล็อกชนิดการจด/ใช้น้ำหนักตัว และไม่มีปุ่มลบ · เช็คจาก bootstrap + เซ็ตที่ติ๊กในเครื่อง (รวมที่ค้างส่ง)
+  const locked = base !== null && exerciseHasHistory(base, view);
   const dirty = isDirty(values, initial);
   const valid = isFormValid(values);
-  const canSave = valid && (isEdit ? dirty : true) && online && error !== "limit";
+  const atLimit = !isEdit && mine.filter((e) => !e.archived_at).length >= EXERCISE_LIMITS.maxMyExercises;
+  const canSave = valid && (isEdit ? dirty : true) && !atLimit;
   const nameLen = Array.from(values.name).length;
   const duplicate = hasDuplicateName(values.name, mine, base?.id ?? null);
   const archived = Boolean(base?.archived_at);
@@ -156,54 +149,46 @@ function FormBody({ base, initial, mine, notice, onStale }: BodyProps) {
     setValues((v) => ({ ...v, ...patch }));
   }
 
-  function rowOf(v: FormValues, archivedAt: string | null): WireExercise {
-    return buildExerciseRow({ id, ownerId: me?.user.id ?? "", values: v, archivedAt, base, now: new Date().toISOString() });
-  }
-
-  /** ผลของการเขียน: applied → true · stale → โหลดใหม่ · อื่นๆ → ตั้งข้อความผิดพลาด */
-  async function write(data: Record<string, unknown> | undefined, action: "upsert" | "delete", failure: "save" | "delete"): Promise<boolean> {
+  /** เขียนลงเครื่อง (เข้าคิว) — ผลปฏิเสธจากเซิร์ฟเวอร์ไปอยู่แผ่น "ส่งไม่ผ่าน" */
+  async function write(data: Record<string, unknown> | null, failure: "save" | "delete"): Promise<boolean> {
     setBusy(true);
     setError(null);
-    const r = await pushOne({ entity: "exercise", id, action, ...(data ? { data } : {}) });
-    if (r.kind === "applied") return true;
+    const r =
+      data === null
+        ? await deleteEntity("exercise", id, { display: { exercise_id: id, exercise_name: base?.name, intent: "delete" } })
+        : await writeEntity("exercise", id, data, { create: !isEdit, display: { exercise_id: id, exercise_name: values.name.trim(), intent: isEdit ? "edit" : "create" } });
+    if (r.ok) return true;
     setBusy(false);
-    if (r.kind === "stale") onStale();
-    else if (r.kind === "rejected" && r.code === "limit_reached") setError("limit");
-    else setError(failure);
+    setError(failure);
     return false;
   }
 
   async function onSave() {
     if (busy || !canSave) return;
-    if (await write(toPushData(values), "upsert", "save")) {
-      upsertMyExercise(rowOf(values, base?.archived_at ?? null));
-      void loadBootstrap();
-      queueFlash({ key: "saved" });
-      goBack();
+    if (!(await write({ ...toPushData(values), archived_at: base?.archived_at ?? null }, "save"))) return;
+    if (addToSession && values.track) {
+      // สร้างจากหน้าจด: เพิ่มท่าใหม่เข้าเซสชันที่เล่นอยู่ แล้วกลับหน้าจด
+      const units = unitsFromProfile(view.snapshot?.profile);
+      await mutateSession((d, now) => addExerciseChange(d, { id, name: values.name.trim(), name_th: null, track_type: values.track as string, load_mode: showsLoadMode(values.track) ? values.loadMode : "external" }, undefined, units, now)?.change ?? null);
+      router.replace("/log");
+      return;
     }
+    queueFlash({ key: "saved" });
+    goBack();
   }
 
   async function onArchive(next: boolean) {
-    if (busy || !base || !online) return;
-    const baseValues = valuesOf(base);
+    if (busy || !base) return;
     const at = next ? new Date().toISOString() : null;
-    if (await write({ ...toPushData(baseValues), archived_at: at }, "upsert", "save")) {
-      upsertMyExercise(rowOf(baseValues, at));
-      void loadBootstrap();
-      queueFlash(
-        next
-          ? { key: "archived", undo: (show) => void undoArchive(base, show) }
-          : { key: "unarchived" },
-      );
+    if (await write({ ...toPushData(valuesOf(base)), archived_at: at }, "save")) {
+      queueFlash(next ? { key: "archived", undo: { type: "unarchiveExercise", id: base.id } } : { key: "unarchived" });
       goBack();
     }
   }
 
   async function onDelete() {
-    if (busy || !base || !online) return;
-    if (await write(undefined, "delete", "delete")) {
-      removeMyExercise(id);
-      void loadBootstrap();
+    if (busy || !base) return;
+    if (await write(null, "delete")) {
       queueFlash({ key: "deleted" });
       goBack();
     }
@@ -225,7 +210,7 @@ function FormBody({ base, initial, mine, notice, onStale }: BodyProps) {
   const categoryOptions = CATEGORIES.map((c) => ({ value: c, label: t(`exercise.category.${c}`) }));
   const trackOptions = TRACK_TYPES.map((v) => ({ value: v, label: t(`exercise.track.${v}`), hint: t(`exercise.trackExample.${v}`) }));
   const loadOptions = LOAD_MODES.map((v) => ({ value: v, label: t(`exercise.load.${v}`) }));
-  const saveLabel = busy ? t("exerciseForm.saving") : error === "save" ? t("exerciseForm.retry") : t("exerciseForm.save");
+  const saveLabel = busy ? t("exerciseForm.saving") : error === "save" ? t("exerciseForm.retry") : addToSession ? t("exerciseForm.saveAndAdd") : t("exerciseForm.save");
 
   return (
     <form
@@ -239,12 +224,6 @@ function FormBody({ base, initial, mine, notice, onStale }: BodyProps) {
         </button>
         <h1 className="text-page">{t(isEdit ? "exerciseForm.editTitle" : "exerciseForm.newTitle")}</h1>
       </header>
-
-      {notice === "stale" ? (
-        <p role="status" className="text-caption text-ink-2">
-          {t("exerciseForm.stale")}
-        </p>
-      ) : null}
 
       {/* ชื่อ */}
       <div className="flex flex-col gap-1.5">
@@ -280,25 +259,37 @@ function FormBody({ base, initial, mine, notice, onStale }: BodyProps) {
       {/* ชนิดการจด (บังคับ ไม่มีค่าเริ่ม: ล็อกเมื่อมีประวัติ จึงให้เลือกเอง) */}
       <section className="flex flex-col gap-2">
         <h2 className="text-caption text-ink-3">{t("exerciseForm.track")}</h2>
-        <ChoiceGroup
-          variant="list"
-          label={t("exerciseForm.track")}
-          value={values.track}
-          options={trackOptions}
-          onChange={(v: TrackType) => {
-            setError(null);
-            setValues((cur) => withTrack(cur, v));
-          }}
-          after={{
-            weight_reps: showsLoadMode(values.track) ? (
-              <div className="ml-10 flex flex-col gap-2 border-b border-ink-3/40 py-3">
-                <p className="text-caption text-ink-3">{t("exercise.load.label")}</p>
-                <ChoiceGroup variant="chips" label={t("exercise.load.label")} value={values.loadMode} options={loadOptions} onChange={(v: LoadMode) => set({ loadMode: v })} />
-              </div>
-            ) : null,
-          }}
-        />
-        <p className="text-caption text-ink-3">{t("exerciseForm.lockNote")}</p>
+        {locked && values.track ? (
+          <>
+            <p className="text-body text-ink">
+              {t(`exercise.track.${values.track}`)}
+              {values.loadMode !== "external" ? ` · ${t(`exercise.load.${values.loadMode}`)}` : ""}
+            </p>
+            <p className="text-caption text-ink-3">{t("exerciseForm.historyLocked")}</p>
+          </>
+        ) : (
+          <>
+            <ChoiceGroup
+              variant="list"
+              label={t("exerciseForm.track")}
+              value={values.track}
+              options={trackOptions}
+              onChange={(v: TrackType) => {
+                setError(null);
+                setValues((cur) => withTrack(cur, v));
+              }}
+              after={{
+                weight_reps: showsLoadMode(values.track) ? (
+                  <div className="ml-10 flex flex-col gap-2 border-b border-line py-3">
+                    <p className="text-caption text-ink-3">{t("exercise.load.label")}</p>
+                    <ChoiceGroup variant="chips" label={t("exercise.load.label")} value={values.loadMode} options={loadOptions} onChange={(v: LoadMode) => set({ loadMode: v })} />
+                  </div>
+                ) : null,
+              }}
+            />
+            <p className="text-caption text-ink-3">{t("exerciseForm.lockNote")}</p>
+          </>
+        )}
       </section>
 
       {showsUnilateral(values.track) ? (
@@ -307,7 +298,7 @@ function FormBody({ base, initial, mine, notice, onStale }: BodyProps) {
           role="switch"
           aria-checked={values.unilateral}
           onClick={() => set({ unilateral: !values.unilateral })}
-          className="flex min-h-14 w-full cursor-pointer items-center justify-between gap-4 border-b border-ink-3/40 py-2 text-left"
+          className="flex min-h-14 w-full cursor-pointer items-center justify-between gap-4 border-b border-line py-2 text-left"
         >
           <span className="flex min-w-0 flex-col">
             <span className="text-body font-normal text-ink">{t("exerciseForm.unilateral")}</span>
@@ -330,24 +321,28 @@ function FormBody({ base, initial, mine, notice, onStale }: BodyProps) {
       </section>
 
       {isEdit ? (
-        <section className="flex flex-col gap-1 border-t border-ink-3/40 pt-4">
+        <section className="flex flex-col gap-1 border-t border-line pt-4">
           <button
             type="button"
-            disabled={busy || !online}
+            disabled={busy}
             onClick={() => void onArchive(!archived)}
             className="inline-flex min-h-11 w-fit cursor-pointer items-center text-body text-ink underline-hand disabled:cursor-not-allowed disabled:text-ink-3 disabled:no-underline"
           >
             {archived ? t("exerciseForm.unarchive") : t("exerciseForm.archive")}
           </button>
           {!archived ? <p className="text-caption text-ink-3">{t("exerciseForm.archiveHint")}</p> : null}
-          <button
-            type="button"
-            disabled={busy || !online}
-            onClick={() => setDeleteOpen(true)}
-            className="mt-2 inline-flex min-h-11 w-fit cursor-pointer items-center text-body text-warn underline-hand disabled:cursor-not-allowed disabled:text-ink-3 disabled:no-underline"
-          >
-            {t("exerciseForm.delete")}
-          </button>
+          {locked ? (
+            <p className="mt-2 text-caption text-ink-3">{t("exerciseForm.historyNoDelete")}</p>
+          ) : (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => setDeleteOpen(true)}
+              className="mt-2 inline-flex min-h-11 w-fit cursor-pointer items-center text-body text-warn underline-hand disabled:cursor-not-allowed disabled:text-ink-3 disabled:no-underline"
+            >
+              {t("exerciseForm.delete")}
+            </button>
+          )}
         </section>
       ) : null}
 
@@ -357,14 +352,9 @@ function FormBody({ base, initial, mine, notice, onStale }: BodyProps) {
             {t("exerciseForm.saveFailed")}
           </p>
         ) : null}
-        {error === "limit" ? (
+        {atLimit ? (
           <p role="alert" className="text-caption text-warn">
             {t("exerciseForm.limit")}
-          </p>
-        ) : null}
-        {!online ? (
-          <p role="status" className="text-caption text-ink-3">
-            {t("exerciseForm.needNet")}
           </p>
         ) : null}
         <Button loading={busy} disabled={!canSave} onClick={() => void onSave()}>
@@ -384,15 +374,6 @@ function FormBody({ base, initial, mine, notice, onStale }: BodyProps) {
       ) : null}
     </form>
   );
-}
-
-/** เลิกทำการเก็บเข้ากรุ: ส่ง archived_at = null ด้วยค่าเดิมของท่า */
-async function undoArchive(base: WireExercise, show: (f: { key: "actionFailed" | "unarchived" }) => void): Promise<void> {
-  const r = await pushOne({ entity: "exercise", id: base.id, action: "upsert", data: { ...toPushData(valuesOf(base)), archived_at: null } });
-  if (r.kind === "applied") {
-    upsertMyExercise({ ...base, archived_at: null });
-    void loadBootstrap();
-  } else show({ key: "actionFailed" });
 }
 
 function Switch({ on }: { on: boolean }) {

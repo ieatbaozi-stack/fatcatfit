@@ -15,10 +15,11 @@
 //   ผลของการดึงที่ค้างอยู่ด้วย cookie เดิมถูกทิ้ง → หน้าที่เติมกลับเป็นแบบไม่ล็อกอินเท่านั้น
 // ไฟล์นี้ถูก bundle ด้วย esbuild ผ่าน src/app/serwist/[path]/route.ts — ห้าม import โค้ดแอป
 import type { PrecacheEntry, SerwistGlobalConfig, SerwistPlugin } from "serwist";
-import { CacheFirst, NetworkFirst, Serwist } from "serwist";
+import { CacheFirst, ExpirationPlugin, NetworkFirst, Serwist } from "serwist";
 import { PAGE_LANG_MESSAGE, USER_RESET_MESSAGE } from "./messages";
 import { createPageFetcher, offlineFallback, tagWithLocale } from "./page-fetch";
 import {
+  ASSET_CACHE_LIMITS,
   CACHE_NAMES,
   LOCALE_HEADER,
   type CachedPage,
@@ -144,7 +145,8 @@ const serwist = new Serwist({
       matcher: ({ request }) => classifyRequest(toInfo(request), ORIGIN) === "hashed-asset",
       handler: new CacheFirst({
         cacheName: CACHE_NAMES.assets,
-        plugins: [onlyOk, anyCacheFallback],
+        // เพดานจำนวน/อายุ + ยอมถูกล้างเมื่อพื้นที่เต็ม (ADR 0005 เลื่อนมา R3 · ExpirationPlugin ของ serwist 9.5: index.d.mts)
+        plugins: [onlyOk, anyCacheFallback, new ExpirationPlugin({ ...ASSET_CACHE_LIMITS, purgeOnQuotaError: true })],
       }),
     },
     // ทุกอย่างอื่น (รวม /api/**) ไม่มี route → ไม่ผ่าน cache

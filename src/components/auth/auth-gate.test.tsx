@@ -3,6 +3,8 @@ import { cleanup, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import th from "../../../messages/th.json";
 import { renderWithIntl } from "../test-utils";
+import { closeOffline, getOfflineUser, initOffline } from "@/lib/offline/client";
+import { createMemoryStore } from "@/lib/offline/store";
 import { AuthGate } from "./auth-gate";
 
 const nav = vi.hoisted(() => ({ replace: vi.fn(), pathname: "/" }));
@@ -19,18 +21,22 @@ beforeEach(() => {
   window.localStorage.clear();
 });
 afterEach(() => {
+  closeOffline();
   cleanup();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
 
 describe("AuthGate", () => {
-  it("401 บนหน้าแอป → /welcome และล้าง hint", async () => {
+  it("401 บนหน้าแอป → /welcome, ล้าง hint และปิดฐานออฟไลน์ (SEC-H1)", async () => {
     window.localStorage.setItem("fcf:auth", "ready");
+    await initOffline("u_old", { openStore: async () => createMemoryStore(), fetch: vi.fn().mockResolvedValue(new Response("{}", { status: 401 })), listen: false, persist: async () => true });
+    expect(getOfflineUser()).toBe("u_old");
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("{}", { status: 401 })));
     renderWithIntl(<AuthGate kind="app"><p>เนื้อหา</p></AuthGate>);
     await waitFor(() => expect(nav.replace).toHaveBeenCalledWith("/welcome"));
     expect(window.localStorage.getItem("fcf:auth")).toBeNull();
+    expect(getOfflineUser()).toBeNull();
   });
 
   it("ยังไม่ยินยอม → /consent · ready บน /welcome → / พร้อมตั้ง hint", async () => {
@@ -77,7 +83,7 @@ describe("AuthGate", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(me("ready")));
     renderWithIntl(<AuthGate kind="app"><p>เนื้อหาแอป</p></AuthGate>);
     await screen.findByText("เนื้อหาแอป");
-    expect(screen.queryByRole("status")).toBeNull();
+    expect(screen.queryByText("เน็ตหลุด")).toBeNull();
   });
 
   it("fetch ล้ม (ถือว่าออฟไลน์) ไม่เปลี่ยนหน้า", async () => {

@@ -4,9 +4,9 @@
 
 ## สถานะตอนนี้ (Lead อัปเดตเมื่อสถานะเปลี่ยน)
 
-- รุ่นล่าสุดบน production: **v0.5.0** (R2 คลังท่า · CR3 ลิงก์ Google Maps + ลบสถานที่)
-- **กำลังทำ: R3a จดการออกกำลังกาย** บน branch `r3a-logging` ใน Claude Code (contract: [R3_LOGGING_CONTRACT.md](../R3_LOGGING_CONTRACT.md)) — **ห้ามแตะ branch นี้และไฟล์ที่ R3a กำลังเปลี่ยน** (ดูรายการ "ห้ามแตะ")
-- ถัดไป: R3b (ประวัติ แก้ย้อนหลัง ตั้งหน่วย/เวลาพัก) → R4 เทมเพลต/ร่างกาย → R5 ความคืบหน้า → R6 พร้อมเปิดใช้
+- รุ่นล่าสุดบน production: **v0.5.2** (CR4/CR4.1 Studio Minimal + โหมดมืด Soft Charcoal · PR #22/#23 merged)
+- **รอ merge: R3a จดการออกกำลังกาย (`v0.6.0`)** บน branch `r3a-logging` (contract: [R3_LOGGING_CONTRACT.md](../R3_LOGGING_CONTRACT.md) · Antigravity รับช่วงปิดรอบแทน Claude Code ที่ติด usage limit · ตรวจผ่านครบและเปิด PR แล้ว)
+- ถัดไป: R3b (`v0.7.0` ประวัติ แก้ย้อนหลัง ตั้งหน่วย/เวลาพัก) → R4 เทมเพลต/ร่างกาย (`v0.8.0`) → R5 ความคืบหน้า (`v0.9.0`) → R6 พร้อมเปิดใช้
 
 ## งานที่ทำใน Antigravity ได้
 

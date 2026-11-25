@@ -20,9 +20,9 @@ import { atPlaceLimit, currentPlace, isDuplicatePlace, placeNameValid, sortActiv
 
 /**
  * ชิป "เล่นที่ [📍 ชื่อ ▾]" บนหน้าหลัก (R2 · UX 12.3 · D7): แตะ = แผ่นเลือก · เลือกแล้วจำที่เซิร์ฟเวอร์ (ข้ามเครื่อง)
- * โหลด < 400 ms ไม่แสดง · ล้ม = ข้อความ + ลองใหม่ (ส่วนอื่นของหน้ายังใช้ได้) · ออฟไลน์ = แสดงค่าที่โหลดไว้แต่เปลี่ยนไม่ได้
+ * โหลด < 400 ms ไม่แสดง · ล้ม = ข้อความ + ลองใหม่ (ส่วนอื่นของหน้ายังใช้ได้) · R3a: ออฟไลน์เลือก/เพิ่มได้ (เข้าคิว)
  */
-export function PlaceChip() {
+export function PlaceChip({ className }: { className?: string }) {
   const t = useTranslations("placePicker");
   const tc = useTranslations();
   const online = useOnline();
@@ -55,13 +55,9 @@ export function PlaceChip() {
         <button
           type="button"
           aria-haspopup="dialog"
-          aria-disabled={!online || undefined}
           aria-label={t("chipLabel", { place: current.name })}
-          onClick={() => online && setOpen(true)}
-          className={cx(
-            "inline-flex min-h-12 max-w-62 items-center gap-2 rounded-hand border-draw-thin px-4 text-body",
-            online ? "cursor-pointer border-ink text-ink" : "cursor-not-allowed border-dashed border-ink-3 text-ink-3",
-          )}
+          onClick={() => setOpen(true)}
+          className="inline-flex min-h-12 max-w-62 cursor-pointer items-center gap-2 rounded-hand border border-line-strong bg-paper-2 px-4 text-body text-ink"
         >
           <span aria-hidden="true" className="flex-none text-ink-2">
             {t("at")}
@@ -70,17 +66,12 @@ export function PlaceChip() {
           <span className="truncate font-medium">{current.name}</span>
           <Icon name="down" size={18} className="flex-none" />
         </button>
-        {!online ? (
-          <p role="status" className="text-caption text-ink-3">
-            {t("needNet")}
-          </p>
-        ) : null}
       </>
     );
   }
 
   return (
-    <div className="mt-auto flex flex-col items-center gap-2 pt-10">
+    <div className={cx("flex flex-col items-center gap-2", className)}>
       {body}
       {open && places ? <PlacePickerSheet places={places} currentId={current?.id ?? null} onPick={(p) => void pick(p)} onClose={() => setOpen(false)} /> : null}
       {toastNode}
@@ -94,10 +85,10 @@ function PlacePickerSheet({ places, currentId, onPick, onClose }: { places: read
   const titleId = useId();
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
-  const [failure, setFailure] = useState<"failed" | "limit" | null>(null);
+  const [failure, setFailure] = useState<"failed" | null>(null);
   const [newId] = useState(() => crypto.randomUUID());
   const list = sortActive(places);
-  const full = atPlaceLimit(places) || failure === "limit";
+  const full = atPlaceLimit(places);
   const canAdd = placeNameValid(name) && !busy;
 
   async function onAdd(e: FormEvent) {
@@ -108,7 +99,7 @@ function PlacePickerSheet({ places, currentId, onPick, onClose }: { places: read
     const r = await addPlace(newId, name, { select: true });
     setBusy(false);
     if (r.ok) onClose();
-    else setFailure(r.reason === "limit" ? "limit" : "failed");
+    else setFailure("failed");
   }
 
   return (
@@ -120,7 +111,7 @@ function PlacePickerSheet({ places, currentId, onPick, onClose }: { places: read
         {list.map((p, i) => {
           const isCurrent = p.id === currentId;
           return (
-            <li key={p.id} className="flex items-center border-b border-ink-3/40">
+            <li key={p.id} className="flex items-center border-b border-line last:border-b-0">
               <button
                 type="button"
                 data-autofocus={i === 0 ? true : undefined}

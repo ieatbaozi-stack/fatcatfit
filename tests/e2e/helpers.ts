@@ -77,6 +77,13 @@ export async function expectNoHorizontalOverflow(page: Page) {
       // ข้าม sr-only (ลิงก์ข้ามไปเนื้อหา) ที่ถูกตัดด้วย clip
       if (cs.position === "absolute" && (cs.clipPath === "inset(50%)" || /rect\(0px/.test(cs.clip))) continue;
       if (el.closest("svg") && el.tagName.toLowerCase() !== "svg") continue;
+      // อยู่ในแถบเลื่อนแนวนอน (เช่นชิปหมวด) ที่ตัวแถบเองไม่ล้นจอ = ตั้งใจให้เลื่อน ไม่ใช่ล้น
+      let scroller: HTMLElement | null = el.parentElement;
+      while (scroller && !["auto", "scroll"].includes(getComputedStyle(scroller).overflowX)) scroller = scroller.parentElement;
+      if (scroller && scroller !== document.body && scroller !== document.documentElement) {
+        const sr = scroller.getBoundingClientRect();
+        if (sr.right <= vw + 0.5 && sr.left >= -0.5) continue;
+      }
       const r = el.getBoundingClientRect();
       if (r.width === 0 || r.height === 0) continue;
       if (r.right > vw + 0.5 || r.left < -0.5) {

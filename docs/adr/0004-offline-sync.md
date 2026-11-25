@@ -61,10 +61,12 @@ type OutboxOp = {
   client_updated_at: string;              // ISO UTC
   attempts: number; next_attempt_at: number; last_error?: string;
   state: 'pending' | 'inflight';
+  created?: boolean;        // R3: upsert นี้สร้างแถวที่เซิร์ฟเวอร์ยังไม่รู้จัก (ไม่มีใน snapshot และไม่เคยมี op ของ id นี้ถูกส่ง) · ไม่มีช่อง = false
 };
 ```
 
 - **รวมรายการ**: เขียนแถวเดิมซ้ำขณะรายการเดิมยัง `pending` → แทนที่ `data/action/client_updated_at` โดยคง `seq` เดิม (พ่อแม่จึงยังมาก่อนลูก) · ถ้า `inflight` → ต่อท้ายรายการใหม่
+- **สร้างแล้วลบก่อนส่ง (R3)**: delete ของแถวที่มี upsert `created = true` · `attempts = 0` · `state = 'pending'` ค้างอยู่ → **เอาออกจากคิวทั้งคู่ ไม่ส่งอะไร** พร้อม op ที่ค้างของลูกหลานแถวนั้น (session → session_exercise → set_record · ลูกสร้างหลังพ่อแม่จึงยังไม่เคยส่งเช่นกัน) · เงื่อนไขไม่ครบ (เคยส่ง/ส่งค้าง/เซิร์ฟเวอร์รู้จักแถวแล้ว) → ใช้กติการวมรายการปกติ (แทนด้วย delete) · เหตุ: id สร้างในเครื่องนี้ ไม่มีเครื่องอื่นส่งแถวนั้น · `attempts > 0` อาจถูก apply แล้วแต่คำตอบหาย จึงต้องส่ง delete
 - **ลำดับ**: ส่งตาม `seq` ครั้งละไม่เกิน 50 รายการ ทีละชุด ไม่ส่งขนาน
 - **ลองใหม่** (เน็ตหลุด, 5xx, 429, timeout): หน่วง `min(2^attempts วิ, 5 นาที)` + สุ่ม ±20% · ไม่มีเพดานจำนวนครั้ง — **ไม่ทิ้งเอง** · รีเซ็ตหน่วงเมื่อ `online` หรือเปิดแอป
 - **ปฏิเสธถาวร** (`rejected` ในผลรายรายการ): ย้ายไป store `rejected` พร้อม code → แถบบน "ส่งไม่ผ่าน N" แตะดูได้ ผู้ใช้เลือก "ทิ้ง" หรือ "คัดลอกรายละเอียด" · ลูกของแถวที่ถูกปฏิเสธจะถูกปฏิเสธตาม (`parent_missing`)
@@ -78,7 +80,7 @@ type OutboxOp = {
 - upsert = `INSERT … ON CONFLICT (id) DO UPDATE … WHERE t.user_id = :me AND t.deleted_at IS NULL AND t.client_updated_at <= excluded.client_updated_at` → อัปเดต 0 แถว = `stale` (ถือว่าสำเร็จ ไคลเอนต์เอาออกจากคิว) · ถ้า id นั้นเป็นของผู้ใช้อื่น = `rejected` `id_conflict` (ไม่บอกรายละเอียด)
 - delete = ตั้ง `deleted_at` (tombstone) · แถวไม่มีอยู่ = `applied` · **ลบชนะเสมอ** upsert ที่มาทีหลังบนแถวที่ลบแล้ว = `stale` · "ย้อนการลบ" ในไคลเอนต์ = สร้างแถวใหม่ id ใหม่
 - `client_updated_at` อนาคตเกิน `server_time` → ใช้ `server_time` แทน · เกิน 24 ชม. = `rejected` `bad_clock`
-- ตรวจทุกรายการ: zod ตาม entity + ช่องตาม track_type (ADR 0003) · พ่อแม่ต้องเป็นของ `:me` (composite FK) · `exercise_id` ต้องเป็นคลังกลางหรือของ `:me` · code ปฏิเสธ: `invalid` `parent_missing` `id_conflict` `exercise_has_history` `bad_clock` `limit_reached` (R2)
+- ตรวจทุกรายการ: zod ตาม entity + ช่องตาม track_type (ADR 0003) · พ่อแม่ต้องเป็นของ `:me` (composite FK) · `exercise_id` ต้องเป็นคลังกลางหรือของ `:me` · code ปฏิเสธ: `invalid` `parent_missing` `id_conflict` `exercise_has_history` `bad_clock` `limit_reached` (R2) `place_has_history` (R3)
 - `GET /api/bootstrap` → snapshot ทั้งก้อน + `catalog_version` + `server_time` · ไม่ทำ delta sync ใน v1 (ข้อมูลต่อคนเล็ก) · เพิ่ม delta ภายหลังได้เพราะทุกตารางมี `(user_id, updated_at)` และ tombstone แล้ว
 - `GET /api/catalog` → `{ catalog_version, exercises }` ทุกแถวคลังกลาง · `ETag` + 304 · รูปแถวและนิยาม `catalog_version` อยู่ใน [ADR 0008](0008-exercise-catalog.md) ข้อ 5 · ไคลเอนต์ดึงใหม่เมื่อ `catalog_version` ใน bootstrap ไม่ตรงกับที่เก็บไว้
 
@@ -87,9 +89,25 @@ type OutboxOp = {
 - ช่องเจ้าของ: `exercise` ใช้ `owner_user_id` แทน `user_id` ในเงื่อนไข upsert · id ที่เป็นท่าคลัง (`owner_user_id IS NULL`) หรือของคนอื่น = `rejected` `id_conflict` ทั้ง upsert และ delete
 - `data` ใช้ zod แบบ strict: ช่องที่เซิร์ฟเวอร์ตั้งเอง (`owner_user_id` `user_id` `name_th` `search_terms` `source_dataset` `source_ref` `license` `attribution` `met` `created_at` `updated_at` `deleted_at`) หรือช่องที่ไม่รู้จัก = `rejected` `invalid` · ช่องที่รับ — `exercise`: `name` `track_type` `load_mode` `is_unilateral` `category` `equipment` `archived_at` · `place`: `name` (1–60) `map_url` (CR3 · เฉพาะลิงก์ Google Maps ตาม allowlist ใน `src/lib/data/shared` · null = ล้าง) `last_used_at` `archived_at`
 - `limit_reached`: upsert ที่สร้างแถวใหม่แบบใช้งาน หรือเอาแถวออกจากกรุ เมื่อผู้ใช้มีแถวที่ใช้งาน (`deleted_at IS NULL AND archived_at IS NULL`) ครบเพดานแล้ว (Lead ตัดสิน 2026-11-23: ไม่นับแถวในกรุ เพราะสถานที่ลบไม่ได้) — ท่าของฉัน 300 · สถานที่ 30 (ADR 0003 ข้อ 3.1) · แก้แถวเดิมหรือเก็บเข้ากรุไม่ติดเพดาน · ต้องไม่เกินแม้หลายคำขอมาพร้อมกัน (platform เลือกวิธี เช่น advisory lock ต่อผู้ใช้ใน transaction)
-- `place`: upsert ที่ทำให้ไม่เหลือสถานที่ที่ไม่อยู่ในกรุ = `rejected` `invalid` · **`delete` ของ `place` (CR3 D4 แทน R2 D7)**: ของ `:me` → tombstone · ทำให้ไม่เหลือสถานที่ที่ใช้งาน = `invalid` · ของคนอื่น = `id_conflict` · ลบซ้ำ = applied · R3: สถานที่ที่มีเซสชัน = `rejected` (code กำหนดใน R3) · เลือกชิปสถานที่ = upsert ทั้งแถวพร้อม `last_used_at` ใหม่ (LWW ตามปกติ)
+- `place`: upsert ที่ทำให้ไม่เหลือสถานที่ที่ไม่อยู่ในกรุ = `rejected` `invalid` · **`delete` ของ `place` (CR3 D4 แทน R2 D7)**: ของ `:me` → tombstone · ทำให้ไม่เหลือสถานที่ที่ใช้งาน = `invalid` · ของคนอื่น = `id_conflict` · ลบซ้ำ = applied · R3: สถานที่ที่มีเซสชัน = `rejected` `place_has_history` (ส่วน R3 ข้างล่าง) · เลือกชิปสถานที่ = upsert ทั้งแถวพร้อม `last_used_at` ใหม่ (LWW ตามปกติ)
 - `exercise` delete = tombstone ได้ใน R2 (ยังไม่มีประวัติ) · R3 เพิ่มการตรวจ `exercise_has_history` และล็อก `track_type`/`load_mode`
 - `GET /api/bootstrap` ใน R2 คืน `{ profile, places, my_exercises, catalog_version, server_time }` (รวมแถวในกรุ ไม่รวมแถวที่ลบ) · R3 เพิ่มส่วนที่เหลือตามข้อ 2
+
+**ส่วนที่ทำใน R3** (R3 contract ส่วน "API & ชนิดข้อมูล" · ตารางและช่วงค่าใน ADR 0003 ข้อ 3.2 · รูป push/LWW/tombstone เดิมทุกประการ)
+- entity ใหม่ (R3a): `workout_session` `session_exercise` `set_record` · `profile` เฉพาะ `weight_unit` `length_unit` `distance_unit` `rest_seconds` (R3b) · entity อื่นยัง `invalid`
+- zod strict · ช่องที่รับ — session: `place_id` `started_at` `ended_at` `local_date` `time_zone` · session_exercise: `session_id` `exercise_id` `position` · set: `session_exercise_id` `position` `set_kind` `completed_at` `weight_input/_unit` `reps` `duration_s` `distance_input/_unit` `speed_input/_unit` `incline_pct` · **ช่องสำเนา (`exercise_name` `exercise_name_th` `track_type` `load_mode`) ช่อง SI (`weight_kg` `distance_m` `speed_mps`) และ `template_id` ไม่รับจากไคลเอนต์** — ส่งมา = `invalid` ตามกติกา strict ของ R2 · เซิร์ฟเวอร์คัดลอกสำเนาจากแถว `exercise` ตอน insert ครั้งแรก (upsert ครั้งหลังไม่แตะ) และคำนวณ SI ด้วย `units.ts` ทุกครั้ง
+- ตรวจเซ็ตกับ `track_type`/`load_mode` ของ**สำเนาใน `session_exercise`** (● ต้องมี · – ต้องว่าง · ช่วง ADR 0003 ข้อ 3.2) ไม่ตรง = `invalid` · upsert ที่เปลี่ยน `session_id` ของท่าในเซสชัน หรือ `session_exercise_id` / `exercise_id` ของแถวเดิม = `invalid`
+- **เวลา**: `time_zone` ต้องเป็น IANA ที่ `Intl` รู้จัก · `local_date` ต้องเท่ากับวันที่ของ `started_at` ใน `time_zone` นั้น ไม่ตรง = `invalid` · `ended_at` ต้อง ≥ `started_at` และ ≤ +24 ชม. ไม่งั้น `invalid`
+- **พ่อแม่**: `place_id` / `session_id` / `session_exercise_id` ไม่มีหรือของคนอื่น = `parent_missing` · `exercise_id` รูป v5 (`isCatalogId`) ต้องเป็นแถวคลัง · v4 ต้องเป็นท่าของ `:me` · ไม่มีหรือของคนอื่น = `parent_missing` (code เดียวกัน ไม่บอกว่ามีอยู่) · id ของแถวเองเป็นของคนอื่น = `id_conflict`
+- **พ่อแม่ถูกลบ**: ลูกของ `workout_session` / `session_exercise` ที่ถูก tombstone = `stale` (ลบชนะ ไคลเอนต์เอาออกจากคิว) · แต่เซสชันที่อ้าง `place` หรือท่าในเซสชันที่อ้างท่าของฉัน ที่ถูกลบจากอีกเครื่องระหว่างออฟไลน์ = **รับ** (FK ยังอยู่ · ไม่ทิ้งข้อมูลที่จดแล้ว)
+- **delete**: เซสชัน → tombstone ตัวเอง + ท่าในเซสชัน + เซ็ต ใน transaction เดียว · ท่าในเซสชัน → ตัวเอง + เซ็ต · เซ็ต → ตัวเอง · ทุกแถวที่ tombstone ใช้ `deleted_at` เดียวกัน
+- **ล็อกท่า**: "มีประวัติ" = มี `set_record` ไม่ถูกลบ ใต้ `session_exercise` ไม่ถูกลบ ของ `:me` ที่อ้างท่านั้น (ไม่ต้องดูสถานะเซสชัน — ลบเซสชัน tombstone ลูกด้วย) · upsert ที่เปลี่ยน `track_type`/`load_mode` หรือ delete = `rejected` `exercise_has_history` (จุดแทรกใน `applyExercise`) · เปลี่ยนชื่อ/หมวด/อุปกรณ์/ข้างละ/กรุ ได้ · ลบเซ็ตหมดแล้วกลับมาแก้/ลบได้
+- **ล็อกสถานที่**: มี `workout_session` ไม่ถูกลบที่อ้างสถานที่นั้น → delete = `rejected` **`place_has_history`** (code ใหม่ · จุดแทรกใน `deletePlace`) · เก็บเข้ากรุได้ · สถานที่ของเซสชันที่เล่นอยู่ ไคลเอนต์ซ่อนปุ่มลบ/กรุ (เซิร์ฟเวอร์ไม่ต้องตรวจเพิ่ม — delete ติด `place_has_history` อยู่แล้ว)
+- **เพดาน**: ADR 0003 ข้อ 3.2 → `limit_reached` · ล็อกแถว user ที่มีอยู่ (ไม่เกินแม้คำขอพร้อมกัน)
+- **สถิติ**: ไม่รวมเซ็ตที่สำเนา `track_type`/`load_mode` ไม่ตรงกับท่าปัจจุบัน (สองเครื่องแข่งกัน) — กติกาเต็มใน ADR 0003 ข้อ 4
+- `GET /api/bootstrap` เพิ่ม: `my_exercises[].has_history` · `places[].has_sessions` · `active_sessions` (ยังไม่จบ ไม่ถูกลบ พร้อมลูก) · `recent_sessions` (60 วันตาม `local_date` พร้อมลูก + ชื่อสถานที่) · `exercise_summaries[]` ต่อท่าที่เคยใช้: `last_used_at` · `sessions_90d` · `last_sets` (เซ็ตของครั้งล่าสุด) · `bests` (ADR 0003 ข้อ 4)
+- `GET /api/history?before=YYYY-MM-DD&limit=30` (R3b · ออนไลน์เท่านั้น · ไม่ผ่านคิว) เซสชันที่ `local_date < before` พร้อมลูก ของ `:me` เท่านั้น
+- **ไคลเอนต์ (R3a)**: คิวตามข้อ 3 (รวมกติกา "สร้างแล้วลบก่อนส่ง") · หน้าจอห้าม `fetch` เขียนเอง · จอของ R2 (ท่าของฉัน สถานที่ ชิปสถานที่) เขียนผ่านคิวแทนการส่งทันที · toast ข้ามหน้า (`queueFlash`) เก็บใน `sessionStorage` (ออฟไลน์แตะแท็บ = โหลดทั้งหน้า · ADR 0005 กติกา 6) · `local_date`/`time_zone` ของเซสชันคำนวณครั้งเดียวตอนเริ่มแล้วส่งค่าเดิมทุกครั้ง · ลืมจบ: ≤ 3 ชม. กลับหน้าจด · > 3 ชม. ถาม · > 24 ชม. จบเองที่ `min(เวลาเซ็ตสุดท้าย, started_at + 24 ชม.)` + toast (R3 contract D5)
 
 ### 5. จังหวะ sync
 
@@ -101,7 +119,7 @@ push เมื่อ: เปิดแอป · `online` · `visibilitychange` �
 
 - `active_session` เก็บ: แถวเซสชัน · ท่า · เซ็ตที่ติ๊กแล้ว · แถวแนะนำที่ยังไม่ติ๊ก · ตัวจับเวลาพัก · `updated_at` — **เขียนลง IndexedDB ทุกครั้งที่เปลี่ยน** ไม่รอจบเซสชัน
 - ส่งเข้าคิวเมื่อมีเซ็ตแรกถูกติ๊ก (session → session_exercise → set ตามลำดับ) · ท่าที่ไม่มีเซ็ตติ๊กไม่ถูกส่ง · แถวแนะนำไม่ออกนอกเครื่อง · จบโดยไม่มีเซ็ต = ทิ้งในเครื่อง ไม่ส่งอะไร · เอาติ๊กออก = delete เซ็ตนั้น
-- เปิดแอปมาเจอร่าง: ≤ 3 ชม. กลับหน้าจด · > 3 ชม. ถาม "เล่นต่อ / จบที่เวลาเซ็ตสุดท้าย" (ตาม UX) · เซสชันที่ยังไม่จบจากอีกเครื่องมาใน snapshot ให้เลือกทำต่อได้
+- เปิดแอปมาเจอร่าง: ≤ 3 ชม. กลับหน้าจด · > 3 ชม. ถาม "เล่นต่อ / จบที่เวลาเซ็ตสุดท้าย" (ตาม UX) · > 24 ชม. จบให้เอง + toast (R3 contract D5) · เซสชันที่ยังไม่จบจากอีกเครื่องมาใน snapshot ให้เลือกทำต่อได้
 
 ### 7. ตัวจับเวลาพัก (ไม่พึ่ง wake lock)
 
@@ -146,3 +164,4 @@ push เมื่อ: เปิดแอป · `online` · `visibilitychange` �
 | 2026-11-17 | ผลที่ตามมา: เพิ่มผลต่อการออกแบบ R3 | ข้อค้นพบจาก S5 และ source ของ Next 16.4.6 | ไม่ |
 | 2026-11-23 | ข้อ 4: code `limit_reached` · `GET /api/catalog` · หัวข้อ "ส่วนที่ทำใน R2" (push เฉพาะ `place` `exercise`, `owner_user_id`, zod strict, เพดานจำนวน, สถานที่แห่งสุดท้าย, ไม่ลบ `place`, bootstrap รูป R2) | R2 contract ที่ boss อนุมัติ 2026-11-23 (D7 D8) · ADR 0008 | ไม่ — รูปแบบ push/LWW/tombstone เดิมทุกประการ เพิ่ม code และกติกาต่อ entity |
 | 2026-11-24 | ข้อ 4: `place.map_url` · `delete` ของ `place` ทำได้ | CR3 contract ที่ boss อนุมัติ 2026-11-24 (D1 D4) | ไม่ — รูปแบบ tombstone เดิม |
+| 2026-11-24 | ข้อ 3: ช่อง `created?` + กติกา "สร้างแล้วลบก่อนส่ง = เอาออกทั้งคู่ (และลูกหลาน)" · ข้อ 4: code `place_has_history` · หัวข้อ "ส่วนที่ทำใน R3" (3 entity, ช่องที่รับ, สำเนา/SI/`template_id` ไม่รับ, ตรวจกับสำเนา, `local_date`/`time_zone`, พ่อแม่ถูกลบ, delete ต่อชั้น, นิยาม "มีประวัติ", ล็อกสถานที่, bootstrap ส่วนเพิ่ม, `/api/history`) · ข้อ 6: > 24 ชม. จบเอง | R3 contract ที่ boss อนุมัติ 2026-11-24 (D5 D8 D9 + ส่วน API) · เงื่อนไข `created` เข้มกว่าคำใน contract (`attempts = 0` อย่างเดียว) เพื่อไม่ทิ้ง delete ของแถวที่เซิร์ฟเวอร์มีแล้ว | ไม่ — รูปแบบ push/LWW/tombstone เดิม · `created` เป็นช่องเสริม คิวรุ่น `v: 1` เดิมอ่านได้ |

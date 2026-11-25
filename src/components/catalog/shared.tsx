@@ -7,6 +7,7 @@ import { Cat, type CatPose } from "@/components/doodle";
 import { buttonClass } from "@/components/ui/button";
 import { cx } from "@/components/ui/cx";
 import { Icon } from "@/components/ui/icon";
+import { useActiveBarVisible } from "@/components/log/active-bar";
 import { useKeyboardInset } from "@/components/ui/use-keyboard-inset";
 
 /** หัวหน้าย่อยของ "ฉัน": ‹ กลับ /me + h1 (UX 12.1) */
@@ -39,10 +40,12 @@ export function CatState({ pose, title, body, children }: { pose: CatPose; title
 /** แถบปุ่มหลักลอยเหนือแถบล่าง (ครึ่งล่างของจอ) — มีแป้นพิมพ์ = ลอยเหนือแป้นพิมพ์ (visualViewport) */
 export function BottomBar({ children, tabs = true }: { children: ReactNode; tabs?: boolean }) {
   const kb = useKeyboardInset();
+  // มีแถบ "กำลังเล่น" ลอยเหนือแถบล่าง → ปุ่มหลักหลบขึ้นไปอีก
+  const activeBar = useActiveBarVisible();
   return (
     <div
       style={kb > 0 ? { bottom: kb } : undefined}
-      className={cx("fixed inset-x-0 z-10 mx-auto flex w-full max-w-120 flex-col gap-2 bg-paper px-5 pt-2 pb-3", kb > 0 ? "bottom-0" : tabs ? "bottom-24" : "bottom-0")}
+      className={cx("fixed inset-x-0 z-10 mx-auto flex w-full max-w-120 flex-col gap-2 bg-paper px-5 pt-2 pb-3", kb > 0 ? "bottom-0" : tabs ? (activeBar ? "bottom-40" : "bottom-24") : "bottom-0")}
     >
       {children}
     </div>
@@ -69,7 +72,7 @@ export function Skeleton({ rows }: { rows: number }) {
   return (
     <div aria-hidden="true" className="flex flex-col">
       {Array.from({ length: rows }, (_, i) => (
-        <div key={i} className="flex min-h-14 items-center border-b border-ink-3/20 py-2">
+        <div key={i} className="flex min-h-14 items-center border-b border-line py-2 last:border-b-0">
           <div className="h-5 w-3/5 rounded-box bg-paper-2" />
         </div>
       ))}

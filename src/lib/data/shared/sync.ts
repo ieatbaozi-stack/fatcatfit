@@ -1,9 +1,10 @@
 import { z } from "zod";
 import { normalizeMapUrl } from "./map-link";
+import { WORKOUT_ENTITIES, type ExerciseSummary, type WireSession, type WorkoutRejectCode } from "./workout";
 import { CATEGORIES, EQUIPMENT, EXERCISE_LIMITS, LOAD_MODES, TRACK_TYPES, loadModeAllowed, stripControlChars } from "./exercise-meta";
 
 // รูปแบบบนสายของ POST /api/sync/push (ADR 0004 ข้อ 3–4) — ใช้ร่วมไคลเอนต์ (คิว/ฟอร์ม) กับเซิร์ฟเวอร์ (ตัดสินจริง)
-// R2 รับ entity `place` และ `exercise` เท่านั้น (R3 เพิ่ม) · ชื่อช่องบนสายเป็น snake_case · data = ทั้งแถว (ที่ไคลเอนต์ตั้งได้)
+// R2 รับ `place` `exercise` · R3a เพิ่ม `workout_session` `session_exercise` `set_record` (R3b เพิ่ม `profile`) · ชื่อช่องบนสายเป็น snake_case · data = ทั้งแถว (ที่ไคลเอนต์ตั้งได้)
 
 export const PUSH_VERSION = 1;
 export const PUSH_LIMITS = {
@@ -15,12 +16,12 @@ export const PUSH_LIMITS = {
   maxFutureMs: 24 * 60 * 60 * 1000,
 } as const;
 
-export const PUSH_ENTITIES = ["place", "exercise"] as const;
+export const PUSH_ENTITIES = ["place", "exercise", ...WORKOUT_ENTITIES] as const;
 export type PushEntity = (typeof PUSH_ENTITIES)[number];
 export const PUSH_ACTIONS = ["upsert", "delete"] as const;
 
 /** code ปฏิเสธถาวรของ R2 (ADR 0004 ข้อ 4 + `limit_reached`) */
-export type PushRejectCode = "invalid" | "id_conflict" | "bad_clock" | "limit_reached";
+export type PushRejectCode = "invalid" | "id_conflict" | "bad_clock" | "limit_reached" | WorkoutRejectCode;
 export type PushStatus = "applied" | "stale" | "rejected";
 export type PushResult = { op_id: string | null; status: PushStatus; code?: PushRejectCode };
 export type PushResponse = { results: PushResult[]; server_time: string };
@@ -101,6 +102,8 @@ export type WirePlace = {
   id: string;
   name: string;
   map_url: string | null;
+  /** R3: มีเซสชันที่ไม่ถูกลบ → ลบไม่ได้ (เก็บเข้ากรุได้) */
+  has_sessions: boolean;
   last_used_at: string | null;
   archived_at: string | null;
   created_at: string;
@@ -130,6 +133,9 @@ export type WireExercise = {
   client_updated_at: string;
 };
 
+/** ท่าของฉันใน bootstrap (R3): มีเซ็ตที่ไม่ถูกลบ → ล็อก track_type/load_mode และลบไม่ได้ */
+export type WireMyExercise = WireExercise & { has_history: boolean };
+
 /** แถวคลังกลางบนสายของ /api/catalog — ไม่มีช่อง sync/เจ้าของ (ลดขนาด) */
 export type CatalogExercise = Omit<WireExercise, "owner_user_id" | "created_at" | "updated_at" | "client_updated_at">;
 
@@ -155,7 +161,13 @@ export type WireProfile = {
 export type BootstrapResponse = {
   profile: WireProfile | null;
   places: WirePlace[];
-  my_exercises: WireExercise[];
+  my_exercises: WireMyExercise[];
+  /** R3: เซสชันที่ยังไม่จบ พร้อมท่าและเซ็ต */
+  active_sessions: WireSession[];
+  /** R3: เซสชัน 60 วันล่าสุดตาม local_date พร้อมท่าและเซ็ต + ชื่อสถานที่ */
+  recent_sessions: WireSession[];
+  /** R3: สรุปต่อท่าที่เคยใช้ (ล่าสุด/ความถี่ 90 วัน/เซ็ตครั้งก่อน/สถิติ) */
+  exercise_summaries: ExerciseSummary[];
   catalog_version: string;
   server_time: string;
 };

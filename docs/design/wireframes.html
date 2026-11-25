@@ -146,6 +146,12 @@
   .live .lrest { margin-left: auto; font-size: 14px; }
   .net { display: flex; align-items: center; gap: 8px; margin: -16px -20px 10px; padding: 8px 20px; background: var(--paper-2); color: var(--ink); font-size: 14px; font-weight: 400; flex: none; line-height: 1.4; }
   .net .lnk { margin-left: auto; min-height: 0; line-height: 1.4; font-size: 14px; }
+  .net.act { min-height: 44px; }
+  .sbref .net { margin: 0 -20px; }
+  .rj { display: flex; align-items: center; gap: 4px; min-height: 64px; }
+  .rj .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .rj .tx b { font-size: 16px; font-weight: 500; color: var(--ink); line-height: 1.35; }
+  .rj .tx .num { font-size: 15px; } .rj .tx .mut { line-height: 1.4; }
 
   /* หน้าจด */
   .lhead { display: flex; align-items: center; gap: 4px; margin: -6px -10px 0; }
@@ -340,7 +346,7 @@
   </div>
 
   <h1>Wireframe v1 · แมวอ้วนจะผอม</h1>
-  <p class="note">ร่าง 2 · 2026-11-16 · <b>boss อนุมัติแล้ว</b> และแก้ตามที่ตัดสิน (UX.md ข้อ 5) · <b>แก้ 2026-11-18 สำหรับ R1</b> (UX.md ข้อ 10): กลุ่ม 1 ตรงกับ ADR 0006 + API จริง · เพิ่มจอยินดีต้อนรับออฟไลน์ ไม่ยินยอม ประกาศความเป็นส่วนตัว · กลุ่ม 7 ยึดหน้า "ฉัน" ของ R0 แล้วต่อส่วนบัญชี (D1) · <b>แก้ 2026-11-20 สำหรับ R1.5</b> (UX.md ข้อ 11): เพิ่มกลุ่ม 9 ออกโค้ดเชิญของแอดมิน (จอ 48–59) · <b>แก้ 2026-11-23 สำหรับ R2</b> (UX.md ข้อ 12): เพิ่มกลุ่ม 10 คลังท่า สถานที่ เครดิต (จอ 60–81) · กลุ่ม 3 ใช้ชื่อท่าตาม D3 หมวดตาม D9 ฟอร์มตาม D8 ·คู่กับ <b>UX.md</b> (flow ฟอร์มจด ตารางสถานะ กติกาส้ม รุ่นที่รองรับ) · ทุกจอกว้าง 360px · ข้อความใต้กรอบเป็นหมายเหตุถึงทีม (ภาษาไทยเท่านั้น) ปุ่ม TH/EN เปลี่ยนเฉพาะข้อความในจอ · ตั้งค่าเริ่มผ่าน URL ได้ เช่น <code>#dark,en</code> หรือเฉพาะกลุ่ม <code>#dark,en,only-g3</code></p>
+  <p class="note">ร่าง 2 · 2026-11-16 · <b>boss อนุมัติแล้ว</b> และแก้ตามที่ตัดสิน (UX.md ข้อ 5) · <b>แก้ 2026-11-18 สำหรับ R1</b> (UX.md ข้อ 10): กลุ่ม 1 ตรงกับ ADR 0006 + API จริง · เพิ่มจอยินดีต้อนรับออฟไลน์ ไม่ยินยอม ประกาศความเป็นส่วนตัว · กลุ่ม 7 ยึดหน้า "ฉัน" ของ R0 แล้วต่อส่วนบัญชี (D1) · <b>แก้ 2026-11-20 สำหรับ R1.5</b> (UX.md ข้อ 11): เพิ่มกลุ่ม 9 ออกโค้ดเชิญของแอดมิน (จอ 48–59) · <b>แก้ 2026-11-23 สำหรับ R2</b> (UX.md ข้อ 12): เพิ่มกลุ่ม 10 คลังท่า สถานที่ เครดิต (จอ 60–81) · กลุ่ม 3 ใช้ชื่อท่าตาม D3 หมวดตาม D9 ฟอร์มตาม D8 · <b>แก้ 2026-11-24 สำหรับ R3a</b> (UX.md ข้อ 13): เพิ่มกลุ่ม 11 แถบสถานะการส่ง ส่งไม่ผ่าน ออกจากระบบขณะมีคิว จบเซสชันให้เอง ค่านอกช่วง ท่าที่มีประวัติ (จอ 82–89) ·คู่กับ <b>UX.md</b> (flow ฟอร์มจด ตารางสถานะ กติกาส้ม รุ่นที่รองรับ) · ทุกจอกว้าง 360px · ข้อความใต้กรอบเป็นหมายเหตุถึงทีม (ภาษาไทยเท่านั้น) ปุ่ม TH/EN เปลี่ยนเฉพาะข้อความในจอ · ตั้งค่าเริ่มผ่าน URL ได้ เช่น <code>#dark,en</code> หรือเฉพาะกลุ่ม <code>#dark,en,only-g3</code></p>
   <div class="legend">
     <span><i>1</i>ลำดับแตะของเส้นทางหลักของจอ (สีฟ้าเป็นหมายเหตุ ไม่ใช่สีของแอป)</span>
     <span><i class="b">B1</i>ลำดับแตะของเส้นทางรองบนจอเดียวกัน</span>
@@ -508,6 +514,7 @@
     dot: 'M12 7.5 Q16.5 7.6 16.4 12 Q16.2 16.4 12 16.3 Q7.6 16.2 7.7 12 Q7.8 7.6 12 7.5 M12 10.5 Q13.6 10.6 13.5 12 Q13.4 13.5 12 13.4 Q10.5 13.3 10.6 12 Q10.7 10.5 12 10.5',
     clock: 'M12 4 Q20 4.2 20 12 Q19.8 20 12 20 Q4.2 19.8 4 12 Q4.2 4.2 12 4 M12 7.5 L12 12.3 L15.3 14.2',
     copy: 'M9 8.5 L19.5 8.3 L19.8 20 L9.2 20.2 Z M6 15.5 L4.5 15.5 L4.3 4.2 L15 4 L15.2 6',
+    alert: 'M12 4 L21 19.5 L3 19.8 Z M12 9.5 L12.1 14 M12 16.8 L12.1 17',
     ticket: 'M3.5 7 L20.5 6.8 L20.5 10 Q18.5 10.5 18.6 12 Q18.7 13.6 20.5 14 L20.6 17.3 L3.6 17.5 L3.5 14 Q5.5 13.6 5.4 12 Q5.3 10.4 3.5 10 Z M10 7 L10 8.5 M10 11 L10 13 M10 15.5 L10 17.4'
   };
   const ic = (n, s = 24, sw = 2.2) => `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[n]}" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -793,10 +800,12 @@
     <p class="fl mt16" style="margin-bottom:0">${T('หมวด', 'Category')}</p>
     ${catChips(o.cat ?? 2, true, { cls: 'mt4' })}
     <p class="fl mt16" style="margin-bottom:0">${T('จดอะไร', 'What do you log?')}</p>
-    ${TRK.map((_, i) => trkOpt(i, i === k, i === k && i === 0 ? loadSub : '')).join('')}
+    ${o.hist ? `<p class="bd mt4" style="color:var(--ink);margin-bottom:0">${T(TRK[k][0], TRK[k][1])}${o.histLoad ? ` · ${o.histLoad}` : ''}</p>
+      <p class="mut" style="margin:0">${T('ท่านี้มีประวัติแล้ว เปลี่ยนชนิดการจดไม่ได้', "This exercise has history, so its log type can't change.")}</p>`
+      : TRK.map((_, i) => trkOpt(i, i === k, i === k && i === 0 ? loadSub : '')).join('')}
     ${[0, 1, 2, 4].includes(k) ? `<div class="between mt8" style="min-height:52px"><div><span class="bd" style="color:var(--ink)">${T('จดข้างละ', 'Log each side')}</span>
       <div class="fh" style="margin:0">${T('ครั้งที่จดคือต่อข้าง เช่น ดัมเบลทีละข้าง', 'Reps are per side, e.g. one-arm row')}</div></div>${sw(o.uni ?? true)}</div>` : ''}
-    <p class="mut mt4" style="margin-bottom:0">${T('พอเริ่มจดท่านี้แล้ว ชนิดการจดจะเปลี่ยนไม่ได้', "Once you've logged this exercise, its log type can't change.")}</p>
+    ${o.hist ? '' : `<p class="mut mt4" style="margin-bottom:0">${T('พอเริ่มจดท่านี้แล้ว ชนิดการจดจะเปลี่ยนไม่ได้', "Once you've logged this exercise, its log type can't change.")}</p>`}
     <p class="fl mt16" style="margin-bottom:0">${T('อุปกรณ์ (ไม่บังคับ)', 'Equipment (optional)')}</p>
     <div class="chips mt4">${EQS.map(([th, en], i) => chip(T(th, en), i === o.eq)).join('')}</div>
     ${o.err ? `<p class="fe mt16" style="margin-bottom:0">${o.err}</p>` : ''}
@@ -804,7 +813,8 @@
     ${o.edit ? `${wob('thin mt16')}
       <span class="lnk l">${o.archived ? T('เอาออกจากกรุ', 'Unarchive') : T('เก็บเข้ากรุ', 'Archive')}</span>
       <p class="mut" style="margin:0">${T('ซ่อนจากการค้นหา · เอาออกจากกรุได้ทุกเมื่อ', 'Hidden from search. You can bring it back anytime.')}</p>
-      <span class="lnk l warn mt8"${o.tDel || ''}>${T('ลบท่านี้', 'Delete exercise')}</span>` : ''}
+      ${o.hist ? `<p class="mut mt12" style="margin-bottom:0">${T('ท่าที่มีประวัติลบไม่ได้ · เก็บเข้ากรุแทนได้', "Exercises with history can't be deleted. You can archive it instead.")}</p>`
+        : `<span class="lnk l warn mt8"${o.tDel || ''}>${T('ลบท่านี้', 'Delete exercise')}</span>`}` : ''}
     <div class="pb16"></div>`;
   };
 
@@ -1572,6 +1582,108 @@
     <div class="sp"></div>
     ${tabs(3)}`,
     note: 'หน้าข้อความล้วน (DESIGN ข้อ 7) · ไม่มีแมว ไม่มีส้ม · ต้องล็อกอิน (D5 ก) · <b>ข้อความคงที่ใน messages</b> ไม่เรียก API → ไม่มีสถานะโหลด/ผิดพลาด/ว่าง · ออฟไลน์: แสดงได้ถ้าหน้าอยู่ใน cache · ลิงก์ชุดข้อมูลเปิดแท็บใหม่ (<code>target="_blank" rel="noopener noreferrer"</code>) แตะได้ ≥ 44px · ชื่อชุดข้อมูล/ใบอนุญาต/ลิงก์ <b>ต้องตรงกับ <code>content/exercises/SOURCES.md</code></b> (catalog ยืนยัน · ถ้า SOURCES ระบุต้นทางชั้นถัดไป เช่น exercises.json ให้เพิ่มบรรทัด) · ชื่อชุดข้อมูลและใบอนุญาตไม่แปล · R6 เพิ่มส่วนเครดิตฟอนต์ในหน้าเดียวกัน (หัวหน้าอาจเปลี่ยนเป็น "เครดิต" ตอนนั้น)' });
+
+  // ---------- กลุ่ม 11: ส่งข้อมูลและสถานะในเครื่อง (R3a · UX.md ข้อ 13) ----------
+  const g11 = grp('g11', '11 · ส่งข้อมูล ค่านอกช่วง ท่าที่มีประวัติ (R3a · US-3.2 · US-3.5 · US-3.6)', 'ส่วนที่กลุ่ม 2–4 ยังไม่มี: แถบสถานะการส่ง · แผ่น "ส่งไม่ผ่าน" · ออกจากระบบขณะมีคิว · toast จบเซสชันให้เอง (D5) · ข้อความค่านอกช่วง (D4) · ฟอร์มท่าที่มีประวัติ (D8) · ข้อความ TH/EN ครบใน UX.md ข้อ 13.8 · ไม่มีแมวใหม่');
+  // แถบสถานะบนสุด (ข้อ 13.1) · act = ข้อความลิงก์ท้ายแถบ (ทั้งแถบแตะได้เมื่อมี)
+  const sbar = (icon, txt, act = '', t = '', warnIc = false) => `<div class="net${act ? ' act' : ''}"${t}><span style="color:${warnIc ? 'var(--warn)' : 'var(--ink)'}">${ic(icon, 18)}</span><span>${txt}</span>${act ? `<span class="lnk">${act}</span>` : ''}</div>`;
+  const SB = {
+    off: () => sbar('cloudoff', T('เน็ตหลุด', 'Offline')),
+    offN: () => sbar('cloudoff', T('เน็ตหลุด · จดไว้ในเครื่อง 4', 'Offline · 4 saved on this phone')),
+    sending: () => sbar('sync', T('กำลังส่ง 4…', 'Syncing 4…')),
+    waiting: () => sbar('sync', T('จดไว้ในเครื่อง 4', '4 saved on this phone'), T('ส่งเลย', 'Sync now')),
+    done: () => sbar('check', T('ส่งครบแล้ว', 'All synced')),
+    rej: (t = '') => sbar('alert', T('ส่งไม่ผ่าน 1', "1 couldn't sync"), T('ดู', 'View'), t, true),
+    old: () => sbar('cloudoff', T('มีข้อมูลค้างส่ง · เปิดเน็ตแล้วเปิดแอปนะ', 'Unsynced data · go online and open the app')),
+    auth: () => sbar('alert', T('เข้าสู่ระบบอีกครั้งเพื่อส่ง 4 รายการ', 'Sign in again to sync 4 items'), T('เข้าสู่ระบบ', 'Sign in'), '', true)
+  };
+  const sbRef = (no, label, bar) => `<p class="mut mt12" style="margin-bottom:6px">${no} · ${label}</p><div class="sbref">${bar}</div>`;
+  add(g11, { t: 'แถบสถานะการส่ง (อ้างอิง)', us: 'US-3.6 · ADR 0004', cls: 'long', html: `
+    <p class="t2">${T('แถบบนสุด · ทีละข้อความ', 'Top bar · one message at a time')}</p>
+    ${sbRef(1, 'เซสชันหมดอายุ (401) · แตะ = /welcome', SB.auth())}
+    ${sbRef(2, 'ส่งไม่ผ่าน N · แตะ = แผ่นรายการ', SB.rej())}
+    ${sbRef(3, 'ค้างส่งเกิน 24 ชม. (ออฟไลน์)', SB.old())}
+    ${sbRef(4, 'ออฟไลน์ + มีค้างส่ง', SB.offN())}
+    ${sbRef(5, 'ออฟไลน์ ไม่มีค้างส่ง (ของเดิม R1)', SB.off())}
+    ${sbRef(6, 'ออนไลน์ ส่งล้ม รอส่งใหม่ · แตะ = ส่งเลย', SB.waiting())}
+    ${sbRef(7, 'ออนไลน์ กำลังส่ง (เกิน 1 วิ)', SB.sending())}
+    ${sbRef(8, 'ส่งเสร็จ · 2 วิ แล้วแถบหาย', SB.done())}
+    <p class="mut mt12">${T('ไม่มีอะไรค้าง + ออนไลน์ = ไม่มีแถบ', 'Nothing pending + online = no bar')}</p><div class="pb16"></div>`,
+    note: 'ไม่ใช่จอจริง เป็นตัวอย่างแถบให้ Front-end · <b>แถบเดียว ข้อความเดียว</b> เลือกตามลำดับ 1 → 8 (ข้อบนชนะ) · อยู่บนสุดของทุกหน้าใน <code>(app)</code> เหนือหัวหน้าและแถบ "กำลังเล่น" · <code>role="status"</code> ประกาศเฉพาะตอนเปลี่ยนสถานะ ไม่ประกาศทุกครั้งที่ตัวเลขเปลี่ยน · <b>N = จำนวนแถวที่ค้าง</b> (เซ็ต ท่า เซสชัน สถานที่ นับแถวละ 1 แม้แก้หลายรอบ) ไม่ใช่จำนวน op · แถบที่มีลิงก์แตะได้ทั้งแถบ สูง ≥ 44px · ไม่มีส้ม ไม่มีพื้นแดง — ข้อ 1–2 มีแค่ไอคอนสี <code>--warn</code> + คำ · <b>แทนข้อความเดิม</b> ในกลุ่ม 2 ("ค้างส่ง 3 รายการ · จะส่งเมื่อมีเน็ต") และ toast "กลับมาออนไลน์ · ส่งครบแล้ว" ในกลุ่ม 4 → ใช้ข้อ 4 และข้อ 8 แทน (สถานะอยู่ที่เดียว ตาม UX ข้อ 1)' });
+
+  const logRej = `${SB.rej(tap(1))}
+    ${lhead(T('อกและแขน', 'Chest &amp; arms'), LOC, `<span class="num" style="font-size:18px">24:10</span>`)}${wob()}
+    <div class="between"><span class="exn">Bench press</span><span class="ibtn">${ic('more')}</span></div>
+    ${hd(C2, [T('เซ็ต', 'Set'), 'kg', T('ครั้ง', 'Reps')])}
+    ${lr(1, [['60', KG], ['8', REP]], 'on', C2)}
+    ${lr(2, [['62.5', KG], ['8', REP]], 'on', C2)}
+    ${lr(3, [['62.5', KG], ['8', REP]], 'sug', C2)}
+    <div class="sp"></div>${logBottom()}`;
+  add(g11, { t: 'หน้าจด · ส่งไม่ผ่าน 1', us: 'US-3.6 · เกณฑ์ 11', cls: 'dense', html: logRej,
+    note: 'เกิดเมื่อเซิร์ฟเวอร์ตอบ <code>rejected</code> (ADR 0004 ข้อ 3) · จดต่อได้ปกติ ไม่มีอะไรถูกปิด ไม่มี popup เด้งเอง · แตะแถบ (1) = แผ่นรายการ · แถบอยู่จนกว่าจะทิ้งครบทุกรายการ (ไม่หายเอง) · เปิดได้จากทุกหน้า ไม่ใช่แค่หน้าจด' });
+
+  const rjRow = (head, vals, why, t = '') => `<div class="rj"><div class="tx"><b>${head}</b><span class="num">${vals}</span><span class="mut">${why}</span></div>
+    <span class="ibtn" aria-label="copy">${ic('copy', 22)}</span><span class="rb s"${t}>${T('ทิ้ง', 'Discard')}</span></div>`;
+  add(g11, { t: 'แผ่น "ส่งไม่ผ่าน"', us: 'US-3.6 · เกณฑ์ 11', cls: 'dense', html: logRej,
+    over: `<div class="scrim"></div><div class="sheet"><div class="grab"></div>
+      <p class="t2">${T('ส่งไม่ผ่าน 2 รายการ', "2 items couldn't sync")}</p>
+      <p class="bd">${T('เซิร์ฟเวอร์ไม่รับรายการพวกนี้ · ที่เหลือส่งครบแล้ว · คัดลอกไว้ก่อนแล้วจดใหม่ได้', 'The server refused these. Everything else synced. Copy them first if you want to log them again.')}</p>
+      ${wob('thin')}
+      ${rjRow(T('เซ็ต · Bench press', 'Set · Bench press'), `65 kg × 5 · ${T('อ 24 พ.ย. 19:42', 'Tue 24 Nov 19:42')}`, T('ท่านี้ถูกเปลี่ยนชนิดการจดจากอีกเครื่อง', 'This exercise was changed on another device'), tap(1))}
+      ${wob('thin')}
+      ${rjRow(T('สถานที่ · ยิมเก่า', 'Place · Old gym'), T('ลบ', 'Delete'), T('สถานที่นี้มีเซสชันแล้ว ลบไม่ได้ · เก็บเข้ากรุแทนได้', "This place has sessions, so it can't be deleted. Archive it instead."))}
+      ${wob('thin')}
+      <span class="lnk">${T('คัดลอกทั้งหมด', 'Copy all')}</span>
+      <span class="btn mt4">${T('ปิด', 'Close')}</span></div>`,
+    note: 'แต่ละแถว: <b>ชนิด · ชื่อ</b> (ชื่อท่าตาม R2 D3 · สถานที่ตามชื่อในเครื่อง) · ค่าที่จด/การกระทำ + เวลาเครื่อง · <b>เหตุผลเป็นภาษาคน</b> ตาม code (ตาราง 13.2) ห้ามแสดง code ดิบ · <b>คัดลอก</b> (ไอคอน · ป้ายอ่านหน้าจอ "คัดลอกรายละเอียด") = ข้อความธรรมดาลงคลิปบอร์ด รูปตามข้อ 13.2 → toast "คัดลอกแล้ว" · <b>ทิ้ง</b> (1) ไม่ถาม → แถวหาย + toast "ทิ้งแล้ว" + <b>เลิกทำ</b> 5 วิ (แบบลบเซ็ต) · ลูกที่ถูกปฏิเสธตามพ่อแม่ (<code>parent_missing</code>) ไม่แยกแถว — รวมใต้พ่อแม่เป็นบรรทัด "และอีก N รายการในเซสชันนี้" ทิ้งพร้อมกัน · <b>คัดลอกทั้งหมด</b> ต่อทุกแถวเป็นข้อความเดียว · ทิ้งครบ = แผ่นปิดเอง + แถบหาย · มีค้างส่งด้วย: บรรทัด <code>--ink-3</code> ใต้หัว "ยังค้างส่งอีก N รายการ · จะส่งเอง" · รายการเยอะ = เนื้อแผ่นเลื่อนได้ สูงสุด 80% ของจอ ปุ่มปิดติดล่าง · Esc / แตะพื้นมืด = ปิด · ไม่มีแมว ไม่มีส้ม' });
+
+  // ค่านอกช่วง (D4)
+  const lrErr = (n, vals, errIdx, msg, cols = C2) => `<div class="lr ${cols}"><span class="n">${n}</span>${vals.map(([v, u], i) => `<span class="num v"${i === errIdx ? ' style="border-bottom-color:var(--warn)"' : ''}>${v}<small>${u}</small></span>`).join('')}${tick(false, '', 'dis')}</div><p class="fe" style="margin:-4px 0 4px 36px">${msg}</p>`;
+  add(g11, { t: 'หน้าจด · ค่านอกช่วง', us: 'US-3.2 · D4', cls: 'dense', html: `
+    ${lhead(T('อกและแขน', 'Chest &amp; arms'), LOC, `<span class="num" style="font-size:18px">24:10</span>`)}${wob()}
+    <div class="between"><span class="exn">Bench press</span><span class="ibtn">${ic('more')}</span></div>
+    ${hd(C2, [T('เซ็ต', 'Set'), 'kg', T('ครั้ง', 'Reps')])}
+    ${lr(1, [['60', KG], ['8', REP]], 'on', C2)}
+    ${lr(2, [['62.5', KG], ['8', REP]], 'on', C2)}
+    <div class="lr c2"><span class="n">3</span><span class="num v" style="border-bottom-width:3px;border-bottom-color:var(--warn)">1200<span class="caret"></span><small>kg</small></span><span class="num v sug">8<small>${REP}</small></span>${tick(false, '', 'dis')}</div>
+    <p class="fe" style="margin:-4px 0 4px 36px">${T('น้ำหนักได้ไม่เกิน 1,000 kg', 'Weight can be up to 1,000 kg')}</p>
+    <div class="row mt8" style="justify-content:space-between"><span class="mut">${T('น้ำหนัก', 'Weight')}</span><span class="rb">−</span><span class="num" style="font-size:20px;min-width:72px;text-align:center">2.5 kg</span><span class="rb" style="opacity:.35">+</span><span class="rb s">${T('เสร็จ', 'Done')}</span></div>
+    <div class="sp"></div>${kbNum()}`,
+    note: 'ค่าเกินช่วง D4 = <b>เส้นใต้ช่องเป็น <code>--warn</code> + ข้อความใต้แถว</b> (ชิดคอลัมน์ค่า) · ✓ ของแถวนั้นปิด (จาง แตะไม่ได้) · ข้อความบอกช่วงที่ใช้ได้ ไม่ตำหนิ ไม่มีแมว · <b>ขึ้นเมื่อไหร่</b>: เกินขอบบน / ทศนิยมเกิน = ทันทีที่พิมพ์ · ต่ำกว่าขอบล่าง (เช่น ครั้ง 0 · ระยะ 0) = ตอนออกจากช่อง (กันข้อความวาบตอนกำลังพิมพ์ "0.05") · แก้กลับในช่วง = ข้อความหายทันที ✓ กดได้ · ปุ่ม −/+ ถึงขอบแล้วปุ่มนั้นปิด (ภาพ: + ปิดเพราะเกินแล้ว) ไม่ตัดค่าให้เอง · หน่วยในข้อความตามหน่วยที่ใช้ (kg/lb · km/mi · km/h/mph) · หลายช่องผิดในแถวเดียว = หลายบรรทัด เรียงตามคอลัมน์ · ค่าที่เติมให้จากครั้งก่อนไม่มีทางนอกช่วง · เซิร์ฟเวอร์ปฏิเสธด้วย (<code>invalid</code>) ถ้าหลุดไปได้ = ไปอยู่แผ่นส่งไม่ผ่าน' });
+  add(g11, { t: 'ค่านอกช่วง · ชนิดอื่น (อ้างอิง)', us: 'US-3.2 · D4', cls: 'dense long', html: `
+    <p class="t2">${T('ข้อความใต้แถว ตามช่อง', 'Message under the row, per field')}</p>
+    <div class="exn mt12">Sit-up</div>${hd('c1', [T('เซ็ต', 'Set'), T('ครั้ง', 'Reps')])}
+    ${lrErr(1, [['0', REP]], 0, T('ครั้งต้องอย่างน้อย 1', 'Reps must be at least 1'), 'c1')}
+    <div class="exn mt12">Bench press</div>${hd(C2, [T('เซ็ต', 'Set'), 'kg', T('ครั้ง', 'Reps')])}
+    ${lrErr(1, [['62.555', KG], ['8', REP]], 0, T('น้ำหนักใส่ทศนิยมได้ 2 ตำแหน่ง', 'Weight allows up to 2 decimal places'))}
+    <div class="exn mt12">${T('วิ่ง', 'Run')}</div>${hd(C2, [T('เซ็ต', 'Set'), T('ระยะ', 'Dist'), T('เวลา', 'Time')])}
+    ${lrErr(1, [['1200', 'km'], ['25:00:00', '']], 0, T('ระยะได้ไม่เกิน 1,000 km', 'Distance can be up to 1,000 km') + '<br>' + T('เวลาได้ไม่เกิน 24 ชั่วโมง', 'Time can be up to 24 hours'))}
+    <div class="exn mt12">Treadmill incline walk</div>${hd(C3, [T('ช่วง', '#'), T('ชัน %', 'Incl %'), 'km/h', T('เวลา', 'Time')])}
+    ${lrErr(1, [['45', '%'], ['5.0', ''], ['10:00', '']], 0, T('ความชันได้ 0–40 %', 'Incline can be 0–40 %'), C3)}
+    <div class="pb16"></div>`,
+    note: 'ไม่ใช่จอจริง · ข้อความครบทุกช่องอยู่ใน UX.md ข้อ 13.5 (คีย์ <code>log.range.*</code>) · ภาพนี้แสดงหลายแบบพร้อมกันเพื่ออ้างอิง · วิ่งแถวนี้ผิด 2 ช่อง = 2 บรรทัด (ในภาพเส้นแดงแค่ช่องแรก ของจริงแดงทั้งสองช่อง)' });
+
+  // ออกจากระบบขณะมีคิว
+  const meBg = `${meTop(false)}${meAccount(false)}<div class="sp"></div>${tabs(3)}`.replace(/ data-tap="\d+"/g, '');
+  add(g11, { t: 'ออกจากระบบ · มีค้างส่ง', us: 'US-1.5 · ADR 0006 ข้อ 5 · เกณฑ์ 11', html: meBg,
+    over: `<div class="scrim"></div><div class="sheet"><div class="grab"></div>
+      <p class="t2">${T('ยังมี 4 รายการไม่ได้ส่ง', "4 items haven't synced yet")}</p>
+      <p class="bd">${T('ถ้าออกตอนนี้ รายการพวกนี้จะหายจากเครื่องนี้ และไม่ได้เก็บขึ้นไปไว้', "If you sign out now, they'll be removed from this phone and won't be saved.")}</p>
+      <p class="mut" style="margin:4px 0 0">${T('รวมที่ส่งไม่ผ่าน 1 รายการ', "Includes 1 that couldn't sync")}</p>
+      <span class="btn big mt16"${tap(1)}>${T('ส่งก่อน', 'Sync first')}</span>
+      <span class="btn warnb mt8"${tapB(1)}>${T('ทิ้งแล้วออก', 'Discard and sign out')}</span>
+      <span class="lnk">${T('ยกเลิก', 'Cancel')}</span></div>`,
+    note: '<b>ลำดับ</b>: แตะ ออกจากระบบ → ถ้ามีค้างส่ง แถวเป็น "กำลังส่ง…" แล้วลองส่งก่อน (สูงสุด ~5 วิ) → ส่งครบ = แผ่นยืนยันเดิมของ CR2 ("ออกจากระบบไหม") · <b>ยังค้าง = แผ่นนี้แทน</b> (ไม่ถามสองแผ่นซ้อน) · ส่งก่อน (1) → "กำลังส่ง…" → ครบ = ออกต่อเลย ("กำลังออก…") เพราะตั้งใจออกอยู่แล้ว · ยังไม่ครบ = แผ่นยังเปิด + บรรทัด <code>--warn</code> เหนือปุ่ม "ยังส่งไม่ได้ · ลองอีกที หรือทิ้งแล้วออก" · <b>ทิ้งแล้วออก</b> (B1) ปุ่มเส้น <code>--warn</code> → ออกตาม ADR 0006 ข้อ 5 (ลบฐาน <code>fcf:v1:&lt;user_id&gt;</code>) · มีแต่ <b>ส่งไม่ผ่าน</b> ไม่มีค้างส่ง: หัว "มี N รายการที่ส่งไม่ผ่าน" · เนื้อ "ออกแล้วรายการพวกนี้จะหาย · ดูหรือคัดลอกไว้ก่อนได้" · ปุ่มหลักเป็น <b>ดูรายการ</b> (เปิดแผ่นส่งไม่ผ่าน) แทนส่งก่อน · focus เริ่มที่ ยกเลิก · ยกเลิก / Esc / พื้นมืด = ไม่ออก ไม่ล้างอะไร · ออฟไลน์: แถวออกจากระบบปิดเหมือน R1 (ไม่เปิดแผ่นนี้) · ไม่มีแมว ไม่มีส้ม' });
+
+  // D5 จบเซสชันให้เอง
+  add(g11, { t: 'จบเซสชันที่ค้างไว้ให้แล้ว (D5)', us: 'US-3.5 · D5 · เกณฑ์ 13', html: `${homeTop()}<div class="sp"></div>${startArea()}${tabs(0)}`.replace(/ data-tapb?="\w+"/g, ''),
+    over: `<div class="toast"><span style="color:var(--ink)">${ic('check', 22)}</span><div style="flex:1;min-width:0"><p class="bd" style="color:var(--ink)">${T('จบเซสชันที่ค้างไว้ให้แล้ว', 'We finished a session you left open')}</p>
+      <p class="mut" style="margin:0">${T('อกและแขน · จ 23 พ.ย. · จบที่เซ็ตสุดท้าย 19:42', 'Chest &amp; arms · Mon 23 Nov · ended at last set, 19:42')}</p></div><span class="ibtn">${ic('close', 20)}</span></div>`,
+    note: 'เกิดตอนเปิดแอปแล้วพบเซสชันที่ยังไม่จบ และไม่มีการจดเกิน <b>24 ชม.</b> (D5 ก) → จบให้ที่เวลาเซ็ตสุดท้าย (เข้าคิว) แล้วเปิดหน้าหลักตามปกติ + toast นี้บนสุด · ค้าง 6 วิ แล้วหายเอง · ✕ ปิดเลย · <code>role="status"</code> · ไม่ถาม ไม่มีปุ่มเลิกทำ · ไม่ตำหนิ (ไม่ใช้คำว่า "ลืมกดจบ") · หลายเซสชัน (หลายเครื่อง) = toast เดียว "จบเซสชันที่ค้างไว้ให้แล้ว N เซสชัน" ไม่มีบรรทัดรอง · เซสชันที่ไม่มีเซ็ตเลย = ทิ้งเงียบๆ ไม่มี toast (เหมือน UX ข้อ 2 "ไม่มีเซ็ต = ไม่บันทึก") · 3–24 ชม. ยังใช้แผ่น "ยังเล่นอยู่ไหม" ของกลุ่ม 2 · ไม่มีแมว (ข่าวเล็ก) ไม่มีส้ม · R3b มีแท็บประวัติแล้วค่อยเพิ่มลิงก์ "ดู"' });
+
+  // D8 ท่าที่มีประวัติ
+  add(g11, { t: 'แก้ท่าของฉัน · มีประวัติ', us: 'US-2.2 · D8 · เกณฑ์ 6', cls: 'long', html: exForm({ edit: true, hist: true, histLoad: T('ตัว + ถ่วงเพิ่ม', 'Body + added'), name: 'Weighted dip', cat: 3, trk: 0, uni: false, eq: 6, dis: true }),
+    note: '<b>มีประวัติ</b> = <code>has_history</code> จาก bootstrap หรือมีเซ็ตที่ติ๊กแล้วของท่านี้ในเครื่อง (รวมที่ค้างส่ง) · <b>จดอะไร</b> เป็นข้อความอ่านอย่างเดียว (ชนิด · ใช้น้ำหนักตัว ถ้าไม่ใช่ "ไม่ใช้") + บรรทัด <code>--ink-3</code> "ท่านี้มีประวัติแล้ว เปลี่ยนชนิดการจดไม่ได้" แทนบรรทัดเตือนเดิม · ชื่อ หมวด จดข้างละ อุปกรณ์ แก้ได้ (สวิตช์ข้างละแสดงตามชนิด) · ท้ายฟอร์ม: เก็บเข้ากรุเหมือนเดิม · <b>ไม่มีลิงก์ลบ</b> (D8 "ปุ่มลบหาย") แทนด้วยบรรทัด "ท่าที่มีประวัติลบไม่ได้ · เก็บเข้ากรุแทนได้" · ลบเซ็ตหมดทุกเซ็ตแล้ว = กลับเป็นฟอร์มแก้ได้ครบ · เครื่องอื่นมีประวัติก่อน (เซิร์ฟเวอร์ตอบ <code>exercise_has_history</code>) = ไปอยู่แผ่นส่งไม่ผ่าน · ใช้แทนบรรทัด "R3" เดิมใน UX ข้อ 12.6 (ซึ่งเขียนว่าลิงก์ลบจาง)' });
 
   // =====================================================================
   // วาดทั้งหน้า

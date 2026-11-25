@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Cat } from "@/components/doodle";
@@ -8,6 +8,10 @@ import { Button, TextButton } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cx } from "@/components/ui/cx";
 import { HandWord } from "@/components/ui/hand-word";
+import { RejectedSheet } from "@/components/sync/rejected-sheet";
+import { useSyncStatus } from "@/components/sync/use-offline";
+import { Sheet } from "@/components/ui/sheet";
+import { closeOffline, flushBeforeSignOut, getSyncStatus } from "@/lib/offline/client";
 import { resetDeviceAfterSignOut } from "@/pwa/reset-device";
 import { deleteAccountRequest, signOutRequest } from "./api";
 import { useMe } from "./auth-gate";
@@ -25,7 +29,7 @@ function Chevron() {
 
 function Row({ children, disabled, note }: { children: ReactNode; disabled?: boolean; note?: string }) {
   return (
-    <li className={cx("border-b border-ink-3/40", disabled && "text-ink-3")}>
+    <li className={cx("border-b border-line last:border-b-0", disabled && "text-ink-3")}>
       <div className={ROW}>{children}</div>
       {note ? <p className="-mt-2 pb-2 text-caption text-ink-3">{note}</p> : null}
     </li>
@@ -42,6 +46,10 @@ export function AccountSection() {
   const [signOutFailed, setSignOutFailed] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [signOutOpen, setSignOutOpen] = useState(false);
+  // ออกจากระบบขณะมีคิว (UX 13.3): ลองส่งก่อน → ยังค้าง = แผ่นถาม · มีแต่ส่งไม่ผ่าน = แผ่น "ดูรายการ"
+  const [trying, setTrying] = useState(false);
+  const [queueInfo, setQueueInfo] = useState<{ pending: number; rejected: number } | null>(null);
+  const [rejectedOpen, setRejectedOpen] = useState(false);
   const signOutRow = useRef<HTMLButtonElement>(null);
 
   const wasOpen = useRef(false);
@@ -68,11 +76,25 @@ export function AccountSection() {
       setSigningOut(false);
       setSignOutFailed(true); // ล้มแล้วหยุด ไม่ล้างอะไร (ADR 0006 ข้อ 5)
       setSignOutOpen(false);
+      setQueueInfo(null);
       return;
     }
-    // ADR 0006 ข้อ 5 ขั้น 2: ล้างแคชหน้าผู้ใช้ + hint ก่อนโหลดเต็มหน้า
-    await resetDeviceAfterSignOut({ accountDeleted: false });
+    // ADR 0006 ข้อ 5 ขั้น 2: ปิดฐานในเครื่องก่อน (ไม่ให้ขวางการลบ) แล้วล้างแคชหน้าผู้ใช้ + ฐาน + hint ก่อนโหลดเต็มหน้า
+    closeOffline();
+    await resetDeviceAfterSignOut({ accountDeleted: false, userId: me?.user.id });
     window.location.replace("/welcome");
+  }
+
+  /** แตะ "ออกจากระบบ": คิวว่าง = แผ่นยืนยันเดิม (CR2) · มีค้าง = ลองส่งก่อน (≤ ~5 วิ) แล้วค่อยตัดสิน */
+  async function onSignOutClick() {
+    if (trying || signingOut || offline) return;
+    const s0 = getSyncStatus();
+    if (s0.pending === 0 && s0.rejected === 0) return setSignOutOpen(true);
+    setTrying(true);
+    const f = await flushBeforeSignOut();
+    setTrying(false);
+    if (f.clean) setSignOutOpen(true);
+    else setQueueInfo({ pending: f.pending, rejected: f.rejected });
   }
 
   return (
@@ -83,7 +105,7 @@ export function AccountSection() {
       {me ? (
         <p className="break-all text-body text-ink-3">{me.user.email}</p>
       ) : (
-        <div aria-hidden="true" className="h-6 w-48 rounded-box bg-paper-2" />
+        <div aria-hidden="true" className="h-6 w-48 rounded-box bg-surface-2" />
       )}
 
       <ul className="m-0 mt-2 flex list-none flex-col p-0">
@@ -117,13 +139,13 @@ export function AccountSection() {
           <button
             ref={signOutRow}
             type="button"
-            disabled={offline || signingOut}
-            aria-disabled={offline || signingOut}
+            disabled={offline || signingOut || trying}
+            aria-disabled={offline || signingOut || trying}
             aria-haspopup="dialog"
-            onClick={() => setSignOutOpen(true)}
+            onClick={() => void onSignOutClick()}
             className="flex min-h-13 w-full cursor-pointer items-center text-left text-body text-ink disabled:cursor-not-allowed disabled:text-ink-3"
           >
-            {signingOut ? t("signingOut") : t("signOut")}
+            {signingOut ? t("signingOut") : trying ? t("signOutQueue.syncing") : t("signOut")}
           </button>
         </Row>
         <Row>
@@ -151,6 +173,19 @@ export function AccountSection() {
       ) : null}
 
       {signOutOpen ? <SignOutSheet busy={signingOut} offline={offline} onConfirm={() => void onSignOut()} onClose={closeSignOut} /> : null}
+      {queueInfo ? (
+        <SignOutQueueSheet
+          info={queueInfo}
+          busy={signingOut}
+          onSignOut={() => void onSignOut()}
+          onViewRejected={() => {
+            setQueueInfo(null);
+            setRejectedOpen(true);
+          }}
+          onClose={() => setQueueInfo(null)}
+        />
+      ) : null}
+      {rejectedOpen ? <RejectedSheet onClose={() => setRejectedOpen(false)} /> : null}
       {deleteOpen ? <DeleteAccountScreen onCancel={() => setDeleteOpen(false)} /> : null}
     </section>
   );
@@ -195,7 +230,7 @@ function SignOutSheet({ busy, offline, onConfirm, onClose }: { busy: boolean; of
         role="dialog"
         aria-modal="true"
         aria-labelledby="signout-title"
-        className="pb-safe absolute inset-x-3 bottom-3 mx-auto flex max-w-114 flex-col gap-3 rounded-hand border-draw border-ink bg-paper p-5"
+        className="pb-safe absolute inset-x-3 bottom-3 mx-auto flex max-w-114 flex-col gap-3 rounded-sheet border border-line-strong bg-surface-3 p-5 shadow-elevated"
       >
         <h2 id="signout-title" className="text-section">
           {t("title")}
@@ -212,14 +247,70 @@ function SignOutSheet({ busy, offline, onConfirm, onClose }: { busy: boolean; of
   );
 }
 
+/**
+ * แผ่นออกจากระบบขณะมีคิว (UX 13.3 · จอ 87): "ส่งก่อน" / "ทิ้งแล้วออก" / ยกเลิก
+ * มีแต่ส่งไม่ผ่าน (ไม่มีค้างส่ง) = "ดูรายการ" แทน "ส่งก่อน" · focus เริ่มที่ยกเลิก · Esc/พื้นมืด = ไม่ออก ไม่ล้างอะไร
+ */
+function SignOutQueueSheet({ info, busy, onSignOut, onViewRejected, onClose }: { info: { pending: number; rejected: number }; busy: boolean; onSignOut: () => void; onViewRejected: () => void; onClose: () => void }) {
+  const t = useTranslations("account.signOutQueue");
+  const titleId = useId();
+  const [syncing, setSyncing] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const [counts, setCounts] = useState(info);
+  // ค้างส่งจริง = นับรวมทั้งหมดลบส่งไม่ผ่าน
+  const unsent = counts.pending - counts.rejected;
+  const onlyRejected = unsent <= 0;
+
+  async function syncFirst() {
+    setSyncing(true);
+    setFailed(false);
+    const f = await flushBeforeSignOut();
+    setSyncing(false);
+    if (f.clean) return onSignOut(); // ส่งครบ = ออกต่อเลย ไม่ถามซ้ำ
+    setCounts({ pending: f.pending, rejected: f.rejected });
+    setFailed(f.pending - f.rejected > 0);
+  }
+
+  return (
+    <Sheet titleId={titleId} onClose={onClose} busy={syncing || busy}>
+      <h2 id={titleId} className="text-section">
+        {onlyRejected ? t("rejectedTitle", { count: counts.rejected }) : t("title", { count: counts.pending })}
+      </h2>
+      <p className="text-body text-ink-2">{onlyRejected ? t("rejectedBody") : t("body")}</p>
+      {!onlyRejected && counts.rejected > 0 ? <p className="text-caption text-ink-3">{t("includesRejected", { count: counts.rejected })}</p> : null}
+      {failed ? (
+        <p role="alert" className="text-caption text-warn">
+          {t("syncFailed")}
+        </p>
+      ) : null}
+      {onlyRejected ? (
+        <Button onClick={onViewRejected}>{t("view")}</Button>
+      ) : (
+        <Button loading={syncing} onClick={() => void syncFirst()}>
+          {syncing ? t("syncing") : t("syncFirst")}
+        </Button>
+      )}
+      <Button disabled={syncing || busy} onClick={onSignOut} className="border-warn! text-warn!">
+        {busy ? t("signingOut") : t("discard")}
+      </Button>
+      <TextButton data-autofocus disabled={syncing || busy} onClick={onClose}>
+        {t("cancel")}
+      </TextButton>
+    </Sheet>
+  );
+}
+
 type DeleteState = "confirm" | "deleting" | "failed" | "done";
 
 /** จอเต็มซ้อนบน /me: ยืนยันลบ → "กำลังลบ…" (กดซ้ำไม่ได้) → ลบเรียบร้อย (#13) */
 function DeleteAccountScreen({ onCancel }: { onCancel: () => void }) {
   const t = useTranslations("account.deleteScreen");
+  const { me } = useMe();
   const net = useNet();
   const [understood, setUnderstood] = useState(false);
   const [state, setState] = useState<DeleteState>("confirm");
+  const sync = useSyncStatus();
+  const unsent = sync.pending + sync.rejected;
   const busy = state === "deleting";
 
   async function onDelete() {
@@ -227,8 +318,9 @@ function DeleteAccountScreen({ onCancel }: { onCancel: () => void }) {
     setState("deleting");
     const r = await deleteAccountRequest();
     if (r.ok) {
-      // ล้างเครื่อง (แคช + hint + เครื่องที่เคยเข้า) เสร็จก่อนแสดงจอสำเร็จ
-      await resetDeviceAfterSignOut({ accountDeleted: true });
+      // ล้างเครื่อง (ฐานในเครื่อง + แคช + hint + เครื่องที่เคยเข้า) เสร็จก่อนแสดงจอสำเร็จ
+      closeOffline();
+      await resetDeviceAfterSignOut({ accountDeleted: true, userId: me?.user.id });
       setState("done");
     } else setState("failed");
   }
@@ -262,6 +354,7 @@ function DeleteAccountScreen({ onCancel }: { onCancel: () => void }) {
               <li>{t("item2")}</li>
               <li>{t("item3")}</li>
               <li>{t("item4")}</li>
+              {unsent > 0 ? <li>{t("pending", { count: unsent })}</li> : null}
             </ul>
             <p className="mt-4 text-caption text-ink-3">{t("exportSoon")}</p>
             <p className="mt-1 text-caption text-ink-3">{t("backup")}</p>
