@@ -130,17 +130,49 @@ describe("ร่างเซสชัน: ปิดแอปแล้วกล�
     closeOffline(); // ปิดแท็บ
     expect(getLocalView().ready).toBe(false);
 
-    h.server.next("offline", "offline");
-    await resumeOfflineFromDevice(h.deps); // เปิดใหม่ตอนออฟไลน์ (จำ user ไว้ในเครื่อง)
+    await resumeOfflineFromDevice(h.deps); // เปิดใหม่ตอนออฟไลน์ (จำ user ไว้ในเครื่อง · ไม่ยิงเครือข่ายจนกว่าจะยืนยันตัวตน)
     await settle();
     expect(getLocalView().activeSession?.exercises[0].sets.map((s) => s.queued)).toEqual([true, true]);
     expect(getSyncStatus().pending).toBe(5);
     expect(await checkActiveSession()).toEqual({ kind: "resume" });
+    expect(await syncNow()).toBe("pending"); // ยังไม่ยืนยัน /api/me → ห้ามส่งเครือข่าย
+    expect(h.server.allOps()).toEqual([]);
 
-    await syncNow(); // ออนไลน์
+    await initOffline(USER, h.deps); // ออนไลน์: AuthGate ยืนยัน /api/me แล้ว
+    await settle();
     await syncNow();
     expect([h.server.count("workout_session"), h.server.count("session_exercise"), h.server.count("set_record")]).toEqual([1, 1, 2]);
     expect(h.server.allOps().filter((o) => o.entity === "set_record")).toHaveLength(2);
+  });
+
+  it("SEC-H1: 401 แล้วสลับผู้ใช้ในเครื่องเดียวกัน → ไม่ส่งคิวของ A ขึ้นบัญชี B และไม่เขียน snapshot ของ B ลงฐาน A", async () => {
+    const storeA = createMemoryStore();
+    const storeB = createMemoryStore();
+    const server = createMockServer();
+    let activeCookieUser = USER;
+    const h = setup(storeA, server);
+    const wrappedFetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+      if (url.endsWith("/api/me")) {
+        return new Response(JSON.stringify({ state: "ready", user: { id: activeCookieUser } }), { status: 200 });
+      }
+      return server.fetch(input, init);
+    }) as typeof fetch;
+
+    await initOffline(USER, { ...h.deps, fetch: wrappedFetch, openStore: async (id) => (id === USER ? storeA : storeB) });
+    await settle();
+    server.next(401);
+    await writeEntity("place", U(50), { name: "A Gym" }, { create: true });
+    await syncNow();
+    expect(getSyncStatus()).toMatchObject({ phase: "auth_required", pending: 1 });
+
+    // ผู้ใช้ B ล็อกอินในแท็บอื่น (cookie เปลี่ยนเป็น user_b)
+    activeCookieUser = "user_b";
+    expect(await syncNow()).toBe("auth_required");
+    expect(server.count("place")).toBe(0);
+    // verifySameUser เห็น user_id ไม่ตรง → ปิดฐาน A ทันที
+    expect(getLocalView().ready).toBe(false);
+    expect(await storeA.getKv("snapshot")).toBeDefined();
   });
 
   it("> 24 ชม. → จบให้เองที่เวลาเซ็ตสุดท้าย + คืน auto_end (ไว้ toast)", async () => {

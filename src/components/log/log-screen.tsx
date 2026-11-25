@@ -38,6 +38,7 @@ import { evaluateLive } from "./pr";
 import { RestBar } from "./rest-bar";
 import { unlockAudio } from "./rest-alert";
 import { ResumeGate } from "./resume-gate";
+import { exNames } from "./session-ex-name";
 import { addExerciseChange, buildSummary, categoryLookup, changePlace, elapsedMs, finishChange, mutateSession, totalCompleted, type PickedExercise, type SummaryData } from "./session-logic";
 import { useSessionTitle } from "./session-title";
 import { unitsFromProfile } from "./set-logic";
@@ -123,7 +124,17 @@ export function LogScreen() {
     const r = await tickSet(ex.id, set.id, ctx);
     if (r && !r.ok) return failed();
     const e2 = getLocalView().activeSession?.exercises.find((x) => x.id === ex.id);
-    if (e2 && evaluateLive(e2, summaries.get(e2.exercise_id)).get(set.id)?.celebrate) setPr({ key: Date.now(), name: e2.exercise_name });
+    if (e2 && evaluateLive(e2, summaries.get(e2.exercise_id)).get(set.id)?.celebrate) setPr({ key: Date.now(), name: exNames(e2, locale).primary });
+  }
+
+  async function onStopStopwatch() {
+    unlockAudio();
+    const sw = getLocalView().activeSession?.stopwatch;
+    const r = await stopStopwatchAndTick(ctx);
+    if (r && !r.ok) return failed();
+    if (!sw) return;
+    const e2 = getLocalView().activeSession?.exercises.find((x) => x.id === sw.exercise_row_id);
+    if (e2 && evaluateLive(e2, summaries.get(e2.exercise_id)).get(sw.set_id)?.celebrate) setPr({ key: Date.now(), name: exNames(e2, locale).primary });
   }
 
   async function onUntick(ex: DraftExercise, set: DraftSet) {
@@ -231,7 +242,7 @@ export function LogScreen() {
               onValues={(e, s, v) => void onValues(e, s, v)}
               onSetMenu={(e, s, label) => setMenu({ kind: "set", ex: e, set: s, label })}
               onPlay={(e, s) => void playStopwatch(e.id, s.id)}
-              onStop={() => void stopStopwatchAndTick(ctx)}
+              onStop={() => void onStopStopwatch()}
             />
           );
         })
@@ -250,7 +261,7 @@ export function LogScreen() {
 
       {pr ? (
         <div key={pr.key} role="status" className="pointer-events-none fixed inset-x-0 top-3 z-30 mx-auto flex w-full max-w-120 justify-center px-3">
-          <div className="flex items-center gap-3 rounded-hand border-draw border-ink bg-paper py-1 pr-5 pl-3">
+          <div className="flex items-center gap-3 rounded-hand border border-line-strong bg-surface-3 py-1.5 pr-5 pl-3 shadow-elevated">
             <Cat pose="new-record" size={56} motion className="text-ink" />
             <div className="flex flex-col leading-tight">
               <span className="text-body font-medium text-ink">{t("newRecord")}</span>
@@ -287,6 +298,7 @@ function Menus({
   onKind: (ex: DraftExercise, set: DraftSet, kind: "normal" | "warmup") => void;
 }) {
   const t = useTranslations("log");
+  const locale = useLocale();
   const router = useRouter();
   const view = useLocalView();
   const titleId = useId();
@@ -318,7 +330,7 @@ function Menus({
     return (
       <Sheet titleId={titleId} onClose={onClose}>
         <h2 id={titleId} className="text-section break-words">
-          {t("exerciseMenuTitle", { name: ex.exercise_name })}
+          {t("exerciseMenuTitle", { name: exNames(ex, locale).primary })}
         </h2>
         {stage === "confirm" ? <p className="text-body text-ink-2">{t("removeExerciseBody")}</p> : null}
         <Button
@@ -346,7 +358,7 @@ function Menus({
         </h2>
         <ul className="m-0 flex list-none flex-col p-0">
           {places.map((p, i) => (
-            <li key={p.id} className="border-b border-ink-3/40">
+            <li key={p.id} className="border-b border-line last:border-b-0">
               <button
                 type="button"
                 data-autofocus={i === 0 ? true : undefined}

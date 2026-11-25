@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { cx } from "@/components/ui/cx";
 import { Icon, type IconName } from "@/components/ui/icon";
-import { syncNow } from "@/lib/offline/client";
+import { closeOffline, syncNow } from "@/lib/offline/client";
 import { RejectedSheet } from "./rejected-sheet";
 import { barNeedsClock, barOf, type BarKind } from "./sync-logic";
 import { useSyncStatus } from "./use-offline";
@@ -24,7 +24,7 @@ const ICON: Record<BarKind, IconName> = {
   done: "check",
 };
 
-const BOX = "mb-4 flex items-center gap-2 rounded-box border-draw-thin border-ink px-3 py-1.5 text-caption text-ink";
+const BOX = "mb-4 flex items-center gap-2 rounded-box border border-line-strong bg-paper-2 px-3 py-2 text-caption text-ink";
 
 export function SyncBar({ offline }: { offline: boolean }) {
   const t = useTranslations("sync.bar");
@@ -60,7 +60,7 @@ export function SyncBar({ offline }: { offline: boolean }) {
     const label = <span className="min-w-0 flex-1 break-words">{text}</span>;
     if (bar.kind === "authNeeded") {
       body = (
-        <Link href="/welcome" className={cx(BOX, "min-h-11 no-underline")}>
+        <Link href="/welcome" onClick={() => closeOffline()} className={cx(BOX, "min-h-11 no-underline")}>
           {icon}
           {label}
           <span className="flex-none underline-hand">{t("signIn")}</span>

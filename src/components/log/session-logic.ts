@@ -2,7 +2,7 @@
 // ทุกการเปลี่ยนร่างผ่าน `mutateSession` (ต่อคิว · อ่านร่างล่าสุดตอนทำจริง) → `applySessionChange` ของ pwa-offline
 
 import { applySessionChange, getLocalView, type LocalView, type WriteResult } from "@/lib/offline/client";
-import { addExercise, addSet, finishSession, newSessionDraft, type ActiveSessionDraft, type DraftExercise, type DraftSet, type SessionChange } from "@/lib/offline/session";
+import { addExercise, addSet, finishSession, newSessionDraft, type ActiveSessionDraft, type DraftExercise, type DraftSet, type SessionChange, type SetValues } from "@/lib/offline/session";
 import { SET_RANGES, WORKOUT_LIMITS, type ExerciseSummary, type WireSet } from "@/lib/data/shared/workout";
 import type { WirePlace } from "@/lib/data/shared/sync";
 import { evaluateLive } from "./pr";
@@ -145,6 +145,23 @@ export const finishChange = (d: ActiveSessionDraft, now: number): SessionChange 
 
 export type RecentExercise = { exerciseId: string; at: number; last: string };
 
+const numOrNull = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) ? v : null);
+const pickUnit = <T extends string>(v: unknown, allowed: readonly T[]): T | null => (typeof v === "string" && (allowed as readonly string[]).includes(v) ? (v as T) : null);
+
+function valuesFromOp(d: Record<string, unknown>): SetValues {
+  return {
+    weight_input: numOrNull(d.weight_input),
+    weight_unit: pickUnit(d.weight_unit, ["kg", "lb"] as const),
+    reps: numOrNull(d.reps),
+    duration_s: numOrNull(d.duration_s),
+    distance_input: numOrNull(d.distance_input),
+    distance_unit: pickUnit(d.distance_unit, ["km", "mi"] as const),
+    speed_input: numOrNull(d.speed_input),
+    speed_unit: pickUnit(d.speed_unit, ["kmh", "mph"] as const),
+    incline_pct: numOrNull(d.incline_pct),
+  };
+}
+
 /** ท่าที่จดเซ็ตล่าสุด 5 ท่า (รวมที่ยังค้างส่ง) · เซ็ตสุดท้ายแสดงเป็นค่า · ไม่รวมท่าที่ผู้เรียกกรองทิ้ง (ในกรุ/หาย) */
 export function recentExercises(view: Pick<LocalView, "snapshot" | "ops" | "activeSession">, keep: (exerciseId: string) => boolean, locale: string, typeOf: (exerciseId: string) => { track: DraftExercise["track_type"]; load: DraftExercise["load_mode"] } | undefined, units: DisplayUnits, limit = 5): RecentExercise[] {
   const best = new Map<string, { at: number; last: string }>();
@@ -163,7 +180,8 @@ export function recentExercises(view: Pick<LocalView, "snapshot" | "ops" | "acti
   for (const op of view.ops) {
     const id = op.display?.exercise_id;
     if (op.entity !== "set_record" || op.action !== "upsert" || !id || typeof op.data?.completed_at !== "string") continue;
-    consider(id, Date.parse(op.data.completed_at), "");
+    const t = typeOf(id);
+    consider(id, Date.parse(op.data.completed_at), t ? formatSetValues(t.track, t.load, valuesFromOp(op.data), locale) : "");
   }
   return [...best.entries()]
     .filter(([id, v]) => Number.isFinite(v.at) && keep(id))

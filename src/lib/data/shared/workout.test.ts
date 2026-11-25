@@ -5,6 +5,7 @@ import {
   SET_RANGES,
   computeSetDerived,
   fieldRules,
+  hasMaxDecimals,
   localDateOf,
   sessionExerciseDataSchema,
   setRecordDataSchema,
@@ -102,7 +103,8 @@ describe("ช่วงค่า D4 (ขอบผ่าน · เลยขอบ 
     expect(t(1000)).toEqual([]);
     expect(t(0)).toContainEqual({ field: "reps", reason: "range" });
     expect(t(1001)).toContainEqual({ field: "reps", reason: "range" });
-    expect(t(5.5)).toContainEqual({ field: "reps", reason: "decimals" });
+    expect(setRecordDataSchema.safeParse({ ...base, ...OK.weight, reps: 5.5 }).success).toBe(false);
+    expect(validateSetFields({ ...base, ...OK.weight, reps: 5.5 }, "weight_reps", "external")).toContainEqual({ field: "reps", reason: "decimals" });
   });
 
   it("เวลา 1 วิ–24 ชม.", () => {
@@ -111,7 +113,8 @@ describe("ช่วงค่า D4 (ขอบผ่าน · เลยขอบ 
     expect(t(86_400)).toEqual([]);
     expect(t(0)).toContainEqual({ field: "duration", reason: "range" });
     expect(t(86_401)).toContainEqual({ field: "duration", reason: "range" });
-    expect(t(1.5)).toContainEqual({ field: "duration", reason: "decimals" });
+    expect(setRecordDataSchema.safeParse({ ...base, duration_s: 1.5 }).success).toBe(false);
+    expect(validateSetFields({ ...base, duration_s: 1.5 }, "duration", "external")).toContainEqual({ field: "duration", reason: "decimals" });
   });
 
   it.each([
@@ -170,6 +173,12 @@ describe("รูปข้อมูลของ set_record", () => {
   });
   it("ยอมรับช่องที่เซิร์ฟเวอร์ตั้ง (สะท้อนจาก bootstrap)", () => {
     expect(setRecordDataSchema.safeParse({ ...base, reps: 5, id: U4, created_at: "x", deleted_at: null }).success).toBe(true);
+  });
+  it("SEC-M1: reps และ duration_s ต้องเป็นจำนวนเต็มแท้ (ทศนิยมใกล้จำนวนเต็มถูกปฏิเสธ)", () => {
+    expect(setRecordDataSchema.safeParse({ ...base, reps: 10.0000001 }).success).toBe(false);
+    expect(setRecordDataSchema.safeParse({ ...base, duration_s: 60.0000001 }).success).toBe(false);
+    expect(hasMaxDecimals(10.0000001, 0)).toBe(false);
+    expect(hasMaxDecimals(10, 0)).toBe(true);
   });
 });
 

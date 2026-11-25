@@ -31,6 +31,7 @@ beforeEach(() => {
 afterEach(() => {
   vi.unstubAllGlobals();
   localStorage.clear();
+  sessionStorage.clear();
 });
 
 describe("resetDeviceAfterSignOut", () => {
@@ -134,5 +135,17 @@ describe("resetDeviceAfterSignOut", () => {
     vi.stubGlobal("caches", undefined);
     await expect(resetDeviceAfterSignOut({ accountDeleted: false })).resolves.toBeUndefined();
     expect(getAuthHint()).toBeNull();
+  });
+
+  it("SEC-M2: ล้าง sessionStorage คีย์ fcf:* ทั้งหมด (fcf:flash, fcf:edit-exercise, fcf:auto-open) โดยคงคีย์อื่น", async () => {
+    sessionStorage.setItem("fcf:flash", '{"key":"saved"}');
+    sessionStorage.setItem("fcf:edit-exercise", "00000000-0000-4000-8000-000000000001");
+    sessionStorage.setItem("fcf:auto-open", "1");
+    sessionStorage.setItem("other:key", "keep");
+    await resetDeviceAfterSignOut({ accountDeleted: false }, { getRegistration: async () => undefined, clearCaches: async () => {} });
+    expect(sessionStorage.getItem("fcf:flash")).toBeNull();
+    expect(sessionStorage.getItem("fcf:edit-exercise")).toBeNull();
+    expect(sessionStorage.getItem("fcf:auto-open")).toBeNull();
+    expect(sessionStorage.getItem("other:key")).toBe("keep");
   });
 });

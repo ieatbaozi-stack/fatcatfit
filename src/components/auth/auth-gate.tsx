@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { SyncBar } from "@/components/sync/sync-bar";
 import { Button } from "@/components/ui/button";
-import { initOffline, resumeOfflineFromDevice } from "@/lib/offline/client";
+import { closeOffline, initOffline, resumeOfflineFromDevice } from "@/lib/offline/client";
 import { StatusScreen } from "@/components/ui/status-screen";
 import { fetchMe, type MeData, type MeFetch } from "./api";
 import { decideRoute, type MeResult, type ScreenKind } from "./decide-route";
@@ -55,10 +55,11 @@ export function AuthGate({ kind, children }: { kind: ScreenKind; children: React
     // fetch ล้ม (โยน error) = ถือว่าออฟไลน์ ไม่เปลี่ยนหน้า (ADR 0006)
     setNetworkFailed(r.status === "network");
     if (r.status !== "network") setResult(r);
-    // R3a: ล็อกอินพร้อมใช้ (ยินยอมแล้ว) → เปิดฐานในเครื่องของผู้ใช้นี้ (ส่งคิว + ดึง snapshot) · เปิดแอปตอนเน็ตหลุด → ใช้ผู้ใช้ที่จำไว้
+    // R3a: ล็อกอินพร้อมใช้ (ยินยอมแล้ว) → เปิดฐานในเครื่องของผู้ใช้นี้ (ส่งคิว + ดึง snapshot) · 401/ยังไม่พร้อม → ปิด engine ทันที (ไม่ลบฐาน) · เน็ตหลุดที่มี hint ready → เปิดฐานอ่าน/เขียนออฟไลน์ (ไม่ส่งจนกว่าจะยืนยันตัวตน)
     if (kind === "app") {
       if (r.status === "ok" && r.me.state === "ready") void initOffline(r.me.user.id);
-      else if (r.status === "network") void resumeOfflineFromDevice();
+      else if (r.status === "unauthorized" || r.status === "ok") closeOffline();
+      else if (r.status === "network" && getAuthHint() === "ready") void resumeOfflineFromDevice();
     }
   }, [kind]);
 
@@ -69,9 +70,9 @@ export function AuthGate({ kind, children }: { kind: ScreenKind; children: React
     };
   }, []);
 
-  // เปิดแอปตอนออฟไลน์ตั้งแต่ต้น (ไม่ถาม /api/me) → เปิดฐานของผู้ใช้ที่จำไว้
+  // เปิดแอปตอนออฟไลน์ตั้งแต่ต้น (ไม่ถาม /api/me) → เปิดฐานของผู้ใช้ที่จำไว้ เฉพาะเมื่อ hint ยืนยันว่าเคยพร้อมใช้
   useEffect(() => {
-    if (net === "offline" && kind === "app") void resumeOfflineFromDevice();
+    if (net === "offline" && kind === "app" && getAuthHint() === "ready") void resumeOfflineFromDevice();
   }, [net, kind]);
 
   // เปิดหน้า + กลับมาออนไลน์ → ถามสถานะจริง

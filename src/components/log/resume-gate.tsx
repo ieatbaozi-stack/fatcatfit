@@ -78,7 +78,8 @@ export function ResumeGate({ onLogPage = false }: { onLogPage?: boolean }) {
         const dec = await checkActiveSession();
         if (!dec) return;
         if (dec.kind === "resume") {
-          if (!onLogPage && once(AUTO_OPEN_FLAG)) router.replace("/log");
+          if (onLogPage) once(AUTO_OPEN_FLAG);
+          else if (once(AUTO_OPEN_FLAG)) router.replace("/log");
         } else if (dec.kind === "ask") setAsk({ kind: "local", endAt: dec.endAt });
         else if (dec.endAt !== null) setAuto({ count: 1, detail: t("autoEnded.detail", { name: nameOf(draft), date: fmtDate(draft.session.started_at), time: fmtTime(dec.endAt) }) });
         return;
@@ -139,7 +140,7 @@ export function ResumeGate({ onLogPage = false }: { onLogPage?: boolean }) {
     <>
       {auto ? (
         <div role="status" className="fixed inset-x-0 top-3 z-30 mx-auto flex w-full max-w-120 px-3">
-          <div className="flex w-full items-start gap-2 rounded-hand border-draw border-ink bg-paper py-2 pr-1 pl-4">
+          <div className="flex w-full items-start gap-2 rounded-hand border border-line-strong bg-surface-3 py-2 pr-1 pl-4 shadow-elevated">
             <Icon name="check" size={22} className="mt-0.5 text-ink" />
             <div className="min-w-0 flex-1">
               <p className="text-body text-ink">{auto.count > 1 ? t("autoEnded.many", { count: auto.count }) : t("autoEnded.one")}</p>

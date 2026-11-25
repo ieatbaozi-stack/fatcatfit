@@ -42,10 +42,11 @@ export const WORKOUT_LIMITS = {
 
 // ---------------- ตัวช่วยตรวจ ----------------
 
-/** จำนวนทศนิยมไม่เกิน `decimals` (ทนความคลาดของ double) */
+/** จำนวนทศนิยมไม่เกิน `decimals` (decimals=0 บังคับจำนวนเต็มแท้ · ทนความคลาดของ double 1e-9 ตาม ADR 0003) */
 export function hasMaxDecimals(v: number, decimals: number): boolean {
+  if (decimals === 0) return Number.isInteger(v);
   const f = 10 ** decimals;
-  return Math.abs(v * f - Math.round(v * f)) < 1e-6;
+  return Math.abs(v * f - Math.round(v * f)) < 1e-9;
 }
 
 const inRange = (v: number, r: { min: number; max: number }) => v >= r.min && v <= r.max;
@@ -130,6 +131,7 @@ export type SessionExerciseData = z.infer<typeof sessionExerciseDataSchema>;
 // ---------------- set_record ----------------
 
 const optNum = z.number().finite().nullable().optional();
+const optInt = z.number().int().nullable().optional();
 
 /** รูปเซ็ตระดับช่อง (ยังไม่ตรวจตาม track_type — ใช้ `validateSetFields` กับสำเนาในท่าของเซสชัน) */
 export const setRecordDataSchema = z
@@ -142,8 +144,8 @@ export const setRecordDataSchema = z
     completed_at: iso,
     weight_input: optNum,
     weight_unit: z.enum(WEIGHT_UNITS).nullable().optional(),
-    reps: optNum,
-    duration_s: optNum,
+    reps: optInt,
+    duration_s: optInt,
     distance_input: optNum,
     distance_unit: z.enum(DISTANCE_UNITS).nullable().optional(),
     speed_input: optNum,

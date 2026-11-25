@@ -97,6 +97,8 @@ const defaultDeps = (): OfflineDeps => ({
 
 type Ctx = {
   userId: string;
+  /** ยืนยันตัวตนกับ /api/me แล้วหรือยัง (false = เปิดตอนออฟไลน์ อ่าน/เขียนในเครื่องได้แต่ห้ามยิงเครือข่ายจนกว่าจะยืนยัน) */
+  verified: boolean;
   deps: OfflineDeps;
   store: OfflineStore;
   engine: SyncEngine;
@@ -173,29 +175,50 @@ async function reloadOps(c: Ctx) {
  */
 export async function initOffline(userId: string, overrides: Partial<OfflineDeps> = {}): Promise<void> {
   if (ctx && ctx.userId === userId && !ctx.closed) {
+    ctx.verified = true;
+    setOfflineUserId(userId);
     void ctx.engine.kick().then(() => refreshSnapshot());
     return;
   }
-  if (opening && openingUser === userId) return opening;
+  if (opening && openingUser === userId) {
+    await opening;
+    if (ctx && ctx.userId === userId && !ctx.closed && !ctx.verified) {
+      ctx.verified = true;
+      setOfflineUserId(userId);
+      void ctx.engine.kick().then(() => refreshSnapshot());
+    }
+    return;
+  }
   if (ctx) closeOffline();
   openingUser = userId;
-  opening = open(userId, { ...defaultDeps(), ...overrides }).finally(() => {
+  opening = open(userId, { ...defaultDeps(), ...overrides }, true).finally(() => {
     opening = null;
     openingUser = null;
   });
   return opening;
 }
 
-/** เปิดแอปตอนออฟไลน์: ใช้ user id ที่จำไว้ (ไม่มี = false · หน้าจอทำงานแบบไม่มีคิว) */
+/** เปิดแอปตอนออฟไลน์: ใช้ user id ที่จำไว้ (ไม่มี = false) · อ่าน/เขียนในเครื่องได้ แต่ยังไม่ส่งเครือข่ายจนกว่า AuthGate จะยืนยัน /api/me ผ่าน initOffline */
 export async function resumeOfflineFromDevice(overrides: Partial<OfflineDeps> = {}): Promise<boolean> {
   const id = getOfflineUserId();
   if (!id) return false;
-  await initOffline(id, overrides);
+  if (ctx && ctx.userId === id && !ctx.closed) return true;
+  if (opening && openingUser === id) {
+    await opening;
+    return true;
+  }
+  if (ctx) closeOffline();
+  openingUser = id;
+  opening = open(id, { ...defaultDeps(), ...overrides }, false).finally(() => {
+    opening = null;
+    openingUser = null;
+  });
+  await opening;
   return true;
 }
 
-async function open(userId: string, deps: OfflineDeps): Promise<void> {
-  setOfflineUserId(userId);
+async function open(userId: string, deps: OfflineDeps, verified: boolean): Promise<void> {
+  if (verified) setOfflineUserId(userId);
   let store: OfflineStore;
   let memoryOnly = false;
   try {
@@ -207,6 +230,7 @@ async function open(userId: string, deps: OfflineDeps): Promise<void> {
   }
   const c: Ctx = {
     userId,
+    verified,
     deps,
     store,
     engine: null as unknown as SyncEngine,
@@ -268,18 +292,46 @@ async function open(userId: string, deps: OfflineDeps): Promise<void> {
 
   if (deps.listen) installTriggers(c);
   void deps.persist().catch(() => false);
-  // เปิดแอป: ส่งก่อน แล้วดึง (ไม่ให้ snapshot เก่าทับสิ่งที่เพิ่งส่ง)
-  void c.engine.kick().then(() => refreshSnapshot());
+  // เปิดแอป (เฉพาะเมื่อยืนยันตัวตนแล้ว): ส่งก่อน แล้วดึง (ไม่ให้ snapshot เก่าทับสิ่งที่เพิ่งส่ง)
+  if (c.verified) void c.engine.kick().then(() => refreshSnapshot());
+}
+
+/** ยืนยันว่า session ฝั่งเซิร์ฟเวอร์ยังเป็นผู้ใช้คนเดียวกับฐานที่เปิดอยู่ (กันคิว/snapshot ปนข้ามผู้ใช้หลัง 401 หรือสลับบัญชีคนละแท็บ) */
+async function verifySameUser(c: Ctx): Promise<boolean> {
+  try {
+    const res = await c.deps.fetch("/api/me", { credentials: "same-origin", cache: "no-store" });
+    if (!res.ok) return false;
+    const body = (await res.json()) as { state?: unknown; user?: { id?: unknown } } | null;
+    const id = typeof body?.user?.id === "string" ? body.user.id : null;
+    if (id && id !== c.userId) {
+      if (ctx === c) closeOffline();
+      return false;
+    }
+    return body?.state === "ready" && id === c.userId;
+  } catch {
+    return false;
+  }
+}
+
+async function safeKick(c: Ctx): Promise<boolean> {
+  if (c.closed || !c.verified) return false;
+  if (c.engine.getStatus().phase === "auth_required") {
+    if (!(await verifySameUser(c)) || c.closed) return false;
+  }
+  const out = await c.engine.kick();
+  return out !== "auth_required" && out !== "blocked";
 }
 
 function installTriggers(c: Ctx) {
   let hiddenAt: number | null = null;
-  const onOnline = () => void c.engine.kick();
+  const onOnline = () => void safeKick(c);
   const onWake = () => {
-    void c.engine.kick();
     const away = hiddenAt === null ? 0 : c.deps.now() - hiddenAt;
     hiddenAt = null;
-    if (away > BOOTSTRAP_STALE_MS || (c.view.snapshotAt !== null && c.deps.now() - c.view.snapshotAt > BOOTSTRAP_STALE_MS)) void refreshSnapshot();
+    void safeKick(c).then((ok) => {
+      if (!ok || c.closed) return;
+      if (away > BOOTSTRAP_STALE_MS || (c.view.snapshotAt !== null && c.deps.now() - c.view.snapshotAt > BOOTSTRAP_STALE_MS)) void refreshSnapshot();
+    });
   };
   const onVis = () => {
     if (document.visibilityState === "visible") onWake();
@@ -292,7 +344,7 @@ function installTriggers(c: Ctx) {
   window.addEventListener("pageshow", onPageShow);
   document.addEventListener("visibilitychange", onVis);
   const interval = setInterval(() => {
-    if (c.engine.getStatus().pending > 0) void c.engine.flush();
+    if (!c.closed && c.verified && c.engine.getStatus().phase !== "auth_required" && c.engine.getStatus().pending > 0) void c.engine.flush();
   }, PERIODIC_FLUSH_MS);
   c.cleanup.push(() => {
     window.removeEventListener("online", onOnline);
@@ -378,7 +430,7 @@ async function afterWrite(c: Ctx) {
   else c.engine.setStorageError(null);
   await reloadOps(c);
   await c.engine.refreshStatus();
-  c.engine.scheduleFlush(WRITE_DEBOUNCE_MS);
+  if (c.verified && c.engine.getStatus().phase !== "auth_required") c.engine.scheduleFlush(WRITE_DEBOUNCE_MS);
 }
 
 /**
@@ -459,13 +511,19 @@ export async function resumeServerSession(ws: WireSession): Promise<WriteResult>
 
 // ---------------- ส่ง / ดึง ----------------
 
-/** "ส่งเลย" · คืนผลรอบนี้ */
+/** "ส่งเลย" · คืนผลรอบนี้ (ไม่ส่งหากยังไม่ยืนยันตัวตน) */
 export async function syncNow(): Promise<FlushOutcome | "not_ready"> {
-  return ctx ? ctx.engine.kick() : "not_ready";
+  const c = ctx;
+  if (!c) return "not_ready";
+  if (!c.verified) return "pending";
+  if (c.engine.getStatus().phase === "auth_required") {
+    if (!(await verifySameUser(c)) || c.closed) return "auth_required";
+  }
+  return c.engine.kick();
 }
 
 function scheduleBootstrap(c: Ctx, ms: number) {
-  if (c.closed) return;
+  if (c.closed || !c.verified) return;
   if (c.bootstrapTimer !== null) c.deps.clearTimeout(c.bootstrapTimer);
   c.bootstrapTimer = c.deps.setTimeout(() => {
     c.bootstrapTimer = null;
@@ -479,7 +537,7 @@ const isBootstrap = (v: unknown): v is BootstrapResponse =>
 /** ดึง /api/bootstrap แทน snapshot ทั้งก้อน · คำตอบที่ถามก่อน apply ล่าสุดถูกทิ้งแล้วถามใหม่ (≤ 3 รอบ) · คืน true = ได้ของใหม่ */
 export async function refreshSnapshot(): Promise<boolean> {
   const c = ctx;
-  if (!c || c.closed) return false;
+  if (!c || c.closed || !c.verified || c.engine.getStatus().phase === "auth_required") return false;
   if (c.bootstrapInflight) return c.bootstrapInflight;
   c.bootstrapInflight = (async () => {
     for (let i = 0; i < 3; i++) {
@@ -494,7 +552,7 @@ export async function refreshSnapshot(): Promise<boolean> {
       }
       if (!isBootstrap(body)) return false;
       if (epoch !== c.appliedEpoch) continue;
-      if (c.closed) return false;
+      if (c.closed || !c.verified) return false;
       const rec: SnapshotRecord = { data: body, fetched_at: c.deps.now() };
       try {
         await c.store.setKv("snapshot", rec);
@@ -516,7 +574,7 @@ export async function refreshSnapshot(): Promise<boolean> {
 /** ดึงคลังท่ากลางเก็บในเครื่อง (ใช้ตอนออฟไลน์) · เรียกเองเมื่อ catalog_version เปลี่ยน */
 export async function refreshCatalog(): Promise<boolean> {
   const c = ctx;
-  if (!c || c.closed) return false;
+  if (!c || c.closed || !c.verified) return false;
   try {
     const res = await c.deps.fetch("/api/catalog", { credentials: "same-origin" });
     if (!res.ok) return false;
@@ -584,6 +642,16 @@ export type SignOutFlush = {
 export async function flushBeforeSignOut(timeoutMs = SIGN_OUT_FLUSH_MS): Promise<SignOutFlush> {
   const c = ctx;
   if (!c) return { clean: true, pending: 0, rejected: 0, outcome: "not_ready" };
+  if (!c.verified) {
+    const s = await c.engine.refreshStatus();
+    return { clean: s.pending === 0 && s.rejected === 0, pending: s.pending + s.rejected, rejected: s.rejected, outcome: "pending" };
+  }
+  if (c.engine.getStatus().phase === "auth_required") {
+    if (!(await verifySameUser(c)) || c.closed) {
+      const s = await c.engine.refreshStatus();
+      return { clean: s.pending === 0 && s.rejected === 0, pending: s.pending + s.rejected, rejected: s.rejected, outcome: "auth_required" };
+    }
+  }
   let timer: unknown = null;
   const outcome = await Promise.race<FlushOutcome | "timeout">([
     c.engine.kick(),

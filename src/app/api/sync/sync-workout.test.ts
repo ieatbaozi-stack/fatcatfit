@@ -337,6 +337,8 @@ describe("เกณฑ์ 3/5: ช่องตาม track_type · การช�
       ["เวท 2200 lb", seW, { weight_input: 2200, weight_unit: "lb" }, "applied"],
       ["เวท 1000.01 kg", seW, { weight_input: 1000.01 }, "invalid"],
       ["เวท ครั้ง 1001", seW, { reps: 1001 }, "invalid"],
+      ["เวท ครั้งทศนิยมใกล้จำนวนเต็ม (SEC-M1)", seW, { reps: 10.0000001 }, "invalid"],
+      ["วิ่ง เวลาทศนิยมใกล้จำนวนเต็ม (SEC-M1)", seRun, { ...only, duration_s: 60.0000001 }, "invalid"],
       ["เวท ทศนิยม 3 ตำแหน่ง", seW, { weight_input: 20.125 }, "invalid"],
       ["เวท มีเวลา", seW, { duration_s: 5 }, "invalid"],
     ];

@@ -69,6 +69,19 @@ export async function resetDeviceAfterSignOut(opts: { accountDeleted: boolean; u
   // hint ล้างก่อน: ถ้าขั้นอื่นค้าง/ล้ม ตอนออฟไลน์ก็ไม่แสดงหน้าแอปแล้ว
   clearAuthHint();
   if (opts.accountDeleted) clearKnownDevice();
+  // ล้าง sessionStorage ของแอปทั้งหมด (fcf:flash, fcf:edit-exercise, fcf:auto-open ฯลฯ) กันตกค้างถึงผู้ใช้ถัดไปในแท็บเดิม
+  try {
+    if (typeof sessionStorage !== "undefined") {
+      const keys: string[] = [];
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const k = sessionStorage.key(i);
+        if (k && k.startsWith("fcf:")) keys.push(k);
+      }
+      for (const k of keys) sessionStorage.removeItem(k);
+    }
+  } catch {
+    // sessionStorage ใช้ไม่ได้
+  }
   const userId = opts.userId ?? getOfflineUserId();
   clearOfflineUserId();
   const dbDone = userId

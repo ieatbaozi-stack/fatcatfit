@@ -284,6 +284,18 @@ describe("เปลี่ยนสถานที่ · จบ · สรุป",
     expect(sum.exercises[0].pr).toBe(true);
   });
 
+  it("QA-M1: เซสชันก่อนหน้ามีแต่วอร์มอัพ (bests ว่าง) → เซสชันจริงครั้งแรกไม่ฉลอง PR (D2/D3)", async () => {
+    await addEx(BENCH, "Bench press", "weight_reps");
+    await updateValues(ex().id, ex().sets[0].id, { weight_input: 60, weight_unit: "kg", reps: 8, duration_s: null, distance_input: null, distance_unit: null, speed_input: null, speed_unit: null, incline_pct: null });
+    await tickSet(ex().id, ex().sets[0].id, ctx);
+    await updateValues(ex().id, ex().sets[1].id, { weight_input: 80, weight_unit: "kg", reps: 8, duration_s: null, distance_input: null, distance_unit: null, speed_input: null, speed_unit: null, incline_pct: null });
+    await tickSet(ex().id, ex().sets[1].id, ctx);
+    const warmupOnly = new Map([[BENCH, { exercise_id: BENCH, last_used_at: "2026-11-20T00:00:00.000Z", sessions_90d: 1, last_sets: [], bests: { max_weight_kg: null, max_reps: null, reps_at_weight: [], max_extra_weight_kg: null, min_assist_kg: null, max_duration_s: null, duration_at_weight: [], max_distance_m: null, best_pace_s_per_km: null, duration_at_incline: [] } } as ExerciseSummary]]);
+    const sum = buildSummary(draft(), T0 + 1000, warmupOnly, "en", () => "chest");
+    expect(sum.prCount).toBe(0);
+    expect(sum.exercises[0].pr).toBe(false);
+  });
+
   it("ล่าสุด 5 ท่า: เรียงตามเวลาเซ็ตล่าสุด รวมที่ค้างส่ง · ไม่รวมท่าที่กรองทิ้ง · สูงสุด 5", async () => {
     await addEx(BENCH, "Bench press", "weight_reps");
     await tickSet(ex().id, ex().sets[0].id, ctx);
@@ -297,6 +309,15 @@ describe("เปลี่ยนสถานที่ · จบ · สรุป",
     expect(r.map((x) => x.exerciseId)).toEqual([PLANK, BENCH]);
     expect(r[0].last).toBe("0:45");
     expect(recentExercises(view, (id) => id !== PLANK, "en", typeOf, DEFAULT_UNITS).map((x) => x.exerciseId)).toEqual([BENCH]);
+
+    // QA-M3: จบเซสชันออฟไลน์แล้ว (activeSession = null, ops ยังค้างส่ง) → ยังแสดงค่าเซ็ตสุดท้าย
+    const { finishSession } = await import("@/lib/offline/session");
+    await applySessionChange(finishSession(draft(), T0 + 120_000));
+    expect(getLocalView().activeSession).toBeNull();
+    const afterFinish = recentExercises(getLocalView(), () => true, "en", typeOf, DEFAULT_UNITS);
+    expect(afterFinish.map((x) => x.exerciseId)).toEqual([PLANK, BENCH]);
+    expect(afterFinish[0].last).toBe("0:45");
+    expect(afterFinish[1].last).toBe("60 kg × 8");
   });
 
   it("applySessionChange ตรง ๆ: จบโดยไม่มีเซ็ต = ทิ้งร่าง ไม่ส่งอะไร", async () => {
